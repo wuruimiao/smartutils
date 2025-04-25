@@ -24,4 +24,5 @@ fabric.properties
 .vscode
 docker
 tmp*
-test*
+test.*
+htmlcov
