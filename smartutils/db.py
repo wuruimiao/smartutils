@@ -60,11 +60,11 @@ class DB:
                 token = self._db_session_var.set(session)
                 try:
                     result = await func(*args, **kwargs)
-                    if await session.in_transaction():
+                    if session.in_transaction():
                         await session.commit()
                     return result
                 except Exception as e:
-                    if await session.in_transaction():
+                    if session.in_transaction():
                         await session.rollback()
                     logger.error(f'{self._name} with db err: {traceback.format_exc()}, will rollback')
                     raise e

@@ -43,6 +43,7 @@ async def test_db_init_and_get_db():
     fake_engine = MagicMock()
     fake_engine.dispose = AsyncMock()
     fake_session = AsyncMock()
+    fake_session.in_transaction = MagicMock(return_value=True)
     fake_session.__aenter__.return_value = fake_session
     fake_session.__aexit__.return_value = None
 
@@ -66,7 +67,7 @@ async def test_with_db_decorator():
     fake_engine = MagicMock()
     fake_engine.dispose = AsyncMock()
     fake_session = AsyncMock()
-    fake_session.in_transaction.return_value = True
+    fake_session.in_transaction = MagicMock(return_value=True)
     fake_session.commit = AsyncMock()
     fake_session.rollback = AsyncMock()
     fake_session.__aenter__.return_value = fake_session

@@ -21,8 +21,6 @@ def valid_conf_dict(**kwargs):
         "echo_pool": False,
 
         'connect_timeout': None,
-        'read_timeout': None,
-        'write_timeout': None,
         'execute_timeout': None,
         **kwargs
     }
@@ -43,8 +41,6 @@ def test_mysql_conf_valid():
     assert conf.echo is False
     assert conf.echo_pool is False
     assert conf.connect_timeout is None
-    assert conf.read_timeout is None
-    assert conf.write_timeout is None
     assert conf.execute_timeout is None
     assert conf.url == "mysql+asyncmy://root:mypass@127.0.0.1:3306/testdb"
 
@@ -64,13 +60,11 @@ def test_mysql_conf_default():
     assert conf.echo is False
     assert conf.echo_pool is False
     assert conf.connect_timeout is None
-    assert conf.read_timeout is None
-    assert conf.write_timeout is None
     assert conf.execute_timeout is None
     assert conf.url == "mysql+asyncmy://root:mypass@127.0.0.1:3306/testdb"
 
 
-@pytest.mark.parametrize("field", ["connect_timeout", "read_timeout", "write_timeout", "execute_timeout", "port"])
+@pytest.mark.parametrize("field", ["connect_timeout", "execute_timeout", "port"])
 @pytest.mark.parametrize("value", [1, 2, 3, 10])
 def test_mysql_conf_int(field, value):
     conf_dict = valid_conf_dict()
@@ -93,7 +87,7 @@ def test_mysql_conf_kw():
     assert 'connect_args' not in params
 
 
-@pytest.mark.parametrize("field", ["connect_timeout", "read_timeout", "write_timeout"])
+@pytest.mark.parametrize("field", ["connect_timeout"])
 @pytest.mark.parametrize("value", [1, 2, 3, 10])
 def test_mysql_conf_kw_timeout(field, value):
     conf_dict = valid_conf_dict()
