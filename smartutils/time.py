@@ -4,45 +4,45 @@ from datetime import datetime
 from datetime import timedelta
 from time import time, perf_counter
 from typing import Tuple
+from zoneinfo import ZoneInfo
 
 logger = logging.getLogger(__name__)
 
 _DefaultFormat = "%Y-%m-%d %H:%M:%S"
+_DefaultTZ = ZoneInfo("Asia/Shanghai")
 
 
-def format_time(t: datetime, f: str = _DefaultFormat) -> str:
-    """
-    格式化时间
-    :param t:
-    :param f:
-    :return:
-    """
+def format_time(t: datetime, f: str = _DefaultFormat, tz: ZoneInfo = _DefaultTZ) -> str:
+    if t.tzinfo is None:
+        t = t.replace(tzinfo=tz)
+    else:
+        t = t.astimezone(tz)
     return t.strftime(f)
 
 
-def format_timestamp(timestamp: int) -> str:
-    dt = datetime.utcfromtimestamp(timestamp) + timedelta(hours=8)
-    return format_time(dt)
+def format_timestamp(timestamp: int, tz: ZoneInfo = _DefaultTZ) -> str:
+    dt = datetime.fromtimestamp(timestamp, tz)
+    return format_time(dt, tz=tz)
 
 
-def get_now():
-    """
-    获取当前时间
-    :return:
-    """
-    return datetime.now()
+def get_now(tz: ZoneInfo = _DefaultTZ):
+    return datetime.now(tz)
 
 
-def get_now_str() -> str:
-    return format_time(get_now())
+def get_now_str(tz: ZoneInfo = _DefaultTZ) -> str:
+    return format_time(get_now(tz), tz=tz)
 
 
-def today() -> str:
-    return format_time(get_now(), "%Y-%m-%d")
+def today(tz: ZoneInfo = _DefaultTZ) -> str:
+    return format_time(get_now(tz), "%Y-%m-%d", tz=tz)
 
 
-def yesterday() -> str:
-    return format_time(get_now() - timedelta(days=1), "%Y-%m-%d")
+def yesterday(tz: ZoneInfo = _DefaultTZ) -> str:
+    return format_time(get_now(tz) - timedelta(days=1), "%Y-%m-%d", tz=tz)
+
+
+def tomorrow(tz: ZoneInfo = _DefaultTZ) -> str:
+    return format_time(get_now(tz) + timedelta(days=1), "%Y-%m-%d", tz=tz)
 
 
 def get_now_stamp() -> int:
@@ -83,7 +83,7 @@ def get_stamp_after(stamp: float = None,
     return stamp + second
 
 
-def get_stamp_before(stamp: float=None,
+def get_stamp_before(stamp: float = None,
                      day: int = 0, hour: int = 0, minute: int = 0, second: int = 0) -> float:
     if not stamp:
         stamp = get_now_stamp_float()
@@ -94,6 +94,7 @@ def get_stamp_before(stamp: float=None,
     if minute:
         second -= minute * 60
     return stamp - second
+
 
 def get_pass_time(early: datetime, latest: datetime) -> Tuple[int, int, int, int]:
     """
@@ -129,17 +130,40 @@ def get_remain_time(early: datetime, latest: datetime, day: int, hour: int, minu
     return get_pass_time(latest, deadline)
 
 
-def parse_time_str(time_str: str, str_format: str = _DefaultFormat) -> datetime:
-    """
-    :param time_str:
-    :param str_format:
-    :return:
-    """
-    return datetime.strptime(time_str, str_format)
+def parse_time_str(time_str: str, str_format: str = _DefaultFormat, tz: ZoneInfo = _DefaultTZ) -> datetime:
+    dt = datetime.strptime(time_str, str_format)
+    return dt.replace(tzinfo=tz)
 
 
 def get_timestamp(t: datetime) -> float:
     return t.timestamp()
+
+
+def week_day(date=None, tz: ZoneInfo = _DefaultTZ):
+    if date is None:
+        date = get_now(tz)
+    elif date.tzinfo is None:
+        date = date.replace(tzinfo=tz)
+    else:
+        date = date.astimezone(tz)
+    return date.weekday()
+
+
+def week_day_str(date=None, tz: ZoneInfo = _DefaultTZ):
+    if date is None:
+        date = get_now(tz)
+    elif date.tzinfo is None:
+        date = date.replace(tzinfo=tz)
+    else:
+        date = date.astimezone(tz)
+    return date.strftime('%A')
+
+
+def today_remain_sec(tz: ZoneInfo = _DefaultTZ) -> int:
+    now = get_now(tz)
+    end_of_day = datetime(now.year, now.month, now.day, 23, 59, 59, tzinfo=tz)
+    delta = end_of_day - now
+    return int(delta.total_seconds())
 
 
 class Timer:
@@ -194,18 +218,3 @@ class TimeRecord:
 
     def gap_up_to(self, sec: int) -> bool:
         return get_now_stamp() - self._last > sec
-
-
-def week_day(date=get_now()):
-    return date.weekday()
-
-
-def week_day_str(date=get_now()):
-    return date.strftime('%A')
-
-
-def today_remain_sec() -> int:
-    now = datetime.now()
-    end_of_day = datetime(now.year, now.month, now.day, 23, 59, 59)
-    delta = end_of_day - now
-    return int(delta.total_seconds())
