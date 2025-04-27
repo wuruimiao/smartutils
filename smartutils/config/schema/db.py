@@ -36,6 +36,7 @@ class DBConf(HostConf):
             raise ValueError(f'{info.field_name} 不能为负数')
         return v
 
+    @property
     def kw(self) -> dict:
         params = self.model_dump(exclude={'user', 'passwd', 'db', 'host', 'port'})
         return params

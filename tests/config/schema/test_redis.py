@@ -5,13 +5,12 @@ from smartutils.config.schema.redis import RedisConf
 
 
 def valid_redis_conf(**kwargs):
-    # 构造一份合法的 RedisConf 配置，kwargs 可用于覆盖
     return {
         "host": "127.0.0.1",
         "port": 6379,
         "db": 1,
         "passwd": "secret",
-        "timeout": 10,
+        "execute_timeout": 10,
         **kwargs
     }
 
@@ -29,7 +28,9 @@ def test_redis_conf_default_values():
     conf = RedisConf(host="localhost", db=0)
     assert conf.port == 6379
     assert conf.timeout == 5
-    assert conf.passwd == ""
+    assert conf.passwd is None
+    assert conf.socket_connect_timeout is None
+    assert conf.socket_timeout is None
 
 
 @pytest.mark.parametrize("db", [None, -1])
@@ -40,15 +41,32 @@ def test_redis_conf_invalid_db(db):
     assert "Redis db 必须>=0" in str(exc.value) or 'Input should be a valid integer' in str(exc.value)
 
 
-@pytest.mark.parametrize("timeout", [0, -1])
-def test_redis_conf_invalid_timeout(timeout):
-    conf_dict = valid_redis_conf(timeout=timeout)
+@pytest.mark.parametrize("field", ["execute_timeout", "connect_timeout", "socket_timeout"])
+@pytest.mark.parametrize("value", [0, -1])
+def test_redis_conf_invalid_timeout(field, value):
+    conf_dict = valid_redis_conf()
+    conf_dict[field] = value
     with pytest.raises(ValidationError) as exc:
         RedisConf(**conf_dict)
     assert "timeout必须为正整数" in str(exc.value)
 
 
-# HostConf 父类校验也会生效，这里可做一个集成测试
+@pytest.mark.parametrize("value", [None, 1, 10, 100])
+def test_redis_conf_connect_timeout(value):
+    conf_dict = valid_redis_conf()
+    conf_dict['connect_timeout'] = value
+    conf = RedisConf(**conf_dict)
+    assert conf.socket_connect_timeout is value
+
+
+@pytest.mark.parametrize("value", [None, 1, 10, 100])
+def test_redis_conf_socket_timeout(value):
+    conf_dict = valid_redis_conf()
+    conf_dict['socket_timeout'] = value
+    conf = RedisConf(**conf_dict)
+    assert conf.socket_timeout is value
+
+
 def test_redis_conf_invalid_host_from_parent():
     conf_dict = valid_redis_conf(host="")
     with pytest.raises(ValidationError) as exc:
@@ -61,3 +79,23 @@ def test_redis_conf_invalid_port_from_parent():
     with pytest.raises(ValidationError) as exc:
         RedisConf(**conf_dict)
     assert "port必须在1-65535之间" in str(exc.value) or "port" in str(exc.value)
+
+
+@pytest.mark.parametrize("host", ["localhost", "127.0.0.1", "192.168.1.111"])
+@pytest.mark.parametrize("port", [1, 100, 999])
+def test_redis_conf_url(host, port):
+    conf_dict = valid_redis_conf(host=host, port=port)
+    conf = RedisConf(**conf_dict)
+    assert conf.url == f"redis://{host}:{port}"
+
+
+def test_redis_kw():
+    params = RedisConf(**valid_redis_conf()).kw
+    for k in {'host', 'port'}:
+        assert k not in params
+    assert params['db'] == 1
+    assert params['max_connections'] == 10
+    assert params['timeout'] == 10
+    assert params['socket_connect_timeout'] is None
+    assert params['socket_timeout'] is None
+    assert params['passwd'] == "secret"

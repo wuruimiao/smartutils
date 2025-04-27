@@ -75,7 +75,7 @@ def test_mysql_conf_int(field, value):
 
 def test_mysql_conf_kw():
     conf = MySQLConf(**valid_conf_dict())
-    params = conf.kw()
+    params = conf.kw
     for k in {'host', 'port', 'user', 'passwd', 'db'}:
         assert k not in params
     assert params['pool_size'] == 30
@@ -92,15 +92,14 @@ def test_mysql_conf_kw():
 def test_mysql_conf_kw_timeout(field, value):
     conf_dict = valid_conf_dict()
     conf_dict[field] = value
-    params = MySQLConf(**conf_dict).kw()
+    params = MySQLConf(**conf_dict).kw
     assert 'connect_args' in params
     assert params['connect_args'][field] == value
 
 
 @pytest.mark.parametrize("value", [1, 2, 3, 10])
 def test_mysql_conf_kw_execute_timeout(value):
-    conf_dict = valid_conf_dict()
-    conf_dict['execute_timeout'] = value
-    params = MySQLConf(**conf_dict).kw()
+    conf_dict = valid_conf_dict(execute_timeout=value)
+    params = MySQLConf(**conf_dict).kw
     assert 'connect_args' in params
     assert params['connect_args']['init_command'] == f'SET SESSION MAX_EXECUTION_TIME={value * 1000}'

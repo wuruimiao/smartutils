@@ -96,7 +96,7 @@ def test_db_con_negative_max_overflow(max_overflow):
 
 
 def test_db_con_kw():
-    params = DBConf(**valid_conf_dict()).kw()
+    params = DBConf(**valid_conf_dict()).kw
     for k in {'user', 'passwd', 'db', 'host', 'port'}:
         assert k not in params
     assert params['pool_size'] == 10

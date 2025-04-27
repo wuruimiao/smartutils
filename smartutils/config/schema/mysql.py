@@ -14,8 +14,9 @@ class MySQLConf(DBConf):
     def url(self) -> str:
         return f"mysql+asyncmy://{self.user}:{self.passwd}@{self.host}:{self.port}/{self.db}"
 
+    @property
     def kw(self) -> dict:
-        params = super().kw()
+        params = super().kw
         params.pop('connect_timeout')
         params.pop('execute_timeout')
 
