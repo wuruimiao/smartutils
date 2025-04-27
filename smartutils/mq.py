@@ -43,9 +43,10 @@ class KafkaService:
 kafka_service: Optional[KafkaService] = None
 
 
-def init():
+async def init():
     global kafka_service
     kafka_service = KafkaService()
+    await kafka_service.start_producer()
 
 
 class KafkaBatchConsumer:
