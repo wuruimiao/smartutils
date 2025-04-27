@@ -33,7 +33,7 @@ class Config:
         for key, factory in self._map.items():
             conf = self._config.get(key)
             if not conf:
-                return
+                continue
             logger.info(f'load conf: {key}')
             setattr(self, key, factory(**conf))
 
