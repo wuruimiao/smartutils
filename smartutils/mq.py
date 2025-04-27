@@ -12,21 +12,12 @@ logger = logging.getLogger(__name__)
 
 class KafkaService:
     def __init__(self):
-        self._kafka_conf = config.kafka
-        self._bootstrap_servers = self._kafka_conf['bootstrap_servers']
-        self._producer: AIOKafkaProducer
+        self._conf = config.kafka
+        self._bootstrap_servers = self._conf.urls
+        self._producer: Optional[AIOKafkaProducer] = None
 
     async def start_producer(self):
-        self._producer = AIOKafkaProducer(
-            bootstrap_servers=self._bootstrap_servers,
-            # batch_size=config['batch_size'],
-            linger_ms=self._kafka_conf['linger_ms'],
-            # retries=config['retries'],
-            retry_backoff_ms=self._kafka_conf['retry_backoff_ms'],
-            # max_in_flight_requests_per_connection=config['max_in_flight_requests_per_connection'],
-            request_timeout_ms=self._kafka_conf['request_timeout_ms'],
-            acks=self._kafka_conf['acks']
-        )
+        self._producer = AIOKafkaProducer(bootstrap_servers=self._bootstrap_servers, **self._conf.kw)
         try:
             await self._producer.start()
         except errors.KafkaConnectionError as e:
@@ -38,7 +29,7 @@ class KafkaService:
             group_id=group_id,
             auto_offset_reset=auto_offset_reset,
             bootstrap_servers=self._bootstrap_servers,
-            enable_auto_commit=False  # 禁用自动提交
+            enable_auto_commit=False,
         )
 
     async def close(self):
@@ -78,13 +69,13 @@ class KafkaBatchConsumer:
         """
         启动 Kafka 消费者和批量处理任务
         """
-        consumer = kafka_service.consumer(self.topic, self.group_id, auto_offset_reset='earliest')
+        consumer: AIOKafkaConsumer = kafka_service.consumer(self.topic, self.group_id, auto_offset_reset='earliest')
         await asyncio.gather(
             self._consume_kafka(consumer),
             self._process_batch(consumer)
         )
 
-    async def _consume_kafka(self, consumer):
+    async def _consume_kafka(self, consumer: AIOKafkaConsumer):
         """
         Kafka 消费者，监听单个 Topic，手动提交 Offset
         """
@@ -95,7 +86,7 @@ class KafkaBatchConsumer:
         finally:
             await consumer.stop()
 
-    async def _process_batch(self, consumer):
+    async def _process_batch(self, consumer: AIOKafkaConsumer):
         """
         批量处理 Kafka 消息，手动提交 Offset
         """
