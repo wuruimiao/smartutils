@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import field_validator
+from pydantic import field_validator, Field
 
 from smartutils.config.schema.host import HostConf
 
@@ -8,8 +8,11 @@ from smartutils.config.schema.host import HostConf
 class RedisConf(HostConf):
     db: int
     port: int = 6379
-    passwd: Optional[str] = ""
-    timeout: int = 5
+    max_connections: int = Field(default=10, alias='pool_size')
+    timeout: int = Field(default=5, alias='execute_timeout')
+    socket_connect_timeout: Optional[int] = Field(default=None, alias='connect_timeout')
+    socket_timeout: Optional[int] = None
+    passwd: Optional[str] = None
 
     @field_validator('db')
     @classmethod
@@ -25,6 +28,18 @@ class RedisConf(HostConf):
             raise ValueError("timeout必须为正整数")
         return v
 
+    @field_validator('socket_connect_timeout', 'socket_timeout')
+    @classmethod
+    def check_timeout_none(cls, v):
+        if v is not None and v <= 0:
+            raise ValueError("timeout必须为正整数")
+        return v
+
     @property
     def url(self) -> str:
         return f"redis://{self.host}:{self.port}"
+
+    @property
+    def kw(self) -> dict:
+        params = self.model_dump(exclude={'host', 'port'})
+        return params

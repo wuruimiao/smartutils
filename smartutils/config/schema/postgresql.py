@@ -14,8 +14,9 @@ class PostgreSQLConf(DBConf, HostConf):
     def url(self) -> str:
         return f"postgresql+asyncpg://{self.user}:{self.passwd}@{self.host}:{self.port}/{self.db}"
 
+    @property
     def kw(self) -> dict:
-        params = super().kw()
+        params = super().kw
         for k in {'timeout', 'execute_timeout'}:
             params.pop(k)
         connect_args = {}
