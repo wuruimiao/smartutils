@@ -3,52 +3,51 @@ from typing import Dict, Any, Optional
 
 import yaml
 
-from smartutils.config.schema.canal import CanalConf
-from smartutils.config.schema.kafka import KafkaConf
-from smartutils.config.schema.mysql import MySQLConf
-from smartutils.config.schema.postgresql import PostgreSQLConf
-from smartutils.config.schema.redis import RedisConf
+from smartutils.config.factory import ConfFactory
+from smartutils.config.config import ConfigObj
 
 logger = logging.getLogger(__name__)
 
 
 class Config:
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
     def __init__(self):
+        if hasattr(self, "_initialized") and self._initialized:
+            return
         self._config: Dict[str, Any] = {}
-        self.mysql: Optional[MySQLConf] = None
-        self.redis: Optional[RedisConf] = None
-        self.kafka: Optional[KafkaConf] = None
-        self.postgresql: Optional[PostgreSQLConf] = None
-        self.canal: Optional[CanalConf] = None
-
-        self._map = {
-            'mysql': MySQLConf,
-            'postgresql': PostgreSQLConf,
-            'redis': RedisConf,
-            'kafka': KafkaConf,
-            'canal': CanalConf,
-        }
-
-    def _load_conf(self):
-        for key, factory in self._map.items():
-            conf = self._config.get(key)
-            if not conf:
-                continue
-            logger.info(f'load conf: {key}')
-            setattr(self, key, factory(**conf))
+        self._instances: Dict[str, Any] = {}
+        self._initialized = True
 
     def load_conf(self, config_path: str):
         with open(config_path) as f:
             self._config = yaml.safe_load(f)
+        for key, conf in self._config.items():
+            logger.info(f'load conf: {key}')
+            self._instances[key] = ConfFactory.create(key, conf)
 
-        self._load_conf()
+    def get(self, name: str) -> Optional[Any]:
+        return self._instances.get(name)
 
 
-config: Optional[Config]
+_config: ConfigObj
 
 
-def init(conf_path: str = 'config/config.yaml'):
-    global config
-    config = Config()
-    config.load_conf(conf_path)
-    return True
+def init(conf_path: str = 'config/config.yaml') -> ConfigObj:
+    global _config
+    _c = Config()
+    _c.load_conf(conf_path)
+    _config = ConfigObj(_c)
+    return _config
+
+
+def get_config() -> ConfigObj:
+    global _config
+    if _config is None:
+        raise RuntimeError("Config not initialized")
+    return _config
