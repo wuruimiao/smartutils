@@ -1,26 +1,22 @@
 from typing import List, Literal
 
-from pydantic import BaseModel, field_validator, conlist, conint
+from pydantic import BaseModel, field_validator, conlist, conint, constr
 
+from smartutils.config.const import KAFKA
+from smartutils.config.factory import ConfFactory
 from smartutils.config.schema.host import HostConf
 
 
+@ConfFactory.register(KAFKA)
 class KafkaConf(BaseModel):
     bootstrap_servers: conlist(HostConf, min_length=1)
-    client_id: str
+    client_id: constr(strip_whitespace=True, min_length=1)
     acks: Literal['all', 1, 0] = 'all'
     compression_type: Literal['zstd', 'snappy', None] = None
     max_batch_size: conint(gt=0) = 16384
     linger_ms: conint(ge=0) = 0
     request_timeout_ms: conint(gt=0) = 40000
     retry_backoff_ms: conint(gt=0) = 100
-
-    @field_validator('client_id')
-    @classmethod
-    def client_id_not_empty(cls, v):
-        if not v or not v.strip():
-            raise ValueError('client_id must not be empty')
-        return v.strip()
 
     @property
     def urls(self) -> List[str]:

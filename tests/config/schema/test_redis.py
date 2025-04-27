@@ -37,12 +37,12 @@ def test_redis_conf_default_values():
     assert conf.socket_timeout is None
 
 
-@pytest.mark.parametrize("db", [None, -1])
+@pytest.mark.parametrize("db", [-2, -1])
 def test_redis_conf_invalid_db(db):
     conf_dict = valid_redis_conf(db=db)
     with pytest.raises(ValidationError) as exc:
         RedisConf(**conf_dict)
-    assert "Redis db 必须>=0" in str(exc.value) or 'Input should be a valid integer' in str(exc.value)
+    assert "Input should be greater than or equal to 0" in str(exc.value) and 'db' in str(exc.value)
 
 
 @pytest.mark.parametrize("field", ["connect_timeout", "socket_timeout"])
@@ -52,7 +52,7 @@ def test_redis_conf_invalid_timeout(field, value):
     conf_dict[field] = value
     with pytest.raises(ValidationError) as exc:
         RedisConf(**conf_dict)
-    assert "timeout必须为正整数" in str(exc.value)
+    assert "Input should be greater than 0" in str(exc.value) and field in str(exc.value)
 
 
 @pytest.mark.parametrize("value", [None, 1, 10, 100])

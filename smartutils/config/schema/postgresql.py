@@ -1,14 +1,19 @@
 from typing import Optional
-from pydantic import Field
+
+from pydantic import Field, conint
+
+from smartutils.config.const import POSTGRESQL
+from smartutils.config.factory import ConfFactory
 from smartutils.config.schema.db import DBConf
 from smartutils.config.schema.host import HostConf
 
 
+@ConfFactory.register(POSTGRESQL)
 class PostgreSQLConf(DBConf, HostConf):
     port: int = 5432
 
-    timeout: Optional[int] = Field(default=None, alias='connect_timeout')
-    execute_timeout: Optional[int] = None
+    timeout: Optional[conint(gt=0)] = Field(default=None, alias='connect_timeout')
+    execute_timeout: Optional[conint(gt=0)] = None
 
     @property
     def url(self) -> str:

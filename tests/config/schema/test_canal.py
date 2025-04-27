@@ -6,47 +6,44 @@ from smartutils.config.schema.canal import (CanalClientConf, CanalConf)
 
 @pytest.fixture
 def host_conf_dict():
-    # 用于继承CanalConf的HostConf字段
     return {
         "host": "127.0.0.1",
         "port": 11111
     }
 
 
+def valid_canal_client_conf():
+    return {
+        "name": "test_name",
+        "client_id": "test_client_id",
+        "destination": "test_destination",
+    }
+
+
 def test_canal_client_conf_valid():
-    conf = CanalClientConf(name="test", client_id='123', destination="dest")
-    assert conf.name == "test"
-    assert conf.client_id == "123"
-    assert conf.destination == "dest"
+    conf = CanalClientConf(**valid_canal_client_conf())
+    assert conf.name == "test_name"
+    assert conf.client_id == "test_client_id"
+    assert conf.destination == "test_destination"
 
 
-def test_canal_client_conf_client_id_str():
-    conf = CanalClientConf(name="test", client_id="abc", destination="dest")
-    assert conf.client_id == "abc"
-
-
-def test_canal_client_conf_client_id_none():
+@pytest.mark.parametrize("field", ["name", "destination", "client_id"])
+def test_canal_client_conf_none(field):
+    conf_dict = valid_canal_client_conf()
     with pytest.raises(ValidationError) as exc:
-        CanalClientConf(name="test", client_id=None, destination="dest")
-    assert "Input should be a valid string" in str(exc.value)
+        conf_dict[field] = None
+        CanalClientConf(**conf_dict)
+    assert "Input should be a valid string" in str(exc.value) and field in str(exc.value)
 
 
-def test_canal_client_conf_destination_empty_str():
+@pytest.mark.parametrize("field", ["name", "destination", "client_id"])
+@pytest.mark.parametrize("value", ["", " ", "\t", "\t\n"])
+def test_canal_client_conf_empty_str(field, value):
+    conf_dict = valid_canal_client_conf()
     with pytest.raises(ValidationError) as exc:
-        CanalClientConf(name='test', destination=' ', client_id='123')
-    assert 'destination must be non-empty strings' in str(exc.value)
-
-
-def test_canal_client_conf_client_id_empty_str():
-    with pytest.raises(ValidationError) as exc:
-        CanalClientConf(name='test', destination='123', client_id='    ')
-    assert 'client_id must be non-empty strings' in str(exc.value)
-
-
-def test_canal_client_conf_name_empty_str():
-    with pytest.raises(ValidationError) as exc:
-        CanalClientConf(name=' ', destination='123', client_id='123')
-    assert 'name must be non-empty strings' in str(exc.value)
+        conf_dict[field] = value
+        CanalClientConf(**conf_dict)
+    assert 'String should have at least 1 character' in str(exc.value) and field in str(exc.value)
 
 
 def test_canal_conf_valid(host_conf_dict):

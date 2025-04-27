@@ -1,23 +1,19 @@
-from typing import List, Any
+from typing import List
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, constr
 
+from smartutils.config.const import CANAL
+from smartutils.config.factory import ConfFactory
 from smartutils.config.schema.host import HostConf
 
 
 class CanalClientConf(BaseModel):
-    name: str
-    client_id: str
-    destination: str
-
-    @field_validator('client_id', 'name', 'destination')
-    @classmethod
-    def non_empty_str(cls, v, info):
-        if not isinstance(v, str) or not v.strip():
-            raise ValueError(f"{info.field_name} must be non-empty strings")
-        return v
+    name: constr(strip_whitespace=True, min_length=1)
+    client_id: constr(strip_whitespace=True, min_length=1)
+    destination: constr(strip_whitespace=True, min_length=1)
 
 
+@ConfFactory.register(CANAL)
 class CanalConf(HostConf):
     port: int = 11111
     clients: List[CanalClientConf]

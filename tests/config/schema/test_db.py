@@ -71,28 +71,28 @@ def test_db_con_int(field, value):
 
 @pytest.mark.parametrize("field", ["user", "passwd", "db"])
 @pytest.mark.parametrize("value", ["", " ", "   "])
-def test_db_con_empty_fields(field, value):
+def test_db_con_empty(field, value):
     conf_dict = valid_conf_dict(**{field: value})
     with pytest.raises(ValidationError) as exc:
         DBConf(**conf_dict)
-    assert f"{field}不能为空" in str(exc.value)
+    assert "String should have at least 1 character" in str(exc.value) and field in str(exc.value)
 
 
 @pytest.mark.parametrize("field", ["pool_size", "pool_timeout", "pool_recycle"])
 @pytest.mark.parametrize("value", [0, -1])
-def test_db_con_invalid_pool_size_pool_timeout_pool_recycle(field, value):
+def test_db_con_gt_0(field, value):
     conf_dict = valid_conf_dict(**{field: value})
     with pytest.raises(ValidationError) as exc:
         DBConf(**conf_dict)
-    assert f"{field} 必须大于0" in str(exc.value)
+    assert "Input should be greater than 0" in str(exc.value) and field in str(exc.value)
 
 
 @pytest.mark.parametrize("max_overflow", [-1, -10])
-def test_db_con_negative_max_overflow(max_overflow):
+def test_db_con_ge_0(max_overflow):
     conf_dict = valid_conf_dict(max_overflow=max_overflow)
     with pytest.raises(ValidationError) as exc:
         DBConf(**conf_dict)
-    assert "max_overflow 不能为负数" in str(exc.value)
+    assert "Input should be greater than or equal to 0" in str(exc.value) and "max_overflow" in str(exc.value)
 
 
 def test_db_con_kw():

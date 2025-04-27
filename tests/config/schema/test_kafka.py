@@ -76,7 +76,7 @@ def test_kafka_conf_empty_client_id():
     conf_dict = valid_kafka_conf(client_id="")
     with pytest.raises(ValidationError) as exc:
         KafkaConf(**conf_dict)
-    assert "client_id must not be empty" in str(exc.value)
+    assert "String should have at least 1 character" in str(exc.value) and 'client_id' in str(exc.value)
 
 
 @pytest.mark.parametrize("field", ['request_timeout_ms', 'retry_backoff_ms', 'max_batch_size'])
