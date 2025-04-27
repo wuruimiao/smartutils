@@ -8,10 +8,7 @@ from typing import Callable, Awaitable, Any, Union, Optional
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.ext.asyncio import AsyncSession, AsyncEngine
 from sqlalchemy.ext.asyncio import create_async_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-
-from smartutils.config import config
+from sqlalchemy.orm import sessionmaker, declarative_base
 
 Base = declarative_base()
 
@@ -19,10 +16,23 @@ logger = logging.getLogger(__name__)
 
 
 class DB:
-    def __init__(self, key: str):
-        self._name = key
-        db_config = config.mysql
-        self._engine: Union[Engine, AsyncEngine] = create_async_engine(db_config['url'], **db_config['engine_options'])
+    def __init__(self):
+        self._name = 'db'
+
+        from smartutils.config import config
+
+        conf = config.mysql
+        if not conf:
+            conf = config.postgresql
+        if not conf:
+            raise Exception('config.yaml need mysql or postgresql')
+
+        kw = conf.kw()
+        kw['pool_reset_on_return'] = 'rollback'
+        kw['pool_pre_ping'] = True
+        kw['future'] = True
+
+        self._engine: Union[Engine, AsyncEngine] = create_async_engine(conf.url, **kw)
         self._session = sessionmaker(
             bind=self._engine,
             class_=AsyncSession,
@@ -50,11 +60,11 @@ class DB:
                 token = self._db_session_var.set(session)
                 try:
                     result = await func(*args, **kwargs)
-                    if session.in_transaction():
+                    if await session.in_transaction():
                         await session.commit()
                     return result
                 except Exception as e:
-                    if session.in_transaction():
+                    if await session.in_transaction():
                         await session.rollback()
                     logger.error(f'{self._name} with db err: {traceback.format_exc()}, will rollback')
                     raise e
@@ -82,6 +92,6 @@ class DB:
 db: Optional[DB] = None
 
 
-def init(key='db'):
+def init():
     global db
-    db = DB(key)
+    db = DB()
