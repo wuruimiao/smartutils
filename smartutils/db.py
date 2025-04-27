@@ -27,7 +27,7 @@ class DB:
         if not conf:
             raise Exception('config.yaml need mysql or postgresql')
 
-        kw = conf.kw()
+        kw = conf.kw
         kw['pool_reset_on_return'] = 'rollback'
         kw['pool_pre_ping'] = True
         kw['future'] = True

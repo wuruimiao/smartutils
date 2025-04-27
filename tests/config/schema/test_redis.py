@@ -20,15 +20,19 @@ def test_redis_conf_valid():
     assert conf.host == "127.0.0.1"
     assert conf.port == 6379
     assert conf.db == 1
-    assert conf.timeout == 10
-    assert conf.passwd == "secret"
+    assert conf.password == "secret"
+
+
+def test_redis_conf_override():
+    conf = RedisConf(**valid_redis_conf(passwd='11111', host='192.168.1.111'))
+    assert conf.password == '11111'
+    assert conf.host == "192.168.1.111"
 
 
 def test_redis_conf_default_values():
     conf = RedisConf(host="localhost", db=0)
     assert conf.port == 6379
-    assert conf.timeout == 5
-    assert conf.passwd is None
+    assert conf.password is None
     assert conf.socket_connect_timeout is None
     assert conf.socket_timeout is None
 
@@ -41,7 +45,7 @@ def test_redis_conf_invalid_db(db):
     assert "Redis db 必须>=0" in str(exc.value) or 'Input should be a valid integer' in str(exc.value)
 
 
-@pytest.mark.parametrize("field", ["execute_timeout", "connect_timeout", "socket_timeout"])
+@pytest.mark.parametrize("field", ["connect_timeout", "socket_timeout"])
 @pytest.mark.parametrize("value", [0, -1])
 def test_redis_conf_invalid_timeout(field, value):
     conf_dict = valid_redis_conf()
@@ -95,7 +99,6 @@ def test_redis_kw():
         assert k not in params
     assert params['db'] == 1
     assert params['max_connections'] == 10
-    assert params['timeout'] == 10
     assert params['socket_connect_timeout'] is None
     assert params['socket_timeout'] is None
-    assert params['passwd'] == "secret"
+    assert params['password'] == "secret"
