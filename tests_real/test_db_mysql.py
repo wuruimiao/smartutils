@@ -29,8 +29,6 @@ mysql:
   echo: false
   echo_pool: false
   connect_timeout: 10
-  read_timeout: 10
-  write_timeout: 10
   execute_timeout: 10"""
     tmp_dir = tmp_path_factory.mktemp("config")
     config_file = tmp_dir / "test_config.yaml"

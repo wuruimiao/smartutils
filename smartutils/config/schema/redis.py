@@ -9,23 +9,15 @@ class RedisConf(HostConf):
     db: int
     port: int = 6379
     max_connections: int = Field(default=10, alias='pool_size')
-    timeout: int = Field(default=5, alias='execute_timeout')
     socket_connect_timeout: Optional[int] = Field(default=None, alias='connect_timeout')
     socket_timeout: Optional[int] = None
-    passwd: Optional[str] = None
+    password: Optional[str] = Field(default=None, alias='passwd')
 
     @field_validator('db')
     @classmethod
     def check_db(cls, v):
         if v < 0:
             raise ValueError("Redis db 必须>=0")
-        return v
-
-    @field_validator('timeout')
-    @classmethod
-    def check_timeout(cls, v):
-        if v <= 0:
-            raise ValueError("timeout必须为正整数")
         return v
 
     @field_validator('socket_connect_timeout', 'socket_timeout')

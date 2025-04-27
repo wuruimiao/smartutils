@@ -9,7 +9,6 @@ from typing import Optional
 import redis.asyncio as redis
 from redis.exceptions import ResponseError
 
-from smartutils.config import config
 from smartutils.time import get_now_stamp
 
 logger = logging.getLogger(__name__)
@@ -19,14 +18,11 @@ class AsyncRedisCli:
     """异步 Redis 客户端封装"""
 
     def __init__(self):
-        redis_conf = config.redis
-        self._pool = redis.ConnectionPool.from_url(
-            f"redis://{redis_conf['host']}:{redis_conf['port']}",
-            password=redis_conf['password'],
-            db=redis_conf['db'],
-            decode_responses=True,
-            max_connections=10
-        )
+        from smartutils.config import config
+        conf = config.redis
+        kw = conf.kw
+        kw['decode_responses'] = True
+        self._pool = redis.ConnectionPool.from_url(conf.url, **kw)
         self._redis = redis.Redis.from_pool(connection_pool=self._pool)
 
     async def set(self, key: str, value: Any, expire: Optional[int] = None) -> bool:
@@ -192,7 +188,7 @@ class AsyncRedisCli:
 
     async def close(self):
         """关闭 Redis 连接（解绑订阅 & 关闭连接池）"""
-        await self._redis.close()
+        await self._redis.aclose()
         await self._pool.disconnect()
 
 
