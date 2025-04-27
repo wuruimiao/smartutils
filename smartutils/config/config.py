@@ -1,23 +1,15 @@
+from smartutils.config.const import MYSQL, POSTGRESQL, REDIS, KAFKA, CANAL
+from smartutils.config.schema.canal import CanalConf
+from smartutils.config.schema.kafka import KafkaConf
 from smartutils.config.schema.mysql import MySQLConf
 from smartutils.config.schema.postgresql import PostgreSQLConf
 from smartutils.config.schema.redis import RedisConf
-from smartutils.config.schema.kafka import KafkaConf
-from smartutils.config.schema.canal import CanalConf
-
-from smartutils.config.const import MYSQL, POSTGRESQL, REDIS, KAFKA, CANAL
+from smartutils.design import singleton
 
 
+@singleton
 class ConfigObj:
-    _instance = None
-
-    def __new__(cls, *args, **kwargs):
-        if not cls._instance:
-            cls._instance = super().__new__(cls)
-        return cls._instance
-
     def __init__(self, config):
-        if hasattr(self, "_initialized") and self._initialized:
-            return
         self._config = config
 
     @property

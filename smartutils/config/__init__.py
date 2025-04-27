@@ -3,30 +3,20 @@ from typing import Dict, Any, Optional
 
 import yaml
 
+from smartutils.design import singleton
 from smartutils.config.factory import ConfFactory
 from smartutils.config.config import ConfigObj
 
 logger = logging.getLogger(__name__)
 
 
+@singleton
 class Config:
-    _instance = None
-
-    def __new__(cls, *args, **kwargs):
-        if not cls._instance:
-            cls._instance = super().__new__(cls)
-        return cls._instance
-
-    def __init__(self):
-        if hasattr(self, "_initialized") and self._initialized:
-            return
-        self._config: Dict[str, Any] = {}
+    def __init__(self, config_path: str):
         self._instances: Dict[str, Any] = {}
-        self._initialized = True
 
-    def load_conf(self, config_path: str):
         with open(config_path) as f:
-            self._config = yaml.safe_load(f)
+            self._config: Dict[str, Any] = yaml.safe_load(f)
         for key, conf in self._config.items():
             logger.info(f'load conf: {key}')
             self._instances[key] = ConfFactory.create(key, conf)
@@ -40,9 +30,7 @@ _config: ConfigObj
 
 def init(conf_path: str = 'config/config.yaml') -> ConfigObj:
     global _config
-    _c = Config()
-    _c.load_conf(conf_path)
-    _config = ConfigObj(_c)
+    _config = ConfigObj(Config(conf_path))
     return _config
 
 
