@@ -31,10 +31,9 @@ kafka:
     print(config_file)
 
     from smartutils.mq import init
-    init()
-    from smartutils.mq import kafka_service
+    await init()
 
-    await kafka_service.start_producer()
+    from smartutils.mq import kafka_service
     yield
     await kafka_service.close()
 
