@@ -9,6 +9,8 @@ from smartutils.config.config import ConfigObj
 
 logger = logging.getLogger(__name__)
 
+__all__ = ['Config', 'init', 'get_config']
+
 
 @singleton
 class Config:
