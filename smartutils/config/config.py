@@ -29,11 +29,19 @@ class ConfigObj:
         return self._config.get(POSTGRESQL)
 
     @property
-    def redis(self) -> RedisConf:
+    def db(self) -> MySQLConf | PostgreSQLConf | None:
+        if self.mysql:
+            return self.mysql
+        if self.postgresql:
+            return self.postgresql
+        return None
+
+    @property
+    def cache(self) -> RedisConf:
         return self._config.get(REDIS)
 
     @property
-    def kafka(self) -> KafkaConf:
+    def mq(self) -> KafkaConf:
         return self._config.get(KAFKA)
 
     @property
