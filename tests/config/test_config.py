@@ -84,6 +84,6 @@ def test_config_loads_all(setup_config: str):
     config = get_config()
     assert config is not None
     assert config.mysql.url == 'mysql+asyncmy://root:naobo@localhost:3306/test_db'
-    assert config.redis.url == 'redis://localhost:6379'
-    assert config.kafka.urls == ['localhost:19092', '127.0.0.1:9093']
+    assert config.cache.url == 'redis://localhost:6379'
+    assert config.mq.urls == ['localhost:19092', '127.0.0.1:9093']
     assert config.canal.clients[0].name == 'c1'
