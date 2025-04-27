@@ -1,31 +1,20 @@
 from typing import Optional
 
-from pydantic import field_validator, Field
+from pydantic import field_validator, Field, conint, constr
 
+from smartutils.config.const import REDIS
+from smartutils.config.factory import ConfFactory
 from smartutils.config.schema.host import HostConf
 
 
+@ConfFactory.register(REDIS)
 class RedisConf(HostConf):
-    db: int
+    db: conint(ge=0)
     port: int = 6379
     max_connections: int = Field(default=10, alias='pool_size')
-    socket_connect_timeout: Optional[int] = Field(default=None, alias='connect_timeout')
-    socket_timeout: Optional[int] = None
-    password: Optional[str] = Field(default=None, alias='passwd')
-
-    @field_validator('db')
-    @classmethod
-    def check_db(cls, v):
-        if v < 0:
-            raise ValueError("Redis db 必须>=0")
-        return v
-
-    @field_validator('socket_connect_timeout', 'socket_timeout')
-    @classmethod
-    def check_timeout_none(cls, v):
-        if v is not None and v <= 0:
-            raise ValueError("timeout必须为正整数")
-        return v
+    socket_connect_timeout: Optional[conint(gt=0)] = Field(default=None, alias='connect_timeout')
+    socket_timeout: Optional[conint(gt=0)] = None
+    password: Optional[constr(strip_whitespace=True, min_length=1)] = Field(default=None, alias='passwd')
 
     @property
     def url(self) -> str:
