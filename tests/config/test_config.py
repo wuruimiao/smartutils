@@ -2,6 +2,13 @@ import pytest
 import yaml
 
 
+@pytest.fixture(autouse=True)
+def cleanup():
+    yield
+    from smartutils.config import reset_config
+    reset_config()
+
+
 @pytest.fixture
 def setup_config(tmp_path_factory):
     config_str = """
@@ -68,7 +75,12 @@ canal:
         destination: unmanned_task
       - name: unmanned_task
         client_id: "1234"
-        destination: unmanned_task"""
+        destination: unmanned_task
+project:
+  name: auth
+  description: test_auth
+  version: 0.0.1
+  key: test_key"""
 
     tmp_dir = tmp_path_factory.mktemp("config")
     config_file = tmp_dir / "test_config.yaml"
@@ -117,6 +129,17 @@ mysql:
     return config_file
 
 
+@pytest.fixture
+def setup_conf_empty(tmp_path_factory):
+    config_str = """"""
+
+    tmp_dir = tmp_path_factory.mktemp("config")
+    config_file = tmp_dir / "test_no_default_config.yaml"
+    with open(config_file, "w") as f:
+        f.write(config_str)
+    return config_file
+
+
 def test_config_loads_all(setup_config: str):
     from smartutils.config import init
     assert init(setup_config)
@@ -130,9 +153,14 @@ def test_config_loads_all(setup_config: str):
     assert config.redis['default'].url == 'redis://localhost:6379'
     assert config.mq['default'].urls == ['localhost:19092', '127.0.0.1:9093']
     assert config.canal['default'].clients[0].name == 'c1'
+    assert config.project.name == "auth"
+    assert config.project.description == "test_auth"
+    assert config.project.version == "0.0.1"
 
-    from smartutils.config import reset_config
-    reset_config()
+
+def test_config_empty(setup_conf_empty: str):
+    from smartutils.config import init
+    init(setup_conf_empty)
 
 
 def test_config_no_conf_class(setup_no_conf_class_config: str):
@@ -142,9 +170,6 @@ def test_config_no_conf_class(setup_no_conf_class_config: str):
         init(setup_no_conf_class_config)
     assert 'No conf class registered for no_conf_class' in str(exc.value)
 
-    from smartutils.config import reset_config
-    reset_config()
-
 
 def test_config_no_default(setup_no_conf_default_config: str):
     from smartutils.config import init
@@ -153,12 +178,21 @@ def test_config_no_default(setup_no_conf_default_config: str):
         init(setup_no_conf_default_config)
     assert 'default not in mysql' in str(exc.value)
 
-    from smartutils.config import reset_config
-    reset_config()
-
 
 def test_config_no_config():
     from smartutils.config import get_config
     with pytest.raises(RuntimeError) as exc:
         conf = get_config()
     assert 'Config not initialized' in str(exc.value)
+
+
+def test_project_conf_inherit(setup_config: str):
+    from smartutils.config import ConfFactory, PROJECT, ProjectConf, init, get_config
+
+    @ConfFactory.register(PROJECT)
+    class MyProjectConf(ProjectConf):
+        key: str
+
+    init(setup_config)
+    conf = get_config()
+    assert conf.project.key == "test_key"

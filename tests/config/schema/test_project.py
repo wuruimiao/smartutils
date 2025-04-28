@@ -3,6 +3,7 @@ from pydantic import ValidationError
 
 from smartutils.config.schema.project import ProjectConf
 
+
 @pytest.mark.parametrize(
     "name, description, version",
     [
@@ -15,6 +16,7 @@ def test_project_conf_valid(name, description, version):
     assert conf.name == name
     assert conf.description == description
     assert conf.version == version
+
 
 @pytest.mark.parametrize(
     "name, description, version",
