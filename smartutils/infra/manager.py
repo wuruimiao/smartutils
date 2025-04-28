@@ -47,12 +47,17 @@ class ContextResourceManager(Generic[T]):
 
         return decorator
 
-    def curr(self) -> T:
+    def curr(self):
         try:
             return self._context_var.get()
         except LookupError as e:
             logger.error(f'curr db err: {traceback.format_exc()}')
             raise RuntimeError(f'curr err') from e
+
+    def client(self, key: str = CONF_DEFAULT) -> T:
+        if key not in self._resources:
+            raise RuntimeError(f"No resource found for key: {key}")
+        return self._resources[key]
 
     async def close(self):
         for cli in self._resources.values():

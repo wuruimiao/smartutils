@@ -16,5 +16,5 @@ class KafkaManager(ContextResourceManager[AsyncKafkaCli]):
 
 
 @InfraFactory.register(KAFKA)
-def init_kafka(confs):
-    return KafkaManager(confs)
+def init_kafka(conf):
+    return KafkaManager(conf)

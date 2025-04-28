@@ -42,7 +42,7 @@ class AsyncKafkaCli(AbstractResource):
     async def _start_producer(self):
         producer = AIOKafkaProducer(bootstrap_servers=self._bootstrap_servers, **self._conf.kw)
         try:
-            await self._producer.start()
+            await producer.start()
             self._producer = producer
         except errors.KafkaConnectionError as e:
             logger.error(f'start kafka producer {self._bootstrap_servers} fail, err: {traceback.format_exc()}')

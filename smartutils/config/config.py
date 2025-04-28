@@ -28,7 +28,7 @@ class ConfigObj:
         return self._config.get(REDIS)
 
     @property
-    def mq(self) -> Dict[str, KafkaConf]:
+    def kafka(self) -> Dict[str, KafkaConf]:
         return self._config.get(KAFKA)
 
     @property
