@@ -1,32 +1,29 @@
 import threading
 from functools import wraps
 
+_singleton_instances = {}
+_singleton_lock = threading.Lock()
+
 
 def singleton(cls):
     """
-    单例装饰器
-    重置使用方式
+    单例装饰器，支持reset
+    使用方式：
     @singleton
     class MyClass: ...
-    MyClass.reset()
     """
-    instances = {}
-    lock = threading.Lock()
 
     @wraps(cls)
     def get_instance(*args, **kwargs):
-        if cls not in instances:
-            with lock:
-                if cls not in instances:
-                    instances[cls] = cls(*args, **kwargs)
-        return instances[cls]
+        if cls not in _singleton_instances:
+            with _singleton_lock:
+                if cls not in _singleton_instances:
+                    _singleton_instances[cls] = cls(*args, **kwargs)
+        return _singleton_instances[cls]
 
     def reset():
-        """
-        重置当前类
-        """
-        with lock:
-            instances.pop(cls, None)
+        with _singleton_lock:
+            _singleton_instances.pop(cls, None)
 
     get_instance.reset = reset
     return get_instance
@@ -34,15 +31,18 @@ def singleton(cls):
 
 class SingletonBase:
     """
-    单例基类
-    重置使用方式:
+    单例基类。支持reset和reset_all
+    使用方式：
     class MySingleton(SingletonBase): ...
-    MySingleton.reset()
     """
     _instance = None
     _lock = threading.Lock()
+    _singleton_classes = set()
 
     def __new__(cls, *args, **kwargs):
+        # 注册到单例集合
+        if cls is not SingletonBase:
+            SingletonBase._singleton_classes.add(cls)
         if not hasattr(cls, '_instance') or cls._instance is None:
             with cls._lock:
                 if not hasattr(cls, '_instance') or cls._instance is None:
@@ -63,13 +63,19 @@ class SingletonBase:
         with cls._lock:
             cls._instance = None
 
+    @classmethod
+    def reset_all(cls):
+        """
+        重置所有继承自 SingletonBase 的单例实例
+        """
+        for sub_cls in list(cls._singleton_classes):
+            sub_cls.reset()
+
 
 class SingletonMeta(type):
     """
-    单例元类
-    使用方式:
+    单例元类，支持reset和reset_all
     class MyMetaSingleton(metaclass=SingletonMeta): ...
-    MyMetaSingleton.reset()
     """
     _instances = {}
     _lock = threading.Lock()
@@ -82,5 +88,19 @@ class SingletonMeta(type):
         return cls._instances[cls]
 
     def reset(cls):
+        """重置当前类的单例实例"""
         with SingletonMeta._lock:
             SingletonMeta._instances.pop(cls, None)
+
+    @classmethod
+    def reset_all(cls):
+        """重置所有单例实例"""
+        with cls._lock:
+            cls._instances.clear()
+
+
+def reset_all():
+    with _singleton_lock:
+        _singleton_instances.clear()
+    SingletonBase.reset_all()
+    SingletonMeta.reset_all()
