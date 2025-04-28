@@ -4,12 +4,13 @@ from typing import Dict, Any, Optional
 import yaml
 
 from smartutils.config.config import ConfigObj
-from smartutils.config.const import CONF_DEFAULT
+from smartutils.config.const import CONF_DEFAULT, PROJECT
 from smartutils.config.factory import ConfFactory
+from smartutils.config.schema.project import ProjectConf
 
 logger = logging.getLogger(__name__)
 
-__all__ = ['Config', 'init', 'get_config']
+__all__ = ['Config', 'init', 'get_config', 'ConfFactory', 'PROJECT', 'ProjectConf']
 
 
 class Config:
@@ -19,6 +20,10 @@ class Config:
 
         with open(config_path) as f:
             self._config = yaml.safe_load(f)
+
+        if not self._config:
+            logger.info(f'conf emtpy, do nothing!!!')
+            return
 
         for key, conf in self._config.items():
             logger.info(f'load conf: {key}')
