@@ -3,6 +3,13 @@ from functools import wraps
 
 
 def singleton(cls):
+    """
+    单例装饰器
+    重置使用方式
+    @singleton
+    class MyClass: ...
+    MyClass.reset()
+    """
     instances = {}
     lock = threading.Lock()
 
@@ -14,10 +21,24 @@ def singleton(cls):
                     instances[cls] = cls(*args, **kwargs)
         return instances[cls]
 
+    def reset():
+        """
+        重置当前类
+        """
+        with lock:
+            instances.pop(cls, None)
+
+    get_instance.reset = reset
     return get_instance
 
 
 class SingletonBase:
+    """
+    单例基类
+    重置使用方式:
+    class MySingleton(SingletonBase): ...
+    MySingleton.reset()
+    """
     _instance = None
     _lock = threading.Lock()
 
@@ -37,8 +58,19 @@ class SingletonBase:
         self._init_once(*args, **kwargs)
         self._initialized = True
 
+    @classmethod
+    def reset(cls):
+        with cls._lock:
+            cls._instance = None
+
 
 class SingletonMeta(type):
+    """
+    单例元类
+    使用方式:
+    class MyMetaSingleton(metaclass=SingletonMeta): ...
+    MyMetaSingleton.reset()
+    """
     _instances = {}
     _lock = threading.Lock()
 
@@ -48,3 +80,7 @@ class SingletonMeta(type):
                 if cls not in cls._instances:
                     cls._instances[cls] = super().__call__(*args, **kwargs)
         return cls._instances[cls]
+
+    def reset(cls):
+        with SingletonMeta._lock:
+            SingletonMeta._instances.pop(cls, None)
