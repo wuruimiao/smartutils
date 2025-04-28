@@ -1,3 +1,6 @@
+import inspect
+
+
 async def init():
     from smartutils.config import get_config
     config = get_config()
@@ -9,11 +12,15 @@ async def init():
 
     from .factory import InfraFactory
     for comp_key, init_func in InfraFactory.all().items():
-        conf = getattr(config, comp_key)
+        conf = getattr(config, comp_key, None)
         if not conf:
             continue
 
         logger.info(f"initializing {comp_key} ...")
-        instance = init_func(conf)
+        if inspect.iscoroutinefunction(init_func):
+            instance = await init_func(conf)
+        else:
+            instance = init_func(conf)
+
         global_vars[comp_key] = instance
         logger.info(f"{comp_key} inited.")
