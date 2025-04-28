@@ -1,6 +1,6 @@
 from typing import List
 
-from pydantic import BaseModel, field_validator, constr
+from pydantic import BaseModel, constr
 
 from smartutils.config.const import CANAL
 from smartutils.config.factory import ConfFactory
@@ -13,7 +13,7 @@ class CanalClientConf(BaseModel):
     destination: constr(strip_whitespace=True, min_length=1)
 
 
-@ConfFactory.register(CANAL)
+@ConfFactory.register(CANAL, multi=True)
 class CanalConf(HostConf):
     port: int = 11111
     clients: List[CanalClientConf]

@@ -95,3 +95,12 @@ def test_kafka_conf_lt_0(value):
     with pytest.raises(ValidationError) as exc:
         KafkaConf(**conf_dict)
     assert "Input should be greater than or equal to 0" in str(exc.value) and 'linger_ms' in str(exc.value)
+
+
+def test_kafka_conf_kw():
+    kw = KafkaConf(**valid_kafka_conf()).kw
+    assert 'host' not in kw
+    assert 'port' not in kw
+    assert 'bootstrap_servers' not in kw
+    assert kw['client_id'] == "test-client"
+    assert kw['acks'] == 'all'

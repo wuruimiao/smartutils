@@ -7,7 +7,7 @@ from smartutils.config.factory import ConfFactory
 from smartutils.config.schema.host import HostConf
 
 
-@ConfFactory.register(KAFKA)
+@ConfFactory.register(KAFKA, multi=True)
 class KafkaConf(BaseModel):
     bootstrap_servers: conlist(HostConf, min_length=1)
     client_id: constr(strip_whitespace=True, min_length=1)

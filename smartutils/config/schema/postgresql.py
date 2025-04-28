@@ -8,7 +8,7 @@ from smartutils.config.schema.db import DBConf
 from smartutils.config.schema.host import HostConf
 
 
-@ConfFactory.register(POSTGRESQL)
+@ConfFactory.register(POSTGRESQL, multi=True)
 class PostgreSQLConf(DBConf, HostConf):
     port: int = 5432
 

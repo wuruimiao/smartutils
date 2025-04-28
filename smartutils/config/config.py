@@ -1,3 +1,5 @@
+from typing import Dict
+
 from smartutils.config.const import MYSQL, POSTGRESQL, REDIS, KAFKA, CANAL
 from smartutils.config.schema.canal import CanalConf
 from smartutils.config.schema.kafka import KafkaConf
@@ -13,29 +15,21 @@ class ConfigObj:
         self._config = config
 
     @property
-    def mysql(self) -> MySQLConf:
+    def mysql(self) -> Dict[str, MySQLConf]:
         return self._config.get(MYSQL)
 
     @property
-    def postgresql(self) -> PostgreSQLConf:
+    def postgresql(self) -> Dict[str, PostgreSQLConf]:
         return self._config.get(POSTGRESQL)
 
     @property
-    def db(self) -> MySQLConf | PostgreSQLConf | None:
-        if self.mysql:
-            return self.mysql
-        if self.postgresql:
-            return self.postgresql
-        return None
-
-    @property
-    def cache(self) -> RedisConf:
+    def redis(self) -> Dict[str, RedisConf]:
         return self._config.get(REDIS)
 
     @property
-    def mq(self) -> KafkaConf:
+    def mq(self) -> Dict[str, KafkaConf]:
         return self._config.get(KAFKA)
 
     @property
-    def canal(self) -> CanalConf:
+    def canal(self) -> Dict[str, CanalConf]:
         return self._config.get(CANAL)
