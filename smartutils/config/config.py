@@ -1,12 +1,13 @@
 from typing import Dict
 
-from smartutils.config.const import MYSQL, POSTGRESQL, REDIS, KAFKA, CANAL, PROJECT
+from smartutils.config.const import MYSQL, POSTGRESQL, REDIS, KAFKA, CANAL, PROJECT, LOGURU
 from smartutils.config.schema.canal import CanalConf
 from smartutils.config.schema.kafka import KafkaConf
 from smartutils.config.schema.mysql import MySQLConf
 from smartutils.config.schema.postgresql import PostgreSQLConf
 from smartutils.config.schema.redis import RedisConf
 from smartutils.config.schema.project import ProjectConf
+from smartutils.config.schema.logger import LoguruConfig
 from smartutils.design import singleton
 
 
@@ -38,3 +39,7 @@ class ConfigObj:
     @property
     def project(self) -> ProjectConf:
         return self._config.get(PROJECT)
+
+    @property
+    def loguru(self) -> LoguruConfig:
+        return self._config.get(LOGURU)
