@@ -36,6 +36,8 @@ postgresql:
     yield
     from smartutils.design.singleton import reset_all
     reset_all()
+    from smartutils.infra.manager import reset
+    reset()
 
 
 @pytest.mark.asyncio

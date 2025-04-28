@@ -10,6 +10,12 @@ from smartutils.call import call_hook
 
 logger = logging.getLogger(__name__)
 
+_CONTEXT_VAR_NAMES = set()
+
+
+def reset():
+    _CONTEXT_VAR_NAMES.clear()
+
 
 class ContextResourceManager(Generic[T]):
     def __init__(
@@ -17,6 +23,10 @@ class ContextResourceManager(Generic[T]):
             success: Callable[..., Any] = None,
             fail: Callable[..., Any] = None,
     ):
+        if context_var_name in _CONTEXT_VAR_NAMES:
+            raise ValueError(f"context_var_name '{context_var_name}' already used in ContextResourceManager")
+        _CONTEXT_VAR_NAMES.add(context_var_name)
+
         self._context_var = ContextVar(context_var_name)
         self._resources = resources
         self._success = success
