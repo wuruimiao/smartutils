@@ -7,7 +7,7 @@ from smartutils.config.factory import ConfFactory
 from smartutils.config.schema.host import HostConf
 
 
-@ConfFactory.register(REDIS)
+@ConfFactory.register(REDIS, multi=True)
 class RedisConf(HostConf):
     db: conint(ge=0)
     port: int = 6379

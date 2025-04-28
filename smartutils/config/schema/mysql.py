@@ -7,7 +7,7 @@ from smartutils.config.factory import ConfFactory
 from smartutils.config.schema.db import DBConf
 
 
-@ConfFactory.register(MYSQL)
+@ConfFactory.register(MYSQL, multi=True)
 class MySQLConf(DBConf):
     port: int = 3306
 
