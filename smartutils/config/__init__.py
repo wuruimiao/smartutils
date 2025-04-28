@@ -43,7 +43,6 @@ def init(conf_path: str = 'config/config.yaml') -> ConfigObj:
 
 
 def get_config() -> ConfigObj:
-    global _config
     if _config is None:
         raise RuntimeError("Config not initialized")
     return _config

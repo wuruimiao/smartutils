@@ -10,10 +10,11 @@ async def init():
 
     global_vars = globals()
 
-    from .factory import InfraFactory
+    from smartutils.infra.factory import InfraFactory
     for comp_key, init_func in InfraFactory.all().items():
         conf = getattr(config, comp_key, None)
         if not conf:
+            logger.info(f'config no {comp_key}, do nothing')
             continue
 
         logger.info(f"initializing {comp_key} ...")

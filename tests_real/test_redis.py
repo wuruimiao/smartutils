@@ -1,17 +1,18 @@
 import pytest
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope='function', autouse=True)
 async def setup_cache(tmp_path_factory):
     config_str = """
 redis:
-  host: 192.168.1.56
-  port: 6379
-  password: ""
-  db: 0
-  pool_size: 10
-  connect_timeout: 10
-  socket_timeout: 10"""
+  default:
+    host: 127.0.0.1
+    port: 6379
+    password: ""
+    db: 0
+    pool_size: 10
+    connect_timeout: 10
+    socket_timeout: 10"""
     tmp_dir = tmp_path_factory.mktemp("config")
     config_file = tmp_dir / "test_config.yaml"
     with open(config_file, "w") as f:
@@ -19,22 +20,25 @@ redis:
 
     from smartutils.config import init
     init(str(config_file))
-    print(config_file)
 
-    from smartutils.cache import init
-    init()
+    from smartutils.infra import init
+    await init()
     yield
-    from smartutils.cache import cache
-    await cache.close()
+    from smartutils.infra import RedisManager
+    await RedisManager().close()
+
+    from smartutils.design.singleton import reset_all
+    reset_all()
 
 
 @pytest.mark.asyncio
 async def test_curr_cache_in_context():
-    from smartutils.cache import cache
+    from smartutils.infra import RedisManager
+    redis_mgr = RedisManager()
 
-    @cache.with_cache
+    @redis_mgr.use()
     async def func():
-        cli = cache.curr_cache()
+        cli = redis_mgr.curr()
         assert cli is not None
         await cli.set("pytest:curr_cache", "123", expire=1)
         val = await cli.get("pytest:curr_cache")
@@ -46,7 +50,8 @@ async def test_curr_cache_in_context():
 
 @pytest.mark.asyncio
 async def test_curr_cache_out_of_context():
-    from smartutils.cache import cache
+    from smartutils.infra import RedisManager
+    redis_mgr = RedisManager()
 
-    cli = cache.curr_cache()
-    assert cli is None
+    with pytest.raises(RuntimeError):
+        redis_mgr.curr()

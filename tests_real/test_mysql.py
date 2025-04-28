@@ -3,7 +3,9 @@ from sqlalchemy import text
 
 from sqlalchemy import Column, Integer, String
 
-from smartutils.db import Base
+from sqlalchemy.orm import declarative_base
+
+Base = declarative_base()
 
 
 class User(Base):
@@ -12,24 +14,24 @@ class User(Base):
     name = Column(String(64))
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="function", autouse=True)
 async def setup_db(tmp_path_factory):
     config_str = """
 mysql:
-  host: 192.168.1.56
-  port: 3306
-  user: root
-  passwd: naobo
-  db: testdb
-
-  pool_size: 10
-  max_overflow: 5
-  pool_timeout: 30
-  pool_recycle: 3600
-  echo: false
-  echo_pool: false
-  connect_timeout: 10
-  execute_timeout: 10"""
+  default:
+    host: 127.0.0.1
+    port: 3306
+    user: root
+    passwd: naobo
+    db: test_db
+    pool_size: 10
+    max_overflow: 5
+    pool_timeout: 30
+    pool_recycle: 3600
+    echo: false
+    echo_pool: false
+    connect_timeout: 10
+    execute_timeout: 10"""
     tmp_dir = tmp_path_factory.mktemp("config")
     config_file = tmp_dir / "test_config.yaml"
     with open(config_file, "w") as f:
@@ -37,21 +39,26 @@ mysql:
 
     from smartutils.config import init
     init(str(config_file))
-    print(config_file)
 
-    from smartutils.db import init
-    init()
-    from smartutils.db import db
-    await db.create_tables([Base])
+    from smartutils.infra import init
+    await init()
+
+    from smartutils.infra import MySQLManager
+    my_mgr = MySQLManager()
+    await my_mgr.client().create_tables([Base])
     yield
-    await db.close()
+    await my_mgr.close()
+
+    from smartutils.design.singleton import reset_all
+    reset_all()
 
 
 @pytest.mark.asyncio
 async def test_get_db():
-    from smartutils.db import db
+    from smartutils.infra import MySQLManager
+    my_mgr = MySQLManager()
     # 测试插入/查询/删除
-    async for session in db.get_db():
+    async for session in my_mgr.client().get_db():
         user = User(name="pytest")
         session.add(user)
         await session.commit()
@@ -65,21 +72,23 @@ async def test_get_db():
 
 @pytest.mark.asyncio
 async def test_with_db_success_and_rollback():
-    from smartutils.db import db
+    from smartutils.infra import MySQLManager
+    my_mgr = MySQLManager()
 
-    @db.with_db
+    @my_mgr.use()
     async def insert_and_fail(name):
-        session = db.curr_db()
+        session = my_mgr.curr()
         user = User(name=name)
         session.add(user)
         await session.flush()
         raise ValueError("fail")  # 模拟失败触发回滚
 
     # Should rollback, user not in db
-    with pytest.raises(ValueError):
-        await insert_and_fail("rollback_user")
+    with pytest.raises(RuntimeError) as exc:
+        await insert_and_fail("default use err")
+    assert isinstance(exc.value.__cause__, ValueError)
 
-    async for session in db.get_db():
+    async for session in my_mgr.client().get_db():
         result = await session.execute(
             text("SELECT COUNT(*) FROM users WHERE name='rollback_user'")
         )
@@ -88,18 +97,19 @@ async def test_with_db_success_and_rollback():
 
 @pytest.mark.asyncio
 async def test_with_db_commit():
-    from smartutils.db import db
+    from smartutils.infra import MySQLManager
+    my_mgr = MySQLManager()
 
-    @db.with_db
+    @my_mgr.use()
     async def insert_user(name):
-        session = db.curr_db()
+        session = my_mgr.curr()
         user = User(name=name)
         session.add(user)
         await session.flush()
         return user.id
 
     user_id = await insert_user("committed_user")
-    async for session in db.get_db():
+    async for session in my_mgr.client().get_db():
         u = await session.get(User, user_id)
         assert u.name == "committed_user"
         # 清理
@@ -109,7 +119,8 @@ async def test_with_db_commit():
 
 @pytest.mark.asyncio
 async def test_curr_db_no_context():
-    from smartutils.db import db
+    from smartutils.infra import MySQLManager
+    my_mgr = MySQLManager()
 
     with pytest.raises(RuntimeError):
-        db.curr_db()
+        my_mgr.curr()
