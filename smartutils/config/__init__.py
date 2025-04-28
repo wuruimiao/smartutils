@@ -3,10 +3,9 @@ from typing import Dict, Any, Optional
 
 import yaml
 
-from smartutils.design import singleton
-from smartutils.config.factory import ConfFactory
 from smartutils.config.config import ConfigObj
 from smartutils.config.const import CONF_DEFAULT
+from smartutils.config.factory import ConfFactory
 
 logger = logging.getLogger(__name__)
 
