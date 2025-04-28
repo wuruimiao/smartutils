@@ -1,29 +1,43 @@
-import functools
 import logging
 import traceback
 from contextlib import asynccontextmanager
-from contextvars import ContextVar
-from typing import Callable, Awaitable, Any
-from typing import Optional
+from typing import Any, Optional
 
-import redis.asyncio as redis
-from redis.exceptions import ResponseError
+from redis import asyncio as redis, ResponseError
 
+from smartutils.config.schema.redis import RedisConf
+from smartutils.infra.abstract import AbstractResource
 from smartutils.time import get_now_stamp
 
 logger = logging.getLogger(__name__)
 
 
-class AsyncRedisCli:
-    """异步 Redis 客户端封装"""
+class AsyncRedisCli(AbstractResource):
+    """异步 Redis 客户端封装，线程安全、协程安全"""
 
-    def __init__(self):
-        from smartutils.config import config
-        conf = config.redis
+    def __init__(self, conf: RedisConf, name: str):
+        self._name = name
+
         kw = conf.kw
         kw['decode_responses'] = True
         self._pool = redis.ConnectionPool.from_url(conf.url, **kw)
         self._redis = redis.Redis.from_pool(connection_pool=self._pool)
+
+    async def ping(self) -> bool:
+        try:
+            pong = await self._redis.ping()
+            return pong is True
+        except Exception as e:
+            logger.warning(f"Redis health check {self._name} failed: {e}")
+            return False
+
+    async def close(self):
+        await self._redis.aclose()
+        await self._pool.disconnect()
+
+    @asynccontextmanager
+    async def session(self):
+        yield self
 
     async def set(self, key: str, value: Any, expire: Optional[int] = None) -> bool:
         """设置键值对，可选过期时间"""
@@ -185,45 +199,3 @@ class AsyncRedisCli:
             # 在退出时提交 ACK
             for message_id in message_ids:
                 await self._redis.xack(stream, group, message_id)
-
-    async def close(self):
-        """关闭 Redis 连接（解绑订阅 & 关闭连接池）"""
-        await self._redis.aclose()
-        await self._pool.disconnect()
-
-
-class Cache:
-    def __init__(self):
-        self._cache_var = ContextVar(f'cache')
-        self._redis_cli = AsyncRedisCli()
-
-    def with_cache(self, func: Callable[..., Awaitable[Any]]):
-        @functools.wraps(func)
-        async def wrapper(*args, **kwargs):
-            token = self._cache_var.set(self._redis_cli)
-            try:
-                result = await func(*args, **kwargs)
-                return result
-            except Exception as e:
-                raise e
-            finally:
-                self._cache_var.reset(token)
-
-        return wrapper
-
-    def curr_cache(self) -> AsyncRedisCli:
-        try:
-            return self._cache_var.get()
-        except LookupError as e:
-            logger.error(f'curr cache err: {e}')
-
-    async def close(self):
-        await self._redis_cli.close()
-
-
-cache = None
-
-
-def init():
-    global cache
-    cache = Cache()
