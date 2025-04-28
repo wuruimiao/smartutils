@@ -34,10 +34,10 @@ class ContextResourceManager(Generic[T]):
                     token = self._context_var.set(session)
                     try:
                         result = await func(*args, **kwargs)
-                        await call_hook(self._success)
+                        await call_hook(self._success, session)
                         return result
                     except Exception as e:
-                        await call_hook(self._fail)
+                        await call_hook(self._fail, session)
                         logger.error(f'{key} use err: {traceback.format_exc()}')
                         raise RuntimeError(f'{key} use err') from e
                     finally:

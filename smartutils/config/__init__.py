@@ -42,12 +42,6 @@ def init(conf_path: str = 'config/config.yaml') -> ConfigObj:
     return _config
 
 
-def reset_config():
-    ConfigObj.reset()
-    global _config
-    _config = None
-
-
 def get_config() -> ConfigObj:
     global _config
     if _config is None:

@@ -1,7 +1,7 @@
 import pytest
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='function')
 def setup_config(tmp_path_factory):
     config_str = """
 mysql:
@@ -78,10 +78,13 @@ project:
     config_file = tmp_dir / "test_config.yaml"
     with open(config_file, "w") as f:
         f.write(config_str)
-    return config_file
+    yield config_file
+
+    from smartutils.design.singleton import reset_all
+    reset_all()
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='function')
 def setup_no_conf_class_config(tmp_path_factory):
     config_str = """
 no_conf_class:
@@ -92,10 +95,13 @@ no_conf_class:
     config_file = tmp_dir / "test_invalid_config.yaml"
     with open(config_file, "w") as f:
         f.write(config_str)
-    return config_file
+    yield config_file
+
+    from smartutils.design.singleton import reset_all
+    reset_all()
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='function')
 def setup_no_conf_default_config(tmp_path_factory):
     config_str = """
 mysql:
@@ -118,10 +124,13 @@ mysql:
     config_file = tmp_dir / "test_no_default_config.yaml"
     with open(config_file, "w") as f:
         f.write(config_str)
-    return config_file
+    yield config_file
+
+    from smartutils.design.singleton import reset_all
+    reset_all()
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='function')
 def setup_conf_empty(tmp_path_factory):
     config_str = """"""
 
@@ -129,7 +138,10 @@ def setup_conf_empty(tmp_path_factory):
     config_file = tmp_dir / "test_no_default_config.yaml"
     with open(config_file, "w") as f:
         f.write(config_str)
-    return config_file
+    yield config_file
+
+    from smartutils.design.singleton import reset_all
+    reset_all()
 
 
 def test_config_loads_all(setup_config: str):
@@ -171,8 +183,11 @@ def test_config_no_default(setup_no_conf_default_config: str):
     assert 'default not in mysql' in str(exc.value)
 
 
-def test_config_no_config():
+def test_config_no_config(setup_config):
     from smartutils.config import get_config
+    from smartutils import config
+    config._config = None
+
     with pytest.raises(RuntimeError) as exc:
         conf = get_config()
     assert 'Config not initialized' in str(exc.value)
