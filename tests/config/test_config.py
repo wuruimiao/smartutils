@@ -1,15 +1,7 @@
 import pytest
-import yaml
 
 
-@pytest.fixture(autouse=True)
-def cleanup():
-    yield
-    from smartutils.config import reset_config
-    reset_config()
-
-
-@pytest.fixture
+@pytest.fixture(scope='module')
 def setup_config(tmp_path_factory):
     config_str = """
 mysql:
@@ -89,7 +81,7 @@ project:
     return config_file
 
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def setup_no_conf_class_config(tmp_path_factory):
     config_str = """
 no_conf_class:
@@ -103,7 +95,7 @@ no_conf_class:
     return config_file
 
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def setup_no_conf_default_config(tmp_path_factory):
     config_str = """
 mysql:
@@ -129,7 +121,7 @@ mysql:
     return config_file
 
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def setup_conf_empty(tmp_path_factory):
     config_str = """"""
 
