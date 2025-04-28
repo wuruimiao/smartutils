@@ -1,30 +1,7 @@
-import inspect
+from smartutils.infra.cache.redis import RedisManager
+from smartutils.infra.db.mysql import MySQLManager
+from smartutils.infra.db.postgresql import PostgresqlManager
+from smartutils.infra.mq.kafka import KafkaManager
+from smartutils.infra.init import init
 
-from smartutils.infra.mq import KafkaService
-
-from smartutils.infra.factory import InfraFactory
-from smartutils.infra.const import DB, CACHE, MQ
-
-
-async def init():
-    from smartutils.config import get_config
-    config = get_config()
-
-    import logging
-    logger = logging.getLogger(__name__)
-
-    global_vars = globals()
-
-    from .factory import InfraFactory
-    for comp_key, init_func in InfraFactory.all().items():
-        conf = getattr(config, comp_key)
-        if not conf:
-            continue
-
-        logger.info(f"initializing {comp_key} ...")
-        if inspect.iscoroutinefunction(init_func):
-            instance = await init_func(conf)
-        else:
-            instance = init_func(conf)
-        global_vars[comp_key] = instance
-        logger.info(f"{comp_key} inited.")
+__all__ = ['RedisManager', 'MySQLManager', 'PostgresqlManager', 'KafkaManager', 'init']
