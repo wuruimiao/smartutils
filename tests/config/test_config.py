@@ -155,3 +155,10 @@ def test_config_no_default(setup_no_conf_default_config: str):
 
     from smartutils.config import reset_config
     reset_config()
+
+
+def test_config_no_config():
+    from smartutils.config import get_config
+    with pytest.raises(RuntimeError) as exc:
+        conf = get_config()
+    assert 'Config not initialized' in str(exc.value)
