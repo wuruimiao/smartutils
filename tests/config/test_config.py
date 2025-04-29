@@ -80,7 +80,7 @@ project:
         f.write(config_str)
     yield config_file
 
-    from smartutils.design.singleton import reset_all
+    from smartutils import reset_all
     reset_all()
 
 
@@ -97,7 +97,7 @@ no_conf_class:
         f.write(config_str)
     yield config_file
 
-    from smartutils.design.singleton import reset_all
+    from smartutils import reset_all
     reset_all()
 
 
@@ -126,7 +126,7 @@ mysql:
         f.write(config_str)
     yield config_file
 
-    from smartutils.design.singleton import reset_all
+    from smartutils import reset_all
     reset_all()
 
 
@@ -140,7 +140,7 @@ def setup_conf_empty(tmp_path_factory):
         f.write(config_str)
     yield config_file
 
-    from smartutils.design.singleton import reset_all
+    from smartutils import reset_all
     reset_all()
 
 
