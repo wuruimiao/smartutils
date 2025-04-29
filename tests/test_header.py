@@ -3,7 +3,7 @@ import dataclasses
 from fastapi import FastAPI, Depends
 from fastapi.testclient import TestClient
 
-from smartutils.header import get_user_info, UserInfo
+from smartutils.app.header import get_user_info, UserInfo
 
 app = FastAPI()
 
