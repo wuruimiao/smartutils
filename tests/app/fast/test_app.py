@@ -24,6 +24,19 @@ project:
     from smartutils.app import create_app
     app = create_app()
 
+    from smartutils.ret import ResponseModel
+    from smartutils.app import Info
+
+    @app.get("/info")
+    def info():
+        return ResponseModel(
+            data={
+                "userid": Info.get_userid(),
+                "username": Info.get_username(),
+                "traceid": Info.get_traceid()
+            }
+        )
+
     with TestClient(app) as c:
         yield c
 
@@ -58,3 +71,19 @@ def test_trace_id_header(client):
     custom_id = "test-trace-id"
     resp2 = client.get("/", headers={HEADERKey.X_TRACE_ID: custom_id})
     assert resp2.headers.get(HEADERKey.X_TRACE_ID) == custom_id
+
+
+def test_info_header_propagation(client):
+    headers = {
+        "X-User-Id": "1234",
+        "X-User-Name": "tester",
+        "X-Trace-ID": "abcde-12345"
+    }
+    resp = client.get("/info", headers=headers)
+    assert resp.status_code == 200
+    data = resp.json()
+    # 你项目的ResponseModel结构，假设data在data字段下
+    payload = data["data"]
+    assert payload["userid"] == "1234"      # 或 int("1234")，看你的中间件是否自动转int
+    assert payload["username"] == "tester"
+    assert payload["traceid"] == "abcde-12345"
