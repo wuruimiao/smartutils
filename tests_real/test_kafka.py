@@ -7,7 +7,7 @@ TEST_TOPIC = "pytest-test-topic"
 GROUP_ID = "pytest-group"
 
 
-@pytest.fixture(scope="function", autouse=True)
+@pytest.fixture
 async def setup_kafka(tmp_path_factory):
     config_str = """
 kafka:
@@ -39,8 +39,39 @@ kafka:
     reset_all()
 
 
+@pytest.fixture
+async def setup_unreachable_kafka(tmp_path_factory):
+    config_str = """
+kafka:
+  default:
+    bootstrap_servers:
+      - host: 127.0.0.1
+        port: 9093
+    client_id: unmanned
+    acks: all
+    compression_type: zstd
+    max_batch_size: 16384
+    linger_ms: 0
+    request_timeout_ms: 1000
+    retry_backoff_ms: 100"""
+    tmp_dir = tmp_path_factory.mktemp("config")
+    config_file = tmp_dir / "test_config.yaml"
+    with open(config_file, "w") as f:
+        f.write(config_str)
 
-async def test_send_and_consume():
+    from smartutils import init_all
+    await init_all(str(config_file))
+
+    yield
+
+    from smartutils.infra import KafkaManager
+    await KafkaManager().close()
+
+    from smartutils import reset_all
+    reset_all()
+
+
+async def test_send_and_consume(setup_kafka):
     from smartutils.infra import KafkaManager
     import uuid
 
@@ -73,11 +104,9 @@ async def test_send_and_consume():
     await send_consume()
 
 
-
-async def test_send_and_batch_consume():
+async def test_send_and_batch_consume(setup_kafka):
     """测试 KafkaBatchConsumer 批量消费"""
     from smartutils.infra import KafkaBatchConsumer, KafkaManager
-
     kafka_mgr = KafkaManager()
 
     @kafka_mgr.use()
@@ -112,3 +141,17 @@ async def test_send_and_batch_consume():
         assert any("batch_2" in s for s in got)
 
     await test()
+
+
+async def test_ping(setup_kafka):
+    from smartutils.infra import KafkaManager
+    kafka_mgr = KafkaManager()
+    result = await kafka_mgr.client().ping()
+    assert result
+
+
+async def test_unreachable_ping(setup_unreachable_kafka):
+    from smartutils.infra import KafkaManager
+    kafka_mgr = KafkaManager()
+    result = await kafka_mgr.client().ping()
+    assert not result
