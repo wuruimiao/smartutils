@@ -2,6 +2,7 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import Union
 
+from sqlalchemy.sql import text
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.ext.asyncio import AsyncSession, AsyncEngine, create_async_engine
 from sqlalchemy.orm import sessionmaker
@@ -32,10 +33,10 @@ class AsyncDBCli(AbstractResource):
     async def ping(self) -> bool:
         try:
             async with self.engine.connect() as conn:
-                await conn.execute("SELECT 1")
+                await conn.execute(text("SELECT 1"))
             return True
         except Exception as e:
-            logger.warning(f"[{self._name}] DB ping failed: {e}")
+            logger.error(f"[{self._name}] DB ping failed: {e}")
             return False
 
     async def close(self):

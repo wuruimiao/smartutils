@@ -14,7 +14,7 @@ class User(Base):
     name = Column(String(64))
 
 
-@pytest.fixture(scope="function", autouse=True)
+@pytest.fixture
 async def setup_db(tmp_path_factory):
     config_str = """
 mysql:
@@ -50,7 +50,42 @@ mysql:
     reset_all()
 
 
-async def test_get_db():
+@pytest.fixture
+async def setup_unreachable_db(tmp_path_factory):
+    config_str = """
+mysql:
+  default:
+    host: 222.222.222.222
+    port: 3306
+    user: root
+    passwd: naobo
+    db: test_db
+    pool_size: 10
+    max_overflow: 5
+    pool_timeout: 30
+    pool_recycle: 3600
+    echo: false
+    echo_pool: false
+    connect_timeout: 1
+    execute_timeout: 10"""
+    tmp_dir = tmp_path_factory.mktemp("config")
+    config_file = tmp_dir / "test_config.yaml"
+    with open(config_file, "w") as f:
+        f.write(config_str)
+
+    from smartutils import init_all
+    await init_all(str(config_file))
+
+    from smartutils.infra import MySQLManager
+    my_mgr = MySQLManager()
+    yield
+    await my_mgr.close()
+
+    from smartutils import reset_all
+    reset_all()
+
+
+async def test_get_db(setup_db):
     from smartutils.infra import MySQLManager
     my_mgr = MySQLManager()
     # 测试插入/查询/删除
@@ -66,7 +101,7 @@ async def test_get_db():
         await session.commit()
 
 
-async def test_with_db_success_and_rollback():
+async def test_with_db_success_and_rollback(setup_db):
     from smartutils.infra import MySQLManager
     my_mgr = MySQLManager()
 
@@ -90,7 +125,7 @@ async def test_with_db_success_and_rollback():
         assert result.scalar() == 0
 
 
-async def test_with_db_commit():
+async def test_with_db_commit(setup_db):
     from smartutils.infra import MySQLManager
     my_mgr = MySQLManager()
 
@@ -111,9 +146,23 @@ async def test_with_db_commit():
         await session.commit()
 
 
-async def test_curr_db_no_context():
+async def test_curr_db_no_context(setup_db):
     from smartutils.infra import MySQLManager
     my_mgr = MySQLManager()
 
     with pytest.raises(RuntimeError):
         my_mgr.curr()
+
+
+async def test_ping(setup_db):
+    from smartutils.infra import MySQLManager
+    my_mgr = MySQLManager()
+    result = await my_mgr.client().ping()
+    assert result
+
+
+async def test_fail_ping(setup_unreachable_db):
+    from smartutils.infra import MySQLManager
+    my_mgr = MySQLManager()
+    result = await my_mgr.client().ping()
+    assert not result
