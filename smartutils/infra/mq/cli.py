@@ -1,6 +1,5 @@
 import asyncio
 import json
-import logging
 import traceback
 from contextlib import asynccontextmanager
 from typing import List, Dict, Callable, Optional, Any, AsyncContextManager
@@ -9,8 +8,7 @@ from aiokafka import AIOKafkaProducer, AIOKafkaConsumer, TopicPartition, errors
 
 from smartutils.config.schema.kafka import KafkaConf
 from smartutils.infra.abstract import AbstractResource
-
-logger = logging.getLogger(__name__)
+from smartutils.log import logger
 
 
 class AsyncKafkaCli(AbstractResource):

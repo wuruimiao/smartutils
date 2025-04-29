@@ -1,12 +1,8 @@
-import contextlib
-import logging
 from datetime import datetime
 from datetime import timedelta
-from time import time, perf_counter
+from time import time
 from typing import Tuple
 from zoneinfo import ZoneInfo
-
-logger = logging.getLogger(__name__)
 
 _DefaultFormat = "%Y-%m-%d %H:%M:%S"
 _DefaultTZ = ZoneInfo("Asia/Shanghai")
@@ -164,57 +160,3 @@ def today_remain_sec(tz: ZoneInfo = _DefaultTZ) -> int:
     end_of_day = datetime(now.year, now.month, now.day, 23, 59, 59, tzinfo=tz)
     delta = end_of_day - now
     return int(delta.total_seconds())
-
-
-class Timer:
-    def __init__(self, func=perf_counter):
-        self.elapsed = 0.0
-        self._func = func
-        self._start = None
-
-    def start(self):
-        if self._start is not None:
-            raise RuntimeError('Already started')
-        self._start = self._func()
-
-    def stop(self):
-        if self._start is None:
-            raise RuntimeError('Not started')
-        end = self._func()
-        self.elapsed += end - self._start
-        self._start = None
-
-    def reset(self):
-        self.elapsed = 0.0
-
-    @property
-    def running(self):
-        return self._start is not None
-
-    def __enter__(self):
-        self.start()
-        return self
-
-    def __exit__(self, *args):
-        self.stop()
-        logger.info(f"cost {self.elapsed}")
-
-
-@contextlib.contextmanager
-def timer(log):
-    start = get_now_stamp()
-    yield
-    logger.info(f"{log} cost {(get_now_stamp() - start) / 60} min")
-
-
-class TimeRecord:
-    def __init__(self):
-        self._last = get_now_stamp()
-
-    def record(self, t=None):
-        if t is None:
-            t = get_now_stamp()
-        self._last = t
-
-    def gap_up_to(self, sec: int) -> bool:
-        return get_now_stamp() - self._last > sec

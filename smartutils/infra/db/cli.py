@@ -1,4 +1,3 @@
-import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import Union
@@ -10,8 +9,7 @@ from sqlalchemy.orm import sessionmaker
 from smartutils.config.schema.mysql import MySQLConf
 from smartutils.config.schema.postgresql import PostgreSQLConf
 from smartutils.infra.abstract import AbstractResource
-
-logger = logging.getLogger(__name__)
+from smartutils.log import logger
 
 
 class AsyncDBCli(AbstractResource):
