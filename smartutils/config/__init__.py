@@ -1,53 +1,6 @@
-import logging
-from typing import Dict, Any, Optional
-from pathlib import Path
-
-import yaml
-
-from smartutils.config.config import ConfigObj
-from smartutils.config.const import CONF_DEFAULT, PROJECT
+from smartutils.config.const import PROJECT
 from smartutils.config.factory import ConfFactory
 from smartutils.config.schema.project import ProjectConf
+from smartutils.config.init import init, get_config
 
-logger = logging.getLogger(__name__)
-
-__all__ = ['Config', 'init', 'get_config', 'ConfFactory', 'PROJECT', 'ProjectConf']
-
-
-class Config:
-    def __init__(self, config_path: str):
-        self._instances: Dict[str, Dict[str, Any]] = {}
-        self._config: Dict[str, Any] = {}
-
-        if not Path(config_path).exists():
-            logger.info(f'conf no {config_path}, do nothing')
-            return
-
-        with open(config_path) as f:
-            self._config = yaml.safe_load(f)
-
-        if not self._config:
-            logger.info(f'conf emtpy, do nothing!!!')
-            return
-
-        for key, conf in self._config.items():
-            logger.info(f'load conf: {key}')
-            self._instances[key] = ConfFactory.create(key, conf)
-
-    def get(self, name: str) -> Optional[Dict[str, Any]]:
-        return self._instances.get(name)
-
-
-_config: ConfigObj
-
-
-def init(conf_path: str = 'config/config.yaml') -> ConfigObj:
-    global _config
-    _config = ConfigObj(Config(conf_path))
-    return _config
-
-
-def get_config() -> ConfigObj:
-    if _config is None:
-        raise RuntimeError("Config not initialized")
-    return _config
+__all__ = ['init', 'get_config', 'ConfFactory', 'PROJECT', 'ProjectConf']

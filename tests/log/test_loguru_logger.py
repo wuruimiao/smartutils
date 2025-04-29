@@ -1,6 +1,5 @@
 import asyncio
 import os
-import sys
 
 
 async def test_loguru_logger_with_temp_config(tmp_path):
