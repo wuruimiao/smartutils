@@ -39,7 +39,7 @@ kafka:
     reset_all()
 
 
-@pytest.mark.asyncio
+
 async def test_send_and_consume():
     from smartutils.infra import KafkaManager
     import uuid
@@ -73,7 +73,7 @@ async def test_send_and_consume():
     await send_consume()
 
 
-@pytest.mark.asyncio
+
 async def test_send_and_batch_consume():
     """测试 KafkaBatchConsumer 批量消费"""
     from smartutils.infra import KafkaBatchConsumer, KafkaManager

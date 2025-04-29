@@ -29,7 +29,7 @@ redis:
     reset_all()
 
 
-@pytest.mark.asyncio
+
 async def test_curr_cache_in_context():
     from smartutils.infra import RedisManager
     redis_mgr = RedisManager()
@@ -46,7 +46,7 @@ async def test_curr_cache_in_context():
     await func()
 
 
-@pytest.mark.asyncio
+
 async def test_curr_cache_out_of_context():
     from smartutils.infra import RedisManager
     redis_mgr = RedisManager()

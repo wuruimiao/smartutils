@@ -41,7 +41,6 @@ def test_timer_with_context():
     assert t.elapsed >= 0.01
 
 
-@pytest.mark.asyncio
 async def test_timer_async_with_context():
     t = Timer()
     async with t:
@@ -114,7 +113,6 @@ def test_timeit_sync(capture_logger):
     assert re.search(r"TestSync: foo cost [\d\.]+s", capture_logger[0])
 
 
-@pytest.mark.asyncio
 async def test_timeit_async(capture_logger):
     @timeit("TestAsync: ")
     async def bar(x):
@@ -137,7 +135,6 @@ def test_timeit_return_value(capture_logger):
     assert "add cost" in capture_logger[0]
 
 
-@pytest.mark.asyncio
 async def test_timeit_async_accuracy(capture_logger):
     @timeit()
     async def sleep_func():
