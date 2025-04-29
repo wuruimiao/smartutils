@@ -1,18 +1,22 @@
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any, TypeVar
 
 import yaml
+from pydantic import BaseModel
 
-from smartutils.config.config import ConfigObj
 from smartutils.config.factory import ConfFactory
+from smartutils.config.schema.project import ProjectConf
+from smartutils.config.const import ConfKey
+from smartutils.design import singleton
 from smartutils.log import logger
 
-_config: ConfigObj
+T = TypeVar('T', bound=BaseModel)
 
 
+@singleton
 class Config:
     def __init__(self, config_path: str):
-        self._instances: Dict[str, Dict[str, Any]] = {}
+        self._instances: Dict[str, T] = {}
         self._config: Dict[str, Any] = {}
 
         if not Path(config_path).exists():
@@ -29,13 +33,20 @@ class Config:
         for key in ConfFactory.all_keys():
             self._instances[key] = ConfFactory.create(key, self._config.get(key))
 
-    def get(self, name: str) -> Optional[Dict[str, Any]]:
+    def get(self, name: str) -> T:
         return self._instances.get(name)
 
+    @property
+    def project(self) -> ProjectConf:
+        return self.get(ConfKey.PROJECT)
 
-def init(conf_path: str = 'config/config.yaml') -> ConfigObj:
+
+_config: Config
+
+
+def init(conf_path: str = 'config/config.yaml') -> Config:
     global _config
-    _config = ConfigObj(Config(conf_path))
+    _config = Config(conf_path)
     return _config
 
 
@@ -44,7 +55,7 @@ def reset():
     _config = None
 
 
-def get_config() -> ConfigObj:
+def get_config() -> Config:
     if _config is None:
         raise RuntimeError("Config not initialized")
     return _config

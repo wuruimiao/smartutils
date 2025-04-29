@@ -1,4 +1,11 @@
-CTX_CACHE_REDIS = 'cache_redis'
-CTX_DB_MYSQL = 'db_mysql'
-CTX_DB_POSTGRESQL = 'db_postgresql'
-CTX_MQ_KAFKA = 'mq_kafka'
+class CTXKey:
+    CACHE_REDIS = 'cache_redis'
+
+    DB_MYSQL = 'db_mysql'
+    DB_POSTGRESQL = 'db_postgresql'
+
+    MQ_KAFKA = 'mq_kafka'
+
+    TRACE_ID = 'traceid'
+    USERID = 'userid'
+    USERNAME = 'username'
