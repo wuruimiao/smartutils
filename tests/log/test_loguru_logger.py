@@ -29,7 +29,7 @@ loguru:
     log_file = os.path.join(tmp_path, "testlog.log")
     assert os.path.exists(log_file)
     # 等待写入
-    await asyncio.sleep(1)
+    await asyncio.sleep(0.3)
     with open(log_file, "r") as f:
         content = f.read()
     assert "hello test loguru logger" in content
@@ -71,7 +71,7 @@ loguru:
     log_file = os.path.join(tmp_path, "printlog.log")
     assert os.path.exists(log_file)
     # 等待写入
-    await asyncio.sleep(1)
+    await asyncio.sleep(0.3)
     with open(log_file, "r") as f:
         content = f.read()
     assert "this is printed and should be in the log file" in content
@@ -113,7 +113,7 @@ loguru:
 
     log_file = os.path.join(tmp_path, "streamlog.log")
     assert os.path.exists(log_file)
-    await asyncio.sleep(1)
+    await asyncio.sleep(0.3)
     with open(log_file, "r") as f:
         content = f.read()
     # print内容不在日志文件

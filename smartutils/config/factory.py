@@ -3,19 +3,19 @@ from smartutils.config.const import CONF_DEFAULT
 
 
 class ConfFactory:
-    registry: Dict[str, Tuple[Type, bool]] = {}
+    _registry: Dict[str, Tuple[Type, bool]] = {}
 
     @classmethod
     def register(cls, name: str, multi: bool = False):
         def decorator(conf_cls: Type):
-            cls.registry[name] = (conf_cls, multi)
+            cls._registry[name] = (conf_cls, multi)
             return conf_cls
 
         return decorator
 
     @classmethod
     def create(cls, name: str, conf: Dict):
-        info = cls.registry.get(name)
+        info = cls._registry.get(name)
         if not info:
             raise ValueError(f"No conf class registered for {name}")
 
@@ -27,3 +27,7 @@ class ConfFactory:
             return {key: conf_cls(**_conf) for key, _conf in conf.items()}
         else:
             return conf_cls(**conf)
+
+    @classmethod
+    def reset(cls):
+        cls._registry.clear()

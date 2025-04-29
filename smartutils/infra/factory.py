@@ -19,3 +19,7 @@ class InfraFactory:
     @classmethod
     def all(cls):
         return cls._registry
+
+    @classmethod
+    def reset(cls):
+        cls._registry.clear()

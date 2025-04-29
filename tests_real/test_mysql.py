@@ -166,3 +166,27 @@ async def test_fail_ping(setup_unreachable_db):
     my_mgr = MySQLManager()
     result = await my_mgr.client().ping()
     assert not result
+
+
+async def test_health_check(setup_db):
+    from smartutils.infra import MySQLManager
+    my_mgr = MySQLManager()
+    result = await my_mgr.health_check()
+    assert 'default' in result
+    assert result['default']
+
+
+async def test_no_client(setup_db):
+    from smartutils.infra import MySQLManager
+    my_mgr = MySQLManager()
+    with pytest.raises(RuntimeError) as exc:
+        my_mgr.client('no_key')
+    assert 'No resource found for key: no_key' in str(exc.value)
+
+    with pytest.raises(RuntimeError) as exc:
+        @my_mgr.use('no_key')
+        async def test():
+            pass
+        await test()
+
+    assert 'No resource found for key: no_key' in str(exc.value)
