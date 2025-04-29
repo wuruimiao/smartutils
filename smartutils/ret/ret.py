@@ -12,9 +12,9 @@ class ResponseModel(BaseModel, Generic[T]):
     data: Optional[T] = None
 
 
-def success_response(data: Any = None):
+def success_res(data: Any = None):
     return {'code': 0, 'message': 'success', 'data': data}
 
 
-def error_response(code: int, message: str):
+def fail_res(code: int, message: str):
     raise HTTPException(status_code=400, detail={'code': code, 'message': message})
