@@ -45,12 +45,15 @@ class ContextVarManager:
             cls._reset(key, token)
 
     @classmethod
-    def get(cls, key: str) -> Any:
+    def get(cls, key: str, default: Any = None) -> Any:
         cls._ensure_registered(key)
         try:
             var = cls._vars[key]
             return var.get()
         except LookupError as e:
+            if default is not None:
+                return default
+
             logger.error(f'ContextVarManager get error: {e}')
             raise RuntimeError(f'ContextVarManager get error: {e}')
 
