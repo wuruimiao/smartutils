@@ -2,8 +2,8 @@ import inspect
 
 
 async def init():
-    from smartutils.config.init import _get_inner_config
-    config = _get_inner_config()
+    from smartutils.config.init import get_config
+    config = get_config()
 
     from smartutils.log import logger
 

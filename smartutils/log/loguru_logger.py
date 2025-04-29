@@ -3,9 +3,18 @@ from pathlib import Path
 
 from loguru import logger
 
+from smartutils.ctx import ContextVarManager, CTXKey
+
 _FORMAT = ("<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | "
            "<level>{level: <8}</level> | "
-           "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>")
+           "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> | "
+           "<magenta>{extra[trace_id]}</magenta> - <level>{message}</level>")
+
+
+@ContextVarManager.register(CTXKey.TRACE_ID)
+def inject_trace_id(record):
+    record["extra"]["trace_id"] = ContextVarManager.get(CTXKey.TRACE_ID, default='-')
+    return True
 
 
 class PrintToLogger:
@@ -18,11 +27,17 @@ class PrintToLogger:
         pass
 
 
-def init(log_f_name: str = 'app'):
-    from smartutils.config import get_config
+def init():
     logger.remove()
 
-    conf = get_config().loguru
+    logger.configure(patcher=inject_trace_id)
+
+    from smartutils.config import get_config, ConfKey
+
+    conf = get_config()
+    project_name = 'app' if not conf.project else conf.project.name
+    conf = conf.get(ConfKey.LOGURU)
+
     if not conf:
         logger.info(f'init logger: config no loguru key, do nothing')
         return
@@ -37,7 +52,7 @@ def init(log_f_name: str = 'app'):
         )
 
     if conf.logdir:
-        file_path = Path(conf.logdir) / f'{log_f_name}.log'
+        file_path = Path(conf.logdir) / f'{project_name}.log'
         file_path.parent.mkdir(parents=True, exist_ok=True)
         logger.add(
             file_path,

@@ -1,4 +1,6 @@
+import asyncio
 import functools
+import threading
 import traceback
 from typing import Dict, Callable, Any, Awaitable, Generic
 
@@ -7,6 +9,25 @@ from smartutils.config.const import ConfKey
 from smartutils.ctx import ContextVarManager
 from smartutils.infra.abstract import T
 from smartutils.log import logger
+
+
+class ResourceManagerRegistry:
+    _instances = []
+    _lock = threading.Lock()
+
+    @classmethod
+    def register(cls, instance):
+        with cls._lock:
+            cls._instances.append(instance)
+
+    @classmethod
+    def get_all(cls):
+        with cls._lock:
+            return list(cls._instances)
+
+    @classmethod
+    async def close_all(cls):
+        await asyncio.gather(*(mgr.close() for mgr in ResourceManagerRegistry.get_all()))
 
 
 class ContextResourceManager(Generic[T]):
@@ -19,6 +40,10 @@ class ContextResourceManager(Generic[T]):
         self._resources = resources
         self._success = success
         self._fail = fail
+        ResourceManagerRegistry.register(self)
+
+    def __str__(self) -> str:
+        return f'mgr_{self._context_var_name}'
 
     def use(self, key: str = ConfKey.GROUP_DEFAULT):
         def decorator(func: Callable[..., Awaitable[Any]]):
@@ -52,8 +77,11 @@ class ContextResourceManager(Generic[T]):
         return self._resources[key]
 
     async def close(self):
-        for cli in self._resources.values():
-            await cli.close()
+        for key, cli in self._resources.items():
+            try:
+                await cli.close()
+            except Exception as e:
+                logger.error(f"Failed to close {self} {key}: {e}: {traceback.format_exc()}")
 
     async def health_check(self) -> Dict[str, bool]:
         result = {}
