@@ -17,3 +17,13 @@ class LoguruConfig(BaseModel):
     logdir: Optional[constr(strip_whitespace=True, min_length=1)] = None
     enqueue: Optional[bool] = True
     stream: Optional[bool] = False
+    backtrace: Optional[bool] = False
+    diagnose: Optional[bool] = False
+
+    @property
+    def stream_kw(self) -> dict:
+        return self.model_dump(exclude={'rotation', 'retention', 'compression', 'logdir', 'stream'})
+
+    @property
+    def file_kw(self) -> dict:
+        return self.model_dump(exclude={'logdir', 'stream'})
