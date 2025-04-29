@@ -19,5 +19,5 @@ def reset_all():
     from smartutils.design.singleton import reset_all
     reset_all()
 
-    from smartutils.infra.manager import reset
-    reset()
+    from smartutils.ctx import ContextVarManager
+    ContextVarManager.reset_registered()
