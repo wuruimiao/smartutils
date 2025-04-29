@@ -1,13 +1,13 @@
 from typing import List, Literal
 
-from pydantic import BaseModel, field_validator, conlist, conint, constr
+from pydantic import BaseModel, conlist, conint, constr
 
-from smartutils.config.const import KAFKA
+from smartutils.config.const import ConfKey
 from smartutils.config.factory import ConfFactory
 from smartutils.config.schema.host import HostConf
 
 
-@ConfFactory.register(KAFKA, multi=True)
+@ConfFactory.register(ConfKey.KAFKA, multi=True, require=False)
 class KafkaConf(BaseModel):
     bootstrap_servers: conlist(HostConf, min_length=1)
     client_id: constr(strip_whitespace=True, min_length=1)

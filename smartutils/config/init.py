@@ -26,9 +26,8 @@ class Config:
             logger.info(f'conf emtpy, do nothing!!!')
             return
 
-        for key, conf in self._config.items():
-            logger.info(f'load conf: {key}')
-            self._instances[key] = ConfFactory.create(key, conf)
+        for key in ConfFactory.all_keys():
+            self._instances[key] = ConfFactory.create(key, self._config.get(key))
 
     def get(self, name: str) -> Optional[Dict[str, Any]]:
         return self._instances.get(name)

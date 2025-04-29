@@ -1,13 +1,13 @@
 from typing import Optional
 
-from pydantic import field_validator, Field, conint, constr
+from pydantic import Field, conint, constr
 
-from smartutils.config.const import REDIS
+from smartutils.config.const import ConfKey
 from smartutils.config.factory import ConfFactory
 from smartutils.config.schema.host import HostConf
 
 
-@ConfFactory.register(REDIS, multi=True)
+@ConfFactory.register(ConfKey.REDIS, multi=True, require=False)
 class RedisConf(HostConf):
     db: conint(ge=0)
     port: int = 6379

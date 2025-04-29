@@ -22,7 +22,13 @@ mysql:
     echo: false
     echo_pool: false
     connect_timeout: 10
-    execute_timeout: 10"""
+    execute_timeout: 10
+project:
+  name: auth
+  id: 0
+  description: test_auth
+  version: 0.0.1
+  key: test_key"""
     tmp_dir = tmp_path_factory.mktemp("config")
     config_file = tmp_dir / "test_config.yaml"
     with open(config_file, "w") as f:

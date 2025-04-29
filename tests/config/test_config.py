@@ -70,6 +70,7 @@ canal:
         destination: unmanned_task
 project:
   name: auth
+  id: 0
   description: test_auth
   version: 0.0.1
   key: test_key"""
@@ -89,7 +90,10 @@ def setup_no_conf_class_config(tmp_path_factory):
     config_str = """
 no_conf_class:
   default:
-    a: 1"""
+    a: 1
+project:
+  name: auth
+  id: 0"""
 
     tmp_dir = tmp_path_factory.mktemp("config")
     config_file = tmp_dir / "test_invalid_config.yaml"
@@ -118,8 +122,10 @@ mysql:
     echo: false
     echo_pool: false
     connect_timeout: 10
-    execute_timeout: 10"""
-
+    execute_timeout: 10
+project:
+  name: auth
+  id: 0"""
     tmp_dir = tmp_path_factory.mktemp("config")
     config_file = tmp_dir / "test_no_default_config.yaml"
     with open(config_file, "w") as f:
@@ -169,10 +175,7 @@ def test_config_empty(setup_conf_empty: str):
 
 def test_config_no_conf_class(setup_no_conf_class_config: str):
     from smartutils.config import init
-
-    with pytest.raises(ValueError) as exc:
-        init(setup_no_conf_class_config)
-    assert 'No conf class registered for no_conf_class' in str(exc.value)
+    init(setup_no_conf_class_config)
 
 
 def test_config_no_default(setup_no_conf_default_config: str):
@@ -199,9 +202,9 @@ def test_config_no_config(setup_config):
 
 
 def test_project_conf_inherit(setup_config: str):
-    from smartutils.config import ConfFactory, PROJECT, ProjectConf, init, get_config
+    from smartutils.config import ConfFactory, ConfKey, ProjectConf, init, get_config
 
-    @ConfFactory.register(PROJECT)
+    @ConfFactory.register(ConfKey.PROJECT)
     class MyProjectConf(ProjectConf):
         key: str
 

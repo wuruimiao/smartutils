@@ -3,7 +3,7 @@ import traceback
 from typing import Dict, Callable, Any, Awaitable, Generic
 
 from smartutils.call import call_hook
-from smartutils.config.const import CONF_DEFAULT
+from smartutils.config.const import ConfKey
 from smartutils.ctx import ContextVarManager
 from smartutils.infra.abstract import T
 from smartutils.log import logger
@@ -20,7 +20,7 @@ class ContextResourceManager(Generic[T]):
         self._success = success
         self._fail = fail
 
-    def use(self, key: str = CONF_DEFAULT):
+    def use(self, key: str = ConfKey.GROUP_DEFAULT):
         def decorator(func: Callable[..., Awaitable[Any]]):
             @functools.wraps(func)
             async def wrapper(*args, **kwargs):
@@ -46,7 +46,7 @@ class ContextResourceManager(Generic[T]):
     def curr(self):
         return ContextVarManager.get(self._context_var_name)
 
-    def client(self, key: str = CONF_DEFAULT) -> T:
+    def client(self, key: str = ConfKey.GROUP_DEFAULT) -> T:
         if key not in self._resources:
             raise RuntimeError(f"No resource found for key: {key}")
         return self._resources[key]
