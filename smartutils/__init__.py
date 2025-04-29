@@ -1,12 +1,12 @@
 __all__ = ['init_all']
 
 
-async def init_all(conf_path: str = 'config/config.yaml', log_f_name: str = 'app'):
+async def init_all(conf_path: str = 'config/config.yaml'):
     from smartutils.config import init
     init(conf_path)
 
     from smartutils.log import init
-    init(log_f_name)
+    init()
 
     from smartutils.infra import init
     await init()
