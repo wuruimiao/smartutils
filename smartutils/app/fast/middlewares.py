@@ -2,9 +2,12 @@ from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from smartutils.app.fast.header import CustomHeader
+from smartutils.app.const import HEADERKey
 from smartutils.ctx import CTXKey, ContextVarManager
 
 
+@ContextVarManager.register(CTXKey.USERID)
+@ContextVarManager.register(CTXKey.USERNAME)
 class HeaderMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         trace_id = CustomHeader.traceid(request)
@@ -21,5 +24,5 @@ class HeaderMiddleware(BaseHTTPMiddleware):
         ):
             response = await call_next(request)
 
-            response.headers[CTXKey.TRACE_ID] = trace_id
+            response.headers[HEADERKey.X_TRACE_ID] = trace_id
             return response

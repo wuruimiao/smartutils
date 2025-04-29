@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Dict, Any, TypeVar
+from typing import Dict, Any, TypeVar, Optional
 
 import yaml
 from pydantic import BaseModel
@@ -30,6 +30,8 @@ class Config:
             logger.info(f'conf emtpy, do nothing!!!')
             return
 
+        logger.info(f'config init by {config_path}')
+
         for key in ConfFactory.all_keys():
             self._instances[key] = ConfFactory.create(key, self._config.get(key))
 
@@ -41,7 +43,7 @@ class Config:
         return self.get(ConfKey.PROJECT)
 
 
-_config: Config
+_config: Optional[Config] = None
 
 
 def init(conf_path: str = 'config/config.yaml') -> Config:
