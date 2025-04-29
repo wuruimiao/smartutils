@@ -183,6 +183,11 @@ def test_config_no_default(setup_no_conf_default_config: str):
     assert 'default not in mysql' in str(exc.value)
 
 
+def test_config_no_config_file(setup_config):
+    from smartutils.config import get_config, init
+    init()
+
+
 def test_config_no_config(setup_config):
     from smartutils.config import get_config
     from smartutils import config
