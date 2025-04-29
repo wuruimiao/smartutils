@@ -1,5 +1,3 @@
-# test_snowflake.py
-
 import pytest
 from smartutils.ID import Snowflake, SnowflakeGenerator, MAX_INSTANCE, MAX_SEQ
 
