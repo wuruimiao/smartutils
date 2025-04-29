@@ -33,37 +33,30 @@ def init():
     logger.configure(patcher=inject_trace_id)
 
     from smartutils.config import get_config, ConfKey
+    from smartutils.config.schema.logger import LoguruConfig
 
-    conf = get_config()
-    project_name = 'app' if not conf.project else conf.project.name
-    conf = conf.get(ConfKey.LOGURU)
+    _conf = get_config()
+    conf: LoguruConfig = _conf.get(ConfKey.LOGURU)
 
     if not conf:
         logger.info(f'init logger: config no loguru key, do nothing')
         return
 
     if conf.stream:
-        logger.add(
-            sys.stdout,
-            level=conf.level,
-            format=_FORMAT,
-            colorize=True,
-            enqueue=conf.enqueue,
-        )
+        kw = conf.stream_kw
+        kw['format'] = _FORMAT
+        kw['colorize'] = True
+        logger.add(sys.stdout, **kw)
 
     if conf.logdir:
+        project_name = 'app' if not _conf.project else _conf.project.name
         file_path = Path(conf.logdir) / f'{project_name}.log'
         file_path.parent.mkdir(parents=True, exist_ok=True)
-        logger.add(
-            file_path,
-            level=conf.level,
-            format=_FORMAT,
-            rotation=conf.rotation,
-            retention=conf.retention,
-            compression=conf.compression,
-            enqueue=conf.enqueue,
-            colorize=False,
-        )
+
+        kw = conf.file_kw
+        kw['format'] = _FORMAT
+        kw['colorize'] = False
+        logger.add(file_path, **kw)
 
     if not conf.stream and conf.logdir:
         sys.stdout = PrintToLogger()
