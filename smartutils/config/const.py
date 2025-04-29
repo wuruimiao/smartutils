@@ -1,9 +1,10 @@
-MYSQL = "mysql"
-POSTGRESQL = "postgresql"
-REDIS = "redis"
-KAFKA = "kafka"
-CANAL = "canal"
-PROJECT = "project"
-LOGURU = "loguru"
+class ConfKey:
+    MYSQL = 'mysql'
+    POSTGRESQL = "postgresql"
+    REDIS = "redis"
+    KAFKA = "kafka"
+    CANAL = "canal"
+    PROJECT = "project"
+    LOGURU = "loguru"
 
-CONF_DEFAULT = "default"
+    GROUP_DEFAULT = 'default'

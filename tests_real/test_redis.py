@@ -12,7 +12,13 @@ redis:
     db: 0
     pool_size: 10
     connect_timeout: 10
-    socket_timeout: 10"""
+    socket_timeout: 10
+project:
+  name: auth
+  id: 0
+  description: test_auth
+  version: 0.0.1
+  key: test_key"""
     tmp_dir = tmp_path_factory.mktemp("config")
     config_file = tmp_dir / "test_config.yaml"
     with open(config_file, "w") as f:
@@ -40,7 +46,13 @@ redis:
     db: 0
     pool_size: 10
     connect_timeout: 10
-    socket_timeout: 10"""
+    socket_timeout: 10
+project:
+  name: auth
+  id: 0
+  description: test_auth
+  version: 0.0.1
+  key: test_key"""
     tmp_dir = tmp_path_factory.mktemp("config")
     config_file = tmp_dir / "test_config.yaml"
     with open(config_file, "w") as f:

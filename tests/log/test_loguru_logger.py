@@ -11,7 +11,13 @@ loguru:
   rotation: "1 MB"
   retention: "3 days"
   compression: "zip"
-  enqueue: true""" % tmp_path
+  enqueue: true
+project:
+  name: auth
+  id: 0
+  description: test_auth
+  version: 0.0.1
+  key: test_key""" % tmp_path
     config_file = tmp_path / "config.yaml"
     with open(config_file, "w") as f:
         f.write(config_str)
@@ -20,12 +26,12 @@ loguru:
     init(str(config_file))
 
     from smartutils.log import init
-    init(log_f_name="testlog")
+    init()
 
     from smartutils.log import logger
     logger.debug("hello test loguru logger")
 
-    log_file = os.path.join(tmp_path, "testlog.log")
+    log_file = os.path.join(tmp_path, "auth.log")
     assert os.path.exists(log_file)
     # 等待写入
     await asyncio.sleep(0.3)
@@ -49,7 +55,13 @@ loguru:
   rotation: "1 MB"
   retention: "3 days"
   compression: "zip"
-  enqueue: true""" % tmp_path
+  enqueue: true
+project:
+  name: auth
+  id: 0
+  description: test_auth
+  version: 0.0.1
+  key: test_key""" % tmp_path
     config_file = tmp_path / "config.yaml"
     with open(config_file, "w") as f:
         f.write(config_str)
@@ -58,7 +70,7 @@ loguru:
     init(str(config_file))
 
     from smartutils.log import init
-    init(log_f_name="printlog")
+    init()
 
     # PrintToLogger生效，print被记录
     print("this is printed and should be in the log file")
@@ -66,7 +78,7 @@ loguru:
     from smartutils.log import logger
     logger.debug("logger debug also in log file")
 
-    log_file = os.path.join(tmp_path, "printlog.log")
+    log_file = os.path.join(tmp_path, "auth.log")
     assert os.path.exists(log_file)
     # 等待写入
     await asyncio.sleep(0.3)
@@ -92,7 +104,13 @@ loguru:
   rotation: "1 MB"
   retention: "3 days"
   compression: "zip"
-  enqueue: true""" % tmp_path
+  enqueue: true
+project:
+  name: auth
+  id: 0
+  description: test_auth
+  version: 0.0.1
+  key: test_key""" % tmp_path
     config_file = tmp_path / "config.yaml"
     with open(config_file, "w") as f:
         f.write(config_str)
@@ -101,7 +119,7 @@ loguru:
     init(str(config_file))
 
     from smartutils.log import init
-    init(log_f_name="streamlog")
+    init()
 
     # 打印一条消息
     print("this should NOT be in the log file, only in stdout")
@@ -109,9 +127,9 @@ loguru:
     from smartutils.log import logger
     logger.debug("logger debug in log file")
 
-    log_file = os.path.join(tmp_path, "streamlog.log")
-    assert os.path.exists(log_file)
+    log_file = os.path.join(tmp_path, "auth.log")
     await asyncio.sleep(0.3)
+    assert os.path.exists(log_file)
     with open(log_file, "r") as f:
         content = f.read()
     # print内容不在日志文件

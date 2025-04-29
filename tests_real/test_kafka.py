@@ -21,7 +21,13 @@ kafka:
     max_batch_size: 16384
     linger_ms: 0
     request_timeout_ms: 1000
-    retry_backoff_ms: 100"""
+    retry_backoff_ms: 100
+project:
+  name: auth
+  id: 0
+  description: test_auth
+  version: 0.0.1
+  key: test_key"""
     tmp_dir = tmp_path_factory.mktemp("config")
     config_file = tmp_dir / "test_config.yaml"
     with open(config_file, "w") as f:
@@ -53,7 +59,13 @@ kafka:
     max_batch_size: 16384
     linger_ms: 0
     request_timeout_ms: 1000
-    retry_backoff_ms: 100"""
+    retry_backoff_ms: 100
+project:
+  name: auth
+  id: 0
+  description: test_auth
+  version: 0.0.1
+  key: test_key"""
     tmp_dir = tmp_path_factory.mktemp("config")
     config_file = tmp_dir / "test_config.yaml"
     with open(config_file, "w") as f:

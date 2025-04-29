@@ -2,12 +2,12 @@ from typing import Optional
 
 from pydantic import conint
 
-from smartutils.config.const import MYSQL
+from smartutils.config.const import ConfKey
 from smartutils.config.factory import ConfFactory
 from smartutils.config.schema.db import DBConf
 
 
-@ConfFactory.register(MYSQL, multi=True)
+@ConfFactory.register(ConfKey.MYSQL, multi=True, require=False)
 class MySQLConf(DBConf):
     port: int = 3306
 
