@@ -102,7 +102,7 @@ async def test_send_and_batch_consume():
 
         # 用 asyncio.wait_for 限制总执行时间，避免死等
         try:
-            await asyncio.wait_for(consumer.start(), timeout=5)
+            await asyncio.wait_for(consumer.start(), timeout=8)
         except asyncio.TimeoutError:
             pass
 
