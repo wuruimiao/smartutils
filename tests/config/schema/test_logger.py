@@ -6,7 +6,6 @@ from pydantic import ValidationError
 def valid_conf(**kwargs):
     return {
         "level": "INFO",
-        "format": "<green>{message}</green>",
         "rotation": "10 MB",
         "retention": "7 days",
         "compression": "zip",
@@ -27,7 +26,6 @@ def test_valid_config(setup_config):
     assert conf.level == "INFO"
     assert conf.logdir == str(setup_config["logdir"])
     assert conf.compression == "zip"
-    assert conf.format.startswith("<green>")
 
 
 def test_level_invalid():
@@ -37,7 +35,7 @@ def test_level_invalid():
     assert " Input should be 'DEBUG', 'INFO', 'WARNING', 'ERROR' or 'CRITICAL'" in str(exc.value)
 
 
-@pytest.mark.parametrize("field", ['format', 'rotation', 'retention'])
+@pytest.mark.parametrize("field", ['rotation', 'retention'])
 def test_emtpy(field, setup_config):
     with pytest.raises(ValidationError) as exc:
         setup_config[field] = ""
