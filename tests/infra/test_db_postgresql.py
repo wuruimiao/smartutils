@@ -36,7 +36,6 @@ postgresql:
     reset_all()
 
 
-@pytest.mark.asyncio
 async def test_mysql_manager_use_and_curr(monkeypatch):
     fake_session = AsyncMock()
     fake_session.in_transaction = MagicMock(return_value=True)
@@ -73,7 +72,6 @@ async def test_mysql_manager_use_and_curr(monkeypatch):
     fake_session.rollback.assert_awaited()
 
 
-@pytest.mark.asyncio
 async def test_curr_no_context():
     pgsql_mgr = PostgresqlManager()
     with pytest.raises(RuntimeError):

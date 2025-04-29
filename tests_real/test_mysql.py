@@ -50,7 +50,6 @@ mysql:
     reset_all()
 
 
-@pytest.mark.asyncio
 async def test_get_db():
     from smartutils.infra import MySQLManager
     my_mgr = MySQLManager()
@@ -67,7 +66,6 @@ async def test_get_db():
         await session.commit()
 
 
-@pytest.mark.asyncio
 async def test_with_db_success_and_rollback():
     from smartutils.infra import MySQLManager
     my_mgr = MySQLManager()
@@ -92,7 +90,6 @@ async def test_with_db_success_and_rollback():
         assert result.scalar() == 0
 
 
-@pytest.mark.asyncio
 async def test_with_db_commit():
     from smartutils.infra import MySQLManager
     my_mgr = MySQLManager()
@@ -114,7 +111,6 @@ async def test_with_db_commit():
         await session.commit()
 
 
-@pytest.mark.asyncio
 async def test_curr_db_no_context():
     from smartutils.infra import MySQLManager
     my_mgr = MySQLManager()
