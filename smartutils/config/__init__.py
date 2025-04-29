@@ -1,5 +1,6 @@
 import logging
 from typing import Dict, Any, Optional
+from pathlib import Path
 
 import yaml
 
@@ -17,6 +18,10 @@ class Config:
     def __init__(self, config_path: str):
         self._instances: Dict[str, Dict[str, Any]] = {}
         self._config: Dict[str, Any] = {}
+
+        if not Path(config_path).exists():
+            logger.info(f'conf no {config_path}, do nothing')
+            return
 
         with open(config_path) as f:
             self._config = yaml.safe_load(f)
