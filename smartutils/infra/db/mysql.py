@@ -2,7 +2,7 @@ from typing import Dict
 
 from smartutils.config.const import ConfKey
 from smartutils.config.schema.mysql import MySQLConf
-from smartutils.ctx import ContextVarManager, CTX_DB_MYSQL
+from smartutils.ctx import ContextVarManager, CTXKey
 from smartutils.design import singleton
 from smartutils.infra.db.cli import AsyncDBCli, db_commit, db_rollback
 from smartutils.infra.factory import InfraFactory
@@ -10,11 +10,11 @@ from smartutils.infra.manager import ContextResourceManager
 
 
 @singleton
-@ContextVarManager.register(CTX_DB_MYSQL)
+@ContextVarManager.register(CTXKey.DB_MYSQL)
 class MySQLManager(ContextResourceManager[AsyncDBCli]):
     def __init__(self, confs: Dict[str, MySQLConf]):
         resources = {k: AsyncDBCli(conf, f'mysql_{k}') for k, conf in confs.items()}
-        super().__init__(resources, CTX_DB_MYSQL, success=db_commit, fail=db_rollback)
+        super().__init__(resources, CTXKey.DB_MYSQL, success=db_commit, fail=db_rollback)
 
 
 @InfraFactory.register(ConfKey.MYSQL)

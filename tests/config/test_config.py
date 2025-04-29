@@ -158,11 +158,11 @@ def test_config_loads_all(setup_config: str):
 
     config = get_config()
     assert config is not None
-    assert config.mysql['default'].url == 'mysql+asyncmy://root:naobo@localhost:3306/test_db'
-    assert config.postgresql['default'].url == 'postgresql+asyncpg://root:naobo@localhost:5432/test_db'
-    assert config.redis['default'].url == 'redis://localhost:6379'
-    assert config.kafka['default'].urls == ['localhost:19092', '127.0.0.1:9093']
-    assert config.canal['default'].clients[0].name == 'c1'
+    assert config.get('mysql')['default'].url == 'mysql+asyncmy://root:naobo@localhost:3306/test_db'
+    assert config.get('postgresql')['default'].url == 'postgresql+asyncpg://root:naobo@localhost:5432/test_db'
+    assert config.get('redis')['default'].url == 'redis://localhost:6379'
+    assert config.get('kafka')['default'].urls == ['localhost:19092', '127.0.0.1:9093']
+    assert config.get('canal')['default'].clients[0].name == 'c1'
     assert config.project.name == "auth"
     assert config.project.description == "test_auth"
     assert config.project.version == "0.0.1"

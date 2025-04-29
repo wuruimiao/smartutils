@@ -1,4 +1,7 @@
 import inspect
+import pkgutil
+import importlib
+import types
 
 
 async def call_hook(hook, *args, **kwargs):
@@ -8,3 +11,11 @@ async def call_hook(hook, *args, **kwargs):
     result = hook(*args, **kwargs)
     if inspect.isawaitable(result):
         await result
+
+
+def register_package(package: types.ModuleType):
+    """
+    自动递归扫描并import package下所有模块（包括子包），从而触发注册。
+    """
+    for finder, modname, ispkg in pkgutil.walk_packages(package.__path__, package.__name__ + "."):
+        importlib.import_module(modname)

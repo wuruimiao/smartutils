@@ -4,7 +4,6 @@ from smartutils.config.const import ConfKey
 from smartutils.log import logger
 
 
-
 class ConfFactory:
     _registry: Dict[str, Tuple[Type, bool, bool]] = {}
 

@@ -2,8 +2,8 @@ import inspect
 
 
 async def init():
-    from smartutils.config import get_config
-    config = get_config()
+    from smartutils.config.init import _get_inner_config
+    config = _get_inner_config()
 
     from smartutils.log import logger
 
@@ -11,7 +11,7 @@ async def init():
 
     from smartutils.infra.factory import InfraFactory
     for comp_key, init_func in InfraFactory.all().items():
-        conf = getattr(config, comp_key, None)
+        conf = config.get(comp_key)
         if not conf:
             logger.info(f'config no {comp_key}, do nothing')
             continue
