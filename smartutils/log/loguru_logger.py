@@ -16,10 +16,12 @@ class PrintToLogger:
 
 def init(log_f_name: str = 'app'):
     from smartutils.config import get_config
+    logger.remove()
 
     conf = get_config().loguru
-
-    logger.remove()
+    if not conf:
+        logger.info(f'init logger: config no loguru key, do nothing')
+        return
 
     if conf.stream:
         logger.add(

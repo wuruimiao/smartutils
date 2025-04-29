@@ -27,21 +27,16 @@ kafka:
     with open(config_file, "w") as f:
         f.write(config_str)
 
-    from smartutils.config import init
-    init(str(config_file))
-
-    from smartutils.infra import init
-    await init()
+    from smartutils import init_all
+    await init_all(str(config_file))
 
     yield
 
     from smartutils.infra import KafkaManager
     await KafkaManager().close()
 
-    from smartutils.design.singleton import reset_all
+    from smartutils import reset_all
     reset_all()
-    from smartutils.infra.manager import reset
-    reset()
 
 
 @pytest.mark.asyncio

@@ -1,7 +1,7 @@
 __all__ = ['init_all']
 
 
-async def init_all(log_f_name: str = None, conf_path: str = None):
+async def init_all(conf_path: str = 'config/config.yaml', log_f_name: str = 'app'):
     from smartutils.config import init
     init(conf_path)
 
@@ -10,3 +10,14 @@ async def init_all(log_f_name: str = None, conf_path: str = None):
 
     from smartutils.infra import init
     await init()
+
+
+def reset_all():
+    """
+    测试时重置单例状态类型，以及校验
+    """
+    from smartutils.design.singleton import reset_all
+    reset_all()
+
+    from smartutils.infra.manager import reset
+    reset()

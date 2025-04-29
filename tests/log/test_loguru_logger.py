@@ -128,3 +128,20 @@ loguru:
 
     from smartutils.design.singleton import reset_all
     reset_all()
+
+
+async def test_loguru_logger_no_config():
+    """
+    stream: true 时，print 只会输出到控制台，不进日志文件
+    """
+
+    from smartutils.config import init
+    init()
+
+    from smartutils.log import init, logger
+    init()
+
+    logger.debug("logger debug in log file")
+
+    from smartutils.design.singleton import reset_all
+    reset_all()
