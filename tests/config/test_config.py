@@ -184,14 +184,14 @@ def test_config_no_default(setup_no_conf_default_config: str):
 
 
 def test_config_no_config_file(setup_config):
-    from smartutils.config import get_config, init
+    from smartutils.config import init
     init()
 
 
 def test_config_no_config(setup_config):
     from smartutils.config import get_config
-    from smartutils import config
-    config._config = None
+    from smartutils.config.init import reset
+    reset()
 
     with pytest.raises(RuntimeError) as exc:
         conf = get_config()
