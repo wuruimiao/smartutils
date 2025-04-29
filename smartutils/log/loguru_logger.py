@@ -3,6 +3,10 @@ from pathlib import Path
 
 from loguru import logger
 
+_FORMAT = ("<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | "
+           "<level>{level: <8}</level> | "
+           "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>")
+
 
 class PrintToLogger:
     def write(self, message):
@@ -27,7 +31,7 @@ def init(log_f_name: str = 'app'):
         logger.add(
             sys.stdout,
             level=conf.level,
-            format=conf.format,
+            format=_FORMAT,
             colorize=True,
             enqueue=conf.enqueue,
         )
@@ -38,7 +42,7 @@ def init(log_f_name: str = 'app'):
         logger.add(
             file_path,
             level=conf.level,
-            format=conf.format,
+            format=_FORMAT,
             rotation=conf.rotation,
             retention=conf.retention,
             compression=conf.compression,

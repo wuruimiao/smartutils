@@ -8,7 +8,6 @@ loguru:
   stream: false
   logdir: "%s"
   level: "DEBUG"
-  format: "<level>{message}</level>"
   rotation: "1 MB"
   retention: "3 days"
   compression: "zip"
@@ -47,7 +46,6 @@ loguru:
   stream: false
   logdir: "%s"
   level: "DEBUG"
-  format: "<level>{message}</level>"
   rotation: "1 MB"
   retention: "3 days"
   compression: "zip"
