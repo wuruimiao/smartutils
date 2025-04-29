@@ -16,12 +16,12 @@ class ContextVarManager:
 
     @classmethod
     def reset_registered(cls):
-        cls._vars.clear()
+        pass
 
     @classmethod
     def _register(cls, key: str):
         if key in cls._vars:
-            raise RuntimeError(f"ContextVarManager register error: key '{key}' already registered")
+            raise ValueError(f"ContextVarManager register error: key '{key}' already registered")
         cls._vars[key] = contextvars.ContextVar(key)
 
     @classmethod
