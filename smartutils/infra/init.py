@@ -5,8 +5,7 @@ async def init():
     from smartutils.config import get_config
     config = get_config()
 
-    import logging
-    logger = logging.getLogger(__name__)
+    from smartutils.log import logger
 
     global_vars = globals()
 

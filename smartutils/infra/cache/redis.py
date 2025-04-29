@@ -1,4 +1,3 @@
-import logging
 from typing import Dict
 
 from smartutils.config.const import REDIS
@@ -7,8 +6,6 @@ from smartutils.design import singleton
 from smartutils.infra.cache.cli import AsyncRedisCli
 from smartutils.infra.factory import InfraFactory
 from smartutils.infra.manager import ContextResourceManager
-
-logger = logging.getLogger(__name__)
 
 
 @singleton

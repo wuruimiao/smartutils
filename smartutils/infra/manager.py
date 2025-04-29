@@ -1,14 +1,12 @@
 import functools
-import logging
 import traceback
 from contextvars import ContextVar
 from typing import Dict, Callable, Any, Awaitable, Generic
 
+from smartutils.call import call_hook
 from smartutils.config.const import CONF_DEFAULT
 from smartutils.infra.abstract import T
-from smartutils.call import call_hook
-
-logger = logging.getLogger(__name__)
+from smartutils.log import logger
 
 _CONTEXT_VAR_NAMES = set()
 

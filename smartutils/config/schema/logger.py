@@ -1,10 +1,9 @@
-import os
 from typing import Optional, Literal
 
-from pydantic import BaseModel, Field, constr, model_validator
+from pydantic import BaseModel, Field, constr
 
-from smartutils.config.factory import ConfFactory
 from smartutils.config.const import LOGURU
+from smartutils.config.factory import ConfFactory
 
 
 @ConfFactory.register(LOGURU)
@@ -19,13 +18,6 @@ class LoguruConfig(BaseModel):
     retention: Optional[constr(strip_whitespace=True, min_length=1)] = Field(
         default="30 days", description="日志保留时长，如 '30 days'")
     compression: Optional[Literal["zip", "gz", "bz2", "xz", "tar"]] = "zip"
-    logfile: Optional[constr(strip_whitespace=True, min_length=1)] = None
-    enqueue: bool = Field(default=True)
-
-    @model_validator(mode="after")
-    def check_logfile_dir(self):
-        if self.logfile:
-            parent = os.path.dirname(self.logfile)
-            if parent and not os.path.exists(parent):
-                raise ValueError(f"logfile parent dir not exist: {parent}")
-        return self
+    logdir: Optional[constr(strip_whitespace=True, min_length=1)] = None
+    enqueue: Optional[bool] = True
+    stream: Optional[bool] = False
