@@ -45,8 +45,8 @@ class AsyncKafkaCli(AbstractResource):
             await producer.start()
             self._producer = producer
         except errors.KafkaConnectionError as e:
-            logger.error(
-                f"start kafka producer {self._bootstrap_servers} fail, err: {traceback.format_exc()}"
+            logger.exception(
+                f"start kafka producer {self._bootstrap_servers} fail"
             )
             await producer.stop()
             raise e
@@ -137,5 +137,5 @@ class KafkaBatchConsumer:
                     commit_offsets = {tp: o + 1 for tp, o in partition_offsets.items()}
                     await consumer.commit(commit_offsets)
 
-            except Exception as e:
-                logger.error(f"batch consume err: {traceback.format_exc()}")
+            except: # noqa
+                logger.exception(f"batch consume fail.")

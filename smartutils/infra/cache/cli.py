@@ -26,8 +26,8 @@ class AsyncRedisCli(AbstractResource):
         try:
             pong = await self._redis.ping()
             return pong is True
-        except Exception as e:
-            logger.warning(f"Redis health check {self._name} failed: {e}")
+        except:  # noqa
+            logger.exception(f"Redis health check {self._name} failed")
             return False
 
     async def close(self):
@@ -315,8 +315,8 @@ class AsyncRedisCli(AbstractResource):
                         for key, value in fields.items()
                     }
                     yield fields
-        except Exception as e:
-            logger.error(f"xread xack {traceback.format_exc()} {e}")
+        except: # noqa
+            logger.exception(f"xread xack fail")
             yield None
         finally:
             # 在退出时提交 ACK

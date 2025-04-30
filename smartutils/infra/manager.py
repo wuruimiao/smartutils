@@ -70,8 +70,8 @@ class ContextResourceManager(Generic[T]):
                             return result
                         except Exception as e:
                             await call_hook(self._fail, session)
-                            logger.error(f"{key} use err: {traceback.format_exc()}")
-                            raise RuntimeError(f"{key} use err") from e
+                            logger.exception(f"{key} use fail")
+                            raise RuntimeError(f"{key} use fail") from e
 
             return wrapper
 
@@ -89,9 +89,9 @@ class ContextResourceManager(Generic[T]):
         for key, cli in self._resources.items():
             try:
                 await cli.close()
-            except Exception as e:
-                logger.error(
-                    f"Failed to close {self} {key}: {e}: {traceback.format_exc()}"
+            except: # noqa
+                logger.exception(
+                    f"ContextResourceManager Failed to close {self} {key}"
                 )
 
     async def health_check(self) -> Dict[str, bool]:

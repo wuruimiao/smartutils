@@ -13,16 +13,16 @@ async def init():
     for comp_key, init_func in InfraFactory.all().items():
         conf = config.get(comp_key)
         if not conf:
-            logger.info(f"config no {comp_key}, do nothing")
+            logger.debug(f"infra init config no {comp_key}, ignore.")
             continue
 
-        logger.info(f"initializing {comp_key} ...")
+        logger.debug(f"infra initializing {comp_key} ...")
         if inspect.iscoroutinefunction(init_func):
             await init_func(conf)
         else:
             init_func(conf)
 
-        logger.info(f"{comp_key} inited.")
+        logger.info(f"infra {comp_key} inited.")
 
 
 async def release():

@@ -15,22 +15,22 @@ T = TypeVar("T", bound=BaseModel)
 
 @singleton
 class Config:
-    def __init__(self, config_path: str):
+    def __init__(self, conf_path: str):
         self._instances: Dict[str, T] = {}
         self._config: Dict[str, Any] = {}
 
-        if not Path(config_path).exists():
-            logger.info(f"conf no {config_path}, do nothing")
+        if not Path(conf_path).exists():
+            logger.warning(f"Config no {conf_path}, ignore.")
             return
 
-        with open(config_path) as f:
+        with open(conf_path) as f:
             self._config = yaml.safe_load(f)
 
         if not self._config:
-            logger.info(f"conf emtpy, do nothing!!!")
+            logger.error(f"Config {conf_path} emtpy, ignore.")
             return
 
-        logger.info(f"config init by {config_path}")
+        logger.info(f"Config init by {conf_path}.")
 
         for key in ConfFactory.all_keys():
             self._instances[key] = ConfFactory.create(key, self._config.get(key))
