@@ -37,12 +37,13 @@ async def lifespan(app: FastAPI):
 @CTXVarManager.register(CTXKeys.USERID)
 @CTXVarManager.register(CTXKeys.USERNAME)
 def create_app():
-    from smartutils.app.fast.middlewares import HeaderMiddleware
+    from smartutils.app.fast.middlewares import HeaderMiddleware, LoggMiddleware
     from smartutils.ret import ResponseModel
 
     app = FastAPI(lifespan=lifespan)
 
     app.add_middleware(HeaderMiddleware)
+    app.add_middleware(LoggMiddleware)
 
     @app.get("/")
     def root() -> ResponseModel:
