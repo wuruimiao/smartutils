@@ -2,7 +2,7 @@ import pytest
 
 
 @pytest.fixture(scope='function')
-def setup_config(tmp_path_factory):
+async def setup_config(tmp_path_factory):
     config_str = """
 mysql:
   default:
@@ -82,11 +82,11 @@ project:
     yield config_file
 
     from smartutils import reset_all
-    reset_all()
+    await reset_all()
 
 
 @pytest.fixture(scope='function')
-def setup_no_conf_class_config(tmp_path_factory):
+async def setup_no_conf_class_config(tmp_path_factory):
     config_str = """
 no_conf_class:
   default:
@@ -102,11 +102,11 @@ project:
     yield config_file
 
     from smartutils import reset_all
-    reset_all()
+    await reset_all()
 
 
 @pytest.fixture(scope='function')
-def setup_no_conf_default_config(tmp_path_factory):
+async def setup_no_conf_default_config(tmp_path_factory):
     config_str = """
 mysql:
   no_default:
@@ -133,11 +133,11 @@ project:
     yield config_file
 
     from smartutils import reset_all
-    reset_all()
+    await reset_all()
 
 
 @pytest.fixture(scope='function')
-def setup_conf_empty(tmp_path_factory):
+async def setup_conf_empty(tmp_path_factory):
     config_str = """"""
 
     tmp_dir = tmp_path_factory.mktemp("config")
@@ -147,7 +147,7 @@ def setup_conf_empty(tmp_path_factory):
     yield config_file
 
     from smartutils import reset_all
-    reset_all()
+    await reset_all()
 
 
 def test_config_loads_all(setup_config: str):

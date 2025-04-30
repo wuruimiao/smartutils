@@ -4,7 +4,6 @@ import time
 
 import pytest
 
-from smartutils.log import logger
 from smartutils.timer import Timer, timeit
 
 
@@ -95,6 +94,7 @@ def test_timer_multiple_intervals():
 @pytest.fixture
 def capture_logger(monkeypatch):
     logs = []
+    from smartutils.log import logger
     monkeypatch.setattr(logger, "debug", lambda msg: logs.append(msg))
     return logs
 

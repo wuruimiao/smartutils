@@ -1,9 +1,12 @@
 import sys
 from pathlib import Path
 
-from loguru import logger
+from smartutils.log import logger
 
+from smartutils.config.const import ConfKey
+from smartutils.config.schema.logger import LoguruConfig
 from smartutils.ctx import ContextVarManager, CTXKey
+from smartutils.infra.factory import InfraFactory
 
 _FORMAT = ("<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | "
            "<level>{level: <8}</level> | "
@@ -27,16 +30,15 @@ class PrintToLogger:
         pass
 
 
-def init():
+@InfraFactory.register(ConfKey.LOGURU)
+def init_loguru_log(conf: LoguruConfig):
     logger.remove()
 
     logger.configure(patcher=inject_trace_id)
 
-    from smartutils.config import get_config, ConfKey
-    from smartutils.config.schema.logger import LoguruConfig
+    from smartutils.config import get_config
 
     _conf = get_config()
-    conf: LoguruConfig = _conf.get(ConfKey.LOGURU)
 
     if not conf:
         logger.info(f'init logger: config no loguru key, do nothing')

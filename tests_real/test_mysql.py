@@ -53,7 +53,7 @@ project:
     await my_mgr.close()
 
     from smartutils import reset_all
-    reset_all()
+    await reset_all()
 
 
 @pytest.fixture
@@ -94,7 +94,7 @@ project:
     await my_mgr.close()
 
     from smartutils import reset_all
-    reset_all()
+    await reset_all()
 
 
 async def test_get_db(setup_db):

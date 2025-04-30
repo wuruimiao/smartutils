@@ -39,7 +39,7 @@ project:
     yield
 
     from smartutils import reset_all
-    reset_all()
+    await reset_all()
 
 
 async def test_mysql_manager_use_and_curr(monkeypatch):
