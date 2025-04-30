@@ -33,7 +33,7 @@ class LoggerCli(AbstractResource):
 
     def _init(self):
         logger.remove()
-        logger.configure(patcher=self.inject_trace_id)
+        logger.configure(patcher=self._inject_trace_id)
 
         from smartutils.config import get_config
 
@@ -64,7 +64,7 @@ class LoggerCli(AbstractResource):
             sys.stderr = PrintToLogger()
 
     @ContextVarManager.register(CTXKey.TRACE_ID)
-    def inject_trace_id(self, record):
+    def _inject_trace_id(self, record):
         record["extra"]["trace_id"] = ContextVarManager.get(CTXKey.TRACE_ID, default='-')
         return True
 
@@ -86,5 +86,5 @@ class LoggerManager(ContextResourceManager[LoggerCli]):
 
 
 @InfraFactory.register(ConfKey.LOGURU)
-def init_loguru_log(conf: LoguruConfig):
+def init_loguru(conf: LoguruConfig):
     return LoggerManager(conf)
