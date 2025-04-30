@@ -1,7 +1,11 @@
-from smartutils.init import init_all, reset_all
+from smartutils.init import init, reset_all
 from smartutils.infra import release
 from smartutils.app import create_app
+from smartutils.config import get_config
 
 __all__ = [
-    'init_all', 'release', 'create_app'
+    'init',
+    'release',
+    'create_app',
+    'get_config'
 ]

@@ -43,8 +43,8 @@ project:
     with open(config_file, "w") as f:
         f.write(config_str)
 
-    from smartutils import init_all
-    await init_all(str(config_file))
+    from smartutils import init
+    await init(str(config_file))
 
     from smartutils.infra import MySQLManager
     my_mgr = MySQLManager()
@@ -85,8 +85,8 @@ project:
     with open(config_file, "w") as f:
         f.write(config_str)
 
-    from smartutils import init_all
-    await init_all(str(config_file))
+    from smartutils import init
+    await init(str(config_file))
 
     from smartutils.infra import MySQLManager
     my_mgr = MySQLManager()

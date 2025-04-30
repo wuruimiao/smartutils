@@ -7,12 +7,10 @@ def create_app():
 
     @asynccontextmanager
     async def lifespan(_app: FastAPI):
-        from smartutils.config import init, get_config
-        init()
-
-        from smartutils.infra import init
+        from smartutils.init import init
         await init()
 
+        from smartutils.config import get_config
         from smartutils.ID import SnowflakeGenerator
         _app.state.gen = SnowflakeGenerator(instance=get_config().project.id)
 
