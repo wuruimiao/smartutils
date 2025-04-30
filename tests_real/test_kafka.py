@@ -42,7 +42,7 @@ project:
     await KafkaManager().close()
 
     from smartutils import reset_all
-    reset_all()
+    await reset_all()
 
 
 @pytest.fixture
@@ -80,7 +80,7 @@ project:
     await KafkaManager().close()
 
     from smartutils import reset_all
-    reset_all()
+    await reset_all()
 
 
 async def test_send_and_consume(setup_kafka):

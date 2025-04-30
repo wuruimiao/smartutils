@@ -1,9 +1,8 @@
-import logging
 from typing import Type, Dict, Tuple
 
-from smartutils.config.const import ConfKey
+from smartutils.log import logger
 
-logger = logging.getLogger(__name__)
+from smartutils.config.const import ConfKey
 
 
 class ConfFactory:

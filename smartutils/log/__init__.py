@@ -1,6 +1,5 @@
-from smartutils.log.loguru_logger import logger, init
+from loguru import logger
 
 __all__ = [
-    'logger',
-    'init',
+    'logger'
 ]

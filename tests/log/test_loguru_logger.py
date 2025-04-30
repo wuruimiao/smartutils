@@ -25,10 +25,10 @@ project:
     from smartutils.config import init
     init(str(config_file))
 
-    from smartutils.log import init
-    init()
+    from smartutils.infra import init
+    await init()
 
-    from smartutils.log import logger
+    from smartutils.infra.log.logger import logger
     logger.debug("hello test loguru logger")
 
     log_file = os.path.join(tmp_path, "auth.log")
@@ -69,13 +69,13 @@ project:
     from smartutils.config import init
     init(str(config_file))
 
-    from smartutils.log import init
-    init()
+    from smartutils.infra import init
+    await init()
 
     # PrintToLogger生效，print被记录
     print("this is printed and should be in the log file")
 
-    from smartutils.log import logger
+    from smartutils.infra.log.logger import logger
     logger.debug("logger debug also in log file")
 
     log_file = os.path.join(tmp_path, "auth.log")
@@ -118,8 +118,8 @@ project:
     from smartutils.config import init
     init(str(config_file))
 
-    from smartutils.log import init
-    init()
+    from smartutils.infra import init
+    await init()
 
     # 打印一条消息
     print("this should NOT be in the log file, only in stdout")
@@ -153,8 +153,10 @@ async def test_loguru_logger_no_config():
     from smartutils.config import init
     init()
 
-    from smartutils.log import init, logger
-    init()
+    from smartutils.infra import init
+    await init()
+
+    from smartutils.log import logger
 
     logger.debug("logger debug in log file")
 

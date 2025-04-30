@@ -10,9 +10,6 @@ def create_app():
         from smartutils.config import init, get_config
         init()
 
-        from smartutils.log import init
-        init()
-
         from smartutils.infra import init
         await init()
 

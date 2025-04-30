@@ -88,7 +88,7 @@ def test_decorator_singleton_reset():
     assert b.value == 2
 
 
-def test_decorator_singleton_reset_all():
+async def test_decorator_singleton_reset_all():
     a = DecoratorSingleton(10)
     from smartutils.design.singleton import reset_all
     reset_all()

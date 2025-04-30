@@ -41,7 +41,7 @@ project:
         yield c
 
     from smartutils import reset_all
-    reset_all()
+    await reset_all()
 
 
 async def test_root(client):

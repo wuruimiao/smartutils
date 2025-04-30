@@ -2,14 +2,11 @@ async def init_all(conf_path: str):
     from smartutils.config import init
     init(conf_path)
 
-    from smartutils.log import init
-    init()
-
     from smartutils.infra import init
     await init()
 
 
-def reset_all():
+async def reset_all():
     """
     测试时重置单例状态类型，以及校验
     """
@@ -18,3 +15,6 @@ def reset_all():
 
     from smartutils.ctx import ContextVarManager
     ContextVarManager.reset_registered()
+
+    from smartutils.infra.manager import ResourceManagerRegistry
+    await ResourceManagerRegistry.close_all()

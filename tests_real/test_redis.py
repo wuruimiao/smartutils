@@ -32,7 +32,7 @@ project:
     await RedisManager().close()
 
     from smartutils import reset_all
-    reset_all()
+    await reset_all()
 
 
 @pytest.fixture
@@ -66,7 +66,7 @@ project:
     await RedisManager().close()
 
     from smartutils import reset_all
-    reset_all()
+    await reset_all()
 
 
 async def test_set_get(setup_cache):
