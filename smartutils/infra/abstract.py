@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Callable, Any, Awaitable, TypeVar, Generic, AsyncContextManager
+from typing import TypeVar, AsyncContextManager
 
 
 class AbstractResource(ABC):
