@@ -30,7 +30,7 @@ class ConfFactory:
         if not conf:
             if require:
                 raise ValueError(f"must contain {name} in config.yml")
-            logger.info(f"conf no key: {name}, ignored.")
+            logger.debug(f"conf no key: {name}, ignore.")
             return
 
         logger.info(f"{name} created.")
