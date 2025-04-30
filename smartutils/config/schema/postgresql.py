@@ -12,7 +12,7 @@ from smartutils.config.schema.host import HostConf
 class PostgreSQLConf(DBConf, HostConf):
     port: int = 5432
 
-    timeout: Optional[conint(gt=0)] = Field(default=None, alias='connect_timeout')
+    timeout: Optional[conint(gt=0)] = Field(default=None, alias="connect_timeout")
     execute_timeout: Optional[conint(gt=0)] = None
 
     @property
@@ -22,15 +22,17 @@ class PostgreSQLConf(DBConf, HostConf):
     @property
     def kw(self) -> dict:
         params = super().kw
-        for k in {'timeout', 'execute_timeout'}:
+        for k in {"timeout", "execute_timeout"}:
             params.pop(k)
         connect_args = {}
         if self.timeout:
-            connect_args['timeout'] = self.timeout
+            connect_args["timeout"] = self.timeout
 
         if self.execute_timeout:
-            connect_args['server_settings'] = {'statement_timeout': f'{self.execute_timeout * 1000}'}
+            connect_args["server_settings"] = {
+                "statement_timeout": f"{self.execute_timeout * 1000}"
+            }
 
         if connect_args:
-            params['connect_args'] = connect_args
+            params["connect_args"] = connect_args
         return params

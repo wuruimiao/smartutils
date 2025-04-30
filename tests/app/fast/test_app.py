@@ -19,9 +19,11 @@ project:
         f.write(config_str)
 
     from smartutils import init
+
     await init(str(config_file))
 
     from smartutils.app import create_app
+
     app = create_app()
 
     from smartutils.ret import ResponseModel
@@ -33,7 +35,7 @@ project:
             data={
                 "userid": ReqCTX.get_userid(),
                 "username": ReqCTX.get_username(),
-                "traceid": ReqCTX.get_traceid()
+                "traceid": ReqCTX.get_traceid(),
             }
         )
 
@@ -41,6 +43,7 @@ project:
         yield c
 
     from smartutils import reset_all
+
     await reset_all()
 
 
@@ -48,16 +51,16 @@ async def test_root(client):
     resp = client.get("/")
     assert resp.status_code == 200
     data = resp.json()
-    assert data['code'] == 0
-    assert data['message'] == 'success'
+    assert data["code"] == 0
+    assert data["message"] == "success"
 
 
 def test_healthy(client):
     resp = client.get("/healthy")
     assert resp.status_code == 200
     data = resp.json()
-    assert data['code'] == 0
-    assert data['message'] == 'success'
+    assert data["code"] == 0
+    assert data["message"] == "success"
 
 
 def test_trace_id_header(client):
@@ -77,13 +80,13 @@ def test_info_header_propagation(client):
     headers = {
         "X-User-Id": "1234",
         "X-User-Name": "tester",
-        "X-Trace-ID": "abcde-12345"
+        "X-Trace-ID": "abcde-12345",
     }
     resp = client.get("/info", headers=headers)
     assert resp.status_code == 200
     data = resp.json()
     # 你项目的ResponseModel结构，假设data在data字段下
     payload = data["data"]
-    assert payload["userid"] == "1234"      # 或 int("1234")，看你的中间件是否自动转int
+    assert payload["userid"] == "1234"  # 或 int("1234")，看你的中间件是否自动转int
     assert payload["username"] == "tester"
     assert payload["traceid"] == "abcde-12345"

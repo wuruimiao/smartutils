@@ -25,13 +25,16 @@ project:
         f.write(config_str)
 
     from smartutils import init
+
     await init(str(config_file))
 
     yield
     from smartutils.infra import RedisManager
+
     await RedisManager().close()
 
     from smartutils import reset_all
+
     await reset_all()
 
 
@@ -59,18 +62,22 @@ project:
         f.write(config_str)
 
     from smartutils import init
+
     await init(str(config_file))
 
     yield
     from smartutils.infra import RedisManager
+
     await RedisManager().close()
 
     from smartutils import reset_all
+
     await reset_all()
 
 
 async def test_set_get(setup_cache):
     from smartutils.infra import RedisManager
+
     redis_mgr = RedisManager()
 
     @redis_mgr.use()
@@ -87,6 +94,7 @@ async def test_set_get(setup_cache):
 
 async def test_out_of_context(setup_cache):
     from smartutils.infra import RedisManager
+
     redis_mgr = RedisManager()
 
     with pytest.raises(RuntimeError):
@@ -95,18 +103,21 @@ async def test_out_of_context(setup_cache):
 
 async def test_ping(setup_cache):
     from smartutils.infra import RedisManager
+
     redis_mgr = RedisManager()
     assert await redis_mgr.client().ping()
 
 
 async def test_unreachable_ping(setup_unreachable_cache):
     from smartutils.infra import RedisManager
+
     redis_mgr = RedisManager()
     assert not await redis_mgr.client().ping()
 
 
 async def test_incr_and_decr(setup_cache):
     from smartutils.infra import RedisManager
+
     redis_mgr = RedisManager()
 
     @redis_mgr.use()
@@ -127,6 +138,7 @@ async def test_incr_and_decr(setup_cache):
 
 async def test_sadd_srem_scard(setup_cache):
     from smartutils.infra import RedisManager
+
     redis_mgr = RedisManager()
 
     @redis_mgr.use()
@@ -147,6 +159,7 @@ async def test_sadd_srem_scard(setup_cache):
 
 async def test_llen(setup_cache):
     from smartutils.infra import RedisManager
+
     redis_mgr = RedisManager()
 
     @redis_mgr.use()
@@ -164,6 +177,7 @@ async def test_llen(setup_cache):
 
 async def test_zadd_zrem_zrangebyscore(setup_cache):
     from smartutils.infra import RedisManager
+
     redis_mgr = RedisManager()
 
     @redis_mgr.use()
@@ -186,6 +200,7 @@ async def test_zadd_zrem_zrangebyscore(setup_cache):
 
 async def test_safe_rpop_zadd_and_safe_rpush_zrem(setup_cache):
     from smartutils.infra import RedisManager
+
     redis_mgr = RedisManager()
 
     @redis_mgr.use()
@@ -225,6 +240,7 @@ async def test_safe_rpop_zadd_and_safe_rpush_zrem(setup_cache):
 
 async def test_safe_zpop_zadd_and_safe_zrem_zadd(setup_cache):
     from smartutils.infra import RedisManager
+
     redis_mgr = RedisManager()
 
     @redis_mgr.use()
@@ -262,8 +278,10 @@ async def test_safe_zpop_zadd_and_safe_zrem_zadd(setup_cache):
 
     await test()
 
+
 async def test_xadd_xread_xack(setup_cache):
     from smartutils.infra import RedisManager
+
     redis_mgr = RedisManager()
 
     @redis_mgr.use()
@@ -276,6 +294,7 @@ async def test_xadd_xread_xack(setup_cache):
         msgid = await cli.xadd(stream, {"foo": "bar"})
         # 确保 group 存在
         async with cli.xread_xack(stream, group, count=1) as msg_iter:
-            assert msg_iter['foo'] == "bar"
+            assert msg_iter["foo"] == "bar"
         await cli.delete(stream)
+
     await test()

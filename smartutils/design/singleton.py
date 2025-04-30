@@ -35,6 +35,7 @@ class SingletonBase:
     使用方式：
     class MySingleton(SingletonBase): ...
     """
+
     _instance = None
     _lock = threading.Lock()
     _singleton_classes = set()
@@ -43,9 +44,9 @@ class SingletonBase:
         # 注册到单例集合
         if cls is not SingletonBase:
             SingletonBase._singleton_classes.add(cls)
-        if not hasattr(cls, '_instance') or cls._instance is None:
+        if not hasattr(cls, "_instance") or cls._instance is None:
             with cls._lock:
-                if not hasattr(cls, '_instance') or cls._instance is None:
+                if not hasattr(cls, "_instance") or cls._instance is None:
                     cls._instance = super().__new__(cls)
         return cls._instance
 
@@ -53,7 +54,7 @@ class SingletonBase:
         pass
 
     def __init__(self, *args, **kwargs):
-        if getattr(self, '_initialized', False):
+        if getattr(self, "_initialized", False):
             return
         self._init_once(*args, **kwargs)
         self._initialized = True
@@ -77,6 +78,7 @@ class SingletonMeta(type):
     单例元类，支持reset和reset_all
     class MyMetaSingleton(metaclass=SingletonMeta): ...
     """
+
     _instances = {}
     _lock = threading.Lock()
 

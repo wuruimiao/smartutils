@@ -7,11 +7,11 @@ from smartutils.infra.log.logger import LoggerManager
 from smartutils.infra.init import init, release
 
 __all__ = [
-    'RedisManager',
-    'MySQLManager',
-    'PostgresqlManager',
-    'KafkaManager',
-    'KafkaBatchConsumer',
-    'init',
-    'release',
+    "RedisManager",
+    "MySQLManager",
+    "PostgresqlManager",
+    "KafkaManager",
+    "KafkaBatchConsumer",
+    "init",
+    "release",
 ]

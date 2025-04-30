@@ -25,8 +25,10 @@ def test_decorator_singleton_threadsafe():
         results.append(DecoratorSingleton(42))
 
     threads = [threading.Thread(target=create_instance) for _ in range(10)]
-    for t in threads: t.start()
-    for t in threads: t.join()
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
     assert all(obj is results[0] for obj in results)
 
 
@@ -50,8 +52,10 @@ def test_base_singleton_threadsafe():
         results.append(BaseSingleton(99))
 
     threads = [threading.Thread(target=create_instance) for _ in range(20)]
-    for t in threads: t.start()
-    for t in threads: t.join()
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
     assert all(obj is results[0] for obj in results)
 
 
@@ -75,8 +79,10 @@ def test_meta_singleton_threadsafe():
         results.append(MetaSingleton(888))
 
     threads = [threading.Thread(target=create_instance) for _ in range(15)]
-    for t in threads: t.start()
-    for t in threads: t.join()
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
     assert all(obj is results[0] for obj in results)
 
 
@@ -91,6 +97,7 @@ def test_decorator_singleton_reset():
 async def test_decorator_singleton_reset_all():
     a = DecoratorSingleton(10)
     from smartutils.design.singleton import reset_all
+
     reset_all()
     b = DecoratorSingleton(20)
     assert a is not b

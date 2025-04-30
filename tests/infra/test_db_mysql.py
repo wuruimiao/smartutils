@@ -35,11 +35,13 @@ project:
         f.write(config_str)
 
     from smartutils import init
+
     await init(str(config_file))
 
     yield
 
     from smartutils import reset_all
+
     await reset_all()
 
 

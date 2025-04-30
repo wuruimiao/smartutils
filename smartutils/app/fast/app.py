@@ -8,29 +8,33 @@ def create_app():
     @asynccontextmanager
     async def lifespan(_app: FastAPI):
         from smartutils.init import init
+
         await init()
 
         from smartutils.config import get_config
         from smartutils.ID import SnowflakeGenerator
+
         _app.state.gen = SnowflakeGenerator(instance=get_config().project.id)
 
         yield
 
         from smartutils.log import logger
-        logger.info(f'shutdown start close')
+
+        logger.info(f"shutdown start close")
         from smartutils import release
+
         await release()
-        logger.info(f'shutdown all closed')
+        logger.info(f"shutdown all closed")
 
     app = FastAPI(lifespan=lifespan)
 
     app.add_middleware(HeaderMiddleware)
 
-    @app.get('/')
+    @app.get("/")
     def root() -> ResponseModel:
         return ResponseModel()
 
-    @app.get('/healthy')
+    @app.get("/healthy")
     def healthy() -> ResponseModel:
         return ResponseModel()
 

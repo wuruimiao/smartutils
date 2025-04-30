@@ -3,9 +3,4 @@ from smartutils.infra import release
 from smartutils.app import create_app
 from smartutils.config import get_config
 
-__all__ = [
-    'init',
-    'release',
-    'create_app',
-    'get_config'
-]
+__all__ = ["init", "release", "create_app", "get_config"]

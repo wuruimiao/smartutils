@@ -29,15 +29,15 @@ class ConfFactory:
         conf_cls, multi, require = info
         if not conf:
             if require:
-                raise ValueError(f'must contain {name} in config.yml')
-            logger.info(f'conf no key: {name}, ignored.')
+                raise ValueError(f"must contain {name} in config.yml")
+            logger.info(f"conf no key: {name}, ignored.")
             return
 
-        logger.info(f'{name} created.')
+        logger.info(f"{name} created.")
 
         if multi:
             if ConfKeys.GROUP_DEFAULT not in conf:
-                raise ValueError(f'{ConfKeys.GROUP_DEFAULT} not in {name}')
+                raise ValueError(f"{ConfKeys.GROUP_DEFAULT} not in {name}")
 
             return {key: conf_cls(**_conf) for key, _conf in conf.items()}
         else:

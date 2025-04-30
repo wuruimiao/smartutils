@@ -13,7 +13,7 @@ from smartutils.infra.mq.cli import AsyncKafkaCli
 @CTXVarManager.register(CTXKeys.MQ_KAFKA)
 class KafkaManager(ContextResourceManager[AsyncKafkaCli]):
     def __init__(self, confs: Dict[str, KafkaConf]):
-        resources = {k: AsyncKafkaCli(conf, f'kafka_{k}') for k, conf in confs.items()}
+        resources = {k: AsyncKafkaCli(conf, f"kafka_{k}") for k, conf in confs.items()}
         super().__init__(resources, CTXKeys.MQ_KAFKA)
 
 

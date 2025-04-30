@@ -11,8 +11,8 @@ from smartutils.infra.abstract import T
 from smartutils.log import logger
 
 __all__ = [
-    'ResourceManagerRegistry',
-    'ContextResourceManager',
+    "ResourceManagerRegistry",
+    "ContextResourceManager",
 ]
 
 
@@ -32,14 +32,18 @@ class ResourceManagerRegistry:
 
     @classmethod
     async def close_all(cls):
-        await asyncio.gather(*(mgr.close() for mgr in ResourceManagerRegistry.get_all()))
+        await asyncio.gather(
+            *(mgr.close() for mgr in ResourceManagerRegistry.get_all())
+        )
 
 
 class ContextResourceManager(Generic[T]):
     def __init__(
-            self, resources: Dict[ConfKey, T], context_var_name: CTXKey,
-            success: Callable[..., Any] = None,
-            fail: Callable[..., Any] = None,
+        self,
+        resources: Dict[ConfKey, T],
+        context_var_name: CTXKey,
+        success: Callable[..., Any] = None,
+        fail: Callable[..., Any] = None,
     ):
         self._ctx_key: CTXKey = context_var_name
         self._resources = resources
@@ -48,7 +52,7 @@ class ContextResourceManager(Generic[T]):
         ResourceManagerRegistry.register(self)
 
     def __str__(self) -> str:
-        return f'mgr_{self._ctx_key}'
+        return f"mgr_{self._ctx_key}"
 
     def use(self, key: ConfKey = ConfKeys.GROUP_DEFAULT):
         def decorator(func: Callable[..., Awaitable[Any]]):
@@ -66,8 +70,8 @@ class ContextResourceManager(Generic[T]):
                             return result
                         except Exception as e:
                             await call_hook(self._fail, session)
-                            logger.error(f'{key} use err: {traceback.format_exc()}')
-                            raise RuntimeError(f'{key} use err') from e
+                            logger.error(f"{key} use err: {traceback.format_exc()}")
+                            raise RuntimeError(f"{key} use err") from e
 
             return wrapper
 
@@ -86,7 +90,9 @@ class ContextResourceManager(Generic[T]):
             try:
                 await cli.close()
             except Exception as e:
-                logger.error(f"Failed to close {self} {key}: {e}: {traceback.format_exc()}")
+                logger.error(
+                    f"Failed to close {self} {key}: {e}: {traceback.format_exc()}"
+                )
 
     async def health_check(self) -> Dict[str, bool]:
         result = {}

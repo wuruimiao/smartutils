@@ -11,7 +11,7 @@ def valid_redis_conf(**kwargs):
         "db": 1,
         "passwd": "secret",
         "execute_timeout": 10,
-        **kwargs
+        **kwargs,
     }
 
 
@@ -24,8 +24,8 @@ def test_redis_conf_valid():
 
 
 def test_redis_conf_override():
-    conf = RedisConf(**valid_redis_conf(passwd='11111', host='192.168.1.111'))
-    assert conf.password == '11111'
+    conf = RedisConf(**valid_redis_conf(passwd="11111", host="192.168.1.111"))
+    assert conf.password == "11111"
     assert conf.host == "192.168.1.111"
 
 
@@ -42,7 +42,9 @@ def test_redis_conf_invalid_db(db):
     conf_dict = valid_redis_conf(db=db)
     with pytest.raises(ValidationError) as exc:
         RedisConf(**conf_dict)
-    assert "Input should be greater than or equal to 0" in str(exc.value) and 'db' in str(exc.value)
+    assert "Input should be greater than or equal to 0" in str(
+        exc.value
+    ) and "db" in str(exc.value)
 
 
 @pytest.mark.parametrize("field", ["connect_timeout", "socket_timeout"])
@@ -52,13 +54,15 @@ def test_redis_conf_invalid_timeout(field, value):
     conf_dict[field] = value
     with pytest.raises(ValidationError) as exc:
         RedisConf(**conf_dict)
-    assert "Input should be greater than 0" in str(exc.value) and field in str(exc.value)
+    assert "Input should be greater than 0" in str(exc.value) and field in str(
+        exc.value
+    )
 
 
 @pytest.mark.parametrize("value", [None, 1, 10, 100])
 def test_redis_conf_connect_timeout(value):
     conf_dict = valid_redis_conf()
-    conf_dict['connect_timeout'] = value
+    conf_dict["connect_timeout"] = value
     conf = RedisConf(**conf_dict)
     assert conf.socket_connect_timeout is value
 
@@ -66,7 +70,7 @@ def test_redis_conf_connect_timeout(value):
 @pytest.mark.parametrize("value", [None, 1, 10, 100])
 def test_redis_conf_socket_timeout(value):
     conf_dict = valid_redis_conf()
-    conf_dict['socket_timeout'] = value
+    conf_dict["socket_timeout"] = value
     conf = RedisConf(**conf_dict)
     assert conf.socket_timeout is value
 
@@ -95,10 +99,10 @@ def test_redis_conf_url(host, port):
 
 def test_redis_kw():
     params = RedisConf(**valid_redis_conf()).kw
-    for k in {'host', 'port'}:
+    for k in {"host", "port"}:
         assert k not in params
-    assert params['db'] == 1
-    assert params['max_connections'] == 10
-    assert params['socket_connect_timeout'] is None
-    assert params['socket_timeout'] is None
-    assert params['password'] == "secret"
+    assert params["db"] == 1
+    assert params["max_connections"] == 10
+    assert params["socket_connect_timeout"] is None
+    assert params["socket_timeout"] is None
+    assert params["password"] == "secret"

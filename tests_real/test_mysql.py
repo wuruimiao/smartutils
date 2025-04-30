@@ -44,15 +44,18 @@ project:
         f.write(config_str)
 
     from smartutils import init
+
     await init(str(config_file))
 
     from smartutils.infra import MySQLManager
+
     my_mgr = MySQLManager()
     await my_mgr.client().create_tables([Base])
     yield
     await my_mgr.close()
 
     from smartutils import reset_all
+
     await reset_all()
 
 
@@ -86,19 +89,23 @@ project:
         f.write(config_str)
 
     from smartutils import init
+
     await init(str(config_file))
 
     from smartutils.infra import MySQLManager
+
     my_mgr = MySQLManager()
     yield
     await my_mgr.close()
 
     from smartutils import reset_all
+
     await reset_all()
 
 
 async def test_get_db(setup_db):
     from smartutils.infra import MySQLManager
+
     my_mgr = MySQLManager()
     # 测试插入/查询/删除
     async for session in my_mgr.client().get_db():
@@ -115,6 +122,7 @@ async def test_get_db(setup_db):
 
 async def test_with_db_success_and_rollback(setup_db):
     from smartutils.infra import MySQLManager
+
     my_mgr = MySQLManager()
 
     @my_mgr.use()
@@ -139,6 +147,7 @@ async def test_with_db_success_and_rollback(setup_db):
 
 async def test_with_db_commit(setup_db):
     from smartutils.infra import MySQLManager
+
     my_mgr = MySQLManager()
 
     @my_mgr.use()
@@ -160,6 +169,7 @@ async def test_with_db_commit(setup_db):
 
 async def test_curr_db_no_context(setup_db):
     from smartutils.infra import MySQLManager
+
     my_mgr = MySQLManager()
 
     with pytest.raises(RuntimeError):
@@ -168,6 +178,7 @@ async def test_curr_db_no_context(setup_db):
 
 async def test_ping(setup_db):
     from smartutils.infra import MySQLManager
+
     my_mgr = MySQLManager()
     result = await my_mgr.client().ping()
     assert result
@@ -175,6 +186,7 @@ async def test_ping(setup_db):
 
 async def test_fail_ping(setup_unreachable_db):
     from smartutils.infra import MySQLManager
+
     my_mgr = MySQLManager()
     result = await my_mgr.client().ping()
     assert not result
@@ -182,23 +194,27 @@ async def test_fail_ping(setup_unreachable_db):
 
 async def test_health_check(setup_db):
     from smartutils.infra import MySQLManager
+
     my_mgr = MySQLManager()
     result = await my_mgr.health_check()
-    assert 'default' in result
-    assert result['default']
+    assert "default" in result
+    assert result["default"]
 
 
 async def test_no_client(setup_db):
     from smartutils.infra import MySQLManager
+
     my_mgr = MySQLManager()
     with pytest.raises(RuntimeError) as exc:
-        my_mgr.client('no_key')
-    assert 'No resource found for key: no_key' in str(exc.value)
+        my_mgr.client("no_key")
+    assert "No resource found for key: no_key" in str(exc.value)
 
     with pytest.raises(RuntimeError) as exc:
-        @my_mgr.use('no_key')
+
+        @my_mgr.use("no_key")
         async def test():
             pass
+
         await test()
 
-    assert 'No resource found for key: no_key' in str(exc.value)
+    assert "No resource found for key: no_key" in str(exc.value)

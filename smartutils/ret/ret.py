@@ -8,13 +8,13 @@ T = TypeVar("T")
 
 class ResponseModel(BaseModel, Generic[T]):
     code: int = 0
-    message: str = 'success'
+    message: str = "success"
     data: Optional[T] = None
 
 
 def success_res(data: Any = None):
-    return {'code': 0, 'message': 'success', 'data': data}
+    return {"code": 0, "message": "success", "data": data}
 
 
 def fail_res(code: int, message: str):
-    raise HTTPException(status_code=400, detail={'code': code, 'message': message})
+    raise HTTPException(status_code=400, detail={"code": code, "message": message})

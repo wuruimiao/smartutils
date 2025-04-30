@@ -3,7 +3,8 @@ import os
 
 
 async def test_loguru_logger_with_temp_config(tmp_path):
-    config_str = """
+    config_str = (
+        """
 loguru:
   stream: false
   logdir: "%s"
@@ -17,18 +18,23 @@ project:
   id: 0
   description: test_auth
   version: 0.0.1
-  key: test_key""" % tmp_path
+  key: test_key"""
+        % tmp_path
+    )
     config_file = tmp_path / "config.yaml"
     with open(config_file, "w") as f:
         f.write(config_str)
 
     from smartutils.config import init
+
     init(str(config_file))
 
     from smartutils.infra import init
+
     await init()
 
     from smartutils.infra.log.logger import logger
+
     logger.debug("hello test loguru logger")
 
     log_file = os.path.join(tmp_path, "auth.log")
@@ -40,6 +46,7 @@ project:
     assert "hello test loguru logger" in content
 
     from smartutils.design.singleton import reset_all
+
     reset_all()
 
 
@@ -47,7 +54,8 @@ async def test_loguru_logger_print_to_logger(tmp_path):
     """
     stream: false 时，print 被 PrintToLogger 捕获，写入日志
     """
-    config_str = """
+    config_str = (
+        """
 loguru:
   stream: false
   logdir: "%s"
@@ -61,21 +69,26 @@ project:
   id: 0
   description: test_auth
   version: 0.0.1
-  key: test_key""" % tmp_path
+  key: test_key"""
+        % tmp_path
+    )
     config_file = tmp_path / "config.yaml"
     with open(config_file, "w") as f:
         f.write(config_str)
 
     from smartutils.config import init
+
     init(str(config_file))
 
     from smartutils.infra import init
+
     await init()
 
     # PrintToLogger生效，print被记录
     print("this is printed and should be in the log file")
 
     from smartutils.infra.log.logger import logger
+
     logger.debug("logger debug also in log file")
 
     log_file = os.path.join(tmp_path, "auth.log")
@@ -88,6 +101,7 @@ project:
     assert "logger debug also in log file" in content
 
     from smartutils.design.singleton import reset_all
+
     reset_all()
 
 
@@ -95,7 +109,8 @@ async def test_loguru_logger_stream_true(tmp_path, capsys):
     """
     stream: true 时，print 只会输出到控制台，不进日志文件
     """
-    config_str = """
+    config_str = (
+        """
 loguru:
   stream: true
   logdir: "%s"
@@ -110,21 +125,26 @@ project:
   id: 0
   description: test_auth
   version: 0.0.1
-  key: test_key""" % tmp_path
+  key: test_key"""
+        % tmp_path
+    )
     config_file = tmp_path / "config.yaml"
     with open(config_file, "w") as f:
         f.write(config_str)
 
     from smartutils.config import init
+
     init(str(config_file))
 
     from smartutils.infra import init
+
     await init()
 
     # 打印一条消息
     print("this should NOT be in the log file, only in stdout")
 
     from smartutils.log import logger
+
     logger.debug("logger debug in log file")
 
     log_file = os.path.join(tmp_path, "auth.log")
@@ -142,6 +162,7 @@ project:
     assert "this should NOT be in the log file, only in stdout" in captured.out
 
     from smartutils.design.singleton import reset_all
+
     reset_all()
 
 
@@ -151,9 +172,11 @@ async def test_loguru_logger_no_config():
     """
 
     from smartutils.config import init
+
     init()
 
     from smartutils.infra import init
+
     await init()
 
     from smartutils.log import logger
@@ -161,4 +184,5 @@ async def test_loguru_logger_no_config():
     logger.debug("logger debug in log file")
 
     from smartutils.design.singleton import reset_all
+
     reset_all()
