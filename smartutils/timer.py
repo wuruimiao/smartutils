@@ -43,7 +43,7 @@ class Timer:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.stop()
-        logger.info(f"sync cost {self.elapsed:.3f} sec")
+        # logger.info(f"sync cost {self.elapsed:.3f} sec")
 
     async def __aenter__(self):
         self.start()
@@ -51,7 +51,7 @@ class Timer:
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         self.stop()
-        logger.info(f"async cost {self.elapsed:.3f} sec")
+        # logger.info(f"async cost {self.elapsed:.3f} sec")
 
 
 def timeit(log: str = ""):
@@ -67,7 +67,7 @@ def timeit(log: str = ""):
             async def wrapper(*args, **kwargs):
                 async with Timer() as t:
                     result = await func(*args, **kwargs)
-                logger.debug(f"{log}{func.__name__} cost {t.elapsed:.3f}s (async)")
+                logger.info(f"{log}{func.__name__} cost {t.elapsed:.3f}s (async)")
                 return result
 
             return wrapper
@@ -77,7 +77,7 @@ def timeit(log: str = ""):
             def wrapper(*args, **kwargs):
                 with Timer() as t:
                     result = func(*args, **kwargs)
-                logger.debug(f"{log}{func.__name__} cost {t.elapsed:.3f}s")
+                logger.info(f"{log}{func.__name__} cost {t.elapsed:.3f}s")
                 return result
 
             return wrapper
