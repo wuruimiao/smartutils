@@ -1,6 +1,8 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
+from smartutils.ctx import CTXKeys, CTXVarManager
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -17,6 +19,9 @@ async def lifespan(app: FastAPI):
     app.title = conf.project.name
     app.version = conf.project.version
     app.description = conf.project.description
+    app.debug = conf.project.debug
+    if not conf.project.debug:
+        app.docs_url = None
 
     yield
 
@@ -29,6 +34,8 @@ async def lifespan(app: FastAPI):
     logger.info(f"shutdown all closed")
 
 
+@CTXVarManager.register(CTXKeys.USERID)
+@CTXVarManager.register(CTXKeys.USERNAME)
 def create_app():
     from smartutils.app.fast.middlewares import HeaderMiddleware
     from smartutils.ret import ResponseModel
