@@ -24,13 +24,13 @@ class ConfFactory:
     def create(cls, name: ConfKey, conf: Dict):
         info = cls._registry.get(name)
         if not info:
-            raise ValueError(f"No conf class registered for {name}")
+            raise ValueError(f"ConfFactory no conf class registered for {name}")
 
         conf_cls, multi, require = info
         if not conf:
             if require:
-                raise ValueError(f"must contain {name} in config.yml")
-            logger.debug(f"conf no key: {name}, ignore.")
+                raise ValueError(f"ConfFactory require {name} in config.yml")
+            logger.debug(f"ConfFactory no {name} in config.yml, ignore.")
             return
 
         logger.info(f"{name} created.")
