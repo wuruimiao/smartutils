@@ -1,7 +1,8 @@
 import contextvars
 from typing import Any, Dict, Callable
 from contextlib import contextmanager
-from loguru import logger
+from smartutils.log import logger
+from smartutils.ctx.const import CTXKey
 import functools
 
 
@@ -9,7 +10,7 @@ class ContextVarManager:
     _vars: Dict[str, contextvars.ContextVar] = {}
 
     @classmethod
-    def _ensure_registered(cls, key: str):
+    def _ensure_registered(cls, key: CTXKey):
         if key not in cls._vars:
             logger.error(f"ContextVarManager error: key '{key}' not registered")
             raise RuntimeError(f"ContextVarManager error: key '{key}' not registered")
@@ -19,24 +20,24 @@ class ContextVarManager:
         pass
 
     @classmethod
-    def _register(cls, key: str):
+    def _register(cls, key: CTXKey):
         if key in cls._vars:
             raise ValueError(f"ContextVarManager register error: key '{key}' already registered")
         cls._vars[key] = contextvars.ContextVar(key)
 
     @classmethod
-    def _set(cls, key: str, value: Any):
+    def _set(cls, key: CTXKey, value: Any):
         cls._ensure_registered(key)
         return cls._vars[key].set(value)  # 返回 token
 
     @classmethod
-    def _reset(cls, key: str, token: contextvars.Token):
+    def _reset(cls, key: CTXKey, token: contextvars.Token):
         cls._ensure_registered(key)
         cls._vars[key].reset(token)
 
     @classmethod
     @contextmanager
-    def use(cls, key: str, value: Any):
+    def use(cls, key: CTXKey, value: Any):
         cls._ensure_registered(key)
         token = cls._set(key, value)
         try:
@@ -45,7 +46,7 @@ class ContextVarManager:
             cls._reset(key, token)
 
     @classmethod
-    def get(cls, key: str, default: Any = None) -> Any:
+    def get(cls, key: CTXKey, default: Any = None) -> Any:
         cls._ensure_registered(key)
         try:
             var = cls._vars[key]
@@ -58,7 +59,7 @@ class ContextVarManager:
             raise RuntimeError(f'ContextVarManager get error: {e}')
 
     @classmethod
-    def register(cls, key: str):
+    def register(cls, key: CTXKey):
         def decorator(func: Callable):
             cls._register(key)
 

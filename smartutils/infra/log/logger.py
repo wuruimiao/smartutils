@@ -1,9 +1,9 @@
 import sys
 from pathlib import Path
 
-from smartutils.config.const import ConfKey
+from smartutils.config.const import ConfKeys
 from smartutils.config.schema.logger import LoguruConfig
-from smartutils.ctx import ContextVarManager, CTXKey
+from smartutils.ctx import ContextVarManager, CTXKeys
 from smartutils.design import singleton
 from smartutils.infra.abstract import AbstractResource
 from smartutils.infra.factory import InfraFactory
@@ -12,7 +12,7 @@ from smartutils.log import logger
 
 
 class PrintToLogger:
-    def write(self, message):
+    def write(self, message):  # noqa
         message = message.strip()
         if message:
             logger.debug(message)
@@ -63,9 +63,9 @@ class LoggerCli(AbstractResource):
             sys.stdout = PrintToLogger()
             sys.stderr = PrintToLogger()
 
-    @ContextVarManager.register(CTXKey.TRACE_ID)
+    @ContextVarManager.register(CTXKeys.TRACE_ID)
     def _inject_trace_id(self, record):
-        record["extra"]["trace_id"] = ContextVarManager.get(CTXKey.TRACE_ID, default='-')
+        record["extra"]["trace_id"] = ContextVarManager.get(CTXKeys.TRACE_ID, default='-')
         return True
 
     async def close(self):
@@ -81,10 +81,10 @@ class LoggerCli(AbstractResource):
 @singleton
 class LoggerManager(ContextResourceManager[LoggerCli]):
     def __init__(self, conf):
-        resources = {'logger': LoggerCli(conf, 'logger')}
-        super().__init__(resources, 'logger')
+        resources = {ConfKeys.GROUP_DEFAULT: LoggerCli(conf, 'logger_loguru')}
+        super().__init__(resources, CTXKeys.NO_USE)
 
 
-@InfraFactory.register(ConfKey.LOGURU)
+@InfraFactory.register(ConfKeys.LOGURU)
 def init_loguru(conf: LoguruConfig):
     return LoggerManager(conf)

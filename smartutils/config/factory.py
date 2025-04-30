@@ -2,14 +2,14 @@ from typing import Type, Dict, Tuple
 
 from smartutils.log import logger
 
-from smartutils.config.const import ConfKey
+from smartutils.config.const import ConfKeys, ConfKey
 
 
 class ConfFactory:
-    _registry: Dict[str, Tuple[Type, bool, bool]] = {}
+    _registry: Dict[ConfKey, Tuple[Type, bool, bool]] = {}
 
     @classmethod
-    def register(cls, name: str, multi: bool = False, require: bool = True):
+    def register(cls, name: ConfKey, multi: bool = False, require: bool = True):
         def decorator(conf_cls: Type):
             cls._registry[name] = (conf_cls, multi, require)
             return conf_cls
@@ -21,7 +21,7 @@ class ConfFactory:
         return tuple(cls._registry.keys())
 
     @classmethod
-    def create(cls, name: str, conf: Dict):
+    def create(cls, name: ConfKey, conf: Dict):
         info = cls._registry.get(name)
         if not info:
             raise ValueError(f"No conf class registered for {name}")
@@ -36,8 +36,8 @@ class ConfFactory:
         logger.info(f'{name} created.')
 
         if multi:
-            if ConfKey.GROUP_DEFAULT not in conf:
-                raise ValueError(f'{ConfKey.GROUP_DEFAULT} not in {name}')
+            if ConfKeys.GROUP_DEFAULT not in conf:
+                raise ValueError(f'{ConfKeys.GROUP_DEFAULT} not in {name}')
 
             return {key: conf_cls(**_conf) for key, _conf in conf.items()}
         else:

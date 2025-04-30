@@ -1,7 +1,7 @@
-from smartutils.app.info import Info
+from smartutils.app.req_ctx import ReqCTX
 from smartutils.app.fast.app import create_app
 
 __all__ = [
-    'Info',
+    'ReqCTX',
     'create_app',
 ]

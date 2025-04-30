@@ -2,13 +2,13 @@ from typing import Optional
 
 from pydantic import Field, conint
 
-from smartutils.config.const import ConfKey
+from smartutils.config.const import ConfKeys
 from smartutils.config.factory import ConfFactory
 from smartutils.config.schema.db import DBConf
 from smartutils.config.schema.host import HostConf
 
 
-@ConfFactory.register(ConfKey.POSTGRESQL, multi=True, require=False)
+@ConfFactory.register(ConfKeys.POSTGRESQL, multi=True, require=False)
 class PostgreSQLConf(DBConf, HostConf):
     port: int = 5432
 
