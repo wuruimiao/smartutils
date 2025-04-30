@@ -20,8 +20,8 @@ def create_app():
 
         from smartutils.log import logger
         logger.info(f'shutdown start close')
-        from smartutils.infra.manager import ResourceManagerRegistry
-        await ResourceManagerRegistry.close_all()
+        from smartutils import release
+        await release()
         logger.info(f'shutdown all closed')
 
     app = FastAPI(lifespan=lifespan)
