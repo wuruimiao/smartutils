@@ -63,13 +63,8 @@ class CTXVarManager:
 
     @classmethod
     def register(cls, key: CTXKey):
-        def decorator(func: Callable):
+        def decorator(obj):
             cls._register(key)
-
-            @functools.wraps(func)
-            def wrapper(*args, **kwargs):
-                return func(*args, **kwargs)
-
-            return wrapper
+            return obj
 
         return decorator

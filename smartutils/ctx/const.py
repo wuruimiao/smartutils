@@ -15,3 +15,5 @@ class CTXKeys:
     USERNAME = CTXKey('username')
 
     NO_USE = CTXKey('no_use')
+
+    TIMER = CTXKey('timer')
