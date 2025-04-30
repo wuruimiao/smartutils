@@ -6,14 +6,14 @@ from smartutils.ctx.const import CTXKey
 import functools
 
 
-class ContextVarManager:
+class CTXVarManager:
     _vars: Dict[str, contextvars.ContextVar] = {}
 
     @classmethod
     def _ensure_registered(cls, key: CTXKey):
         if key not in cls._vars:
-            logger.error(f"ContextVarManager error: key '{key}' not registered")
-            raise RuntimeError(f"ContextVarManager error: key '{key}' not registered")
+            logger.error(f"ContextVarManager error: key {key} not registered")
+            raise RuntimeError(f"ContextVarManager error: key {key} not registered")
 
     @classmethod
     def reset_registered(cls):
@@ -22,7 +22,9 @@ class ContextVarManager:
     @classmethod
     def _register(cls, key: CTXKey):
         if key in cls._vars:
-            raise ValueError(f"ContextVarManager register error: key '{key}' already registered")
+            raise ValueError(
+                f"ContextVarManager register error: key {key} already registered"
+            )
         cls._vars[key] = contextvars.ContextVar(key)
 
     @classmethod
@@ -55,8 +57,8 @@ class ContextVarManager:
             if default is not None:
                 return default
 
-            logger.error(f'ContextVarManager get error: {e}')
-            raise RuntimeError(f'ContextVarManager get error: {e}')
+            logger.error(f"ContextVarManager get error: {e}")
+            raise RuntimeError(f"ContextVarManager get error: {e}")
 
     @classmethod
     def register(cls, key: CTXKey):

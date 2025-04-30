@@ -13,8 +13,8 @@ async def reset_all():
     from smartutils.design.singleton import reset_all
     reset_all()
 
-    from smartutils.ctx import ContextVarManager
-    ContextVarManager.reset_registered()
+    from smartutils.ctx import CTXVarManager
+    CTXVarManager.reset_registered()
 
     from smartutils.infra.manager import ResourceManagerRegistry
     await ResourceManagerRegistry.close_all()

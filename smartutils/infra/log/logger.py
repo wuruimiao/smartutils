@@ -3,7 +3,7 @@ from pathlib import Path
 
 from smartutils.config.const import ConfKeys
 from smartutils.config.schema.logger import LoguruConfig
-from smartutils.ctx import ContextVarManager, CTXKeys
+from smartutils.ctx import CTXVarManager, CTXKeys
 from smartutils.design import singleton
 from smartutils.infra.abstract import AbstractResource
 from smartutils.infra.factory import InfraFactory
@@ -63,9 +63,9 @@ class LoggerCli(AbstractResource):
             sys.stdout = PrintToLogger()
             sys.stderr = PrintToLogger()
 
-    @ContextVarManager.register(CTXKeys.TRACE_ID)
+    @CTXVarManager.register(CTXKeys.TRACE_ID)
     def _inject_trace_id(self, record):
-        record["extra"]["trace_id"] = ContextVarManager.get(CTXKeys.TRACE_ID, default='-')
+        record["extra"]["trace_id"] = CTXVarManager.get(CTXKeys.TRACE_ID, default='-')
         return True
 
     async def close(self):
