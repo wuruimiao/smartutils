@@ -12,7 +12,7 @@ from smartutils.log import logger
 
 __all__ = [
     "ResourceManagerRegistry",
-    "ContextResourceManager",
+    "CTXResourceManager",
 ]
 
 
@@ -37,7 +37,7 @@ class ResourceManagerRegistry:
         )
 
 
-class ContextResourceManager(Generic[T]):
+class CTXResourceManager(Generic[T]):
     def __init__(
         self,
         resources: Dict[ConfKey, T],
@@ -91,7 +91,7 @@ class ContextResourceManager(Generic[T]):
                 await cli.close()
             except: # noqa
                 logger.exception(
-                    f"ContextResourceManager Failed to close {self} {key}"
+                    f"CTXResourceManager Failed to close {self} {key}"
                 )
 
     async def health_check(self) -> Dict[str, bool]:
