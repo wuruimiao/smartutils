@@ -97,6 +97,7 @@ def capture_logger(monkeypatch):
     from smartutils.log import logger
 
     monkeypatch.setattr(logger, "debug", lambda msg: logs.append(msg))
+    monkeypatch.setattr(logger, "info", lambda msg: logs.append(msg))
     return logs
 
 
