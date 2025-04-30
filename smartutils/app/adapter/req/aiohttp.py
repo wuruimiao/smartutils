@@ -1,7 +1,10 @@
-from smartutils.app.adapter.abstract import RequestAdapter
+from smartutils.app.adapter.req.abstract import RequestAdapter
 
 
 class AIOHTTPRequestAdapter(RequestAdapter):
+    def gen_trace_id(self) -> str:
+        pass
+
     @property
     def headers(self):
         return self.request.headers
@@ -12,7 +15,7 @@ class AIOHTTPRequestAdapter(RequestAdapter):
 
     @property
     def client_host(self):
-        peername = self.request.transport.get_extra_info("peername")
+        peername = self.request.transport.get_extra_info("peername")  # noqa
         return peername[0] if peername else "-"
 
     @property

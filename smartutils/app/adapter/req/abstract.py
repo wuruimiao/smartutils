@@ -7,25 +7,29 @@ class RequestAdapter(ABC):
 
     @property
     @abstractmethod
-    def headers(self):
+    def headers(self) -> dict:
         pass
 
     @property
     @abstractmethod
-    def query_params(self):
+    def query_params(self) -> dict:
         pass
 
     @property
     @abstractmethod
-    def client_host(self):
+    def client_host(self) -> str:
         pass
 
     @property
     @abstractmethod
-    def method(self):
+    def method(self) -> str:
         pass
 
     @property
     @abstractmethod
-    def url(self):
+    def url(self) -> str:
+        pass
+
+    @abstractmethod
+    def gen_trace_id(self) -> str:
         pass
