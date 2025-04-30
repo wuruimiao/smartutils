@@ -1,8 +1,8 @@
 from typing import Dict
 
-from smartutils.config.const import ConfKey
+from smartutils.config.const import ConfKeys, ConfKey
 from smartutils.config.schema.redis import RedisConf
-from smartutils.ctx import ContextVarManager, CTXKey
+from smartutils.ctx import ContextVarManager, CTXKeys
 from smartutils.design import singleton
 from smartutils.infra.cache.cli import AsyncRedisCli
 from smartutils.infra.factory import InfraFactory
@@ -10,13 +10,13 @@ from smartutils.infra.manager import ContextResourceManager
 
 
 @singleton
-@ContextVarManager.register(CTXKey.CACHE_REDIS)
+@ContextVarManager.register(CTXKeys.CACHE_REDIS)
 class RedisManager(ContextResourceManager[AsyncRedisCli]):
-    def __init__(self, confs: Dict[str, RedisConf]):
+    def __init__(self, confs: Dict[ConfKey, RedisConf]):
         resources = {k: AsyncRedisCli(conf, f'redis_{k}') for k, conf in confs.items()}
-        super().__init__(resources, CTXKey.CACHE_REDIS)
+        super().__init__(resources, CTXKeys.CACHE_REDIS)
 
 
-@InfraFactory.register(ConfKey.REDIS)
+@InfraFactory.register(ConfKeys.REDIS)
 def init_redis(conf):
     return RedisManager(conf)

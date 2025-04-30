@@ -1,8 +1,8 @@
 from typing import Dict
 
-from smartutils.config.const import ConfKey
+from smartutils.config.const import ConfKeys, ConfKey
 from smartutils.config.schema.postgresql import PostgreSQLConf
-from smartutils.ctx import ContextVarManager, CTXKey
+from smartutils.ctx import ContextVarManager, CTXKeys
 from smartutils.design import singleton
 from smartutils.infra.db.cli import AsyncDBCli, db_commit, db_rollback
 from smartutils.infra.factory import InfraFactory
@@ -10,13 +10,13 @@ from smartutils.infra.manager import ContextResourceManager
 
 
 @singleton
-@ContextVarManager.register(CTXKey.DB_POSTGRESQL)
+@ContextVarManager.register(CTXKeys.DB_POSTGRESQL)
 class PostgresqlManager(ContextResourceManager[AsyncDBCli]):
     def __init__(self, confs: Dict[str, PostgreSQLConf]):
         resources = {k: AsyncDBCli(conf, f'postgresql_{k}') for k, conf in confs.items()}
-        super().__init__(resources, CTXKey.DB_POSTGRESQL, success=db_commit, fail=db_rollback)
+        super().__init__(resources, CTXKeys.DB_POSTGRESQL, success=db_commit, fail=db_rollback)
 
 
-@InfraFactory.register(ConfKey.POSTGRESQL)
+@InfraFactory.register(ConfKeys.POSTGRESQL)
 def init_postgresql(conf):
     return PostgresqlManager(conf)

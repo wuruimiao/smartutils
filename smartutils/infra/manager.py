@@ -5,8 +5,8 @@ import traceback
 from typing import Dict, Callable, Any, Awaitable, Generic
 
 from smartutils.call import call_hook
-from smartutils.config.const import ConfKey
-from smartutils.ctx import ContextVarManager
+from smartutils.config.const import ConfKeys, ConfKey
+from smartutils.ctx import ContextVarManager, CTXKey
 from smartutils.infra.abstract import T
 from smartutils.log import logger
 
@@ -37,20 +37,20 @@ class ResourceManagerRegistry:
 
 class ContextResourceManager(Generic[T]):
     def __init__(
-            self, resources: Dict[str, T], context_var_name: str,
+            self, resources: Dict[ConfKey, T], context_var_name: CTXKey,
             success: Callable[..., Any] = None,
             fail: Callable[..., Any] = None,
     ):
-        self._context_var_name = context_var_name
+        self._ctx_key: CTXKey = context_var_name
         self._resources = resources
         self._success = success
         self._fail = fail
         ResourceManagerRegistry.register(self)
 
     def __str__(self) -> str:
-        return f'mgr_{self._context_var_name}'
+        return f'mgr_{self._ctx_key}'
 
-    def use(self, key: str = ConfKey.GROUP_DEFAULT):
+    def use(self, key: ConfKey = ConfKeys.GROUP_DEFAULT):
         def decorator(func: Callable[..., Awaitable[Any]]):
             @functools.wraps(func)
             async def wrapper(*args, **kwargs):
@@ -59,7 +59,7 @@ class ContextResourceManager(Generic[T]):
 
                 resource = self._resources[key]
                 async with resource.session() as session:
-                    with ContextVarManager.use(self._context_var_name, session):
+                    with ContextVarManager.use(self._ctx_key, session):
                         try:
                             result = await func(*args, **kwargs)
                             await call_hook(self._success, session)
@@ -74,9 +74,9 @@ class ContextResourceManager(Generic[T]):
         return decorator
 
     def curr(self):
-        return ContextVarManager.get(self._context_var_name)
+        return ContextVarManager.get(self._ctx_key)
 
-    def client(self, key: str = ConfKey.GROUP_DEFAULT) -> T:
+    def client(self, key: ConfKey = ConfKeys.GROUP_DEFAULT) -> T:
         if key not in self._resources:
             raise RuntimeError(f"No resource found for key: {key}")
         return self._resources[key]

@@ -5,7 +5,7 @@ import yaml
 from smartutils.log import logger
 from pydantic import BaseModel
 
-from smartutils.config.const import ConfKey
+from smartutils.config.const import ConfKeys
 from smartutils.config.factory import ConfFactory
 from smartutils.config.schema.project import ProjectConf
 from smartutils.design import singleton
@@ -40,7 +40,7 @@ class Config:
 
     @property
     def project(self) -> ProjectConf:
-        return self.get(ConfKey.PROJECT)
+        return self.get(ConfKeys.PROJECT)
 
 
 _config: Optional[Config] = None

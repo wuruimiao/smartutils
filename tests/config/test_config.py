@@ -202,9 +202,9 @@ def test_config_no_config(setup_config):
 
 
 def test_project_conf_inherit(setup_config: str):
-    from smartutils.config import ConfFactory, ConfKey, ProjectConf, init, get_config
+    from smartutils.config import ConfFactory, ConfKeys, ProjectConf, init, get_config
 
-    @ConfFactory.register(ConfKey.PROJECT)
+    @ConfFactory.register(ConfKeys.PROJECT)
     class MyProjectConf(ProjectConf):
         key: str
 

@@ -1,11 +1,17 @@
-class CTXKey:
-    CACHE_REDIS = 'cache_redis'
+class CTXKey(str):
+    pass
 
-    DB_MYSQL = 'db_mysql'
-    DB_POSTGRESQL = 'db_postgresql'
 
-    MQ_KAFKA = 'mq_kafka'
+class CTXKeys:
+    CACHE_REDIS = CTXKey('cache_redis')
 
-    TRACE_ID = 'traceid'
-    USERID = 'userid'
-    USERNAME = 'username'
+    DB_MYSQL = CTXKey('db_mysql')
+    DB_POSTGRESQL = CTXKey('db_postgresql')
+
+    MQ_KAFKA = CTXKey('mq_kafka')
+
+    TRACE_ID = CTXKey('traceid')
+    USERID = CTXKey('userid')
+    USERNAME = CTXKey('username')
+
+    NO_USE = CTXKey('no_use')
