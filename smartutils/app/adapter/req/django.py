@@ -1,7 +1,10 @@
-from smartutils.app.adapter.abstract import RequestAdapter
+from smartutils.app.adapter.req.abstract import RequestAdapter
 
 
 class DjangoRequestAdapter(RequestAdapter):
+    def gen_trace_id(self) -> str:
+        pass
+
     @property
     def headers(self):
         # Django request.META, convert HTTP_ headers

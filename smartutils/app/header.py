@@ -1,4 +1,4 @@
-from smartutils.app.adapter import RequestAdapter
+from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.const import HEADERKeys
 
 

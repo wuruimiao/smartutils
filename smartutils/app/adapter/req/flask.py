@@ -1,7 +1,10 @@
-from smartutils.app.adapter.abstract import RequestAdapter
+from smartutils.app.adapter.req.abstract import RequestAdapter
 
 
 class FlaskRequestAdapter(RequestAdapter):
+    def gen_trace_id(self) -> str:
+        pass
+
     @property
     def headers(self):
         return self.request.headers
