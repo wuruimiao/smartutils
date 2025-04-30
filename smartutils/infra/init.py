@@ -21,3 +21,8 @@ async def init():
             init_func(conf)
 
         logger.info(f"{comp_key} inited.")
+
+
+async def release():
+    from smartutils.infra.manager import ResourceManagerRegistry
+    await ResourceManagerRegistry.close_all()

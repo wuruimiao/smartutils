@@ -1,8 +1,9 @@
 import pytest
-from smartutils.log import logger
 
 
 @pytest.fixture(autouse=True)
-def cleanup_loguru():
+async def cleanup():
     yield
-    logger.remove()
+
+    from smartutils import release
+    await release()
