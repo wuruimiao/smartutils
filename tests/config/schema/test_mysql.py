@@ -9,7 +9,6 @@ def valid_conf_dict(**kwargs):
     return {
         "host": "127.0.0.1",
         "port": 3306,
-
         "user": "root",
         "passwd": "mypass",
         "db": "testdb",
@@ -19,10 +18,9 @@ def valid_conf_dict(**kwargs):
         "pool_recycle": 7200,
         "echo": False,
         "echo_pool": False,
-
-        'connect_timeout': None,
-        'execute_timeout': None,
-        **kwargs
+        "connect_timeout": None,
+        "execute_timeout": None,
+        **kwargs,
     }
 
 
@@ -46,7 +44,7 @@ def test_mysql_conf_valid():
 
 
 def test_mysql_conf_default():
-    conf = MySQLConf(host='127.0.0.1', user='root', passwd='mypass', db='testdb')
+    conf = MySQLConf(host="127.0.0.1", user="root", passwd="mypass", db="testdb")
     assert conf.user == "root"
     assert conf.host == "127.0.0.1"
     assert conf.port == 3306
@@ -76,15 +74,15 @@ def test_mysql_conf_int(field, value):
 def test_mysql_conf_kw():
     conf = MySQLConf(**valid_conf_dict())
     params = conf.kw
-    for k in {'host', 'port', 'user', 'passwd', 'db'}:
+    for k in {"host", "port", "user", "passwd", "db"}:
         assert k not in params
-    assert params['pool_size'] == 30
-    assert params['max_overflow'] == 5
-    assert params['pool_timeout'] == 10
-    assert params['pool_recycle'] == 7200
-    assert params['echo'] is False
-    assert params['echo_pool'] is False
-    assert 'connect_args' not in params
+    assert params["pool_size"] == 30
+    assert params["max_overflow"] == 5
+    assert params["pool_timeout"] == 10
+    assert params["pool_recycle"] == 7200
+    assert params["echo"] is False
+    assert params["echo_pool"] is False
+    assert "connect_args" not in params
 
 
 @pytest.mark.parametrize("field", ["connect_timeout"])
@@ -93,13 +91,16 @@ def test_mysql_conf_kw_timeout(field, value):
     conf_dict = valid_conf_dict()
     conf_dict[field] = value
     params = MySQLConf(**conf_dict).kw
-    assert 'connect_args' in params
-    assert params['connect_args'][field] == value
+    assert "connect_args" in params
+    assert params["connect_args"][field] == value
 
 
 @pytest.mark.parametrize("value", [1, 2, 3, 10])
 def test_mysql_conf_kw_execute_timeout(value):
     conf_dict = valid_conf_dict(execute_timeout=value)
     params = MySQLConf(**conf_dict).kw
-    assert 'connect_args' in params
-    assert params['connect_args']['init_command'] == f'SET SESSION MAX_EXECUTION_TIME={value * 1000}'
+    assert "connect_args" in params
+    assert (
+        params["connect_args"]["init_command"]
+        == f"SET SESSION MAX_EXECUTION_TIME={value * 1000}"
+    )

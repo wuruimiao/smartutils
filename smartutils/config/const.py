@@ -3,12 +3,12 @@ class ConfKey(str):
 
 
 class ConfKeys:
-    MYSQL = ConfKey('mysql')
-    POSTGRESQL = ConfKey('postgresql')
-    REDIS = ConfKey('redis')
-    KAFKA = ConfKey('kafka')
-    CANAL = ConfKey('canal')
-    PROJECT = ConfKey('project')
-    LOGURU = ConfKey('loguru')
+    MYSQL = ConfKey("mysql")
+    POSTGRESQL = ConfKey("postgresql")
+    REDIS = ConfKey("redis")
+    KAFKA = ConfKey("kafka")
+    CANAL = ConfKey("canal")
+    PROJECT = ConfKey("project")
+    LOGURU = ConfKey("loguru")
 
-    GROUP_DEFAULT = ConfKey('default')
+    GROUP_DEFAULT = ConfKey("default")

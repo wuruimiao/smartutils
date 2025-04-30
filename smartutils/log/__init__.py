@@ -1,5 +1,3 @@
 from loguru import logger
 
-__all__ = [
-    'logger'
-]
+__all__ = ["logger"]

@@ -13,16 +13,18 @@ class UserInfo:
     username: str
 
 
-@deprecated('Info.get_userid Info.get_username')
-def get_user_info(x_user_id: int = Header(..., alias=HEADERKeys.X_USER_ID),
-                  x_username: str = Header(..., alias=HEADERKeys.X_USER_NAME)) -> UserInfo:
+@deprecated("Info.get_userid Info.get_username")
+def get_user_info(
+    x_user_id: int = Header(..., alias=HEADERKeys.X_USER_ID),
+    x_username: str = Header(..., alias=HEADERKeys.X_USER_NAME),
+) -> UserInfo:
     """
     Deprecated: Use Info.get_userid Info.get_username instead.
     """
     return UserInfo(userid=x_user_id, username=x_username)
 
 
-@deprecated('Info.get_traceid')
+@deprecated("Info.get_traceid")
 def get_trace_id(x_trace_id: str = Header(..., alias=HEADERKeys.X_TRACE_ID)) -> str:
     """
     Deprecated: Use Info.get_traceid instead.

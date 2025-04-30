@@ -38,12 +38,16 @@ class AsyncKafkaCli(AbstractResource):
         yield self
 
     async def _start_producer(self):
-        producer = AIOKafkaProducer(bootstrap_servers=self._bootstrap_servers, **self._conf.kw)
+        producer = AIOKafkaProducer(
+            bootstrap_servers=self._bootstrap_servers, **self._conf.kw
+        )
         try:
             await producer.start()
             self._producer = producer
         except errors.KafkaConnectionError as e:
-            logger.error(f'start kafka producer {self._bootstrap_servers} fail, err: {traceback.format_exc()}')
+            logger.error(
+                f"start kafka producer {self._bootstrap_servers} fail, err: {traceback.format_exc()}"
+            )
             await producer.stop()
             raise e
 
@@ -55,7 +59,7 @@ class AsyncKafkaCli(AbstractResource):
                 return
             await self._start_producer()
 
-    def consumer(self, topic: str, group_id: str, auto_offset_reset: str = 'latest'):
+    def consumer(self, topic: str, group_id: str, auto_offset_reset: str = "latest"):
         return AIOKafkaConsumer(
             topic,
             group_id=group_id,
@@ -67,18 +71,20 @@ class AsyncKafkaCli(AbstractResource):
     async def send_data(self, topic: str, data: List[Dict]):
         await self.start_producer()
         for record in data:
-            await self._producer.send_and_wait(topic, json.dumps(record).encode('utf-8'))
+            await self._producer.send_and_wait(
+                topic, json.dumps(record).encode("utf-8")
+            )
 
 
 class KafkaBatchConsumer:
     def __init__(
-            self,
-            kafka_cli: AsyncKafkaCli,
-            process_func: Callable[[List[str]], Any],
-            topic: str,
-            group_id: str,
-            batch_size: int = 10000,
-            timeout: int = 1,
+        self,
+        kafka_cli: AsyncKafkaCli,
+        process_func: Callable[[List[str]], Any],
+        topic: str,
+        group_id: str,
+        batch_size: int = 10000,
+        timeout: int = 1,
     ):
         self.kafka_cli = kafka_cli
         self.topic = topic
@@ -89,10 +95,11 @@ class KafkaBatchConsumer:
         self.queue = asyncio.Queue(self.batch_size)
 
     async def start(self):
-        consumer: AIOKafkaConsumer = self.kafka_cli.consumer(self.topic, self.group_id, auto_offset_reset='earliest')
+        consumer: AIOKafkaConsumer = self.kafka_cli.consumer(
+            self.topic, self.group_id, auto_offset_reset="earliest"
+        )
         await asyncio.gather(
-            self._consume_kafka(consumer),
-            self._process_batch(consumer)
+            self._consume_kafka(consumer), self._process_batch(consumer)
         )
 
     async def _consume_kafka(self, consumer: AIOKafkaConsumer):
@@ -111,12 +118,14 @@ class KafkaBatchConsumer:
                 batch.append(msg)
                 while len(batch) < self.batch_size:
                     try:
-                        msg = await asyncio.wait_for(self.queue.get(), timeout=self.timeout)
+                        msg = await asyncio.wait_for(
+                            self.queue.get(), timeout=self.timeout
+                        )
                         batch.append(msg)
                     except asyncio.TimeoutError:
                         break
 
-                messages = [msg.value.decode('utf-8') for msg in batch]
+                messages = [msg.value.decode("utf-8") for msg in batch]
                 await self.process_func(messages)
                 if batch:
                     partition_offsets = {}

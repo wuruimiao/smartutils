@@ -1,7 +1,7 @@
 import pytest
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 async def setup_config(tmp_path_factory):
     config_str = """
 mysql:
@@ -82,10 +82,11 @@ project:
     yield config_file
 
     from smartutils import reset_all
+
     await reset_all()
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 async def setup_no_conf_class_config(tmp_path_factory):
     config_str = """
 no_conf_class:
@@ -102,10 +103,11 @@ project:
     yield config_file
 
     from smartutils import reset_all
+
     await reset_all()
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 async def setup_no_conf_default_config(tmp_path_factory):
     config_str = """
 mysql:
@@ -133,10 +135,11 @@ project:
     yield config_file
 
     from smartutils import reset_all
+
     await reset_all()
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 async def setup_conf_empty(tmp_path_factory):
     config_str = """"""
 
@@ -147,22 +150,30 @@ async def setup_conf_empty(tmp_path_factory):
     yield config_file
 
     from smartutils import reset_all
+
     await reset_all()
 
 
 def test_config_loads_all(setup_config: str):
     from smartutils.config import init
+
     assert init(setup_config)
 
     from smartutils.config import get_config
 
     config = get_config()
     assert config is not None
-    assert config.get('mysql')['default'].url == 'mysql+asyncmy://root:naobo@localhost:3306/test_db'
-    assert config.get('postgresql')['default'].url == 'postgresql+asyncpg://root:naobo@localhost:5432/test_db'
-    assert config.get('redis')['default'].url == 'redis://localhost:6379'
-    assert config.get('kafka')['default'].urls == ['localhost:19092', '127.0.0.1:9093']
-    assert config.get('canal')['default'].clients[0].name == 'c1'
+    assert (
+        config.get("mysql")["default"].url
+        == "mysql+asyncmy://root:naobo@localhost:3306/test_db"
+    )
+    assert (
+        config.get("postgresql")["default"].url
+        == "postgresql+asyncpg://root:naobo@localhost:5432/test_db"
+    )
+    assert config.get("redis")["default"].url == "redis://localhost:6379"
+    assert config.get("kafka")["default"].urls == ["localhost:19092", "127.0.0.1:9093"]
+    assert config.get("canal")["default"].clients[0].name == "c1"
     assert config.project.name == "auth"
     assert config.project.description == "test_auth"
     assert config.project.version == "0.0.1"
@@ -170,11 +181,13 @@ def test_config_loads_all(setup_config: str):
 
 def test_config_empty(setup_conf_empty: str):
     from smartutils.config import init
+
     init(setup_conf_empty)
 
 
 def test_config_no_conf_class(setup_no_conf_class_config: str):
     from smartutils.config import init
+
     init(setup_no_conf_class_config)
 
 
@@ -183,22 +196,24 @@ def test_config_no_default(setup_no_conf_default_config: str):
 
     with pytest.raises(ValueError) as exc:
         init(setup_no_conf_default_config)
-    assert 'default not in mysql' in str(exc.value)
+    assert "default not in mysql" in str(exc.value)
 
 
 def test_config_no_config_file(setup_config):
     from smartutils.config import init
+
     init()
 
 
 def test_config_no_config(setup_config):
     from smartutils.config import get_config
     from smartutils.config.init import reset
+
     reset()
 
     with pytest.raises(RuntimeError) as exc:
         conf = get_config()
-    assert 'Config not initialized' in str(exc.value)
+    assert "Config not initialized" in str(exc.value)
 
 
 def test_project_conf_inherit(setup_config: str):

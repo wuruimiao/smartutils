@@ -13,8 +13,10 @@ from smartutils.infra.manager import ContextResourceManager
 @CTXVarManager.register(CTXKeys.DB_MYSQL)
 class MySQLManager(ContextResourceManager[AsyncDBCli]):
     def __init__(self, confs: Dict[ConfKey, MySQLConf]):
-        resources = {k: AsyncDBCli(conf, f'mysql_{k}') for k, conf in confs.items()}
-        super().__init__(resources, CTXKeys.DB_MYSQL, success=db_commit, fail=db_rollback)
+        resources = {k: AsyncDBCli(conf, f"mysql_{k}") for k, conf in confs.items()}
+        super().__init__(
+            resources, CTXKeys.DB_MYSQL, success=db_commit, fail=db_rollback
+        )
 
 
 @InfraFactory.register(ConfKeys.MYSQL)

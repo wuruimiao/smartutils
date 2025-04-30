@@ -17,5 +17,5 @@ class DBConf(HostConf):
 
     @property
     def kw(self) -> dict:
-        params = self.model_dump(exclude={'user', 'passwd', 'db', 'host', 'port'})
+        params = self.model_dump(exclude={"user", "passwd", "db", "host", "port"})
         return params

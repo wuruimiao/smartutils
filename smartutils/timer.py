@@ -13,12 +13,12 @@ class Timer:
 
     def start(self):
         if self._start is not None:
-            raise RuntimeError('Timer already started')
+            raise RuntimeError("Timer already started")
         self._start = self._func()
 
     def stop(self):
         if self._start is None:
-            raise RuntimeError('Timer not started')
+            raise RuntimeError("Timer not started")
         end = self._func()
         self._elapsed += end - self._start
         self._start = None
@@ -62,6 +62,7 @@ def timeit(log: str = ""):
 
     def decorator(func):
         if inspect.iscoroutinefunction(func):
+
             @functools.wraps(func)
             async def wrapper(*args, **kwargs):
                 async with Timer() as t:
@@ -71,6 +72,7 @@ def timeit(log: str = ""):
 
             return wrapper
         else:
+
             @functools.wraps(func)
             def wrapper(*args, **kwargs):
                 with Timer() as t:

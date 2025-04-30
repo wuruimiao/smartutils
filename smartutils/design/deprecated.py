@@ -9,7 +9,7 @@ def deprecated(new_method):
             warnings.warn(
                 f"{func.__name__} is deprecated. Use {new_method} instead.",
                 DeprecationWarning,
-                stacklevel=2
+                stacklevel=2,
             )
             return func(*args, **kwargs)
 

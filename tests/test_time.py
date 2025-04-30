@@ -5,14 +5,18 @@ from zoneinfo import ZoneInfo
 from smartutils import time as mytime
 
 
-@pytest.mark.parametrize("tz", [ZoneInfo("Asia/Shanghai"), ZoneInfo("UTC"), ZoneInfo("America/New_York")])
+@pytest.mark.parametrize(
+    "tz", [ZoneInfo("Asia/Shanghai"), ZoneInfo("UTC"), ZoneInfo("America/New_York")]
+)
 def test_format_time_with_tz(tz):
     dt = datetime(2024, 4, 27, 15, 30, 0, tzinfo=tz)
     formatted = mytime.format_time(dt, tz=tz)
     assert formatted == dt.strftime("%Y-%m-%d %H:%M:%S")
 
 
-@pytest.mark.parametrize("tz", [ZoneInfo("Asia/Shanghai"), ZoneInfo("UTC"), ZoneInfo("America/New_York")])
+@pytest.mark.parametrize(
+    "tz", [ZoneInfo("Asia/Shanghai"), ZoneInfo("UTC"), ZoneInfo("America/New_York")]
+)
 def test_format_timestamp_with_tz(tz):
     # 2024-04-27 08:00:00 UTC == 2024-04-27 16:00:00 Asia/Shanghai
     dt = datetime(2024, 4, 27, 8, 0, 0, tzinfo=ZoneInfo("UTC"))
@@ -22,7 +26,9 @@ def test_format_timestamp_with_tz(tz):
     assert formatted == dt_in_tz.strftime("%Y-%m-%d %H:%M:%S")
 
 
-@pytest.mark.parametrize("tz", [ZoneInfo("Asia/Shanghai"), ZoneInfo("UTC"), ZoneInfo("America/New_York")])
+@pytest.mark.parametrize(
+    "tz", [ZoneInfo("Asia/Shanghai"), ZoneInfo("UTC"), ZoneInfo("America/New_York")]
+)
 def test_parse_time_str_and_format_time(tz):
     date_str = "2024-05-01 12:00:00"
     dt = mytime.parse_time_str(date_str, tz=tz)
@@ -30,7 +36,9 @@ def test_parse_time_str_and_format_time(tz):
     assert mytime.format_time(dt, tz=tz) == date_str
 
 
-@pytest.mark.parametrize("tz", [ZoneInfo("Asia/Shanghai"), ZoneInfo("UTC"), ZoneInfo("America/New_York")])
+@pytest.mark.parametrize(
+    "tz", [ZoneInfo("Asia/Shanghai"), ZoneInfo("UTC"), ZoneInfo("America/New_York")]
+)
 def test_today_and_yesterday_and_tomorrow(tz):
     today_str = mytime.today(tz)
     today_dt = mytime.get_now(tz)
@@ -45,7 +53,9 @@ def test_today_and_yesterday_and_tomorrow(tz):
     assert tomorrow_str == tomorrow_dt.strftime("%Y-%m-%d")
 
 
-@pytest.mark.parametrize("tz", [ZoneInfo("Asia/Shanghai"), ZoneInfo("UTC"), ZoneInfo("America/New_York")])
+@pytest.mark.parametrize(
+    "tz", [ZoneInfo("Asia/Shanghai"), ZoneInfo("UTC"), ZoneInfo("America/New_York")]
+)
 def test_week_day_str(tz):
     date = datetime(2024, 4, 28, 0, 0, 0, tzinfo=tz)
     result = mytime.week_day_str(date, tz)
@@ -53,14 +63,18 @@ def test_week_day_str(tz):
     assert result == "Sunday"
 
 
-@pytest.mark.parametrize("tz", [ZoneInfo("Asia/Shanghai"), ZoneInfo("UTC"), ZoneInfo("America/New_York")])
+@pytest.mark.parametrize(
+    "tz", [ZoneInfo("Asia/Shanghai"), ZoneInfo("UTC"), ZoneInfo("America/New_York")]
+)
 def test_today_remain_sec(tz):
     remain_sec = mytime.today_remain_sec(tz)
     # 必须小于等于86400（一天秒数），大于等于0
     assert 0 <= remain_sec <= 86400
 
 
-@pytest.mark.parametrize("tz", [ZoneInfo("Asia/Shanghai"), ZoneInfo("UTC"), ZoneInfo("America/New_York")])
+@pytest.mark.parametrize(
+    "tz", [ZoneInfo("Asia/Shanghai"), ZoneInfo("UTC"), ZoneInfo("America/New_York")]
+)
 def test_get_timestamp_with_tz(tz):
     dt = datetime(2024, 5, 1, 12, 0, 0, tzinfo=tz)
     timestamp = mytime.get_timestamp(dt)
@@ -88,7 +102,9 @@ def test_pass_and_remain_time():
 
     r = mytime.get_remain_time(early, early, day=2, hour=1, minute=10, second=5)
     # 截止时间应为 2天1小时10分5秒后
-    assert r == mytime.get_pass_time(early, early + timedelta(days=2, hours=1, minutes=10, seconds=5))
+    assert r == mytime.get_pass_time(
+        early, early + timedelta(days=2, hours=1, minutes=10, seconds=5)
+    )
 
 
 def test_format_time_default_and_custom_format():
@@ -110,6 +126,7 @@ def test_format_time_with_aware_dt():
 
 def test_format_timestamp_accepts_float_and_edge():
     from smartutils import time as mytime
+
     # 支持float timestamp
     dt = datetime(2024, 5, 2, 12, 34, 56, tzinfo=ZoneInfo("Asia/Shanghai"))
     ts = dt.timestamp()
@@ -139,6 +156,7 @@ def test_get_stamp_after_compose():
 
 def test_parse_time_str_invalid():
     from smartutils import time as mytime
+
     with pytest.raises(ValueError):
         mytime.parse_time_str("xxxx")
 
@@ -161,6 +179,7 @@ def test_today_remain_sec_near_midnight():
     # 构造临近午夜
     from datetime import datetime
     from smartutils import time as mytime
+
     tz = ZoneInfo("Asia/Shanghai")
     dt = datetime(2024, 5, 2, 23, 59, 59, tzinfo=tz)
     # patch get_now 返回dt
@@ -175,6 +194,7 @@ def test_today_remain_sec_near_midnight():
 
 def test_get_pass_time_zero():
     from datetime import datetime
+
     dt = datetime(2024, 5, 2, 0, 0, 0)
     d, h, m, s = mytime.get_pass_time(dt, dt)
     assert d == h == m == s == 0
@@ -183,6 +203,7 @@ def test_get_pass_time_zero():
 def test_get_remain_time_deadline_passed():
     from datetime import datetime
     from smartutils import time as mytime
+
     early = datetime(2024, 1, 1, 0, 0, 0)
     late = datetime(2024, 1, 3, 0, 0, 0)
     # 只给1天，实际已过
@@ -193,6 +214,7 @@ def test_get_remain_time_deadline_passed():
 def test_get_timestamp():
     from datetime import datetime
     from smartutils import time as mytime
+
     dt = datetime(2024, 5, 2, 12, 34, 56, tzinfo=ZoneInfo("Asia/Shanghai"))
     ts = mytime.get_timestamp(dt)
     assert isinstance(ts, float)
@@ -201,6 +223,7 @@ def test_get_timestamp():
 def test_get_now_str_mock(monkeypatch):
     from datetime import datetime
     from zoneinfo import ZoneInfo
+
     dt = datetime(2024, 5, 2, 12, 34, 56, tzinfo=ZoneInfo("Asia/Shanghai"))
     monkeypatch.setattr(mytime, "get_now", lambda tz=None: dt)
     assert mytime.get_now_str(ZoneInfo("Asia/Shanghai")) == "2024-05-02 12:34:56"
@@ -213,6 +236,7 @@ def test_get_now_stamp_mock(monkeypatch):
 
 def test_get_now_stamp_str_mock(monkeypatch):
     from smartutils import time as mytime
+
     mock_value = 1714627200.123456
     monkeypatch.setattr(mytime, "get_now_stamp_float", lambda: mock_value)
     result = mytime.get_now_stamp_str()
@@ -246,8 +270,11 @@ def test_week_day_cross_tz():
     # 2024-05-05 00:30:00 UTC = 2024-05-05 08:30:00 Asia/Shanghai
     dt_utc = datetime(2024, 5, 5, 0, 30, 0, tzinfo=ZoneInfo("UTC"))
     dt_sh = datetime(2024, 5, 5, 8, 30, 0, tzinfo=ZoneInfo("Asia/Shanghai"))
-    assert mytime.week_day(dt_utc, tz=ZoneInfo("Asia/Shanghai")) == mytime.week_day(dt_sh,
-                                                                                    tz=ZoneInfo("Asia/Shanghai")) == 6
+    assert (
+        mytime.week_day(dt_utc, tz=ZoneInfo("Asia/Shanghai"))
+        == mytime.week_day(dt_sh, tz=ZoneInfo("Asia/Shanghai"))
+        == 6
+    )
 
 
 def test_week_day_edge_cases():
@@ -282,8 +309,11 @@ def test_week_day_str_aware_datetime():
 def test_week_day_str_cross_tz():
     dt_utc = datetime(2024, 5, 5, 0, 30, 0, tzinfo=ZoneInfo("UTC"))
     dt_sh = datetime(2024, 5, 5, 8, 30, 0, tzinfo=ZoneInfo("Asia/Shanghai"))
-    assert mytime.week_day_str(dt_utc, tz=ZoneInfo("Asia/Shanghai")) == mytime.week_day_str(dt_sh, tz=ZoneInfo(
-        "Asia/Shanghai")) == "Sunday"
+    assert (
+        mytime.week_day_str(dt_utc, tz=ZoneInfo("Asia/Shanghai"))
+        == mytime.week_day_str(dt_sh, tz=ZoneInfo("Asia/Shanghai"))
+        == "Sunday"
+    )
 
 
 def test_week_day_str_edge_cases():
@@ -295,6 +325,7 @@ def test_week_day_str_edge_cases():
 
 def test_get_stamp_after_not_stamp(monkeypatch):
     from smartutils import time as mytime
+
     monkeypatch.setattr(mytime, "get_now_stamp_float", lambda: 1000.0)
     after = mytime.get_stamp_after(day=1, hour=1, minute=1, second=1)
     expected = 1000.0 + 86400 + 3600 + 60 + 1
@@ -303,6 +334,7 @@ def test_get_stamp_after_not_stamp(monkeypatch):
 
 def test_get_stamp_before_not_stamp(monkeypatch):
     from smartutils import time as mytime
+
     monkeypatch.setattr(mytime, "get_now_stamp_float", lambda: 2000.0)
     before = mytime.get_stamp_before(day=1, hour=1, minute=1, second=1)
     assert before == 2000.0 - (-82859)

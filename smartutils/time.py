@@ -57,8 +57,9 @@ def get_now_stamp_str() -> str:
     return str(get_now_stamp_float())
 
 
-def get_stamp_after(stamp: float = None,
-                    day: int = 0, hour: int = 0, minute: int = 0, second: int = 0) -> float:
+def get_stamp_after(
+    stamp: float = None, day: int = 0, hour: int = 0, minute: int = 0, second: int = 0
+) -> float:
     """
     获取一段时间后的时间戳
     :param stamp:
@@ -79,8 +80,9 @@ def get_stamp_after(stamp: float = None,
     return stamp + second
 
 
-def get_stamp_before(stamp: float = None,
-                     day: int = 0, hour: int = 0, minute: int = 0, second: int = 0) -> float:
+def get_stamp_before(
+    stamp: float = None, day: int = 0, hour: int = 0, minute: int = 0, second: int = 0
+) -> float:
     if not stamp:
         stamp = get_now_stamp_float()
     if day:
@@ -106,8 +108,9 @@ def get_pass_time(early: datetime, latest: datetime) -> Tuple[int, int, int, int
     return d.days, d.seconds // 3600, (d.seconds // 60) % 60, d.seconds % 3600 % 60
 
 
-def get_remain_time(early: datetime, latest: datetime, day: int, hour: int, minute: int, second: int) -> \
-        Tuple[int, int, int, int]:
+def get_remain_time(
+    early: datetime, latest: datetime, day: int, hour: int, minute: int, second: int
+) -> Tuple[int, int, int, int]:
     """
 
     Args:
@@ -126,7 +129,9 @@ def get_remain_time(early: datetime, latest: datetime, day: int, hour: int, minu
     return get_pass_time(latest, deadline)
 
 
-def parse_time_str(time_str: str, str_format: str = _DefaultFormat, tz: ZoneInfo = _DefaultTZ) -> datetime:
+def parse_time_str(
+    time_str: str, str_format: str = _DefaultFormat, tz: ZoneInfo = _DefaultTZ
+) -> datetime:
     dt = datetime.strptime(time_str, str_format)
     return dt.replace(tzinfo=tz)
 
@@ -152,7 +157,7 @@ def week_day_str(date=None, tz: ZoneInfo = _DefaultTZ):
         date = date.replace(tzinfo=tz)
     else:
         date = date.astimezone(tz)
-    return date.strftime('%A')
+    return date.strftime("%A")
 
 
 def today_remain_sec(tz: ZoneInfo = _DefaultTZ) -> int:

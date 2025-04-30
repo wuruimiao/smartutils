@@ -15,6 +15,7 @@ class Snowflake:
     """
     雪花ID实体对象，支持反解各组成部分。
     """
+
     timestamp: int
     instance: int
     epoch: int = 0
@@ -31,7 +32,7 @@ class Snowflake:
             raise ValueError(f"seq must be in [0, {MAX_SEQ}]!")
 
     @classmethod
-    def parse(cls, snowflake: int, epoch: int = 0) -> 'Snowflake':
+    def parse(cls, snowflake: int, epoch: int = 0) -> "Snowflake":
         """
         解析整数雪花ID为 Snowflake 对象
         """
@@ -39,7 +40,7 @@ class Snowflake:
             epoch=epoch,
             timestamp=snowflake >> 22,
             instance=(snowflake >> 12) & MAX_INSTANCE,
-            seq=snowflake & MAX_SEQ
+            seq=snowflake & MAX_SEQ,
         )
 
     @property
@@ -87,8 +88,10 @@ class Snowflake:
         return self.value
 
     def __repr__(self):
-        return (f"Snowflake(timestamp={self.timestamp}, instance={self.instance}, "
-                f"seq={self.seq}, epoch={self.epoch}, value={self.value})")
+        return (
+            f"Snowflake(timestamp={self.timestamp}, instance={self.instance}, "
+            f"seq={self.seq}, epoch={self.epoch}, value={self.value})"
+        )
 
 
 class SnowflakeGenerator:
@@ -97,7 +100,14 @@ class SnowflakeGenerator:
     每个实例代表一个节点/进程的ID生成器。
     """
 
-    def __init__(self, instance: int, *, seq: int = 0, epoch: int = 0, timestamp: Optional[int] = None):
+    def __init__(
+        self,
+        instance: int,
+        *,
+        seq: int = 0,
+        epoch: int = 0,
+        timestamp: Optional[int] = None,
+    ):
         """
         :param instance: 当前节点/进程编号（0~1023）
         :param seq: 序列号初始值（一般用默认）
@@ -106,8 +116,10 @@ class SnowflakeGenerator:
         """
         current = int(time() * 1000)
         if current - epoch >= MAX_TS:
-            raise OverflowError("The maximum current timestamp has been reached in selected epoch, "
-                                "so Snowflake cannot generate more IDs!")
+            raise OverflowError(
+                "The maximum current timestamp has been reached in selected epoch, "
+                "so Snowflake cannot generate more IDs!"
+            )
         timestamp = timestamp or current
         if timestamp < 0 or timestamp > current:
             raise ValueError(f"timestamp must be in [0, {current}]!")
@@ -124,7 +136,7 @@ class SnowflakeGenerator:
         self._seq = seq
 
     @classmethod
-    def from_snowflake(cls, sf: Snowflake) -> 'SnowflakeGenerator':
+    def from_snowflake(cls, sf: Snowflake) -> "SnowflakeGenerator":
         """
         通过 Snowflake 对象恢复生成器
         """
@@ -147,8 +159,10 @@ class SnowflakeGenerator:
         current = int(time() * 1000) - self._epo
 
         if current >= MAX_TS:
-            raise StopIteration("The maximum current timestamp has been reached in selected epoch, "
-                                "so Snowflake cannot generate more IDs!")
+            raise StopIteration(
+                "The maximum current timestamp has been reached in selected epoch, "
+                "so Snowflake cannot generate more IDs!"
+            )
 
         if self._ts == current:
             if self._seq == MAX_SEQ:

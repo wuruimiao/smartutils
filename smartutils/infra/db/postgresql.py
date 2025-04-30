@@ -13,8 +13,12 @@ from smartutils.infra.manager import ContextResourceManager
 @CTXVarManager.register(CTXKeys.DB_POSTGRESQL)
 class PostgresqlManager(ContextResourceManager[AsyncDBCli]):
     def __init__(self, confs: Dict[str, PostgreSQLConf]):
-        resources = {k: AsyncDBCli(conf, f'postgresql_{k}') for k, conf in confs.items()}
-        super().__init__(resources, CTXKeys.DB_POSTGRESQL, success=db_commit, fail=db_rollback)
+        resources = {
+            k: AsyncDBCli(conf, f"postgresql_{k}") for k, conf in confs.items()
+        }
+        super().__init__(
+            resources, CTXKeys.DB_POSTGRESQL, success=db_commit, fail=db_rollback
+        )
 
 
 @InfraFactory.register(ConfKeys.POSTGRESQL)

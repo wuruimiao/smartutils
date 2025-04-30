@@ -1,7 +1,15 @@
 import pytest
 from fastapi import HTTPException
 
-from smartutils.ret import Error, OK, INTERVAL_SERVER, TIMEOUT, ResponseModel, success_res, fail_res
+from smartutils.ret import (
+    Error,
+    OK,
+    INTERVAL_SERVER,
+    TIMEOUT,
+    ResponseModel,
+    success_res,
+    fail_res,
+)
 
 
 def test_error_ok():
@@ -51,26 +59,26 @@ def test_timeout_error():
 def test_response_model_defaults():
     resp = ResponseModel()
     assert resp.code == 0
-    assert resp.message == 'success'
+    assert resp.message == "success"
     assert resp.data is None
 
 
 def test_response_model_with_data():
     resp = ResponseModel(data={"foo": "bar"})
     assert resp.code == 0
-    assert resp.message == 'success'
+    assert resp.message == "success"
     assert resp.data == {"foo": "bar"}
 
 
 def test_success_response_none():
     result = success_res()
-    assert result == {'code': 0, 'message': 'success', 'data': None}
+    assert result == {"code": 0, "message": "success", "data": None}
 
 
 def test_success_response_with_data():
     data = {"answer": 42}
     result = success_res(data)
-    assert result == {'code': 0, 'message': 'success', 'data': data}
+    assert result == {"code": 0, "message": "success", "data": data}
 
 
 def test_error_response_raises_http_exception():
@@ -80,4 +88,4 @@ def test_error_response_raises_http_exception():
         fail_res(code, message)
     exc = exc_info.value
     assert exc.status_code == 400
-    assert exc.detail == {'code': code, 'message': message}
+    assert exc.detail == {"code": code, "message": message}

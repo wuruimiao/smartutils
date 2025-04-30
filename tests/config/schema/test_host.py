@@ -10,7 +10,7 @@ from smartutils.config.schema.host import HostConf
         ("127.0.0.1", 8080),
         ("localhost", 80),
         ("example.com", 65535),
-    ]
+    ],
 )
 def test_hostconf_valid(host, port):
     conf = HostConf(host=host, port=port)
@@ -25,7 +25,7 @@ def test_hostconf_valid(host, port):
         "invalid_host",  # 不是合法域名/IP/localhost
         "256.256.1.1",  # 非法IP
         None,
-    ]
+    ],
 )
 def test_hostconf_invalid_host(host):
     with pytest.raises(ValidationError) as exc:
@@ -40,7 +40,7 @@ def test_hostconf_invalid_host(host):
         65536,  # 太大
         -1,  # 负数
         None,  # 为空
-    ]
+    ],
 )
 def test_hostconf_invalid_port(port):
     with pytest.raises(ValidationError) as exc:
@@ -62,10 +62,10 @@ def test_the_url():
         ("127.0.0.1", 8080),
         ("localhost", 80),
         ("example.com", 65535),
-    ]
+    ],
 )
 def test_custom_dump_excludes_host_port(host, port):
     conf = HostConf(host=host, port=port)
     dumped = conf.model_dump()
-    assert dumped['host'] == host
-    assert dumped['port'] == port
+    assert dumped["host"] == host
+    assert dumped["port"] == port

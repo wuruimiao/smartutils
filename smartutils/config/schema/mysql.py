@@ -22,14 +22,16 @@ class MySQLConf(DBConf):
     @property
     def kw(self) -> dict:
         params = super().kw
-        params.pop('connect_timeout')
-        params.pop('execute_timeout')
+        params.pop("connect_timeout")
+        params.pop("execute_timeout")
 
         connect_args = {}
         if self.connect_timeout:
-            connect_args['connect_timeout'] = self.connect_timeout
+            connect_args["connect_timeout"] = self.connect_timeout
         if self.execute_timeout:
-            connect_args['init_command'] = f'SET SESSION MAX_EXECUTION_TIME={self.execute_timeout * 1000}'
+            connect_args["init_command"] = (
+                f"SET SESSION MAX_EXECUTION_TIME={self.execute_timeout * 1000}"
+            )
         if connect_args:
-            params['connect_args'] = connect_args
+            params["connect_args"] = connect_args
         return params

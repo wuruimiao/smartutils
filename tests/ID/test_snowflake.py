@@ -60,7 +60,7 @@ def test_monotonic_seq():
     gen = SnowflakeGenerator(instance=1, epoch=0)
     ids = [gen() for _ in range(5)]
     # 低12位应该递增
-    seqs = [i & 0xfff for i in ids]
+    seqs = [i & 0xFFF for i in ids]
     assert seqs == sorted(seqs)
 
 

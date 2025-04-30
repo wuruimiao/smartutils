@@ -10,7 +10,7 @@ from smartutils.config.factory import ConfFactory
 from smartutils.config.schema.project import ProjectConf
 from smartutils.design import singleton
 
-T = TypeVar('T', bound=BaseModel)
+T = TypeVar("T", bound=BaseModel)
 
 
 @singleton
@@ -20,17 +20,17 @@ class Config:
         self._config: Dict[str, Any] = {}
 
         if not Path(config_path).exists():
-            logger.info(f'conf no {config_path}, do nothing')
+            logger.info(f"conf no {config_path}, do nothing")
             return
 
         with open(config_path) as f:
             self._config = yaml.safe_load(f)
 
         if not self._config:
-            logger.info(f'conf emtpy, do nothing!!!')
+            logger.info(f"conf emtpy, do nothing!!!")
             return
 
-        logger.info(f'config init by {config_path}')
+        logger.info(f"config init by {config_path}")
 
         for key in ConfFactory.all_keys():
             self._instances[key] = ConfFactory.create(key, self._config.get(key))
@@ -46,7 +46,7 @@ class Config:
 _config: Optional[Config] = None
 
 
-def init(conf_path: str = 'config/config.yaml') -> Config:
+def init(conf_path: str = "config/config.yaml") -> Config:
     global _config
     _config = Config(conf_path)
     return _config

@@ -34,14 +34,17 @@ project:
         f.write(config_str)
 
     from smartutils import init
+
     await init(str(config_file))
 
     yield
 
     from smartutils.infra import KafkaManager
+
     await KafkaManager().close()
 
     from smartutils import reset_all
+
     await reset_all()
 
 
@@ -72,14 +75,17 @@ project:
         f.write(config_str)
 
     from smartutils import init
+
     await init(str(config_file))
 
     yield
 
     from smartutils.infra import KafkaManager
+
     await KafkaManager().close()
 
     from smartutils import reset_all
+
     await reset_all()
 
 
@@ -96,7 +102,9 @@ async def test_send_and_consume(setup_kafka):
         await asyncio.sleep(1)
 
         group_id = f"pytest-group-{uuid.uuid4()}"
-        consumer = kafka_mgr.curr().consumer(TEST_TOPIC, group_id, auto_offset_reset="earliest")
+        consumer = kafka_mgr.curr().consumer(
+            TEST_TOPIC, group_id, auto_offset_reset="earliest"
+        )
         await consumer.start()
         received = []
         try:
@@ -119,6 +127,7 @@ async def test_send_and_consume(setup_kafka):
 async def test_send_and_batch_consume(setup_kafka):
     """测试 KafkaBatchConsumer 批量消费"""
     from smartutils.infra import KafkaBatchConsumer, KafkaManager
+
     kafka_mgr = KafkaManager()
 
     @kafka_mgr.use()
@@ -138,7 +147,7 @@ async def test_send_and_batch_consume(setup_kafka):
             topic=TEST_TOPIC,
             group_id=GROUP_ID + "-batch",
             batch_size=2,
-            timeout=2
+            timeout=2,
         )
 
         # 用 asyncio.wait_for 限制总执行时间，避免死等
@@ -157,6 +166,7 @@ async def test_send_and_batch_consume(setup_kafka):
 
 async def test_ping(setup_kafka):
     from smartutils.infra import KafkaManager
+
     kafka_mgr = KafkaManager()
     result = await kafka_mgr.client().ping()
     assert result
@@ -164,6 +174,7 @@ async def test_ping(setup_kafka):
 
 async def test_unreachable_ping(setup_unreachable_kafka):
     from smartutils.infra import KafkaManager
+
     kafka_mgr = KafkaManager()
     result = await kafka_mgr.client().ping()
     assert not result

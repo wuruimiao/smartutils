@@ -95,6 +95,7 @@ def test_timer_multiple_intervals():
 def capture_logger(monkeypatch):
     logs = []
     from smartutils.log import logger
+
     monkeypatch.setattr(logger, "debug", lambda msg: logs.append(msg))
     return logs
 
@@ -121,7 +122,9 @@ async def test_timeit_async(capture_logger):
 
     result = await bar(7)
     assert result == 8
-    assert any("TestAsync: bar cost" in msg and "(async)" in msg for msg in capture_logger)
+    assert any(
+        "TestAsync: bar cost" in msg and "(async)" in msg for msg in capture_logger
+    )
     # 检查耗时格式
     assert re.search(r"TestAsync: bar cost [\d\.]+s \(async\)", capture_logger[0])
 
@@ -161,5 +164,6 @@ def test_stop_without_start_raises():
     t = Timer()
     # 直接stop，不先start，应抛出RuntimeError
     import pytest
+
     with pytest.raises(RuntimeError, match="Timer not started"):
         t.stop()

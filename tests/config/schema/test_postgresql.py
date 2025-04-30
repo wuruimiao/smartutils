@@ -11,7 +11,7 @@ def valid_conf_dict(**kwargs):
         "db": "mydb",
         "host": "127.0.0.1",
         # "port": 5432,  # 可省略，默认5432
-        **kwargs
+        **kwargs,
     }
     return base
 
@@ -56,30 +56,33 @@ def test_postgresql_conf_invalid_db(db):
 def test_postgresql_conf_kw():
     conf = PostgreSQLConf(**valid_conf_dict())
     params = conf.kw
-    for k in {'host', 'port', 'user', 'passwd', 'db'}:
+    for k in {"host", "port", "user", "passwd", "db"}:
         assert k not in params
-    assert params['pool_size'] == 10
-    assert params['max_overflow'] == 5
-    assert params['pool_timeout'] == 10
-    assert params['pool_recycle'] == 3600
-    assert params['echo'] is False
-    assert params['echo_pool'] is False
-    assert 'connect_args' not in params
+    assert params["pool_size"] == 10
+    assert params["max_overflow"] == 5
+    assert params["pool_timeout"] == 10
+    assert params["pool_recycle"] == 3600
+    assert params["echo"] is False
+    assert params["echo_pool"] is False
+    assert "connect_args" not in params
 
 
 @pytest.mark.parametrize("value", [1, 2, 3, 10])
 def test_postgresql_conf_kw_connect_timeout(value):
     conf_dict = valid_conf_dict()
-    conf_dict['connect_timeout'] = value
+    conf_dict["connect_timeout"] = value
     params = PostgreSQLConf(**conf_dict).kw
-    assert 'connect_args' in params
-    assert params['connect_args']['timeout'] == value
+    assert "connect_args" in params
+    assert params["connect_args"]["timeout"] == value
 
 
 @pytest.mark.parametrize("value", [1, 2, 3, 10])
 def test_postgresql_conf_kw_execute_timeout(value):
     conf_dict = valid_conf_dict()
-    conf_dict['execute_timeout'] = value
+    conf_dict["execute_timeout"] = value
     params = PostgreSQLConf(**conf_dict).kw
-    assert 'connect_args' in params
-    assert params['connect_args']['server_settings']['statement_timeout'] == f'{value * 1000}'
+    assert "connect_args" in params
+    assert (
+        params["connect_args"]["server_settings"]["statement_timeout"]
+        == f"{value * 1000}"
+    )

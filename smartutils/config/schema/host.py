@@ -7,14 +7,14 @@ class HostConf(BaseModel):
     host: str
     port: int
 
-    @field_validator('host')
+    @field_validator("host")
     @classmethod
     def check_host(cls, v):
         if not v or not (check_ip(v) or check_domain(v) or v == "localhost"):
             raise ValueError("host不能为空，且必须是有效的IP地址、域名或localhost")
         return v
 
-    @field_validator('port')
+    @field_validator("port")
     @classmethod
     def check_port(cls, v):
         if not check_port(v):
@@ -23,4 +23,4 @@ class HostConf(BaseModel):
 
     @property
     def the_url(self) -> str:
-        return f'{self.host}:{self.port}'
+        return f"{self.host}:{self.port}"

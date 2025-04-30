@@ -7,4 +7,5 @@ async def cleanup():
     yield
 
     from smartutils import release
+
     await release()
