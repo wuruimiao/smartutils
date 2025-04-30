@@ -6,8 +6,6 @@ from smartutils.app.const import HEADERKeys
 from smartutils.ctx import CTXKeys, CTXVarManager
 
 
-@CTXVarManager.register(CTXKeys.USERID)
-@CTXVarManager.register(CTXKeys.USERNAME)
 class HeaderMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         trace_id = CustomHeader.traceid(request)

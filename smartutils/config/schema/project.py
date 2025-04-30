@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel, constr, conint
 
 from smartutils.config.const import ConfKeys
@@ -10,3 +11,4 @@ class ProjectConf(BaseModel):
     id: conint(ge=0)
     description: constr(strip_whitespace=True, min_length=1) = ""
     version: constr(strip_whitespace=True, min_length=1) = "0.0.1"
+    debug: Optional[bool] = False
