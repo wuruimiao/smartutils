@@ -1,8 +1,8 @@
-from smartutils.ctx.manager import ContextVarManager
+from smartutils.ctx.manager import CTXVarManager
 from smartutils.ctx.const import CTXKeys, CTXKey
 
 __all__ = [
-    'ContextVarManager',
+    'CTXVarManager',
     'CTXKeys',
     'CTXKey',
 ]

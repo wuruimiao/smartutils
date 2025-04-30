@@ -3,11 +3,11 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from smartutils.app.fast.header import CustomHeader
 from smartutils.app.const import HEADERKeys
-from smartutils.ctx import CTXKeys, ContextVarManager
+from smartutils.ctx import CTXKeys, CTXVarManager
 
 
-@ContextVarManager.register(CTXKeys.USERID)
-@ContextVarManager.register(CTXKeys.USERNAME)
+@CTXVarManager.register(CTXKeys.USERID)
+@CTXVarManager.register(CTXKeys.USERNAME)
 class HeaderMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         trace_id = CustomHeader.traceid(request)
@@ -18,9 +18,9 @@ class HeaderMiddleware(BaseHTTPMiddleware):
         username = CustomHeader.username(request)
 
         with (
-            ContextVarManager.use(CTXKeys.TRACE_ID, trace_id),
-            ContextVarManager.use(CTXKeys.USERID, userid),
-            ContextVarManager.use(CTXKeys.USERNAME, username),
+            CTXVarManager.use(CTXKeys.TRACE_ID, trace_id),
+            CTXVarManager.use(CTXKeys.USERID, userid),
+            CTXVarManager.use(CTXKeys.USERNAME, username),
         ):
             response = await call_next(request)
 

@@ -1,15 +1,15 @@
-from smartutils.ctx import ContextVarManager, CTXKeys
+from smartutils.ctx import CTXVarManager, CTXKeys
 
 
 class ReqCTX:
     @classmethod
     def get_userid(cls) -> int:
-        return ContextVarManager.get(CTXKeys.USERID)
+        return CTXVarManager.get(CTXKeys.USERID)
 
     @classmethod
     def get_username(cls) -> str:
-        return ContextVarManager.get(CTXKeys.USERNAME)
+        return CTXVarManager.get(CTXKeys.USERNAME)
 
     @classmethod
     def get_traceid(cls) -> int:
-        return ContextVarManager.get(CTXKeys.TRACE_ID)
+        return CTXVarManager.get(CTXKeys.TRACE_ID)

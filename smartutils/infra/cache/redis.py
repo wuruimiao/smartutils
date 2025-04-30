@@ -2,7 +2,7 @@ from typing import Dict
 
 from smartutils.config.const import ConfKeys, ConfKey
 from smartutils.config.schema.redis import RedisConf
-from smartutils.ctx import ContextVarManager, CTXKeys
+from smartutils.ctx import CTXVarManager, CTXKeys
 from smartutils.design import singleton
 from smartutils.infra.cache.cli import AsyncRedisCli
 from smartutils.infra.factory import InfraFactory
@@ -10,7 +10,7 @@ from smartutils.infra.manager import ContextResourceManager
 
 
 @singleton
-@ContextVarManager.register(CTXKeys.CACHE_REDIS)
+@CTXVarManager.register(CTXKeys.CACHE_REDIS)
 class RedisManager(ContextResourceManager[AsyncRedisCli]):
     def __init__(self, confs: Dict[ConfKey, RedisConf]):
         resources = {k: AsyncRedisCli(conf, f'redis_{k}') for k, conf in confs.items()}
