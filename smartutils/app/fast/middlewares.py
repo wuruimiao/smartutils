@@ -1,7 +1,8 @@
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from smartutils.app.fast.header import CustomHeader
+from smartutils.app.header import CustomHeader
+from smartutils.app.adapter import get_adapter
 from smartutils.app.const import HEADERKeys
 from smartutils.ctx import CTXKeys, CTXVarManager
 from smartutils.log import logger
@@ -10,12 +11,13 @@ from smartutils.timer import Timer
 
 class HeaderMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
-        trace_id = CustomHeader.traceid(request)
+        req = get_adapter(request)
+        trace_id = CustomHeader.traceid(req)
         if not trace_id:
             trace_id = str(request.app.state.gen())
 
-        userid = CustomHeader.userid(request)
-        username = CustomHeader.username(request)
+        userid = CustomHeader.userid(req)
+        username = CustomHeader.username(req)
 
         with (
             CTXVarManager.use(CTXKeys.TRACE_ID, trace_id),

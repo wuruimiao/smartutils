@@ -30,17 +30,3 @@ def get_trace_id(x_trace_id: str = Header(..., alias=HEADERKeys.X_TRACE_ID)) -> 
     Deprecated: Use Info.get_traceid instead.
     """
     return x_trace_id
-
-
-class CustomHeader:
-    @classmethod
-    def userid(cls, request):
-        return request.headers.get(HEADERKeys.X_USER_ID)
-
-    @classmethod
-    def username(cls, request):
-        return request.headers.get(HEADERKeys.X_USER_NAME)
-
-    @classmethod
-    def traceid(cls, request):
-        return request.headers.get(HEADERKeys.X_TRACE_ID)
