@@ -12,8 +12,9 @@ class CTXVarManager:
     @classmethod
     def _ensure_registered(cls, key: CTXKey):
         if key not in cls._vars:
-            logger.error(f"ContextVarManager error: key {key} not registered")
-            raise RuntimeError(f"ContextVarManager error: key {key} not registered")
+            msg = f"ContextVarManager error: key {key} not registered"
+            logger.error(msg)
+            raise RuntimeError(msg)
 
     @classmethod
     def reset_registered(cls):
@@ -57,7 +58,7 @@ class CTXVarManager:
             if default is not None:
                 return default
 
-            logger.error(f"ContextVarManager get error: {e}")
+            logger.exception(f"ContextVarManager get error")
             raise RuntimeError(f"ContextVarManager get error: {e}")
 
     @classmethod

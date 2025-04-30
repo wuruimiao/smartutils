@@ -42,7 +42,7 @@ class LoggerCli(AbstractResource):
         _conf = get_config()
 
         if not self._conf:
-            logger.info(f"init logger: config no loguru key, do nothing")
+            logger.info(f"LoggerCli init, config no loguru key, ignore.")
             return
 
         if self._conf.stream:

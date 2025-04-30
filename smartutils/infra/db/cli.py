@@ -35,8 +35,8 @@ class AsyncDBCli(AbstractResource):
             async with self.engine.connect() as conn:
                 await conn.execute(text("SELECT 1"))
             return True
-        except Exception as e:
-            logger.error(f"[{self._name}] DB ping failed: {e}")
+        except: # noqa
+            logger.exception(f"[{self._name}] DB ping failed")
             return False
 
     async def close(self):
@@ -67,10 +67,10 @@ class AsyncDBCli(AbstractResource):
 async def db_commit(session: AsyncSession):
     if hasattr(session, "in_transaction") and session.in_transaction():
         await session.commit()
-        logger.info(f"auto commit")
+        logger.debug(f"auto commit")
 
 
 async def db_rollback(session: AsyncSession):
     if hasattr(session, "in_transaction") and session.in_transaction():
         await session.rollback()
-        logger.info(f"auto rollback")
+        logger.debug(f"auto rollback")
