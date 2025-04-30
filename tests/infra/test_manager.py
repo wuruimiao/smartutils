@@ -1,11 +1,11 @@
 import pytest
-from smartutils.infra.manager import ContextResourceManager
+from smartutils.infra.manager import CTXResourceManager
 
 
 # def test_context_var_name_unique():
-#     mgr1 = ContextResourceManager({}, "my_var")
+#     mgr1 = CTXResourceManager({}, "my_var")
 #     with pytest.raises(ValueError):
-#         ContextResourceManager({}, "my_var")
+#         CTXResourceManager({}, "my_var")
 
 
 # async def test_init(tmp_path_factory):
