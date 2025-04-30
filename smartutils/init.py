@@ -1,4 +1,4 @@
-async def init_all(conf_path: str):
+async def init(conf_path: str = 'config/config.yaml'):
     from smartutils.config import init
     init(conf_path)
 
