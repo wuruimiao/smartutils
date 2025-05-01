@@ -1,4 +1,5 @@
 import sys
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from smartutils.config.const import ConfKeys
@@ -22,6 +23,7 @@ class PrintToLogger:
 
 
 class LoggerCli(AbstractResource):
+    """loguru.logger线程安全、协程安全"""
     def __init__(self, conf: LoguruConfig, name: str):
         self._name = name
         self._conf = conf
@@ -76,15 +78,17 @@ class LoggerCli(AbstractResource):
     async def ping(self) -> bool:
         return True
 
+    @asynccontextmanager
     async def session(self):
-        pass
+        yield logger
 
 
 @singleton
+@CTXVarManager.register(CTXKeys.LOGGER_LOGURU)
 class LoggerManager(CTXResourceManager[LoggerCli]):
     def __init__(self, conf):
         resources = {ConfKeys.GROUP_DEFAULT: LoggerCli(conf, "logger_loguru")}
-        super().__init__(resources, CTXKeys.NO_USE)
+        super().__init__(resources, CTXKeys.LOGGER_LOGURU)
 
 
 @InfraFactory.register(ConfKeys.LOGURU)

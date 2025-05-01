@@ -3,17 +3,17 @@ class CTXKey(str):
 
 
 class CTXKeys:
-    CACHE_REDIS = CTXKey('cache_redis')
+    CACHE_REDIS = CTXKey("cache_redis")
 
-    DB_MYSQL = CTXKey('db_mysql')
-    DB_POSTGRESQL = CTXKey('db_postgresql')
+    DB_MYSQL = CTXKey("db_mysql")
+    DB_POSTGRESQL = CTXKey("db_postgresql")
 
-    MQ_KAFKA = CTXKey('mq_kafka')
+    MQ_KAFKA = CTXKey("mq_kafka")
 
-    TRACE_ID = CTXKey('traceid')
-    USERID = CTXKey('userid')
-    USERNAME = CTXKey('username')
+    TRACE_ID = CTXKey("traceid")
+    USERID = CTXKey("userid")
+    USERNAME = CTXKey("username")
 
-    NO_USE = CTXKey('no_use')
+    LOGGER_LOGURU = CTXKey("logger_loguru")
 
-    TIMER = CTXKey('timer')
+    TIMER = CTXKey("timer")
