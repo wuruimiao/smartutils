@@ -5,12 +5,12 @@ from smartutils.app.const import HEADERKeys
 class CustomHeader:
     @classmethod
     def userid(cls, adapter: RequestAdapter):
-        return adapter.headers.get(HEADERKeys.X_USER_ID)
+        return adapter.get_header(HEADERKeys.X_USER_ID)
 
     @classmethod
     def username(cls, adapter: RequestAdapter):
-        return adapter.headers.get(HEADERKeys.X_USER_NAME)
+        return adapter.get_header(HEADERKeys.X_USER_NAME)
 
     @classmethod
     def traceid(cls, adapter: RequestAdapter):
-        return adapter.headers.get(HEADERKeys.X_TRACE_ID)
+        return adapter.get_header(HEADERKeys.X_TRACE_ID)

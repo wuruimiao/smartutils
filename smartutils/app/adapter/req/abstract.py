@@ -1,13 +1,13 @@
 from abc import ABC, abstractmethod
+from smartutils.app.const import HeaderKey
 
 
 class RequestAdapter(ABC):
     def __init__(self, request):
         self.request = request
 
-    @property
     @abstractmethod
-    def headers(self) -> dict:
+    def get_header(self, key: HeaderKey):
         pass
 
     @property

@@ -1,10 +1,10 @@
 from smartutils.app.adapter.req.abstract import RequestAdapter
+from smartutils.app.const import HeaderKey
 
 
 class StarletteRequestAdapter(RequestAdapter):
-    @property
-    def headers(self) -> dict:
-        return self.request.headers
+    def get_header(self, key: HeaderKey):
+        return self.request.headers.get(key)
 
     @property
     def query_params(self) -> dict:
@@ -15,11 +15,11 @@ class StarletteRequestAdapter(RequestAdapter):
         return self.request.client.host if self.request.client else "-"
 
     @property
-    def method(self):
+    def method(self) -> str:
         return self.request.method
 
     @property
-    def url(self):
+    def url(self) -> str:
         return str(self.request.url)
 
     def gen_trace_id(self) -> str:
