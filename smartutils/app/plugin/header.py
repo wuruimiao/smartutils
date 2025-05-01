@@ -8,6 +8,8 @@ from smartutils.app.header import CustomHeader
 from smartutils.ctx import CTXKeys, CTXVarManager
 
 
+@CTXVarManager.register(CTXKeys.USERID)
+@CTXVarManager.register(CTXKeys.USERNAME)
 class HeaderPlugin(AbstractMiddlewarePlugin):
     @asynccontextmanager
     async def before_request(self, req: RequestAdapter):
