@@ -1,7 +1,7 @@
 import asyncio
 import functools
 import threading
-import traceback
+from abc import ABC
 from typing import Dict, Callable, Any, Awaitable, Generic
 
 from smartutils.call import call_hook
@@ -37,7 +37,7 @@ class ResourceManagerRegistry:
         )
 
 
-class CTXResourceManager(Generic[T]):
+class CTXResourceManager(Generic[T], ABC):
     def __init__(
         self,
         resources: Dict[ConfKey, T],
