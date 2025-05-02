@@ -1,0 +1,10 @@
+[importlinter]
+root_package = smartutils
+
+[[contract]]
+name = Prevent cycles
+type = no_cycles
+modules =
+    smartutils.*
+    tests.*
+    tests_real.*
