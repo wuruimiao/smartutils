@@ -44,17 +44,14 @@ def create_app(custom_app: Callable[[FastAPI], Awaitable]):
     from smartutils.app.adapter.middleware.starletee import StarletteMiddleware
     from smartutils.app.plugin.header import HeaderPlugin
     from smartutils.app.plugin.log import LogPlugin
-    from smartutils.log import logger
 
     app = FastAPI(lifespan=lifespan)
 
-    app.add_middleware(StarletteMiddleware, plugin=HeaderPlugin())
     app.add_middleware(StarletteMiddleware, plugin=LogPlugin())
+    app.add_middleware(StarletteMiddleware, plugin=HeaderPlugin())
 
     @app.get("/")
     def root() -> ResponseModel:
-        from smartutils.ctx import CTXVarManager, CTXKeys
-        logger.debug(CTXVarManager.get(CTXKeys.TRACE_ID, default=""))
         return ResponseModel()
 
     @app.get("/healthy")

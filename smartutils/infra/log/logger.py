@@ -40,7 +40,8 @@ class LoggerCli(AbstractResource):
 
     @staticmethod
     def _inject(record):
-        record["extra"]["trace_id"] = CTXVarManager.get(CTXKeys.TRACE_ID, default="")
+        trace_id = CTXVarManager.get(CTXKeys.TRACE_ID, default="")
+        record["extra"]["trace_id"] = trace_id
         record["extra"]["userid"] = CTXVarManager.get(CTXKeys.USERID, default="")
         record["extra"]["username"] = CTXVarManager.get(CTXKeys.USERNAME, default="")
         return record
