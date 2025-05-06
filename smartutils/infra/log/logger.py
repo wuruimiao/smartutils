@@ -24,6 +24,7 @@ class PrintToLogger:
 
 class LoggerCli(AbstractResource):
     """loguru.logger线程安全、协程安全"""
+
     def __init__(self, conf: LoguruConfig, name: str):
         self._name = name
         self._conf = conf
@@ -31,13 +32,22 @@ class LoggerCli(AbstractResource):
             "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | "
             "<level>{level: <8}</level> | "
             "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> | "
-            "<magenta>{extra[trace_id]}</magenta> - <level>{message}</level>"
+            "<magenta>trace_id={extra[trace_id]}</magenta> "
+            "<yellow>userid={extra[userid]}</yellow> "
+            "<blue>username={extra[username]}</blue> - <level>{message}</level>"
         )
         self._init()
 
+    @staticmethod
+    def _inject(record):
+        record["extra"]["trace_id"] = CTXVarManager.get(CTXKeys.TRACE_ID, default="")
+        record["extra"]["userid"] = CTXVarManager.get(CTXKeys.USERID, default="")
+        record["extra"]["username"] = CTXVarManager.get(CTXKeys.USERNAME, default="")
+        return record
+
     def _init(self):
         logger.remove()
-        logger.configure(patcher=self._inject_trace_id)
+        logger.configure(patcher=self._inject)
 
         from smartutils.config import get_config
 
@@ -66,11 +76,6 @@ class LoggerCli(AbstractResource):
         if not self._conf.stream and self._conf.logdir:
             sys.stdout = PrintToLogger()
             sys.stderr = PrintToLogger()
-
-    @CTXVarManager.register(CTXKeys.TRACE_ID)
-    def _inject_trace_id(self, record):
-        record["extra"]["trace_id"] = CTXVarManager.get(CTXKeys.TRACE_ID, default="0")
-        return True
 
     async def close(self):
         logger.remove()

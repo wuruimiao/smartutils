@@ -23,5 +23,4 @@ class StarletteRequestAdapter(RequestAdapter):
         return str(self.request.url)
 
     def gen_trace_id(self) -> str:
-        return str(self.request.app.state.gen())
-
+        return str(self.request.app.state.smartutils_gen())
