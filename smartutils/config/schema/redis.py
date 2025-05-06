@@ -1,5 +1,3 @@
-from typing import Optional
-
 from pydantic import Field, conint, constr
 
 from smartutils.config.const import ConfKeys
@@ -12,17 +10,17 @@ class RedisConf(HostConf):
     db: conint(ge=0)
     port: int = 6379
     max_connections: int = Field(default=10, alias="pool_size")
-    socket_connect_timeout: Optional[conint(gt=0)] = Field(
+    socket_connect_timeout: conint(gt=0) = Field(
         default=None, alias="connect_timeout"
     )
-    socket_timeout: Optional[conint(gt=0)] = None
-    password: Optional[constr(strip_whitespace=True, min_length=1)] = Field(
+    socket_timeout: conint(gt=0) = None
+    password: constr(strip_whitespace=True, min_length=1) = Field(
         default=None, alias="passwd"
     )
-    health_check_interval: Optional[conint(gt=0)] = Field(
+    health_check_interval: conint(gt=0) = Field(
         default=30, alias="health_check_sec"
     )
-    retry_on_timeout: Optional[bool] = True
+    retry_on_timeout: bool = True
 
     @property
     def url(self) -> str:

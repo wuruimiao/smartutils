@@ -1,4 +1,5 @@
 from typing import Type, Dict, Tuple
+from pydantic import ValidationError
 
 from smartutils.log import logger
 
@@ -20,6 +21,14 @@ class ConfFactory:
     def all_keys(cls) -> Tuple:
         return tuple(cls._registry.keys())
 
+    @staticmethod
+    def _init_conf_cls(name, key, conf_cls, conf):
+        try:
+            return conf_cls(**conf)
+        except ValidationError as e:
+            fields = [err["loc"][0] for err in e.errors()]
+            raise RuntimeError(f"ConfFactory {name}-{key} in config.yml miss fields: {fields}") from e
+
     @classmethod
     def create(cls, name: ConfKey, conf: Dict):
         info = cls._registry.get(name)
@@ -37,11 +46,11 @@ class ConfFactory:
 
         if multi:
             if ConfKeys.GROUP_DEFAULT not in conf:
-                raise ValueError(f"{ConfKeys.GROUP_DEFAULT} not in {name}")
+                raise ValueError(f"ConfFactory no {ConfKeys.GROUP_DEFAULT} below {name}")
 
-            return {key: conf_cls(**_conf) for key, _conf in conf.items()}
+            return {key: cls._init_conf_cls(name, key, conf_cls, _conf) for key, _conf in conf.items()}
         else:
-            return conf_cls(**conf)
+            return cls._init_conf_cls(name, "", conf_cls, conf)
 
     @classmethod
     def reset(cls):
