@@ -81,7 +81,7 @@ project:
         f.write(config_str)
     yield config_file
 
-    from smartutils import reset_all
+    from smartutils.init import reset_all
 
     await reset_all()
 
@@ -102,7 +102,7 @@ project:
         f.write(config_str)
     yield config_file
 
-    from smartutils import reset_all
+    from smartutils.init import reset_all
 
     await reset_all()
 
@@ -134,7 +134,7 @@ project:
         f.write(config_str)
     yield config_file
 
-    from smartutils import reset_all
+    from smartutils.init import reset_all
 
     await reset_all()
 
@@ -149,7 +149,7 @@ async def setup_conf_empty(tmp_path_factory):
         f.write(config_str)
     yield config_file
 
-    from smartutils import reset_all
+    from smartutils.init import reset_all
 
     await reset_all()
 

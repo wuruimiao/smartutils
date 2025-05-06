@@ -40,7 +40,7 @@ project:
 
     yield
 
-    from smartutils import reset_all
+    from smartutils.init import reset_all
 
     await reset_all()
 

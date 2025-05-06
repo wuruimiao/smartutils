@@ -41,5 +41,5 @@ from smartutils.infra.manager import CTXResourceManager
 #     from smartutils.infra import init
 #     await init()
 #
-#     from smartutils import reset_all
+#     from smartutils.init import reset_all
 #     reset_all()

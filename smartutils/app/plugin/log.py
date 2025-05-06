@@ -1,23 +1,22 @@
-from contextlib import asynccontextmanager
 from time import perf_counter
+from typing import Callable, Awaitable
 
 from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
-from smartutils.ctx import CTXVarManager, CTXKeys
 from smartutils.log import logger
 
 
-@CTXVarManager.register(CTXKeys.TIMER)
 class LogPlugin(AbstractMiddlewarePlugin):
-    @asynccontextmanager
-    async def before_request(self, req):
-        with CTXVarManager.use(CTXKeys.TIMER, perf_counter()):
-            yield
+    async def dispatch(
+        self,
+        req: RequestAdapter,
+        next_adapter: Callable[[], Awaitable[ResponseAdapter]],
+    ) -> ResponseAdapter:
+        start = perf_counter()
 
-    @asynccontextmanager
-    async def after_request(self, req: RequestAdapter, resp: ResponseAdapter):
-        start = CTXVarManager.get(CTXKeys.TIMER)
+        resp = await next_adapter()
+
         cost = (perf_counter() - start) * 1000
         logger.info(
             f"{req.client_host} - '{req.method} {req.url}' - "
@@ -25,4 +24,4 @@ class LogPlugin(AbstractMiddlewarePlugin):
             f"Status: {resp.status_code} - "
             f"Cost: {cost:.3f} ms"
         )
-        yield
+        return resp

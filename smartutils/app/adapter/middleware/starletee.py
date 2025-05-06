@@ -16,9 +16,10 @@ class StarletteMiddleware(BaseHTTPMiddleware):
 
     async def dispatch(self, request: Request, call_next):
         req: RequestAdapter = StarletteRequestAdapter(request)
-        async with self._plugin.before_request(req):
-            response: Response = await call_next(request)
-            resp: ResponseAdapter = StarletteResponseAdapter(response)
 
-            async with self._plugin.after_request(req, resp):
-                return response
+        async def next_adapter():
+            response: Response = await call_next(request)
+            return StarletteResponseAdapter(response)
+
+        resp: ResponseAdapter = await self._plugin.dispatch(req, next_adapter)
+        return resp.response

@@ -33,7 +33,7 @@ async def lifespan(app: FastAPI):
     from smartutils.log import logger
 
     logger.info(f"shutdown start close")
-    from smartutils import release
+    from smartutils.infra import release
 
     await release()
     logger.info(f"shutdown all closed")
@@ -44,6 +44,7 @@ def create_app(custom_app: Callable[[FastAPI], Awaitable]):
     from smartutils.app.adapter.middleware.starletee import StarletteMiddleware
     from smartutils.app.plugin.header import HeaderPlugin
     from smartutils.app.plugin.log import LogPlugin
+    from smartutils.log import logger
 
     app = FastAPI(lifespan=lifespan)
 
@@ -52,6 +53,8 @@ def create_app(custom_app: Callable[[FastAPI], Awaitable]):
 
     @app.get("/")
     def root() -> ResponseModel:
+        from smartutils.ctx import CTXVarManager, CTXKeys
+        logger.debug(CTXVarManager.get(CTXKeys.TRACE_ID, default=""))
         return ResponseModel()
 
     @app.get("/healthy")

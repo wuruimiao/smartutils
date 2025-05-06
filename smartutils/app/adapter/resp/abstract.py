@@ -4,7 +4,7 @@ from smartutils.app.const import HeaderKey
 
 class ResponseAdapter(ABC):
     def __init__(self, response):
-        self.response = response
+        self._response = response
 
     @abstractmethod
     def set_header(self, key: HeaderKey, value: str):
@@ -21,3 +21,7 @@ class ResponseAdapter(ABC):
     @abstractmethod
     def status_code(self, value: int):
         pass
+
+    @property
+    def response(self):
+        return self._response
