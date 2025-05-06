@@ -42,7 +42,7 @@ project:
     with TestClient(app) as c:
         yield c
 
-    from smartutils import reset_all
+    from smartutils.init import reset_all
 
     await reset_all()
 

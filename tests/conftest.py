@@ -6,6 +6,6 @@ import pytest
 async def cleanup():
     yield
 
-    from smartutils import release
+    from smartutils.infra import release
 
     await release()

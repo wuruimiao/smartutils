@@ -27,7 +27,7 @@ class ConfFactory:
             return conf_cls(**conf)
         except ValidationError as e:
             fields = [err["loc"][0] for err in e.errors()]
-            raise RuntimeError(f"ConfFactory {name}-{key} in config.yml miss fields: {fields}") from e
+            raise RuntimeError(f"ConfFactory {name}-{key} in config.yml miss or invalid fields: {fields}") from e
 
     @classmethod
     def create(cls, name: ConfKey, conf: Dict):

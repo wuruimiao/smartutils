@@ -54,7 +54,7 @@ project:
     yield
     await my_mgr.close()
 
-    from smartutils import reset_all
+    from smartutils.init import reset_all
 
     await reset_all()
 
@@ -98,7 +98,7 @@ project:
     yield
     await my_mgr.close()
 
-    from smartutils import reset_all
+    from smartutils.init import reset_all
 
     await reset_all()
 
