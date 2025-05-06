@@ -10,6 +10,7 @@ from smartutils.ctx import CTXKeys, CTXVarManager
 
 @CTXVarManager.register(CTXKeys.USERID)
 @CTXVarManager.register(CTXKeys.USERNAME)
+@CTXVarManager.register(CTXKeys.TRACE_ID)
 class HeaderPlugin(AbstractMiddlewarePlugin):
     @asynccontextmanager
     async def before_request(self, req: RequestAdapter):

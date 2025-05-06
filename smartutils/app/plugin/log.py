@@ -18,11 +18,11 @@ class LogPlugin(AbstractMiddlewarePlugin):
     @asynccontextmanager
     async def after_request(self, req: RequestAdapter, resp: ResponseAdapter):
         start = CTXVarManager.get(CTXKeys.TIMER)
-        cost = perf_counter() - start
+        cost = (perf_counter() - start) * 1000
         logger.info(
             f"{req.client_host} - '{req.method} {req.url}' - "
             f"Query: {req.query_params} "
             f"Status: {resp.status_code} - "
-            f"Cost: {cost:.3f} sec"
+            f"Cost: {cost:.3f} ms"
         )
         yield

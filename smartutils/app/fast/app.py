@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from typing import Callable, Awaitable
 
 from fastapi import FastAPI
 
@@ -12,8 +13,11 @@ async def lifespan(app: FastAPI):
     from smartutils.config import get_config
     from smartutils.ID import SnowflakeGenerator
 
+    import logging
+    logging.getLogger("uvicorn.access").disabled = True
+
     conf = get_config()
-    app.state.gen = SnowflakeGenerator(instance=conf.project.id)
+    app.state.smartutils_gen = SnowflakeGenerator(instance=conf.project.id)
 
     app.title = conf.project.name
     app.version = conf.project.version
@@ -21,6 +25,8 @@ async def lifespan(app: FastAPI):
     app.debug = conf.project.debug
     if not conf.project.debug:
         app.docs_url = None
+
+    await app.state.smartutils_custom_app(app)
 
     yield
 
@@ -33,7 +39,7 @@ async def lifespan(app: FastAPI):
     logger.info(f"shutdown all closed")
 
 
-def create_app():
+def create_app(custom_app: Callable[[FastAPI], Awaitable]):
     from smartutils.ret import ResponseModel
     from smartutils.app.adapter.middleware.starletee import StarletteMiddleware
     from smartutils.app.plugin.header import HeaderPlugin
@@ -51,5 +57,7 @@ def create_app():
     @app.get("/healthy")
     def healthy() -> ResponseModel:
         return ResponseModel()
+
+    app.state.smartutils_custom_app = custom_app
 
     return app
