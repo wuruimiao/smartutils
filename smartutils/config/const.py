@@ -10,5 +10,6 @@ class ConfKeys:
     CANAL = ConfKey("canal")
     PROJECT = ConfKey("project")
     LOGURU = ConfKey("loguru")
+    INSTANCE = ConfKey("instance")
 
     GROUP_DEFAULT = ConfKey("default")
