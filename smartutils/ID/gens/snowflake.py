@@ -129,7 +129,7 @@ class Snowflake:
 
 
 @singleton
-@IDGen.register(IDGenType.SNOWFLAKE)
+@IDGen.register(IDGenType.SNOWFLAKE, need_conf=True)
 class SnowflakeGenerator(AbstractIDGenerator):
     """
     雪花ID生成器，支持迭代调用和直接调用。
