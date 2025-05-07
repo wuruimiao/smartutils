@@ -1,6 +1,6 @@
 from typing import Dict
 
-from smartutils.config.const import ConfKeys, ConfKey
+from smartutils.config.const import ConfKey, ConfKey
 from smartutils.config.schema.postgresql import PostgreSQLConf
 from smartutils.ctx import CTXVarManager, CTXKeys
 from smartutils.design import singleton
@@ -21,6 +21,6 @@ class PostgresqlManager(CTXResourceManager[AsyncDBCli]):
         )
 
 
-@InfraFactory.register(ConfKeys.POSTGRESQL)
+@InfraFactory.register(ConfKey.POSTGRESQL)
 def init_postgresql(conf):
     return PostgresqlManager(conf)

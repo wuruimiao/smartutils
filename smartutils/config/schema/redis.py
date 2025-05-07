@@ -1,11 +1,11 @@
 from pydantic import Field, conint, constr
 
-from smartutils.config.const import ConfKeys
+from smartutils.config.const import ConfKey
 from smartutils.config.factory import ConfFactory
 from smartutils.config.schema.host import HostConf
 
 
-@ConfFactory.register(ConfKeys.REDIS, multi=True, require=False)
+@ConfFactory.register(ConfKey.REDIS, multi=True, require=False)
 class RedisConf(HostConf):
     db: conint(ge=0)
     port: int = 6379

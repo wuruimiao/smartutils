@@ -1,6 +1,6 @@
 from typing import Dict
 
-from smartutils.config.const import ConfKeys
+from smartutils.config.const import ConfKey
 from smartutils.config.schema.kafka import KafkaConf
 from smartutils.ctx import CTXVarManager, CTXKeys
 from smartutils.design import singleton
@@ -17,6 +17,6 @@ class KafkaManager(CTXResourceManager[AsyncKafkaCli]):
         super().__init__(resources, CTXKeys.MQ_KAFKA)
 
 
-@InfraFactory.register(ConfKeys.KAFKA)
+@InfraFactory.register(ConfKey.KAFKA)
 def init_kafka(conf):
     return KafkaManager(conf)

@@ -1,6 +1,6 @@
 from typing import Dict
 
-from smartutils.config.const import ConfKeys, ConfKey
+from smartutils.config.const import ConfKey, ConfKey
 from smartutils.config.schema.redis import RedisConf
 from smartutils.ctx import CTXVarManager, CTXKeys
 from smartutils.design import singleton
@@ -17,6 +17,6 @@ class RedisManager(CTXResourceManager[AsyncRedisCli]):
         super().__init__(resources, CTXKeys.CACHE_REDIS)
 
 
-@InfraFactory.register(ConfKeys.REDIS)
+@InfraFactory.register(ConfKey.REDIS)
 def init_redis(conf):
     return RedisManager(conf)

@@ -2,7 +2,7 @@ import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from smartutils.config.const import ConfKeys
+from smartutils.config.const import ConfKey
 from smartutils.config.schema.logger import LoguruConfig
 from smartutils.ctx import CTXVarManager, CTXKeys
 from smartutils.design import singleton
@@ -93,10 +93,10 @@ class LoggerCli(AbstractResource):
 @CTXVarManager.register(CTXKeys.LOGGER_LOGURU)
 class LoggerManager(CTXResourceManager[LoggerCli]):
     def __init__(self, conf):
-        resources = {ConfKeys.GROUP_DEFAULT: LoggerCli(conf, "logger_loguru")}
+        resources = {ConfKey.GROUP_DEFAULT: LoggerCli(conf, "logger_loguru")}
         super().__init__(resources, CTXKeys.LOGGER_LOGURU)
 
 
-@InfraFactory.register(ConfKeys.LOGURU)
+@InfraFactory.register(ConfKey.LOGURU)
 def init_loguru(conf: LoguruConfig):
     return LoggerManager(conf)

@@ -2,11 +2,11 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, constr
 
-from smartutils.config.const import ConfKeys
+from smartutils.config.const import ConfKey
 from smartutils.config.factory import ConfFactory
 
 
-@ConfFactory.register(ConfKeys.LOGURU, multi=False, require=False)
+@ConfFactory.register(ConfKey.LOGURU, multi=False, require=False)
 class LoguruConfig(BaseModel):
     level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
     rotation: constr(strip_whitespace=True, min_length=1) = Field(
