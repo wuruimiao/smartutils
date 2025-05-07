@@ -3,7 +3,7 @@ from typing import Callable, Awaitable
 from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
-from smartutils.app.const import HEADERKeys
+from smartutils.app.const import HeaderKey
 from smartutils.app.header import CustomHeader
 from smartutils.ctx import CTXKeys, CTXVarManager
 
@@ -28,5 +28,5 @@ class HeaderPlugin(AbstractMiddlewarePlugin):
             CTXVarManager.use(CTXKeys.USERNAME, username),
         ):
             resp: ResponseAdapter = await next_adapter()
-            resp.set_header(HEADERKeys.X_TRACE_ID, trace_id)
+            resp.set_header(HeaderKey.X_TRACE_ID, trace_id)
             return resp

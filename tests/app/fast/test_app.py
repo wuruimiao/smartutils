@@ -1,6 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
-from smartutils.app.const import HEADERKeys
+from smartutils.app.const import HeaderKey
 
 import pytest
 from httpx import AsyncClient
@@ -66,14 +66,14 @@ def test_healthy(client):
 def test_trace_id_header(client):
     resp = client.get("/")
 
-    assert HEADERKeys.X_TRACE_ID in resp.headers
-    trace_id = resp.headers[HEADERKeys.X_TRACE_ID]
+    assert HeaderKey.X_TRACE_ID in resp.headers
+    trace_id = resp.headers[HeaderKey.X_TRACE_ID]
     assert trace_id
 
     # 指定 header，测试透传
     custom_id = "test-trace-id"
-    resp2 = client.get("/", headers={HEADERKeys.X_TRACE_ID: custom_id})
-    assert resp2.headers.get(HEADERKeys.X_TRACE_ID) == custom_id
+    resp2 = client.get("/", headers={HeaderKey.X_TRACE_ID: custom_id})
+    assert resp2.headers.get(HeaderKey.X_TRACE_ID) == custom_id
 
 
 def test_info_header_propagation(client):
