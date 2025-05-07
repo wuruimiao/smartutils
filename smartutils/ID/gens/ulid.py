@@ -11,6 +11,8 @@ from datetime import datetime, timezone
 import ulid  # noqa
 
 from smartutils.ID.abstract import AbstractIDGenerator
+from smartutils.ID.const import IDGenType
+from smartutils.ID.init import IDGen
 from smartutils.design import singleton
 
 
@@ -64,10 +66,14 @@ class ULID:
 
 
 @singleton
+@IDGen.register(IDGenType.ULID)
 class ULIDGenerator(AbstractIDGenerator):
     """
     ULID生成器，支持迭代和直接调用，返回26位字符串。
     """
+
+    def __init__(self, **kwargs):
+        pass
 
     def __next__(self):
         return str(ulid.new())

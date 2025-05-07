@@ -1,5 +1,5 @@
 import pytest
-from smartutils.ID.snowflake import Snowflake, SnowflakeGenerator, MAX_INSTANCE, MAX_SEQ
+from smartutils.ID.gens.snowflake import Snowflake, SnowflakeGenerator, MAX_INSTANCE, MAX_SEQ
 
 
 def test_snowflake_parse_and_int():
