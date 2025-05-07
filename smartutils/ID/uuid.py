@@ -8,9 +8,12 @@
 """
 
 import uuid
+
 from smartutils.ID.abstract import AbstractIDGenerator
+from smartutils.design import singleton
 
 
+@singleton
 class UUIDGenerator(AbstractIDGenerator):
     """
     UUID生成器，支持迭代和直接调用，每次生成一个新的UUID字符串

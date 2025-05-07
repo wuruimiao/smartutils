@@ -23,6 +23,7 @@ from typing import Optional
 from datetime import datetime, timedelta, tzinfo, timezone
 
 from smartutils.ID.abstract import AbstractIDGenerator
+from smartutils.design import singleton
 
 
 # ========== 雪花ID算法常量 ==========
@@ -126,6 +127,7 @@ class Snowflake:
         )
 
 
+@singleton
 class SnowflakeGenerator(AbstractIDGenerator):
     """
     雪花ID生成器，支持迭代调用和直接调用。
@@ -181,9 +183,6 @@ class SnowflakeGenerator(AbstractIDGenerator):
         """
         return self._epo
 
-    def __iter__(self):
-        return self
-
     def __next__(self) -> int:
         """
         生成下一个唯一ID（int）。如本毫秒内序列号溢出，则等待下一毫秒。
@@ -212,12 +211,6 @@ class SnowflakeGenerator(AbstractIDGenerator):
             self._ts = current
 
         return (self._ts << 22) | self._inf | self._seq
-
-    def __call__(self) -> int:
-        """
-        直接调用生成下一个唯一ID（int）
-        """
-        return next(self)
 
     def next_snowflake(self) -> Snowflake:
         """

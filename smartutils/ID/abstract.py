@@ -20,3 +20,7 @@ class AbstractIDGenerator(ABC):
         使实例可直接调用生成ID
         """
         return next(self)
+
+    @abstractmethod
+    def __repr__(self):
+        pass
