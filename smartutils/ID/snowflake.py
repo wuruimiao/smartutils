@@ -1,8 +1,3 @@
-from dataclasses import dataclass
-from time import time
-from typing import Optional
-from datetime import datetime, timedelta, tzinfo, timezone
-
 """
 注意事项：
 1. 寿命最长69年
@@ -19,6 +14,14 @@ from datetime import datetime, timedelta, tzinfo, timezone
 序列号位	12位（4096/ms）	8位（256/10ms）
 寿命	    约69年	        约174年
 """
+
+from dataclasses import dataclass
+from time import time
+from typing import Optional
+from datetime import datetime, timedelta, tzinfo, timezone
+
+from smartutils.ID.abstract import AbstractIDGenerator
+
 
 # ========== 雪花ID算法常量 ==========
 # 41位，最大时间戳差（毫秒），最大表示69年，epoch=0时，只能用到2039年
@@ -121,7 +124,7 @@ class Snowflake:
         )
 
 
-class SnowflakeGenerator:
+class SnowflakeGenerator(AbstractIDGenerator):
     """
     雪花ID生成器，支持迭代调用和直接调用。
     每个实例代表一个节点/进程的ID生成器。
