@@ -23,3 +23,5 @@ httpx~=0.28.1
 
 import-linter~=2.3
 pydeps~=3.0.1
+
+ulid-py~=1.1.0

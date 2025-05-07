@@ -7,6 +7,8 @@
     . 进程，不同instance安全
     . 协程，雪花实现不能await，
 
+19位数字
+
 对比：
         Snowflake	    Sonyflake
 时间戳位	41位，单位：毫秒	39位，单位：10毫秒
