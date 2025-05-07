@@ -13,6 +13,16 @@ from smartutils.infra.abstract import AbstractResource
 from smartutils.log import logger
 
 
+_FLUSHED = "smartutils_flushed"
+
+
+class MarkedAsyncSession(AsyncSession):
+    async def flush(self, *args, **kwargs):
+        result = await super().flush(*args, **kwargs)
+        self.info[_FLUSHED] = True
+        return result
+
+
 class AsyncDBCli(AbstractResource):
     def __init__(self, conf: Union[MySQLConf, PostgreSQLConf], name: str):
         self._name = name
@@ -24,7 +34,7 @@ class AsyncDBCli(AbstractResource):
         self._engine: Union[Engine, AsyncEngine] = create_async_engine(conf.url, **kw)
         self._session = sessionmaker(
             bind=self._engine,
-            class_=AsyncSession,
+            class_=MarkedAsyncSession,
             expire_on_commit=False,
             autocommit=False,
             autoflush=False,
@@ -35,7 +45,7 @@ class AsyncDBCli(AbstractResource):
             async with self.engine.connect() as conn:
                 await conn.execute(text("SELECT 1"))
             return True
-        except: # noqa
+        except:  # noqa
             logger.exception(f"[{self._name}] DB ping failed")
             return False
 
@@ -64,13 +74,21 @@ class AsyncDBCli(AbstractResource):
                 await conn.run_sync(base.metadata.create_all)
 
 
+def _write_in_session(session: AsyncSession):
+    written = bool(session.new) or bool(session.dirty) or bool(session.deleted)
+    flushed = session.info.get(_FLUSHED, False)
+    in_t = hasattr(session, "in_transaction") and session.in_transaction()
+    logger.debug("written={a};flushed={b};in_t={c}", a=written, b=flushed, c=in_t)
+    return written or flushed and in_t
+
+
 async def db_commit(session: AsyncSession):
-    if hasattr(session, "in_transaction") and session.in_transaction():
+    if _write_in_session(session):
         await session.commit()
         logger.debug(f"auto commit")
 
 
 async def db_rollback(session: AsyncSession):
-    if hasattr(session, "in_transaction") and session.in_transaction():
+    if _write_in_session(session):
         await session.rollback()
         logger.debug(f"auto rollback")
