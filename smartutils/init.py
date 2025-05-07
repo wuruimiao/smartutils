@@ -1,11 +1,16 @@
 async def init(conf_path: str = "config/config.yaml"):
-    from smartutils.config import init
+    from smartutils.config import init, get_config, ConfKeys
 
     init(conf_path)
 
     from smartutils.infra import init
 
     await init()
+
+    from smartutils.ID import IDGen
+
+    conf = get_config()
+    IDGen.init(conf=conf.get(ConfKeys.INSTANCE))
 
 
 async def reset_all():

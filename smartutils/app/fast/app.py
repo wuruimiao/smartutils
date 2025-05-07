@@ -10,16 +10,14 @@ async def lifespan(app: FastAPI):
 
     await init()
 
-    from smartutils.config import get_config, ConfKeys
-    from smartutils.ID import IDGen
+    from smartutils.config import get_config
 
     import logging
 
+    # 禁止fastapi自带的请求打印
     logging.getLogger("uvicorn.access").disabled = True
 
     conf = get_config()
-
-    IDGen.init(conf=conf.get(ConfKeys.INSTANCE))
 
     app.title = conf.project.name
     app.version = conf.project.version
