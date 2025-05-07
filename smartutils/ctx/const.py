@@ -1,19 +1,18 @@
-class CTXKey(str):
-    pass
+from enum import Enum
 
 
-class CTXKeys:
-    CACHE_REDIS = CTXKey("cache_redis")
+class CTXKey(str, Enum):
+    CACHE_REDIS = "cache_redis"
 
-    DB_MYSQL = CTXKey("db_mysql")
-    DB_POSTGRESQL = CTXKey("db_postgresql")
+    DB_MYSQL = "db_mysql"
+    DB_POSTGRESQL = "db_postgresql"
 
-    MQ_KAFKA = CTXKey("mq_kafka")
+    MQ_KAFKA = "mq_kafka"
 
-    TRACE_ID = CTXKey("traceid")
-    USERID = CTXKey("userid")
-    USERNAME = CTXKey("username")
+    TRACE_ID = "traceid"
+    USERID = "userid"
+    USERNAME = "username"
 
-    LOGGER_LOGURU = CTXKey("logger_loguru")
+    LOGGER_LOGURU = "logger_loguru"
 
-    TIMER = CTXKey("timer")
+    TIMER = "timer"
