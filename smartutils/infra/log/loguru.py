@@ -4,7 +4,7 @@ from pathlib import Path
 
 from smartutils.config.const import ConfKey
 from smartutils.config.schema.logger import LoguruConfig
-from smartutils.ctx import CTXVarManager, CTXKeys
+from smartutils.ctx import CTXVarManager, CTXKey
 from smartutils.design import singleton
 from smartutils.infra.abstract import AbstractResource
 from smartutils.infra.factory import InfraFactory
@@ -40,10 +40,10 @@ class LoggerCli(AbstractResource):
 
     @staticmethod
     def _inject(record):
-        trace_id = CTXVarManager.get(CTXKeys.TRACE_ID, default="")
+        trace_id = CTXVarManager.get(CTXKey.TRACE_ID, default="")
         record["extra"]["trace_id"] = trace_id
-        record["extra"]["userid"] = CTXVarManager.get(CTXKeys.USERID, default="")
-        record["extra"]["username"] = CTXVarManager.get(CTXKeys.USERNAME, default="")
+        record["extra"]["userid"] = CTXVarManager.get(CTXKey.USERID, default="")
+        record["extra"]["username"] = CTXVarManager.get(CTXKey.USERNAME, default="")
         return record
 
     def _init(self):
@@ -90,11 +90,11 @@ class LoggerCli(AbstractResource):
 
 
 @singleton
-@CTXVarManager.register(CTXKeys.LOGGER_LOGURU)
+@CTXVarManager.register(CTXKey.LOGGER_LOGURU)
 class LoggerManager(CTXResourceManager[LoggerCli]):
     def __init__(self, conf):
         resources = {ConfKey.GROUP_DEFAULT: LoggerCli(conf, "logger_loguru")}
-        super().__init__(resources, CTXKeys.LOGGER_LOGURU)
+        super().__init__(resources, CTXKey.LOGGER_LOGURU)
 
 
 @InfraFactory.register(ConfKey.LOGURU)
