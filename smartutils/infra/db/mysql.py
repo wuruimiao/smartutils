@@ -1,6 +1,8 @@
 from typing import Dict
 
-from smartutils.config.const import ConfKey, ConfKey
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from smartutils.config.const import ConfKey
 from smartutils.config.schema.mysql import MySQLConf
 from smartutils.ctx import CTXVarManager, CTXKey
 from smartutils.design import singleton
@@ -17,6 +19,10 @@ class MySQLManager(CTXResourceManager[AsyncDBCli]):
         super().__init__(
             resources, CTXKey.DB_MYSQL, success=db_commit, fail=db_rollback
         )
+
+    @property
+    def curr(self) -> AsyncSession:
+        return super().curr
 
 
 @InfraFactory.register(ConfKey.MYSQL)

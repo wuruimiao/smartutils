@@ -16,6 +16,10 @@ class KafkaManager(CTXResourceManager[AsyncKafkaCli]):
         resources = {k: AsyncKafkaCli(conf, f"kafka_{k}") for k, conf in confs.items()}
         super().__init__(resources, CTXKey.MQ_KAFKA)
 
+    @property
+    def curr(self) -> AsyncKafkaCli:
+        return super().curr
+
 
 @InfraFactory.register(ConfKey.KAFKA)
 def init_kafka(conf):

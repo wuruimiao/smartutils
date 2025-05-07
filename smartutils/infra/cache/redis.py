@@ -16,6 +16,10 @@ class RedisManager(CTXResourceManager[AsyncRedisCli]):
         resources = {k: AsyncRedisCli(conf, f"redis_{k}") for k, conf in confs.items()}
         super().__init__(resources, CTXKey.CACHE_REDIS)
 
+    @property
+    def curr(self) -> AsyncRedisCli:
+        return super().curr
+
 
 @InfraFactory.register(ConfKey.REDIS)
 def init_redis(conf):
