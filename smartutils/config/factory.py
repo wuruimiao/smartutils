@@ -39,10 +39,10 @@ class ConfFactory:
         if not conf:
             if require:
                 raise ValueError(f"ConfFactory require {name} in config.yml")
-            logger.debug(f"ConfFactory no {name} in config.yml, ignore.")
+            logger.debug("ConfFactory no {name} in config.yml, ignore.", name=name)
             return
 
-        logger.info(f"{name} created.")
+        logger.info("ConfFactory {name} created.", name=name)
 
         if multi:
             if ConfKeys.GROUP_DEFAULT not in conf:

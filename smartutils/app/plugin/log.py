@@ -19,9 +19,12 @@ class LogPlugin(AbstractMiddlewarePlugin):
 
         cost = (perf_counter() - start) * 1000
         logger.info(
-            f"{req.client_host} - '{req.method} {req.url}' - "
-            f"Query: {req.query_params} "
-            f"Status: {resp.status_code} - "
-            f"Cost: {cost:.3f} ms"
+            "{client} - '{method} {url}' - Query: {query} Status: {code} - Cost: {cost:.3f} ms",
+            client=req.client_host,
+            method=req.method,
+            url=req.url,
+            query=req.query_params,
+            code=resp.status_code,
+            cost=cost,
         )
         return resp

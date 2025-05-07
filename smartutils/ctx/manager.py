@@ -58,8 +58,8 @@ class CTXVarManager:
             if default is not None:
                 return default
 
-            logger.exception(f"ContextVarManager get error")
-            raise RuntimeError(f"ContextVarManager get error: {e}")
+            logger.exception("ContextVarManager error")
+            raise RuntimeError("ContextVarManager error") from e
 
     @classmethod
     def register(cls, key: CTXKey):

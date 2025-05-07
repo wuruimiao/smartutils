@@ -20,17 +20,17 @@ class Config:
         self._config: Dict[str, Any] = {}
 
         if not Path(conf_path).exists():
-            logger.warning(f"Config no {conf_path}, ignore.")
+            logger.warning("Config no {conf_path}, ignore.", conf_path=conf_path)
             return
 
         with open(conf_path) as f:
             self._config = yaml.safe_load(f)
 
         if not self._config:
-            logger.error(f"Config {conf_path} emtpy, ignore.")
+            logger.error("Config {conf_path} emtpy, ignore.", conf_path=conf_path)
             return
 
-        logger.info(f"Config init by {conf_path}.")
+        logger.info("Config init by {conf_path}.", conf_path=conf_path)
 
         for key in ConfFactory.all_keys():
             self._instances[key] = ConfFactory.create(key, self._config.get(key))
