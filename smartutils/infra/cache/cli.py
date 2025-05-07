@@ -27,7 +27,7 @@ class AsyncRedisCli(AbstractResource):
             pong = await self._redis.ping()
             return pong is True
         except:  # noqa
-            logger.exception(f"Redis health check {self._name} failed")
+            logger.exception("Redis health check {name} failed", name=self._name)
             return False
 
     async def close(self):
@@ -297,12 +297,16 @@ class AsyncRedisCli(AbstractResource):
                 block=1000,
             )
             if len(messages) > count:
-                logger.error(f"xread_xack get {len(messages)} expect {count}")
+                logger.error(
+                    "xread_xack get {length} expect {count}",
+                    length=len(messages),
+                    count=count,
+                )
             # print('messages================', messages)
             if not messages:
                 yield None
                 return
-            logger.info(f"{messages}")
+            logger.debug("{messages}", messages=messages)
             for message in messages:
                 stream_name, messages_list = message
                 for message_id, fields in messages_list:
@@ -315,7 +319,7 @@ class AsyncRedisCli(AbstractResource):
                         for key, value in fields.items()
                     }
                     yield fields
-        except: # noqa
+        except:  # noqa
             logger.exception(f"xread xack fail")
             yield None
         finally:

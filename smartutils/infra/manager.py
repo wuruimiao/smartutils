@@ -70,7 +70,7 @@ class CTXResourceManager(Generic[T], ABC):
                             return result
                         except Exception as e:
                             await call_hook(self._fail, session)
-                            logger.exception(f"{key} use fail")
+                            logger.exception("{key} use fail", key=key)
                             raise RuntimeError(f"{key} use fail") from e
 
             return wrapper
@@ -89,9 +89,11 @@ class CTXResourceManager(Generic[T], ABC):
         for key, cli in self._resources.items():
             try:
                 await cli.close()
-            except: # noqa
+            except:  # noqa
                 logger.exception(
-                    f"CTXResourceManager Failed to close {self} {key}"
+                    "CTXResourceManager Failed to close {self} {key}",
+                    self=self,
+                    key=key,
                 )
 
     async def health_check(self) -> Dict[str, bool]:

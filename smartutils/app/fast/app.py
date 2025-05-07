@@ -32,11 +32,11 @@ async def lifespan(app: FastAPI):
 
     from smartutils.log import logger
 
-    logger.info(f"shutdown start close")
+    logger.info("shutdown start close")
     from smartutils.infra import release
 
     await release()
-    logger.info(f"shutdown all closed")
+    logger.info("shutdown all closed")
 
 
 def create_app(custom_app: Callable[[FastAPI], Awaitable]):

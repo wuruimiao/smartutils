@@ -25,7 +25,7 @@ class AsyncKafkaCli(AbstractResource):
             await self._producer.client.fetch_all_metadata()
             return True
         except Exception as e:
-            logger.warning(f"[{self._name}] Kafka ping failed: {e}")
+            logger.warning("[{name}] Kafka ping failed: {e}", name=self._name)
             return False
 
     async def close(self):
@@ -46,7 +46,7 @@ class AsyncKafkaCli(AbstractResource):
             self._producer = producer
         except errors.KafkaConnectionError as e:
             logger.exception(
-                f"start kafka producer {self._bootstrap_servers} fail"
+                "start kafka producer {servers} fail", servers=self._bootstrap_servers
             )
             await producer.stop()
             raise e
@@ -137,5 +137,5 @@ class KafkaBatchConsumer:
                     commit_offsets = {tp: o + 1 for tp, o in partition_offsets.items()}
                     await consumer.commit(commit_offsets)
 
-            except: # noqa
-                logger.exception(f"batch consume fail.")
+            except:  # noqa
+                logger.exception("batch consume fail.")
