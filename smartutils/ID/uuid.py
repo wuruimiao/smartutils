@@ -1,4 +1,6 @@
 """
+36位字符，随机128位
+
 安全性高
 无序、长度长，不利存储
 百万级/s
@@ -17,7 +19,8 @@ class UUIDGenerator(AbstractIDGenerator):
     def __next__(self):
         return str(uuid.uuid4())
 
-    def next_uuid(self):
+    @staticmethod
+    def next_uuid():
         return uuid.uuid4()
 
     def __repr__(self):
