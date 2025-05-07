@@ -25,3 +25,10 @@ import-linter~=2.3
 pydeps~=3.0.1
 
 ulid-py~=1.1.0
+
+bcrypt~=4.3.0
+
+PyJWT~=2.10.1
+
+pyotp~=2.9.0
+qrcode~=8.1
