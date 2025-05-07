@@ -33,7 +33,7 @@ project:
 
     await init()
 
-    from smartutils.infra.log.logger import logger
+    from smartutils.infra.log.loguru import logger
 
     logger.debug("hello test loguru logger")
 
@@ -87,7 +87,7 @@ project:
     # PrintToLogger生效，print被记录
     print("this is printed and should be in the log file")
 
-    from smartutils.infra.log.logger import logger
+    from smartutils.infra.log.loguru import logger
 
     logger.debug("logger debug also in log file")
 
