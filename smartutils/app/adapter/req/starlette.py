@@ -1,5 +1,6 @@
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.const import HeaderKey
+from smartutils.ID import IDGen
 
 
 class StarletteRequestAdapter(RequestAdapter):
@@ -23,4 +24,4 @@ class StarletteRequestAdapter(RequestAdapter):
         return str(self.request.url)
 
     def gen_trace_id(self) -> str:
-        return str(self.request.app.state.smartutils_id_gen())
+        return str(IDGen())

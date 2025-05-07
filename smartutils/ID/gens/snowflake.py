@@ -143,6 +143,7 @@ class SnowflakeGenerator(AbstractIDGenerator):
         seq: int = 0,
         epoch: int = 0,
         timestamp: Optional[int] = None,
+        **kwargs,
     ):
         """
         :param instance: 当前节点/进程编号（0~1023）
