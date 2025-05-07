@@ -18,13 +18,14 @@
 """
 
 from dataclasses import dataclass
+from datetime import datetime, timedelta, tzinfo, timezone
 from time import time
 from typing import Optional
-from datetime import datetime, timedelta, tzinfo, timezone
 
 from smartutils.ID.abstract import AbstractIDGenerator
+from smartutils.ID.const import IDGenType
+from smartutils.ID.init import IDGen
 from smartutils.design import singleton
-
 
 # ========== 雪花ID算法常量 ==========
 # 41位，最大时间戳差（毫秒），最大表示69年，epoch=0时，只能用到2039年
@@ -128,6 +129,7 @@ class Snowflake:
 
 
 @singleton
+@IDGen.register(IDGenType.SNOWFLAKE)
 class SnowflakeGenerator(AbstractIDGenerator):
     """
     雪花ID生成器，支持迭代调用和直接调用。

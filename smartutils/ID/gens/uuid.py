@@ -10,14 +10,20 @@
 import uuid
 
 from smartutils.ID.abstract import AbstractIDGenerator
+from smartutils.ID.const import IDGenType
+from smartutils.ID.init import IDGen
 from smartutils.design import singleton
 
 
 @singleton
+@IDGen.register(IDGenType.UUID)
 class UUIDGenerator(AbstractIDGenerator):
     """
     UUID生成器，支持迭代和直接调用，每次生成一个新的UUID字符串
     """
+
+    def __init__(self, **kwargs):
+        pass
 
     def __next__(self):
         return str(uuid.uuid4())
