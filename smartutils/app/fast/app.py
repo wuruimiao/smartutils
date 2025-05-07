@@ -10,17 +10,16 @@ async def lifespan(app: FastAPI):
 
     await init()
 
-    from smartutils.config import get_config
-    from smartutils.ID import SnowflakeGenerator
+    from smartutils.config import get_config, ConfKeys
+    from smartutils.ID import IDGen
 
     import logging
 
     logging.getLogger("uvicorn.access").disabled = True
 
     conf = get_config()
-    app.state.smartutils_id_gen = SnowflakeGenerator(
-        instance=conf.project.id, epoch=conf.project.release_timestamp_ms
-    )
+
+    IDGen.init(conf=conf.get(ConfKeys.INSTANCE))
 
     app.title = conf.project.name
     app.version = conf.project.version

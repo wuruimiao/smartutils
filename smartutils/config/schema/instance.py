@@ -23,3 +23,7 @@ class InstanceConf(BaseModel):
     @property
     def release_timestamp_ms(self) -> int:
         return int(get_timestamp(self.release_time)) * 1000
+
+    @property
+    def kw(self) -> dict:
+        return {"instance": self.id, "epoch": self.release_timestamp_ms}
