@@ -77,6 +77,7 @@ class CTXResourceManager(Generic[T], ABC):
 
         return decorator
 
+    @property
     def curr(self):
         return CTXVarManager.get(self._ctx_key)
 

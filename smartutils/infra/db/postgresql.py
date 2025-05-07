@@ -1,6 +1,8 @@
 from typing import Dict
 
-from smartutils.config.const import ConfKey, ConfKey
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from smartutils.config.const import ConfKey
 from smartutils.config.schema.postgresql import PostgreSQLConf
 from smartutils.ctx import CTXVarManager, CTXKey
 from smartutils.design import singleton
@@ -19,6 +21,10 @@ class PostgresqlManager(CTXResourceManager[AsyncDBCli]):
         super().__init__(
             resources, CTXKey.DB_POSTGRESQL, success=db_commit, fail=db_rollback
         )
+
+    @property
+    def curr(self) -> AsyncSession:
+        return super().curr
 
 
 @InfraFactory.register(ConfKey.POSTGRESQL)
