@@ -1,15 +1,14 @@
-class ConfKey(str):
-    pass
+from enum import Enum
 
 
-class ConfKeys:
-    MYSQL = ConfKey("mysql")
-    POSTGRESQL = ConfKey("postgresql")
-    REDIS = ConfKey("redis")
-    KAFKA = ConfKey("kafka")
-    CANAL = ConfKey("canal")
-    PROJECT = ConfKey("project")
-    LOGURU = ConfKey("loguru")
-    INSTANCE = ConfKey("instance")
+class ConfKey(str, Enum):
+    MYSQL = "mysql"
+    POSTGRESQL = "postgresql"
+    REDIS = "redis"
+    KAFKA = "kafka"
+    CANAL = "canal"
+    PROJECT = "project"
+    LOGURU = "loguru"
+    INSTANCE = "instance"
 
-    GROUP_DEFAULT = ConfKey("default")
+    GROUP_DEFAULT = "default"

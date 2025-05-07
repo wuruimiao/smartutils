@@ -3,7 +3,7 @@ from pydantic import ValidationError
 
 from smartutils.log import logger
 
-from smartutils.config.const import ConfKeys, ConfKey
+from smartutils.config.const import ConfKey, ConfKey
 
 
 class ConfFactory:
@@ -45,8 +45,8 @@ class ConfFactory:
         logger.info("ConfFactory {name} created.", name=name)
 
         if multi:
-            if ConfKeys.GROUP_DEFAULT not in conf:
-                raise ValueError(f"ConfFactory no {ConfKeys.GROUP_DEFAULT} below {name}")
+            if ConfKey.GROUP_DEFAULT not in conf:
+                raise ValueError(f"ConfFactory no {ConfKey.GROUP_DEFAULT} below {name}")
 
             return {key: cls._init_conf_cls(name, key, conf_cls, _conf) for key, _conf in conf.items()}
         else:

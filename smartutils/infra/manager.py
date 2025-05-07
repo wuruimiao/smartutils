@@ -5,7 +5,7 @@ from abc import ABC
 from typing import Dict, Callable, Any, Awaitable, Generic
 
 from smartutils.call import call_hook
-from smartutils.config.const import ConfKeys, ConfKey
+from smartutils.config.const import ConfKey, ConfKey
 from smartutils.ctx import CTXVarManager, CTXKey
 from smartutils.infra.abstract import T
 from smartutils.log import logger
@@ -54,7 +54,7 @@ class CTXResourceManager(Generic[T], ABC):
     def __str__(self) -> str:
         return f"mgr_{self._ctx_key}"
 
-    def use(self, key: ConfKey = ConfKeys.GROUP_DEFAULT):
+    def use(self, key: ConfKey = ConfKey.GROUP_DEFAULT):
         def decorator(func: Callable[..., Awaitable[Any]]):
             @functools.wraps(func)
             async def wrapper(*args, **kwargs):
@@ -80,7 +80,7 @@ class CTXResourceManager(Generic[T], ABC):
     def curr(self):
         return CTXVarManager.get(self._ctx_key)
 
-    def client(self, key: ConfKey = ConfKeys.GROUP_DEFAULT) -> T:
+    def client(self, key: ConfKey = ConfKey.GROUP_DEFAULT) -> T:
         if key not in self._resources:
             raise RuntimeError(f"No resource found for key: {key}")
         return self._resources[key]

@@ -1,11 +1,11 @@
 from pydantic import conint
 
-from smartutils.config.const import ConfKeys
+from smartutils.config.const import ConfKey
 from smartutils.config.factory import ConfFactory
 from smartutils.config.schema.db import DBConf
 
 
-@ConfFactory.register(ConfKeys.MYSQL, multi=True, require=False)
+@ConfFactory.register(ConfKey.MYSQL, multi=True, require=False)
 class MySQLConf(DBConf):
     port: int = 3306
 

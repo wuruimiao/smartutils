@@ -2,12 +2,12 @@ from datetime import datetime
 
 from pydantic import BaseModel, conint, field_validator, Field
 
-from smartutils.config.const import ConfKeys
+from smartutils.config.const import ConfKey
 from smartutils.config.factory import ConfFactory
 from smartutils.time import get_timestamp
 
 
-@ConfFactory.register(ConfKeys.INSTANCE, multi=False, require=False)
+@ConfFactory.register(ConfKey.INSTANCE, multi=False, require=False)
 class InstanceConf(BaseModel):
     id: conint(ge=0) = Field(..., description="保证每实例有唯一ID")
     release_time: datetime = Field(..., description="例如：2025-05-07 10:00:00+08:00")

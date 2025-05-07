@@ -1,6 +1,6 @@
 from typing import Dict
 
-from smartutils.config.const import ConfKeys, ConfKey
+from smartutils.config.const import ConfKey, ConfKey
 from smartutils.config.schema.mysql import MySQLConf
 from smartutils.ctx import CTXVarManager, CTXKeys
 from smartutils.design import singleton
@@ -19,6 +19,6 @@ class MySQLManager(CTXResourceManager[AsyncDBCli]):
         )
 
 
-@InfraFactory.register(ConfKeys.MYSQL)
+@InfraFactory.register(ConfKey.MYSQL)
 def init_mysql(conf):
     return MySQLManager(conf)
