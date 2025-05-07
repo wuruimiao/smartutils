@@ -3,11 +3,38 @@ from time import time
 from typing import Optional
 from datetime import datetime, timedelta, tzinfo, timezone
 
+"""
+注意事项：
+1. 寿命最长69年
+2. 高并发限速
+3. 并发安全：
+    . 线程不安全
+    . 进程，不同instance安全
+    . 协程，雪花实现不能await，
+
+对比：
+        Snowflake	    Sonyflake
+时间戳位	41位，单位：毫秒	39位，单位：10毫秒
+机器ID位	10位（1024台）	16位（65536台）
+序列号位	12位（4096/ms）	8位（256/10ms）
+寿命	    约69年	        约174年
+"""
 
 # ========== 雪花ID算法常量 ==========
-MAX_TS = 0b11111111111111111111111111111111111111111  # 41位，最大时间戳差（毫秒）
-MAX_INSTANCE = 0b1111111111  # 10位，最大机器/进程号
-MAX_SEQ = 0b111111111111  # 12位，最大序列号
+# 41位，最大时间戳差（毫秒），最大表示69年，epoch=0时，只能用到2039年
+MAX_TS = 0b11111111111111111111111111111111111111111
+# 10位，最大机器/进程号，最多支持 1024 个节点/进程并发生成ID
+MAX_INSTANCE = 0b1111111111
+# 12位，最大序列号，每台机器、每毫秒最多能生成 4096 个不同的ID
+MAX_SEQ = 0b111111111111
+
+
+class SnowflakeClockMovedBackwards(Exception):
+    pass
+
+
+class SnowflakeTimestampOverflow(Exception):
+    pass
 
 
 @dataclass(frozen=True)
@@ -159,7 +186,7 @@ class SnowflakeGenerator:
         current = int(time() * 1000) - self._epo
 
         if current >= MAX_TS:
-            raise StopIteration(
+            raise SnowflakeTimestampOverflow(
                 "The maximum current timestamp has been reached in selected epoch, "
                 "so Snowflake cannot generate more IDs!"
             )
@@ -174,7 +201,7 @@ class SnowflakeGenerator:
             else:
                 self._seq += 1
         elif self._ts > current:
-            raise StopIteration("Clock moved backwards?")
+            raise SnowflakeClockMovedBackwards("Clock moved backwards?")
         else:
             self._seq = 0
             self._ts = current

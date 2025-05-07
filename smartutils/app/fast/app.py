@@ -14,10 +14,13 @@ async def lifespan(app: FastAPI):
     from smartutils.ID import SnowflakeGenerator
 
     import logging
+
     logging.getLogger("uvicorn.access").disabled = True
 
     conf = get_config()
-    app.state.smartutils_gen = SnowflakeGenerator(instance=conf.project.id)
+    app.state.smartutils_id_gen = SnowflakeGenerator(
+        instance=conf.project.id, epoch=conf.project.release_timestamp_ms
+    )
 
     app.title = conf.project.name
     app.version = conf.project.version
