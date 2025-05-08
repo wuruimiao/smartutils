@@ -1,72 +1,77 @@
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
-
-[tool.setuptools]
-packages = { find = { include = ["smartutils*"] } }
-
-[project]
+[tool.poetry]
 name = "smartutils"
 version = "0.1.0"
 description = "Your description here"
-authors = [{ name = "wuruimiao", email = "dev.wuruimiao@qq.com" }]
-dependencies = [
-    "PyYAML~=6.0.2",
-    "loguru~=0.7.3",
-    "contextvars~=2.4"
+authors = ["wuruimiao <dev.wuruimiao@qq.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+PyYAML = "~6.0.2"
+loguru = "~0.7.3"
+contextvars = "~2.4"
+
+sqlalchemy = { version = "~2.0.38", extras = ["asyncio"], optional = true }
+asyncmy = { version = "~0.2.10", optional = true }
+asyncpg = { version = "~0.30.0", optional = true }
+
+redis = { version = "~5.2.1", optional = true }
+
+aiokafka = { version = "~0.12.0", optional = true }
+python-snappy = { version = "~0.7.3", optional = true }
+zstandard = { version = "~0.23.0", optional = true }
+
+fastapi = { version = "~0.115.11", optional = true }
+uvicorn = { version = "~0.34.0", extras = ["standard"], optional = true }
+starlette = { version = "~0.46.2", optional = true }
+pydantic = { version = "~2.10.6", optional = true }
+
+ulid-py = { version = "~1.1.0", optional = true }
+
+bcrypt = { version = "~4.3.0", optional = true }
+
+PyJWT = { version = "~2.10.1", optional = true }
+
+pyotp = { version = "~2.9.0", optional = true }
+qrcode = { version = "~8.1", optional = true }
+
+[tool.poetry.dev-dependencies]
+pytest = "~8.3.5"
+pytest-cov = "~6.1.1"
+pytest-asyncio = "~0.26.0"
+httpx = "~0.28.1"
+import-linter = "~2.3"
+pydeps = "~3.0.1"
+tomlkit = "~0.13.2"
+
+[tool.poetry.extras]
+mysql = ["sqlalchemy", "asyncmy"]
+pgsql = ["sqlalchemy", "asyncpg"]
+redis = ["redis"]
+kafka = ["aiokafka", "python-snappy", "zstandard"]
+fastapi = ["fastapi", "uvicorn", "starlette", "pydantic", "ulid-py"]
+auth = ["bcrypt", "PyJWT", "pyotp", "qrcode"]
+all = [
+    "PyYAML",
+    "loguru",
+    "contextvars",
+    "sqlalchemy",
+    "asyncmy",
+    "asyncpg",
+    "redis",
+    "aiokafka",
+    "python-snappy",
+    "zstandard",
+    "fastapi",
+    "uvicorn",
+    "starlette",
+    "pydantic",
+    "ulid-py",
+    "bcrypt",
+    "PyJWT",
+    "pyotp",
+    "qrcode",
 ]
 
-[project.optional-dependencies]
-mysql = [
-    "sqlalchemy[asyncio]~=2.0.38",
-    "asyncmy~=0.2.10",
-]
-pgsql = [
-    "sqlalchemy[asyncio]~=2.0.38",
-    "asyncpg~=0.30.0",
-]
-redis = ["redis~=5.2.1"]
-kafka = [
-    "aiokafka~=0.12.0",
-    "python-snappy~=0.7.3",
-    "zstandard~=0.23.0",
-]
-fastapi = [
-    "fastapi~=0.115.11",
-    "starlette~=0.46.2",
-    "pydantic~=2.10.6",
-    "ulid-py~=1.1.0",
-]
-auth = [
-    "bcrypt~=4.3.0",
-    "PyJWT~=2.10.1",
-    "pyotp~=2.9.0",
-    "qrcode~=8.1",
-]
-dev = [
-    "pytest~=8.3.5",
-    "pytest-cov~=6.1.1",
-    "pytest-asyncio~=0.26.0",
-    "httpx~=0.28.1",
-    "import-linter~=2.3",
-    "pydeps~=3.0.1",
-    "tomlkit~=0.13.2",
-    "build~=1.2.2.post1",
-]
-all = [
-    "sqlalchemy[asyncio]~=2.0.38",
-    "asyncmy~=0.2.10",
-    "asyncpg~=0.30.0",
-    "redis~=5.2.1",
-    "aiokafka~=0.12.0",
-    "python-snappy~=0.7.3",
-    "zstandard~=0.23.0",
-    "fastapi~=0.115.11",
-    "starlette~=0.46.2",
-    "pydantic~=2.10.6",
-    "ulid-py~=1.1.0",
-    "bcrypt~=4.3.0",
-    "PyJWT~=2.10.1",
-    "pyotp~=2.9.0",
-    "qrcode~=8.1",
-]
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
