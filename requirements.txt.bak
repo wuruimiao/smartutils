@@ -1,5 +1,6 @@
 PyYAML~=6.0.2
 loguru~=0.7.3
+
 sqlalchemy[asyncio]~=2.0.38
 asyncmy~= 0.2.10
 asyncpg~=0.30.0
