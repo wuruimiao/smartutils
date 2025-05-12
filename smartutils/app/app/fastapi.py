@@ -2,12 +2,14 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+__all__ = ["create_app"]
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     from smartutils.init import init
 
-    await init()
+    await init(app.state.smartutils_conf_path)  # noqa
 
     from smartutils.config import get_config
     from smartutils.log import logger
@@ -30,6 +32,7 @@ async def lifespan(app: FastAPI):
         app.docs_url = None
 
     from smartutils.app.factory import AppHook
+
     await AppHook.call_startup(app)
 
     yield
@@ -44,13 +47,14 @@ async def lifespan(app: FastAPI):
     logger.info("shutdown all closed")
 
 
-def create_app():
+def create_app(conf_path: str = "config/config.yaml"):
     from smartutils.ret import ResponseModel
     from smartutils.app.adapter.middleware.starletee import StarletteMiddleware
     from smartutils.app.plugin.header import HeaderPlugin
     from smartutils.app.plugin.log import LogPlugin
 
     app = FastAPI(lifespan=lifespan)
+    app.state.smartutils_conf_path = conf_path  # noqa
 
     app.add_middleware(StarletteMiddleware, plugin=LogPlugin())
     app.add_middleware(StarletteMiddleware, plugin=HeaderPlugin())
