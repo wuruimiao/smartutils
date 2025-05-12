@@ -1,3 +1,4 @@
+import sys
 from typing import Type, Dict, Tuple
 
 from pydantic import ValidationError
@@ -29,9 +30,12 @@ class ConfFactory:
             return conf_cls(**conf)
         except ValidationError as e:
             fields = [err["loc"][0] for err in e.errors()]
-            raise RuntimeError(
-                f"ConfFactory {name}-{key} in config.yml miss or invalid fields: {fields}"
-            ) from e
+            logger.error(
+                "ConfFactory {name}-{key} in config.yml miss or invalid fields: {fields}",
+                name=name, key=key, fields=fields
+            )
+            # 非0，k8s判定启动失败；应用在 lifespan 阶段（即启动/关闭事件）报错，uvicorn 退出码是 3
+            sys.exit(1)
 
     @classmethod
     def create(cls, name: ConfKey, conf: Dict):
