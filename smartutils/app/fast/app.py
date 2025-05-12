@@ -11,6 +11,7 @@ async def lifespan(app: FastAPI):
     await init()
 
     from smartutils.config import get_config
+    from smartutils.log import logger
 
     import logging
 
@@ -23,14 +24,13 @@ async def lifespan(app: FastAPI):
     app.version = conf.project.version
     app.description = conf.project.description
     app.debug = conf.project.debug
+    logger.info('!!!======run in {env}======!!!', env='prod' if conf.project.debug else 'dev')
     if not conf.project.debug:
         app.docs_url = None
 
     await app.state.smartutils_custom_app(app)
 
     yield
-
-    from smartutils.log import logger
 
     logger.info("shutdown start close")
     from smartutils.infra import release

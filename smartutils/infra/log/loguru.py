@@ -6,9 +6,9 @@ from smartutils.config.const import ConfKey
 from smartutils.config.schema.logger import LoguruConfig
 from smartutils.ctx import CTXVarManager, CTXKey
 from smartutils.design import singleton
-from smartutils.infra.abstract import AbstractResource
+from smartutils.infra.source_manager.abstract import AbstractResource
 from smartutils.infra.factory import InfraFactory
-from smartutils.infra.manager import CTXResourceManager
+from smartutils.infra.source_manager.manager import CTXResourceManager
 from smartutils.log import logger
 
 

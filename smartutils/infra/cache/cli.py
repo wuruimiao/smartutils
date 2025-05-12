@@ -1,4 +1,3 @@
-import traceback
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import Any, Optional
@@ -6,7 +5,7 @@ from typing import Any, Optional
 from redis import asyncio as redis, ResponseError
 
 from smartutils.config.schema.redis import RedisConf
-from smartutils.infra.abstract import AbstractResource
+from smartutils.infra.source_manager.abstract import AbstractResource
 from smartutils.log import logger
 from smartutils.time import get_now_stamp
 

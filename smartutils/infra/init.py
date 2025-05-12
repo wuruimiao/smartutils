@@ -10,9 +10,10 @@ async def init():
 
     from smartutils.infra.factory import InfraFactory
 
-    for comp_key, init_func in InfraFactory.all().items():
+    for comp_key, info in InfraFactory.all().items():
+        init_func, need_conf = info
         conf = config.get(comp_key)
-        if not conf:
+        if need_conf and not conf:
             logger.debug("infra init config no {comp_key}, ignore.", comp_key=comp_key)
             continue
 
@@ -26,6 +27,6 @@ async def init():
 
 
 async def release():
-    from smartutils.infra.manager import ResourceManagerRegistry
+    from smartutils.infra.source_manager.manager import ResourceManagerRegistry
 
     await ResourceManagerRegistry.close_all()

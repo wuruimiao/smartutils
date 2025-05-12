@@ -9,7 +9,7 @@ from sqlalchemy.orm import sessionmaker
 
 from smartutils.config.schema.mysql import MySQLConf
 from smartutils.config.schema.postgresql import PostgreSQLConf
-from smartutils.infra.abstract import AbstractResource
+from smartutils.infra.source_manager.abstract import AbstractResource
 from smartutils.log import logger
 
 

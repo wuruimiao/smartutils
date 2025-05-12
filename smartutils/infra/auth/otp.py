@@ -5,7 +5,12 @@ from typing import Tuple
 import pyotp
 import qrcode
 
+from smartutils.config import ConfKey
+from smartutils.design import singleton
+from smartutils.infra.factory import InfraFactory
 
+
+@singleton
 class OtpHelper:
     @staticmethod
     def generate_qr(username: str) -> Tuple[str, str]:
@@ -26,4 +31,6 @@ class OtpHelper:
         return totp.verify(user_totp)
 
 
-otp_helper = OtpHelper()
+@InfraFactory.register(ConfKey.OTP, need_conf=False)
+def init_otp(conf):
+    return OtpHelper()

@@ -1,13 +1,13 @@
-from typing import Callable, Any, Dict
+from typing import Callable, Any, Dict, Tuple
 
 
 class InfraFactory:
-    _registry: Dict[str, Callable[[Any], Any]] = {}
+    _registry: Dict[str, Tuple[Callable[[Any], Any], bool]] = {}
 
     @classmethod
-    def register(cls, key: str):
+    def register(cls, key: str, need_conf: bool = True):
         def decorator(func: Callable[[Any], Any]):
-            cls._registry[key] = func
+            cls._registry[key] = (func, need_conf)
             return func
 
         return decorator
@@ -17,7 +17,7 @@ class InfraFactory:
         return cls._registry.get(key)
 
     @classmethod
-    def all(cls):
+    def all(cls) -> Dict[str, Tuple[Callable[[Any], Any], bool]]:
         return cls._registry
 
     @classmethod
