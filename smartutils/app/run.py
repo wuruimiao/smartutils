@@ -1,7 +1,9 @@
 import argparse
+
 import uvicorn
 
 from smartutils.app.const import AppKey
+
 
 # TODO: 兼容多种应用，不限于fastapi
 

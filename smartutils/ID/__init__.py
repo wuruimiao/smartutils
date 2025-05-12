@@ -1,5 +1,5 @@
-from smartutils.ID.init import IDGen
 from smartutils.ID.const import IDGenType
+from smartutils.ID.init import IDGen
 
 __all__ = ["IDGen", "IDGenType"]
 

@@ -1,5 +1,5 @@
-from smartutils.design.singleton import singleton, SingletonBase, SingletonMeta
 from smartutils.design.deprecated import deprecated
+from smartutils.design.singleton import singleton, SingletonBase, SingletonMeta
 
 __all__ = [
     "singleton",

@@ -1,6 +1,4 @@
-from typing import List, Callable, Awaitable, Dict, Any
-
-from smartutils.app.const import AppKey
+from typing import List, Callable, Awaitable
 
 
 class AppHook:

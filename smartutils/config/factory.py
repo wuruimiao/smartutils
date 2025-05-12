@@ -1,9 +1,9 @@
 from typing import Type, Dict, Tuple
+
 from pydantic import ValidationError
 
+from smartutils.config.const import ConfKey
 from smartutils.log import logger
-
-from smartutils.config.const import ConfKey, ConfKey
 
 
 class ConfFactory:

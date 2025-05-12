@@ -1,5 +1,5 @@
-import json
 import ipaddress
+import json
 import re
 
 DOMAIN_REGEX = re.compile(

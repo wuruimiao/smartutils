@@ -5,8 +5,8 @@ from smartutils.config.schema.kafka import KafkaConf
 from smartutils.ctx import CTXVarManager, CTXKey
 from smartutils.design import singleton
 from smartutils.infra.factory import InfraFactory
-from smartutils.infra.source_manager.manager import CTXResourceManager
 from smartutils.infra.mq.cli import AsyncKafkaCli
+from smartutils.infra.source_manager.manager import CTXResourceManager
 
 
 @singleton

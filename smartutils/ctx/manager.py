@@ -1,9 +1,9 @@
 import contextvars
-from typing import Any, Dict, Callable
 from contextlib import contextmanager
-from smartutils.log import logger
+from typing import Any, Dict
+
 from smartutils.ctx.const import CTXKey
-import functools
+from smartutils.log import logger
 
 
 class CTXVarManager:

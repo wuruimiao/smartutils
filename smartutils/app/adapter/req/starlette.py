@@ -1,6 +1,6 @@
+from smartutils.ID import IDGen
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.const import HeaderKey
-from smartutils.ID import IDGen
 
 
 class StarletteRequestAdapter(RequestAdapter):
