@@ -2,13 +2,13 @@ from pathlib import Path
 from typing import Dict, Any, TypeVar, Optional
 
 import yaml
-from smartutils.log import logger
 from pydantic import BaseModel
 
 from smartutils.config.const import ConfKey
 from smartutils.config.factory import ConfFactory
 from smartutils.config.schema.project import ProjectConf
 from smartutils.design import singleton
+from smartutils.log import logger
 
 T = TypeVar("T", bound=BaseModel)
 
