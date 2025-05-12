@@ -4,6 +4,8 @@ import uvicorn
 
 from smartutils.app.const import AppKey
 
+__all__ = ["run"]
+
 
 # TODO: 兼容多种应用，不限于fastapi
 

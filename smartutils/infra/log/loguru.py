@@ -11,6 +11,8 @@ from smartutils.infra.source_manager.abstract import AbstractResource
 from smartutils.infra.source_manager.manager import CTXResourceManager
 from smartutils.log import logger
 
+__all__ = ["LoggerManager"]
+
 
 class PrintToLogger:
     def write(self, message):  # noqa

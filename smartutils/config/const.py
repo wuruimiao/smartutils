@@ -1,5 +1,7 @@
 from enum import Enum
 
+__all__ = ["ConfKey"]
+
 
 class ConfKey(str, Enum):
     MYSQL = "mysql"

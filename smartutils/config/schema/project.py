@@ -3,6 +3,8 @@ from pydantic import BaseModel, constr
 from smartutils.config.const import ConfKey
 from smartutils.config.factory import ConfFactory
 
+__all__ = ["ProjectConf"]
+
 
 @ConfFactory.register(ConfKey.PROJECT, multi=False, require=True)
 class ProjectConf(BaseModel):

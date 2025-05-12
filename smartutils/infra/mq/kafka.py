@@ -8,6 +8,8 @@ from smartutils.infra.factory import InfraFactory
 from smartutils.infra.mq.cli import AsyncKafkaCli
 from smartutils.infra.source_manager.manager import CTXResourceManager
 
+__all__ = ["KafkaManager"]
+
 
 @singleton
 @CTXVarManager.register(CTXKey.MQ_KAFKA)

@@ -1,5 +1,7 @@
 from smartutils.app.adapter import get_request_adapter, get_response_adapter
 
+__all__ = ["DjangoMiddleware"]
+
 
 class DjangoMiddleware:
     def __init__(self, get_response):

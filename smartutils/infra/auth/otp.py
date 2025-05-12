@@ -9,6 +9,8 @@ from smartutils.config import ConfKey
 from smartutils.design import singleton
 from smartutils.infra.factory import InfraFactory
 
+__all__ = ["OtpHelper"]
+
 
 @singleton
 class OtpHelper:

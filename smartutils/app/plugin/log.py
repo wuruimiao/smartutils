@@ -6,12 +6,14 @@ from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.log import logger
 
+__all__ = ["LogPlugin"]
+
 
 class LogPlugin(AbstractMiddlewarePlugin):
     async def dispatch(
-        self,
-        req: RequestAdapter,
-        next_adapter: Callable[[], Awaitable[ResponseAdapter]],
+            self,
+            req: RequestAdapter,
+            next_adapter: Callable[[], Awaitable[ResponseAdapter]],
     ) -> ResponseAdapter:
         start = perf_counter()
 

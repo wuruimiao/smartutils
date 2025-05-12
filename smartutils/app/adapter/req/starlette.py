@@ -2,6 +2,8 @@ from smartutils.ID import IDGen
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.const import HeaderKey
 
+__all__ = ["StarletteRequestAdapter"]
+
 
 class StarletteRequestAdapter(RequestAdapter):
     def get_header(self, key: HeaderKey):

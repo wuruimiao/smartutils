@@ -1,3 +1,6 @@
+__all__ = ["Error"]
+
+
 class Error(object):
     def __init__(self, code_int: int, code: str, desc: str = ""):
         self.code_int = code_int

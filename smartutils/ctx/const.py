@@ -1,5 +1,7 @@
 from enum import Enum
 
+__all__ = ["CTXKey"]
+
 
 class CTXKey(str, Enum):
     CACHE_REDIS = "cache_redis"

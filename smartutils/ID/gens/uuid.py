@@ -14,6 +14,8 @@ from smartutils.ID.const import IDGenType
 from smartutils.ID.init import IDGen
 from smartutils.design import singleton
 
+__all__ = ["UUIDGenerator"]
+
 
 @singleton
 @IDGen.register(IDGenType.UUID)

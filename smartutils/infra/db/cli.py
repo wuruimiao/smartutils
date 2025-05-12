@@ -12,6 +12,8 @@ from smartutils.config.schema.postgresql import PostgreSQLConf
 from smartutils.infra.source_manager.abstract import AbstractResource
 from smartutils.log import logger
 
+__all__ = ["AsyncDBCli", "db_commit", "db_rollback"]
+
 _FLUSHED = "smartutils_flushed"
 
 

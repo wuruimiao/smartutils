@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Callable, Awaitable
 
+__all__ = ["AbstractMiddlewarePlugin"]
+
+
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
 

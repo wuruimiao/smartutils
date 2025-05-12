@@ -6,6 +6,8 @@ from smartutils.config.const import ConfKey
 from smartutils.config.factory import ConfFactory
 from smartutils.config.schema.host import HostConf
 
+__all__ = ["KafkaConf"]
+
 
 @ConfFactory.register(ConfKey.KAFKA, multi=True, require=False)
 class KafkaConf(BaseModel):

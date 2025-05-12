@@ -1,5 +1,7 @@
 from typing import Callable, Any, Dict, Tuple
 
+__all__ = ["InfraFactory"]
+
 
 class InfraFactory:
     _registry: Dict[str, Tuple[Callable[[Any], Any], bool]] = {}

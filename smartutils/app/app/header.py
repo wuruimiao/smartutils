@@ -5,6 +5,8 @@ from fastapi import Header
 from smartutils.app.const import HeaderKey
 from smartutils.design import deprecated
 
+__all__ = ["UserInfo", "get_user_info", "get_trace_id"]
+
 
 @deprecated("")
 @dataclasses.dataclass
@@ -15,8 +17,8 @@ class UserInfo:
 
 @deprecated("Info.get_userid Info.get_username")
 def get_user_info(
-    x_user_id: int = Header(..., alias=HeaderKey.X_USER_ID),
-    x_username: str = Header(..., alias=HeaderKey.X_USER_NAME),
+        x_user_id: int = Header(..., alias=HeaderKey.X_USER_ID),
+        x_username: str = Header(..., alias=HeaderKey.X_USER_NAME),
 ) -> UserInfo:
     """
     Deprecated: Use Info.get_userid Info.get_username instead.

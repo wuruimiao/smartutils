@@ -1,6 +1,9 @@
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 
+__all__ = ["StarletteMiddleware"]
+
+
 from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.req.starlette import StarletteRequestAdapter

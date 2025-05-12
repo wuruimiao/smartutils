@@ -3,6 +3,8 @@ from pydantic import BaseModel, constr, conint
 from smartutils.config.const import ConfKey
 from smartutils.config.factory import ConfFactory
 
+__all__ = ["TokenConf"]
+
 
 @ConfFactory.register(ConfKey.TOKEN, multi=False)
 class TokenConf(BaseModel):

@@ -1,5 +1,7 @@
 from typing import List, Callable, Awaitable
 
+__all__ = ["AppHook"]
+
 
 class AppHook:
     """

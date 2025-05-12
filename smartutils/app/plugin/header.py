@@ -7,15 +7,17 @@ from smartutils.app.const import HeaderKey
 from smartutils.app.header import CustomHeader
 from smartutils.ctx import CTXKey, CTXVarManager
 
+__all__ = ["HeaderPlugin"]
+
 
 @CTXVarManager.register(CTXKey.USERID)
 @CTXVarManager.register(CTXKey.USERNAME)
 @CTXVarManager.register(CTXKey.TRACE_ID)
 class HeaderPlugin(AbstractMiddlewarePlugin):
     async def dispatch(
-        self,
-        req: RequestAdapter,
-        next_adapter: Callable[[], Awaitable[ResponseAdapter]],
+            self,
+            req: RequestAdapter,
+            next_adapter: Callable[[], Awaitable[ResponseAdapter]],
     ) -> ResponseAdapter:
         trace_id = CustomHeader.traceid(req)
         if not trace_id:

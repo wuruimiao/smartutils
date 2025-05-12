@@ -5,6 +5,8 @@ from pydantic import ValidationError
 from smartutils.config.const import ConfKey
 from smartutils.log import logger
 
+__all__ = ["ConfFactory"]
+
 
 class ConfFactory:
     _registry: Dict[ConfKey, Tuple[Type, bool, bool]] = {}
@@ -27,7 +29,9 @@ class ConfFactory:
             return conf_cls(**conf)
         except ValidationError as e:
             fields = [err["loc"][0] for err in e.errors()]
-            raise RuntimeError(f"ConfFactory {name}-{key} in config.yml miss or invalid fields: {fields}") from e
+            raise RuntimeError(
+                f"ConfFactory {name}-{key} in config.yml miss or invalid fields: {fields}"
+            ) from e
 
     @classmethod
     def create(cls, name: ConfKey, conf: Dict):
@@ -48,7 +52,10 @@ class ConfFactory:
             if ConfKey.GROUP_DEFAULT not in conf:
                 raise ValueError(f"ConfFactory no {ConfKey.GROUP_DEFAULT} below {name}")
 
-            return {key: cls._init_conf_cls(name, key, conf_cls, _conf) for key, _conf in conf.items()}
+            return {
+                key: cls._init_conf_cls(name, key, conf_cls, _conf)
+                for key, _conf in conf.items()
+            }
         else:
             return cls._init_conf_cls(name, "", conf_cls, conf)
 
