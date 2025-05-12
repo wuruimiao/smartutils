@@ -1,17 +1,6 @@
 from contextlib import asynccontextmanager
-from typing import Callable, Awaitable, Optional
 
 from fastapi import FastAPI
-
-_INIT_APP: Optional[Callable[[FastAPI], Awaitable[None]]] = None
-
-
-def register_init_app(
-    func: Callable[[FastAPI], Awaitable[None]],
-) -> Callable[[FastAPI], Awaitable[None]]:
-    global _INIT_APP
-    _INIT_APP = func
-    return func
 
 
 @asynccontextmanager
@@ -40,8 +29,8 @@ async def lifespan(app: FastAPI):
     if not conf.project.debug:
         app.docs_url = None
 
-    if _INIT_APP:
-        await _INIT_APP(app)
+    from smartutils.app.factory import AppHook
+    await AppHook.call_startup(app)
 
     yield
 
@@ -49,6 +38,9 @@ async def lifespan(app: FastAPI):
     from smartutils.infra import release
 
     await release()
+
+    await AppHook.call_shutdown(app)
+
     logger.info("shutdown all closed")
 
 
