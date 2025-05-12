@@ -1,7 +1,3 @@
-import pytest
-from smartutils.infra.manager import CTXResourceManager
-
-
 # def test_context_var_name_unique():
 #     mgr1 = CTXResourceManager({}, "my_var")
 #     with pytest.raises(ValueError):

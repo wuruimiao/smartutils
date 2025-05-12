@@ -25,6 +25,6 @@ async def reset_all():
 
     CTXVarManager.reset_registered()
 
-    from smartutils.infra.manager import ResourceManagerRegistry
+    from smartutils.infra.source_manager.manager import ResourceManagerRegistry
 
     await ResourceManagerRegistry.close_all()

@@ -2,7 +2,12 @@ from typing import Tuple
 
 import bcrypt
 
+from smartutils.config import ConfKey
+from smartutils.design import singleton
+from smartutils.infra.factory import InfraFactory
 
+
+@singleton
 class PasswordHelper:
     @staticmethod
     def hash_password(plain_password: str) -> Tuple[str, str]:
@@ -17,4 +22,6 @@ class PasswordHelper:
         )
 
 
-password_helper = PasswordHelper()
+@InfraFactory.register(ConfKey.PASSWORD, need_conf=False)
+def init_password(conf):
+    return PasswordHelper()

@@ -21,6 +21,7 @@ python-snappy = { version = "~0.7.3", optional = true }
 zstandard = { version = "~0.23.0", optional = true }
 
 fastapi = { version = "~0.115.11", optional = true }
+# includes: uvloop, httptools, websockets, watchgod, python-dotenv
 uvicorn = { version = "~0.34.0", extras = ["standard"], optional = true }
 starlette = { version = "~0.46.2", optional = true }
 pydantic = { version = "~2.10.6", optional = true }

@@ -10,5 +10,8 @@ class ConfKey(str, Enum):
     PROJECT = "project"
     LOGURU = "loguru"
     INSTANCE = "instance"
+    OTP = "otp"
+    PASSWORD = "password"
+    TOKEN = "token"
 
     GROUP_DEFAULT = "default"
