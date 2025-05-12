@@ -1,5 +1,7 @@
 from smartutils.app.adapter.req.abstract import RequestAdapter
 
+__all__ = ["TornadoRequestAdapter"]
+
 
 class TornadoRequestAdapter(RequestAdapter):
     @property

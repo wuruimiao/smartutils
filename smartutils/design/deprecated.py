@@ -1,6 +1,8 @@
 import functools
 import warnings
 
+__all__ = ["deprecated"]
+
 
 def deprecated(new_method):
     def decorator(func):

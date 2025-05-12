@@ -4,6 +4,8 @@ from time import perf_counter
 
 from smartutils.log import logger
 
+__all__ = ["Timer", "timeit"]
+
 
 class Timer:
     def __init__(self, func=perf_counter):

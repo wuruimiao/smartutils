@@ -2,6 +2,8 @@ from pydantic import conint, constr
 
 from smartutils.config.schema.host import HostConf
 
+__all__ = ["DBConf"]
+
 
 class DBConf(HostConf):
     user: constr(strip_whitespace=True, min_length=1)

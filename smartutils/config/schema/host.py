@@ -2,6 +2,8 @@ from pydantic import BaseModel, field_validator
 
 from smartutils.data import check_ip, check_domain, check_port
 
+__all__ = ["HostConf"]
+
 
 class HostConf(BaseModel):
     host: str

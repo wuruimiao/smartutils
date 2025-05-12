@@ -1,6 +1,8 @@
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.const import HeaderKey
 
+__all__ = ["SanicResponseAdapter"]
+
 
 class SanicResponseAdapter(ResponseAdapter):
     def set_header(self, key: HeaderKey, value: str):

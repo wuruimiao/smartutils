@@ -8,6 +8,8 @@ from smartutils.infra.cache.cli import AsyncRedisCli
 from smartutils.infra.factory import InfraFactory
 from smartutils.infra.source_manager.manager import CTXResourceManager
 
+__all__ = ["RedisManager"]
+
 
 @singleton
 @CTXVarManager.register(CTXKey.CACHE_REDIS)

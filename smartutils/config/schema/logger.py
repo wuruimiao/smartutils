@@ -5,6 +5,8 @@ from pydantic import BaseModel, Field, constr
 from smartutils.config.const import ConfKey
 from smartutils.config.factory import ConfFactory
 
+__all__ = ["LoguruConfig"]
+
 
 @ConfFactory.register(ConfKey.LOGURU, multi=False, require=False)
 class LoguruConfig(BaseModel):

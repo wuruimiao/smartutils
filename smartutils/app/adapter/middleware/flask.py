@@ -1,5 +1,7 @@
 from smartutils.app.adapter import get_request_adapter, get_response_adapter
 
+__all__ = ["register_plugin"]
+
 
 def register_plugin(app, plugin):
     from flask import request, g

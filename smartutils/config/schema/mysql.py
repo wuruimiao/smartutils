@@ -4,6 +4,8 @@ from smartutils.config.const import ConfKey
 from smartutils.config.factory import ConfFactory
 from smartutils.config.schema.db import DBConf
 
+__all__ = ["MySQLConf"]
+
 
 @ConfFactory.register(ConfKey.MYSQL, multi=True, require=False)
 class MySQLConf(DBConf):

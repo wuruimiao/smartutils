@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import TypeVar, AsyncContextManager
 
+__all__ = ["AbstractResource"]
+
 
 class AbstractResource(ABC):
     @abstractmethod

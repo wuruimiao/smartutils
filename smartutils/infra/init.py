@@ -1,5 +1,7 @@
 import inspect
 
+__all__ = ["init", "release"]
+
 
 async def init():
     from smartutils.config.init import get_config

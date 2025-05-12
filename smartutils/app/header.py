@@ -1,6 +1,8 @@
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.const import HeaderKey
 
+__all__ = ["CustomHeader"]
+
 
 class CustomHeader:
     @classmethod

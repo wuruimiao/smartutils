@@ -1,5 +1,7 @@
 from smartutils.app.adapter.req.abstract import RequestAdapter
 
+__all__ = ["DjangoRequestAdapter"]
+
 
 class DjangoRequestAdapter(RequestAdapter):
     def gen_trace_id(self) -> str:

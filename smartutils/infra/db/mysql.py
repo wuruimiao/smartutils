@@ -10,6 +10,8 @@ from smartutils.infra.db.cli import AsyncDBCli, db_commit, db_rollback
 from smartutils.infra.factory import InfraFactory
 from smartutils.infra.source_manager.manager import CTXResourceManager
 
+__all__ = ["MySQLManager"]
+
 
 @singleton
 @CTXVarManager.register(CTXKey.DB_MYSQL)

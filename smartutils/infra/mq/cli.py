@@ -9,6 +9,8 @@ from smartutils.config.schema.kafka import KafkaConf
 from smartutils.infra.source_manager.abstract import AbstractResource
 from smartutils.log import logger
 
+__all__ = ["AsyncKafkaCli", "KafkaBatchConsumer"]
+
 
 class AsyncKafkaCli(AbstractResource):
     def __init__(self, conf: KafkaConf, name: str):
@@ -77,13 +79,13 @@ class AsyncKafkaCli(AbstractResource):
 
 class KafkaBatchConsumer:
     def __init__(
-        self,
-        kafka_cli: AsyncKafkaCli,
-        process_func: Callable[[List[str]], Any],
-        topic: str,
-        group_id: str,
-        batch_size: int = 10000,
-        timeout: int = 1,
+            self,
+            kafka_cli: AsyncKafkaCli,
+            process_func: Callable[[List[str]], Any],
+            topic: str,
+            group_id: str,
+            batch_size: int = 10000,
+            timeout: int = 1,
     ):
         self.kafka_cli = kafka_cli
         self.topic = topic

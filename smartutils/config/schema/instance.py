@@ -6,6 +6,8 @@ from smartutils.config.const import ConfKey
 from smartutils.config.factory import ConfFactory
 from smartutils.time import get_timestamp
 
+__all__ = ["InstanceConf"]
+
 
 @ConfFactory.register(ConfKey.INSTANCE, multi=False, require=False)
 class InstanceConf(BaseModel):
