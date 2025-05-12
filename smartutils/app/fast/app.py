@@ -1,7 +1,17 @@
 from contextlib import asynccontextmanager
-from typing import Callable, Awaitable
+from typing import Callable, Awaitable, Optional
 
 from fastapi import FastAPI
+
+_INIT_APP: Optional[Callable[[FastAPI], Awaitable[None]]] = None
+
+
+def register_init_app(
+    func: Callable[[FastAPI], Awaitable[None]],
+) -> Callable[[FastAPI], Awaitable[None]]:
+    global _INIT_APP
+    _INIT_APP = func
+    return func
 
 
 @asynccontextmanager
@@ -24,11 +34,14 @@ async def lifespan(app: FastAPI):
     app.version = conf.project.version
     app.description = conf.project.description
     app.debug = conf.project.debug
-    logger.info('!!!======run in {env}======!!!', env='prod' if conf.project.debug else 'dev')
+    logger.info(
+        "!!!======run in {env}======!!!", env="prod" if conf.project.debug else "dev"
+    )
     if not conf.project.debug:
         app.docs_url = None
 
-    await app.state.smartutils_custom_app(app)
+    if _INIT_APP:
+        await _INIT_APP(app)
 
     yield
 
@@ -39,7 +52,7 @@ async def lifespan(app: FastAPI):
     logger.info("shutdown all closed")
 
 
-def create_app(custom_app: Callable[[FastAPI], Awaitable]):
+def create_app():
     from smartutils.ret import ResponseModel
     from smartutils.app.adapter.middleware.starletee import StarletteMiddleware
     from smartutils.app.plugin.header import HeaderPlugin
@@ -57,7 +70,5 @@ def create_app(custom_app: Callable[[FastAPI], Awaitable]):
     @app.get("/healthy")
     def healthy() -> ResponseModel:
         return ResponseModel()
-
-    app.state.smartutils_custom_app = custom_app
 
     return app
