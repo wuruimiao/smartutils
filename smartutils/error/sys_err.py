@@ -29,6 +29,12 @@ class LibraryUsageError(SysError):
     status_code = 500
 
 
+class FileError(SysError):
+    code = 1011
+    msg = "File Error"
+    status_code = 500
+
+
 class ConfigError(SysError):
     code = 1010
     msg = "Config Error"

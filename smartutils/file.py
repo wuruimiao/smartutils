@@ -2,7 +2,7 @@ from typing import Dict
 
 import yaml
 
-from smartutils.ret.exc import FileError
+from smartutils.error.sys_err import FileError
 
 
 def load_yaml(filepath: str) -> Dict:

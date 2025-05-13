@@ -2,6 +2,7 @@ import dataclasses
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request, Header
+from fastapi.exceptions import RequestValidationError
 
 from smartutils.app.const import HeaderKey
 from smartutils.design import deprecated
@@ -65,8 +66,12 @@ def create_app(conf_path: str = "config/config.yaml"):
     app.add_middleware(StarletteMiddleware, plugin=LogPlugin())
     app.add_middleware(StarletteMiddleware, plugin=HeaderPlugin())
 
+    @app.exception_handler(RequestValidationError)
+    async def _(request: Request, exc: Exception):
+        return ExcJsonResp.handle(exc, AppKey.FASTAPI)
+
     @app.exception_handler(Exception)
-    async def all_exception_handler(request: Request, exc: Exception):
+    async def _(request: Request, exc: Exception):
         return ExcJsonResp.handle(exc, AppKey.FASTAPI)
 
     @app.get("/")

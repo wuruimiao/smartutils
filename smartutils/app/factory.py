@@ -7,7 +7,7 @@ from smartutils.design import BaseFactory
 from smartutils.error.base import BaseError
 from smartutils.error.factory import ExcFactory
 
-__all__ = ["AppHook", "JsonRespFactory", "ExcFactory"]
+__all__ = ["AppHook", "JsonRespFactory", "ExcJsonResp"]
 
 
 class AppHook:
