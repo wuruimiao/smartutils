@@ -1,9 +1,12 @@
 import contextvars
+import sys
 from contextlib import contextmanager
 from typing import Any, Dict
 
 from smartutils.ctx.const import CTXKey
+from smartutils.call import exit_on_fail
 from smartutils.log import logger
+from smartutils.ret.exc import LibraryUsageError
 
 __all__ = ["CTXVarManager"]
 
@@ -14,21 +17,13 @@ class CTXVarManager:
     @classmethod
     def _ensure_registered(cls, key: CTXKey):
         if key not in cls._vars:
-            msg = f"ContextVarManager error: key {key} not registered"
+            msg = f"ContextVarManager must call CTXVarManager.register({key})first"
             logger.error(msg)
-            raise RuntimeError(msg)
+            raise LibraryUsageError(msg)
 
     @classmethod
     def reset_registered(cls):
         pass
-
-    @classmethod
-    def _register(cls, key: CTXKey):
-        if key in cls._vars:
-            raise ValueError(
-                f"ContextVarManager register error: key {key} already registered"
-            )
-        cls._vars[key] = contextvars.ContextVar(key)
 
     @classmethod
     def _set(cls, key: CTXKey, value: Any):
@@ -60,13 +55,17 @@ class CTXVarManager:
             if default is not None:
                 return default
 
-            logger.exception("ContextVarManager error")
-            raise RuntimeError("ContextVarManager error") from e
+            msg = f"ContextVarManager must call CTXVarManager.use() {key} first."
+            logger.error(msg)
+            raise LibraryUsageError(msg)
 
     @classmethod
     def register(cls, key: CTXKey):
         def decorator(obj):
-            cls._register(key)
+            if key in cls._vars:
+                logger.error("ContextVarManager key {key} already registered.", key=key)
+                exit_on_fail()
+            cls._vars[key] = contextvars.ContextVar(key)
             return obj
 
         return decorator

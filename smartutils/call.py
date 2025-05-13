@@ -1,9 +1,10 @@
 import importlib
 import inspect
 import pkgutil
+import sys
 import types
 
-__all__ = ["call_hook", "register_package"]
+__all__ = ["call_hook", "register_package", "exit_on_fail"]
 
 
 async def call_hook(hook, *args, **kwargs):
@@ -23,3 +24,8 @@ def register_package(package: types.ModuleType):
             package.__path__, package.__name__ + "."
     ):
         importlib.import_module(modname)
+
+
+def exit_on_fail():
+    # 非0，k8s判定启动失败；应用在 lifespan 阶段（即启动/关闭事件）报错，uvicorn 退出码是 3
+    sys.exit(1)
