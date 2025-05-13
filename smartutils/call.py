@@ -4,6 +4,8 @@ import pkgutil
 import sys
 import types
 
+from smartutils.log import logger
+
 __all__ = ["call_hook", "register_package", "exit_on_fail"]
 
 
@@ -23,7 +25,10 @@ def register_package(package: types.ModuleType):
     for finder, modname, ispkg in pkgutil.walk_packages(
             package.__path__, package.__name__ + "."
     ):
-        importlib.import_module(modname)
+        try:
+            importlib.import_module(modname)
+        except ImportError:
+            logger.exception("register_package fail")
 
 
 def exit_on_fail():
