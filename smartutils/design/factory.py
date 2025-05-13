@@ -1,8 +1,6 @@
 from typing import Dict, TypeVar, Generic, final
 
-from smartutils.log import logger
-from smartutils.call import exit_on_fail
-from smartutils.error.sys_err import LibraryError
+from smartutils.error.sys_err import LibraryError, LibraryUsageError
 
 K = TypeVar('K')
 V = TypeVar('V')
@@ -18,8 +16,7 @@ class BaseFactory(Generic[K, V]):
     def register(cls, key: K, only_register_once: bool = True):
         def decorator(func_or_obj: V):
             if only_register_once and key in cls._registry:
-                logger.error("{name} key {key} already registered.", name=cls.__name__, key=key)
-                exit_on_fail()
+                raise LibraryError(f"{cls.__name__} key {key} already registered.")
             cls._registry[key] = func_or_obj
             return func_or_obj
 
@@ -28,9 +25,7 @@ class BaseFactory(Generic[K, V]):
     @classmethod
     def get(cls, key: K) -> V:
         if key not in cls._registry:
-            msg = f"{cls.__name__} key {key} not registered."
-            logger.error(msg)
-            raise LibraryError(msg)
+            raise LibraryUsageError(f"{cls.__name__} key {key} not registered.")
         return cls._registry[key]
 
     @classmethod

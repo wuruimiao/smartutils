@@ -3,11 +3,11 @@ from typing import Dict, Any, TypeVar, Optional
 
 from pydantic import BaseModel
 
-from smartutils.call import exit_on_fail
 from smartutils.config.const import ConfKey
 from smartutils.config.factory import ConfFactory
 from smartutils.config.schema.project import ProjectConf
 from smartutils.design import singleton
+from smartutils.error.sys_err import ConfigError
 from smartutils.file import load_yaml
 from smartutils.log import logger
 
@@ -31,9 +31,7 @@ class Config:
         self._config = load_yaml(conf_path)
 
         if not self._config:
-            msg = f"Config {conf_path} load emtpy, please check it."
-            logger.error(msg)
-            exit_on_fail()
+            raise ConfigError(f"Config {conf_path} load emtpy, please check it.")
 
         logger.info("Config init by {conf_path}.", conf_path=conf_path)
 

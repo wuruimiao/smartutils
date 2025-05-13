@@ -2,10 +2,9 @@ from typing import Type, Dict, Tuple
 
 from pydantic import ValidationError
 
-from smartutils.call import exit_on_fail
 from smartutils.config.const import ConfKey
 from smartutils.design import BaseFactory
-from smartutils.error.sys_err import LibraryUsageError
+from smartutils.error.sys_err import LibraryUsageError, ConfigError
 from smartutils.log import logger
 
 __all__ = ["ConfFactory"]
@@ -30,11 +29,7 @@ class ConfFactory(BaseFactory[ConfKey, Tuple[Type, bool, bool]]):
             return conf_cls(**conf)
         except ValidationError as e:
             fields = [err["loc"][0] for err in e.errors()]
-            logger.error(
-                "ConfFactory {name}-{key} in config.yml miss or invalid fields: {fields}",
-                name=name, key=key, fields=fields
-            )
-            exit_on_fail()
+            raise ConfigError(f"ConfFactory {name}-{key} in config.yml miss or invalid fields: {fields}")
 
     @classmethod
     def create(cls, name: ConfKey, conf: Dict):
