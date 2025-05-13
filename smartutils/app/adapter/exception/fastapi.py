@@ -1,6 +1,6 @@
 from fastapi.exceptions import RequestValidationError
 from pydantic import ValidationError as PydanticValidationError
-from smartutils.app.factory import ExcFactory
+from smartutils.error.factory import ExcFactory
 from smartutils.error.sys_err import ValidationError
 
 
