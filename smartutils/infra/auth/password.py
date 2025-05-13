@@ -25,5 +25,5 @@ class PasswordHelper:
 
 
 @InfraFactory.register(ConfKey.PASSWORD, need_conf=False)
-def init_password(conf):
+def _(conf):
     return PasswordHelper()

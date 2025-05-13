@@ -24,5 +24,5 @@ class KafkaManager(CTXResourceManager[AsyncKafkaCli]):
 
 
 @InfraFactory.register(ConfKey.KAFKA)
-def init_kafka(conf):
+def _(conf):
     return KafkaManager(conf)

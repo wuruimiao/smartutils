@@ -24,5 +24,5 @@ class RedisManager(CTXResourceManager[AsyncRedisCli]):
 
 
 @InfraFactory.register(ConfKey.REDIS)
-def init_redis(conf):
+def _(conf):
     return RedisManager(conf)

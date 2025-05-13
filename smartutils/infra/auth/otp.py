@@ -34,5 +34,5 @@ class OtpHelper:
 
 
 @InfraFactory.register(ConfKey.OTP, need_conf=False)
-def init_otp(conf):
+def _(conf):
     return OtpHelper()

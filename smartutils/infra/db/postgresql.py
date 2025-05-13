@@ -30,5 +30,5 @@ class PostgresqlManager(CTXResourceManager[AsyncDBCli]):
 
 
 @InfraFactory.register(ConfKey.POSTGRESQL)
-def init_postgresql(conf):
+def _(conf):
     return PostgresqlManager(conf)
