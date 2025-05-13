@@ -5,7 +5,7 @@ from loguru import logger
 from smartutils.app.const import AppKey
 from smartutils.design import BaseFactory
 from smartutils.error.base import BaseError
-from smartutils.error.factory import ExcFactory
+from smartutils.error.factory import ExcFactory, ExcFormatFactory
 
 __all__ = ["AppHook", "JsonRespFactory", "ExcJsonResp"]
 
@@ -55,5 +55,5 @@ class ExcJsonResp:
     def handle(cls, exc: BaseException, key: AppKey) -> Any:
         mapped_exc = ExcFactory.get(exc)
         resp_fn = JsonRespFactory.get(key)
-        logger.exception("ExcJsonResp handle {e}", e=exc)
+        logger.exception("ExcJsonResp handle {e}", e=ExcFormatFactory.get(exc))
         return resp_fn(mapped_exc)
