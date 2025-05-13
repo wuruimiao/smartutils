@@ -1,22 +1,21 @@
-import sys
 from typing import Type, Dict, Tuple
 
 from pydantic import ValidationError
 
-from smartutils.config.const import ConfKey
-from smartutils.log import logger
 from smartutils.call import exit_on_fail
+from smartutils.config.const import ConfKey
+from smartutils.design import BaseFactory
+from smartutils.error.sys_err import LibraryUsageError
+from smartutils.log import logger
 
 __all__ = ["ConfFactory"]
 
 
-class ConfFactory:
-    _registry: Dict[ConfKey, Tuple[Type, bool, bool]] = {}
-
+class ConfFactory(BaseFactory[ConfKey, Tuple[Type, bool, bool]]):
     @classmethod
     def register(cls, name: ConfKey, multi: bool = False, require: bool = True):
         def decorator(conf_cls: Type):
-            cls._registry[name] = (conf_cls, multi, require)
+            super(ConfFactory, cls).register(name, only_register_once=False)((conf_cls, multi, require))
             return conf_cls
 
         return decorator
@@ -39,14 +38,12 @@ class ConfFactory:
 
     @classmethod
     def create(cls, name: ConfKey, conf: Dict):
-        info = cls._registry.get(name)
-        if not info:
-            raise ValueError(f"ConfFactory no conf class registered for {name}")
+        info = cls.get(name)
 
         conf_cls, multi, require = info
         if not conf:
             if require:
-                raise ValueError(f"ConfFactory require {name} in config.yml")
+                raise LibraryUsageError(f"ConfFactory require {name} in config.yml")
             logger.debug("ConfFactory no {name} in config.yml, ignore.", name=name)
             return
 
@@ -54,7 +51,7 @@ class ConfFactory:
 
         if multi:
             if ConfKey.GROUP_DEFAULT not in conf:
-                raise ValueError(f"ConfFactory no {ConfKey.GROUP_DEFAULT} below {name}")
+                raise LibraryUsageError(f"ConfFactory no {ConfKey.GROUP_DEFAULT} below {name}")
 
             return {
                 key: cls._init_conf_cls(name, key, conf_cls, _conf)
@@ -62,7 +59,3 @@ class ConfFactory:
             }
         else:
             return cls._init_conf_cls(name, "", conf_cls, conf)
-
-    @classmethod
-    def reset(cls):
-        cls._registry.clear()

@@ -17,6 +17,12 @@ class TimeOutError(SysError):
     status_code = 408  # 标准 HTTP
 
 
+class LibraryError(SysError):
+    code = 1009
+    msg = "Library Error"
+    status_code = 500
+
+
 class LibraryUsageError(SysError):
     code = 1003
     msg = "Library Usage Error"
