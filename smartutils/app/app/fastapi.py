@@ -19,11 +19,6 @@ async def lifespan(app: FastAPI):
     from smartutils.config import get_config
     from smartutils.log import logger
 
-    import logging
-
-    # 禁止fastapi自带的请求打印
-    logging.getLogger("uvicorn.access").disabled = True
-
     conf = get_config()
 
     app.title = conf.project.name
@@ -67,7 +62,7 @@ def create_app(conf_path: str = "config/config.yaml"):
     app.add_middleware(StarletteMiddleware, plugin=HeaderPlugin())
 
     @app.exception_handler(RequestValidationError)
-    async def _(request: Request, exc: Exception):
+    async def _(request: Request, exc: RequestValidationError):
         return ExcJsonResp.handle(exc, AppKey.FASTAPI)
 
     @app.exception_handler(Exception)

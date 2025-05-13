@@ -31,4 +31,5 @@ def run():
         reload=args.reload,
         workers=1,
         factory=True,
+        access_log=False,
     )

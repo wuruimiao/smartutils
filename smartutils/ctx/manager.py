@@ -29,7 +29,7 @@ class CTXVarManager(BaseFactory[CTXKey, contextvars.ContextVar]):
             if default is not None:
                 return default
 
-            raise LibraryUsageError(f"Must call CTXVarManager.use() {key} first.")
+            raise LibraryUsageError(f"Must call CTXVarManager.use({key}) first.") from None
 
     @classmethod
     def register(cls, key: CTXKey, **kwargs):
