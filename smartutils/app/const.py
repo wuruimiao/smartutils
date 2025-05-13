@@ -11,6 +11,8 @@ class HeaderKey(str, Enum):
 
 class AppKey(Enum):
     FASTAPI = "fastapi"
+    DJANGO = "django"
+    FLASK = "flask"
 
     @classmethod
     def list(cls):

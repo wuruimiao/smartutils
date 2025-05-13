@@ -1,8 +1,7 @@
 import dataclasses
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
-from fastapi import Header
+from fastapi import FastAPI, Request, Header
 
 from smartutils.app.const import HeaderKey
 from smartutils.design import deprecated
@@ -57,12 +56,18 @@ def create_app(conf_path: str = "config/config.yaml"):
     from smartutils.app.adapter.middleware.starletee import StarletteMiddleware
     from smartutils.app.plugin.header import HeaderPlugin
     from smartutils.app.plugin.log import LogPlugin
+    from smartutils.app.factory import ExcJsonResp
+    from smartutils.app.const import AppKey
 
     app = FastAPI(lifespan=lifespan)
     app.state.smartutils_conf_path = conf_path  # noqa
 
     app.add_middleware(StarletteMiddleware, plugin=LogPlugin())
     app.add_middleware(StarletteMiddleware, plugin=HeaderPlugin())
+
+    @app.exception_handler(Exception)
+    async def all_exception_handler(request: Request, exc: Exception):
+        return ExcJsonResp.handle(exc, AppKey.FASTAPI)
 
     @app.get("/")
     def root() -> ResponseModel:
