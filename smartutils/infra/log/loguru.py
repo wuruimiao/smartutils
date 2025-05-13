@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from smartutils.config.const import ConfKey
-from smartutils.config.schema.logger import LoguruConfig
+from smartutils.config.schema.loguru import LoguruConfig
 from smartutils.ctx import CTXVarManager, CTXKey
 from smartutils.design import singleton
 from smartutils.infra.factory import InfraFactory
