@@ -1,5 +1,5 @@
 import pytest
-from smartutils.config.schema.logger import LoguruConfig
+from smartutils.config.schema.loguru import LoguruConfig
 from pydantic import ValidationError
 
 
