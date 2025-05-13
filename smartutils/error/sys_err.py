@@ -29,6 +29,12 @@ class LibraryUsageError(SysError):
     status_code = 500
 
 
+class ConfigError(SysError):
+    code = 1010
+    msg = "Config Error"
+    status_code = 500
+
+
 class ExternalServiceError(SysError):
     code = 1004
     msg = "External Service Error"
