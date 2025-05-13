@@ -69,5 +69,5 @@ class TokenHelper:
 
 
 @InfraFactory.register(ConfKey.TOKEN)
-def init_token(conf):
+def _(conf):
     return TokenHelper(conf)

@@ -28,5 +28,5 @@ class MySQLManager(CTXResourceManager[AsyncDBCli]):
 
 
 @InfraFactory.register(ConfKey.MYSQL)
-def init_mysql(conf):
+def _(conf):
     return MySQLManager(conf)

@@ -100,5 +100,5 @@ class LoggerManager(CTXResourceManager[LoggerCli]):
 
 
 @InfraFactory.register(ConfKey.LOGURU)
-def init_loguru(conf: LoguruConfig):
+def _(conf: LoguruConfig):
     return LoggerManager(conf)
