@@ -2,6 +2,8 @@ from typing import Optional, Dict, Type, Tuple, Callable
 
 from smartutils.ID.abstract import AbstractIDGenerator
 from smartutils.ID.const import IDGenType
+from smartutils.call import exit_on_fail
+from smartutils.log import logger
 
 
 class _IDGen(AbstractIDGenerator):
@@ -12,6 +14,9 @@ class _IDGen(AbstractIDGenerator):
 
     def register(self, id_type: IDGenType, need_conf: bool = False):
         def decorator(gen_cls: Type[AbstractIDGenerator]) -> Type[AbstractIDGenerator]:
+            if id_type in self._registry:
+                logger.error("_IDGen key {key} already registered.", key=id_type)
+                exit_on_fail()
             self._registry[id_type] = (gen_cls, need_conf)
             return gen_cls
 

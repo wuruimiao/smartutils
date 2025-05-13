@@ -1,4 +1,6 @@
 from typing import Callable, Any, Dict, Tuple
+from smartutils.call import exit_on_fail
+from smartutils.log import logger
 
 __all__ = ["InfraFactory"]
 
@@ -9,6 +11,9 @@ class InfraFactory:
     @classmethod
     def register(cls, key: str, need_conf: bool = True):
         def decorator(func: Callable[[Any], Any]):
+            if key in cls._registry:
+                logger.error("InfraFactory key {key} already registered.", key=key)
+                exit_on_fail()
             cls._registry[key] = (func, need_conf)
             return func
 

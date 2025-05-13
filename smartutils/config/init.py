@@ -1,18 +1,21 @@
 from pathlib import Path
 from typing import Dict, Any, TypeVar, Optional
 
-import yaml
 from pydantic import BaseModel
 
+from smartutils.call import exit_on_fail
 from smartutils.config.const import ConfKey
 from smartutils.config.factory import ConfFactory
 from smartutils.config.schema.project import ProjectConf
 from smartutils.design import singleton
+from smartutils.file import load_yaml
 from smartutils.log import logger
 
 __all__ = ["Config", "init", "reset", "get_config"]
 
 T = TypeVar("T", bound=BaseModel)
+
+PT = TypeVar("PT", bound=ProjectConf)
 
 
 @singleton
@@ -25,12 +28,12 @@ class Config:
             logger.warning("Config no {conf_path}, ignore.", conf_path=conf_path)
             return
 
-        with open(conf_path) as f:
-            self._config = yaml.safe_load(f)
+        self._config = load_yaml(conf_path)
 
         if not self._config:
-            logger.error("Config {conf_path} emtpy, ignore.", conf_path=conf_path)
-            return
+            msg = f"Config {conf_path} load emtpy, please check it."
+            logger.error(msg)
+            exit_on_fail()
 
         logger.info("Config init by {conf_path}.", conf_path=conf_path)
 
@@ -41,7 +44,7 @@ class Config:
         return self._instances.get(name)
 
     @property
-    def project(self) -> ProjectConf:
+    def project(self) -> PT:
         return self.get(ConfKey.PROJECT)
 
 

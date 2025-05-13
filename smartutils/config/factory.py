@@ -5,6 +5,7 @@ from pydantic import ValidationError
 
 from smartutils.config.const import ConfKey
 from smartutils.log import logger
+from smartutils.call import exit_on_fail
 
 __all__ = ["ConfFactory"]
 
@@ -34,8 +35,7 @@ class ConfFactory:
                 "ConfFactory {name}-{key} in config.yml miss or invalid fields: {fields}",
                 name=name, key=key, fields=fields
             )
-            # 非0，k8s判定启动失败；应用在 lifespan 阶段（即启动/关闭事件）报错，uvicorn 退出码是 3
-            sys.exit(1)
+            exit_on_fail()
 
     @classmethod
     def create(cls, name: ConfKey, conf: Dict):
