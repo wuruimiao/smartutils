@@ -1,12 +1,13 @@
-from typing import List, Awaitable, Type, Callable, Any
+from typing import List, Awaitable, Callable, Any
+
+from loguru import logger
 
 from smartutils.app.const import AppKey
 from smartutils.design import BaseFactory
 from smartutils.error.base import BaseError
-from smartutils.error.sys_err import SysError
-from smartutils.log import logger
+from smartutils.error.factory import ExcFactory
 
-__all__ = ["AppHook", "JsonRespFactory", "ExcJsonResp", "ExcFactory"]
+__all__ = ["AppHook", "JsonRespFactory", "ExcFactory"]
 
 
 class AppHook:
@@ -43,19 +44,6 @@ class AppHook:
     async def call_shutdown(cls, *args, **kwargs):
         for hook in cls._shutdown_hooks:
             await hook(*args, **kwargs)
-
-
-class ExcFactory(BaseFactory[Type[BaseException], Callable[[BaseException], BaseError]]):
-    @classmethod
-    def get(cls, key: BaseException) -> BaseError:
-        if isinstance(key, BaseError):
-            return key
-
-        for ext_type, handler in cls._registry.items():
-            if isinstance(key, ext_type):
-                return handler(key)
-
-        return SysError(detail=str(key))
 
 
 class JsonRespFactory(BaseFactory[AppKey, Callable[[BaseError], Any]]):
