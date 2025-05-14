@@ -7,3 +7,7 @@ __all__ = ["MiddlewareFactory"]
 
 class MiddlewareFactory(BaseFactory[AppKey, AbstractMiddleware]):
     pass
+
+
+# class AddMiddlewareFactory(BaseFactory[AppKey, ]):
+#     pass

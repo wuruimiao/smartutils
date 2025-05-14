@@ -18,4 +18,14 @@ class AbstractMiddlewarePlugin(ABC):
 
 
 class AbstractMiddleware(ABC):
-    pass
+    def __init__(self, plugin: AbstractMiddlewarePlugin, req_adapter: type[RequestAdapter],
+                 resp_adapter: type[ResponseAdapter]):
+        self._plugin = plugin
+        self._req_adapter = req_adapter
+        self._resp_adapter = resp_adapter
+
+    def req_adapter(self, request):
+        return self._req_adapter(request)
+
+    def resp_adapter(self, response):
+        return self._resp_adapter(response)
