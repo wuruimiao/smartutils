@@ -6,9 +6,9 @@ from typing import List, Dict, Callable, Optional, Any, AsyncContextManager
 from aiokafka import AIOKafkaProducer, AIOKafkaConsumer, TopicPartition, errors
 
 from smartutils.config.schema.kafka import KafkaConf
-from smartutils.infra.source_manager.abstract import AbstractResource
-from smartutils.error.sys_err import MQError
 from smartutils.error.factory import ExcFormatFactory
+from smartutils.error.sys_err import MQError
+from smartutils.infra.source_manager.abstract import AbstractResource
 from smartutils.log import logger
 
 __all__ = ["AsyncKafkaCli", "KafkaBatchConsumer"]

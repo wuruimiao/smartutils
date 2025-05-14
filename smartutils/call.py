@@ -1,7 +1,7 @@
 import importlib
 import inspect
-import pkgutil
 import os
+import pkgutil
 import types
 
 from smartutils.log import logger

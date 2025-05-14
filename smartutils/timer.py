@@ -2,8 +2,8 @@ import functools
 import inspect
 from time import perf_counter
 
-from smartutils.log import logger
 from smartutils.error.sys_err import LibraryUsageError
+from smartutils.log import logger
 
 __all__ = ["Timer", "timeit"]
 
