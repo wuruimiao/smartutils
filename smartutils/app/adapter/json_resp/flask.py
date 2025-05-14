@@ -1,5 +1,5 @@
 from smartutils.app.const import AppKey
-from smartutils.app.factory import JsonRespFactory
+from smartutils.app.adapter.json_resp.factory import JsonRespFactory
 from smartutils.log import logger
 
 try:
