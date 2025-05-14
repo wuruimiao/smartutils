@@ -25,7 +25,7 @@ def run():
     args = parser.parse_args()
 
     uvicorn.run(
-        f"smartutils.app.app.{args.app}:create_app",
+        f"smartutils.app.main.{args.app}:create_app",
         host=args.host,
         port=args.port,
         reload=args.reload,

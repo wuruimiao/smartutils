@@ -25,9 +25,7 @@ async def lifespan(app: FastAPI):
     app.version = conf.project.version
     app.description = conf.project.description
     app.debug = conf.project.debug
-    logger.info(
-        "!!!======run in {env}======!!!", env="prod" if conf.project.debug else "dev"
-    )
+    logger.info("!!!======run in {env}======!!!", env="prod" if conf.project.debug else "dev")
     if not conf.project.debug:
         app.docs_url = None
 
@@ -50,6 +48,8 @@ async def lifespan(app: FastAPI):
 def create_app(conf_path: str = "config/config.yaml"):
     from smartutils.ret import ResponseModel
     from smartutils.app.adapter.middleware.factory import MiddlewareFactory
+    from smartutils.app.adapter.req.factory import RequestAdapterFactory
+    from smartutils.app.adapter.resp.factory import ResponseAdapterFactory
     from smartutils.app.plugin.header import HeaderPlugin
     from smartutils.app.plugin.log import LogPlugin
     from smartutils.app.plugin.exception import ExceptionPlugin
@@ -59,9 +59,22 @@ def create_app(conf_path: str = "config/config.yaml"):
     app = FastAPI(lifespan=lifespan)
     app.state.smartutils_conf_path = conf_path  # noqa
 
-    app.add_middleware(MiddlewareFactory.get(AppKey.FASTAPI), plugin=ExceptionPlugin(AppKey.FASTAPI))
-    app.add_middleware(MiddlewareFactory.get(AppKey.FASTAPI), plugin=HeaderPlugin())
-    app.add_middleware(MiddlewareFactory.get(AppKey.FASTAPI), plugin=LogPlugin())
+    app.add_middleware(
+        MiddlewareFactory.get(AppKey.FASTAPI),
+        plugin=ExceptionPlugin(AppKey.FASTAPI),
+        req_adapter=RequestAdapterFactory.get(AppKey.FASTAPI),
+        resp_adapter=ResponseAdapterFactory.get(AppKey.FASTAPI),
+    )
+    app.add_middleware(
+        MiddlewareFactory.get(AppKey.FASTAPI), plugin=HeaderPlugin(),
+        req_adapter=RequestAdapterFactory.get(AppKey.FASTAPI),
+        resp_adapter=ResponseAdapterFactory.get(AppKey.FASTAPI),
+    )
+    app.add_middleware(
+        MiddlewareFactory.get(AppKey.FASTAPI), plugin=LogPlugin(),
+        req_adapter=RequestAdapterFactory.get(AppKey.FASTAPI),
+        resp_adapter=ResponseAdapterFactory.get(AppKey.FASTAPI),
+    )
 
     @app.exception_handler(RequestValidationError)
     async def _(request: Request, exc: RequestValidationError):

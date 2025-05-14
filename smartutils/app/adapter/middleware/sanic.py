@@ -1,10 +1,8 @@
-from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin, AbstractMiddleware
-from smartutils.app.adapter.req.abstract import RequestAdapter
-from smartutils.app.adapter.req.factory import RequestAdapterFactory
-from smartutils.app.adapter.resp.abstract import ResponseAdapter
-from smartutils.app.adapter.resp.factory import ResponseAdapterFactory
-from smartutils.app.const import AppKey
+from smartutils.app.adapter.middleware.abstract import AbstractMiddleware
 from smartutils.app.adapter.middleware.factory import MiddlewareFactory
+from smartutils.app.adapter.req.abstract import RequestAdapter
+from smartutils.app.adapter.resp.abstract import ResponseAdapter
+from smartutils.app.const import AppKey
 
 __all__ = []
 
@@ -13,22 +11,19 @@ key = AppKey.SANIC
 
 @MiddlewareFactory.register(key)
 class SanicMiddleware(AbstractMiddleware):
-    def __init__(self, plugin: AbstractMiddlewarePlugin):
-        self._plugin = plugin
-
     def __call__(self, app):
         # Sanic 的中间件是 async def(request) or async def(request, response)
         @app.middleware("request")
         async def before_request(request):
             # 保存适配器到 request.ctx
-            request.ctx._req_adapter = RequestAdapterFactory.get(key)(request)
+            request.ctx._req_adapter = self.req_adapter(request)
 
         @app.middleware("response")
         async def after_response(request, response):
             req: RequestAdapter = getattr(request.ctx, "_req_adapter", None)
             if req is None:
-                req = RequestAdapterFactory.get(key)(request)
-            resp = ResponseAdapterFactory.get(key)(response)
+                req = self.req_adapter(request)
+            resp = self.resp_adapter(response)
 
             async def next_adapter():
                 return resp
