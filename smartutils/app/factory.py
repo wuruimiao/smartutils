@@ -1,12 +1,12 @@
-from typing import List, Awaitable, Callable, Any
+from typing import List, Awaitable, Callable
 
 from loguru import logger
 
+from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.const import AppKey
 from smartutils.design import BaseFactory
 from smartutils.error.base import BaseError
 from smartutils.error.factory import ExcFactory, ExcFormatFactory
-from smartutils.app.adapter.resp.abstract import ResponseAdapter
 
 __all__ = ["AppHook", "JsonRespFactory", "ExcJsonResp"]
 

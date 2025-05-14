@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 
 __all__ = ["RequestAdapter"]
 
-
 from smartutils.app.const import HeaderKey
 
 
