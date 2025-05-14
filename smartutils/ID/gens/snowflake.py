@@ -26,6 +26,7 @@ from smartutils.ID.abstract import AbstractIDGenerator
 from smartutils.ID.const import IDGenType
 from smartutils.ID.init import IDGen
 from smartutils.design import singleton
+from smartutils.error.sys_err import LibraryUsageError, LibraryError
 
 __all__ = [
     "SnowflakeClockMovedBackwards",
@@ -63,13 +64,13 @@ class Snowflake:
 
     def __post_init__(self):
         if self.epoch < 0:
-            raise ValueError("epoch must not be negative!")
+            raise LibraryUsageError("epoch must not be negative!")
         if not (0 <= self.timestamp <= MAX_TS):
-            raise ValueError(f"timestamp must be in [0, {MAX_TS}]!")
+            raise LibraryUsageError(f"timestamp must be in [0, {MAX_TS}]!")
         if not (0 <= self.instance <= MAX_INSTANCE):
-            raise ValueError(f"instance must be in [0, {MAX_INSTANCE}]!")
+            raise LibraryUsageError(f"instance must be in [0, {MAX_INSTANCE}]!")
         if not (0 <= self.seq <= MAX_SEQ):
-            raise ValueError(f"seq must be in [0, {MAX_SEQ}]!")
+            raise LibraryUsageError(f"seq must be in [0, {MAX_SEQ}]!")
 
     @classmethod
     def parse(cls, snowflake: int, epoch: int = 0) -> "Snowflake":
@@ -159,19 +160,19 @@ class SnowflakeGenerator(AbstractIDGenerator):
         """
         current = int(time() * 1000)
         if current - epoch >= MAX_TS:
-            raise OverflowError(
+            raise LibraryUsageError(
                 "The maximum current timestamp has been reached in selected epoch, "
                 "so Snowflake cannot generate more IDs!"
             )
         timestamp = timestamp or current
         if timestamp < 0 or timestamp > current:
-            raise ValueError(f"timestamp must be in [0, {current}]!")
+            raise LibraryUsageError(f"timestamp must be in [0, {current}]!")
         if epoch < 0 or epoch > current:
-            raise ValueError(f"epoch must be in [0, {current}]!")
+            raise LibraryUsageError(f"epoch must be in [0, {current}]!")
         if instance < 0 or instance > MAX_INSTANCE:
-            raise ValueError(f"instance must be in [0, {MAX_INSTANCE}]!")
+            raise LibraryUsageError(f"instance must be in [0, {MAX_INSTANCE}]!")
         if seq < 0 or seq > MAX_SEQ:
-            raise ValueError(f"seq must be in [0, {MAX_SEQ}]!")
+            raise LibraryUsageError(f"seq must be in [0, {MAX_SEQ}]!")
 
         self._epo = epoch
         self._ts = timestamp - epoch

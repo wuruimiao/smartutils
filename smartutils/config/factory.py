@@ -4,7 +4,8 @@ from pydantic import ValidationError
 
 from smartutils.config.const import ConfKey
 from smartutils.design import BaseFactory
-from smartutils.error.sys_err import LibraryUsageError, ConfigError
+from smartutils.error.factory import ExcFormatFactory
+from smartutils.error.sys_err import ConfigError
 from smartutils.log import logger
 
 __all__ = ["ConfFactory"]
@@ -28,8 +29,7 @@ class ConfFactory(BaseFactory[ConfKey, Tuple[Type, bool, bool]]):
         try:
             return conf_cls(**conf)
         except ValidationError as e:
-            fields = [err["loc"][0] for err in e.errors()]
-            raise ConfigError(f"ConfFactory {name}-{key} in config.yml miss or invalid fields: {fields}")
+            raise ConfigError(f"ConfFactory invalid {name}-{key} in config.yml: {ExcFormatFactory.get(e)}")
 
     @classmethod
     def create(cls, name: ConfKey, conf: Dict):
@@ -38,7 +38,7 @@ class ConfFactory(BaseFactory[ConfKey, Tuple[Type, bool, bool]]):
         conf_cls, multi, require = info
         if not conf:
             if require:
-                raise LibraryUsageError(f"ConfFactory require {name} in config.yml")
+                raise ConfigError(f"ConfFactory require {name} in config.yml")
             logger.debug("ConfFactory no {name} in config.yml, ignore.", name=name)
             return
 
@@ -46,7 +46,7 @@ class ConfFactory(BaseFactory[ConfKey, Tuple[Type, bool, bool]]):
 
         if multi:
             if ConfKey.GROUP_DEFAULT not in conf:
-                raise LibraryUsageError(f"ConfFactory no {ConfKey.GROUP_DEFAULT} below {name}")
+                raise ConfigError(f"ConfFactory no {ConfKey.GROUP_DEFAULT} below {name}")
 
             return {
                 key: cls._init_conf_cls(name, key, conf_cls, _conf)
