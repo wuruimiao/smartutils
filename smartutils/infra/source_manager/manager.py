@@ -7,7 +7,7 @@ from typing import Dict, Callable, Any, Awaitable, Generic
 from smartutils.call import call_hook
 from smartutils.config.const import ConfKey
 from smartutils.ctx import CTXVarManager, CTXKey
-from smartutils.infra.source_manager.abstract import TAbstractResource
+from smartutils.infra.source_manager.abstract import T
 from smartutils.error.sys_err import LibraryError
 
 from smartutils.log import logger
@@ -36,10 +36,10 @@ class ResourceManagerRegistry:
         )
 
 
-class CTXResourceManager(Generic[TAbstractResource], ABC):
+class CTXResourceManager(Generic[T], ABC):
     def __init__(
             self,
-            resources: Dict[ConfKey, TAbstractResource],
+            resources: Dict[ConfKey, T],
             context_var_name: CTXKey,
             success: Callable[..., Any] = None,
             fail: Callable[..., Any] = None,
@@ -80,7 +80,7 @@ class CTXResourceManager(Generic[TAbstractResource], ABC):
     def curr(self):
         return CTXVarManager.get(self._ctx_key)
 
-    def client(self, key: ConfKey = ConfKey.GROUP_DEFAULT) -> TAbstractResource:
+    def client(self, key: ConfKey = ConfKey.GROUP_DEFAULT) -> T:
         if key not in self._resources:
             raise LibraryError(f"No resource found for key: {key}")
         return self._resources[key]
