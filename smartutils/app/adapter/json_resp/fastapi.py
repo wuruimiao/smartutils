@@ -1,12 +1,16 @@
-from fastapi.responses import JSONResponse
+from fastapi.responses import ORJSONResponse
 
+from smartutils.app.adapter.resp.abstract import ResponseAdapter
+from smartutils.app.adapter.resp.starlette import StarletteResponseAdapter
 from smartutils.app.const import AppKey
 from smartutils.app.factory import JsonRespFactory
 
 
 @JsonRespFactory.register(AppKey.FASTAPI)
-def _(error):
-    return JSONResponse(
-        status_code=error.status_code,
-        content={"code": error.code, "msg": error.msg, "detail": error.detail}
+def _(error) -> ResponseAdapter:
+    return StarletteResponseAdapter(
+        ORJSONResponse(
+            status_code=error.status_code,
+            content={"code": error.code, "msg": error.msg, "detail": error.detail}
+        )
     )

@@ -6,6 +6,7 @@ from smartutils.app.const import AppKey
 from smartutils.design import BaseFactory
 from smartutils.error.base import BaseError
 from smartutils.error.factory import ExcFactory, ExcFormatFactory
+from smartutils.app.adapter.resp.abstract import ResponseAdapter
 
 __all__ = ["AppHook", "JsonRespFactory", "ExcJsonResp"]
 
@@ -46,14 +47,14 @@ class AppHook:
             await hook(*args, **kwargs)
 
 
-class JsonRespFactory(BaseFactory[AppKey, Callable[[BaseError], Any]]):
+class JsonRespFactory(BaseFactory[AppKey, Callable[[BaseError], ResponseAdapter]]):
     pass
 
 
 class ExcJsonResp:
     @classmethod
-    def handle(cls, exc: BaseException, key: AppKey) -> Any:
+    def handle(cls, exc: BaseException, key: AppKey) -> ResponseAdapter:
         mapped_exc = ExcFactory.get(exc)
         resp_fn = JsonRespFactory.get(key)
-        logger.exception("ExcJsonResp handle {e}", e=ExcFormatFactory.get(exc))
+        logger.error("ExcJsonResp handle {e}", e=ExcFormatFactory.get(exc))
         return resp_fn(mapped_exc)

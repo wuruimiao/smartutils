@@ -52,6 +52,7 @@ def create_app(conf_path: str = "config/config.yaml"):
     from smartutils.app.adapter.middleware.starletee import StarletteMiddleware
     from smartutils.app.plugin.header import HeaderPlugin
     from smartutils.app.plugin.log import LogPlugin
+    from smartutils.app.plugin.exception import ExceptionPlugin
     from smartutils.app.factory import ExcJsonResp
     from smartutils.app.const import AppKey
 
@@ -60,14 +61,11 @@ def create_app(conf_path: str = "config/config.yaml"):
 
     app.add_middleware(StarletteMiddleware, plugin=LogPlugin())
     app.add_middleware(StarletteMiddleware, plugin=HeaderPlugin())
+    app.add_middleware(StarletteMiddleware, plugin=ExceptionPlugin(AppKey.FASTAPI))
 
     @app.exception_handler(RequestValidationError)
     async def _(request: Request, exc: RequestValidationError):
-        return ExcJsonResp.handle(exc, AppKey.FASTAPI)
-
-    @app.exception_handler(Exception)
-    async def _(request: Request, exc: Exception):
-        return ExcJsonResp.handle(exc, AppKey.FASTAPI)
+        return ExcJsonResp.handle(exc, AppKey.FASTAPI).response
 
     @app.get("/")
     def root() -> ResponseModel:
