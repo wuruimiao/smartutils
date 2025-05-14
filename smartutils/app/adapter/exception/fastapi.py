@@ -1,6 +1,6 @@
 from typing import Union
 
-from fastapi.exceptions import RequestValidationError
+from fastapi.exceptions import RequestValidationError, HTTPException
 from pydantic import ValidationError as PydanticValidationError
 
 from smartutils.error.factory import ExcFactory, ExcFormatFactory
@@ -20,3 +20,10 @@ def _(exc: Union[PydanticValidationError, RequestValidationError]):
 @ExcFactory.register(RequestValidationError)
 def _(exc: Union[PydanticValidationError, RequestValidationError]):
     return ValidationError(detail=ExcFormatFactory.get(exc))
+
+
+# @ExcFactory.register(HTTPException)
+# def _(exc: HTTPException):
+#     if exc.status_code == 405:
+#         return
+#     return ValidationError(detail=ExcFormatFactory.get(exc))

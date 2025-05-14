@@ -1,10 +1,28 @@
-from smartutils.app.adapter import get_request_adapter, get_response_adapter
+from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin, AbstractMiddleware
+from smartutils.app.adapter.req.abstract import RequestAdapter
+from smartutils.app.adapter.req.aiohttp import AIOHTTPRequestAdapter
+from smartutils.app.adapter.resp.abstract import ResponseAdapter
+from smartutils.app.adapter.resp.aiohttp import AiohttpResponseAdapter
+from smartutils.app.adapter.middleware.factory import MiddlewareFactory
+from smartutils.app.const import AppKey
+
+__all__ = ["AiohttpMiddleware"]
 
 
-@web.middleware
-async def aiohttp_middleware(request, handler):
-    req = get_request_adapter(request)
-    await plugin.before_request(req)
-    response = await handler(request)
-    await plugin.after_request(req, get_response_adapter(response))
-    return response
+@MiddlewareFactory.register(AppKey.AIOHTTP)
+class AiohttpMiddleware(AbstractMiddleware):
+    def __init__(self, plugin: AbstractMiddlewarePlugin):
+        self._plugin = plugin
+
+    def __call__(self, app):
+        async def middleware(request, handler):
+            req: RequestAdapter = AIOHTTPRequestAdapter(request)
+
+            async def next_adapter():
+                response = await handler(request)
+                return AiohttpResponseAdapter(response)
+
+            resp: ResponseAdapter = await self._plugin.dispatch(req, next_adapter)
+            return resp.response
+
+        return middleware

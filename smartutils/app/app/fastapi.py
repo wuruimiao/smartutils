@@ -49,7 +49,7 @@ async def lifespan(app: FastAPI):
 
 def create_app(conf_path: str = "config/config.yaml"):
     from smartutils.ret import ResponseModel
-    from smartutils.app.adapter.middleware.starletee import StarletteMiddleware
+    from smartutils.app.adapter.middleware.factory import MiddlewareFactory
     from smartutils.app.plugin.header import HeaderPlugin
     from smartutils.app.plugin.log import LogPlugin
     from smartutils.app.plugin.exception import ExceptionPlugin
@@ -59,9 +59,9 @@ def create_app(conf_path: str = "config/config.yaml"):
     app = FastAPI(lifespan=lifespan)
     app.state.smartutils_conf_path = conf_path  # noqa
 
-    app.add_middleware(StarletteMiddleware, plugin=LogPlugin())
-    app.add_middleware(StarletteMiddleware, plugin=HeaderPlugin())
-    app.add_middleware(StarletteMiddleware, plugin=ExceptionPlugin(AppKey.FASTAPI))
+    app.add_middleware(MiddlewareFactory.get(AppKey.FASTAPI), plugin=LogPlugin())
+    app.add_middleware(MiddlewareFactory.get(AppKey.FASTAPI), plugin=HeaderPlugin())
+    app.add_middleware(MiddlewareFactory.get(AppKey.FASTAPI), plugin=ExceptionPlugin(AppKey.FASTAPI))
 
     @app.exception_handler(RequestValidationError)
     async def _(request: Request, exc: RequestValidationError):

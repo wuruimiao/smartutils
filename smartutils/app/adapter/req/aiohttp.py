@@ -2,8 +2,13 @@ from smartutils.app.adapter.req.abstract import RequestAdapter
 
 __all__ = ["AIOHTTPRequestAdapter"]
 
+from smartutils.app.const import HeaderKey
+
 
 class AIOHTTPRequestAdapter(RequestAdapter):
+    def get_header(self, key: HeaderKey):
+        pass
+
     def gen_trace_id(self) -> str:
         pass
 
