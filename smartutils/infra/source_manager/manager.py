@@ -7,7 +7,7 @@ from typing import Dict, Callable, Any, Awaitable, Generic
 from smartutils.call import call_hook
 from smartutils.config.const import ConfKey
 from smartutils.ctx import CTXVarManager, CTXKey
-from smartutils.error.sys_err import LibraryError
+from smartutils.error.sys_err import LibraryError, LibraryUsageError
 from smartutils.infra.source_manager.abstract import T
 from smartutils.log import logger
 
@@ -77,7 +77,10 @@ class CTXResourceManager(Generic[T], ABC):
 
     @property
     def curr(self):
-        return CTXVarManager.get(self._ctx_key)
+        try:
+            return CTXVarManager.get(self._ctx_key)
+        except LibraryUsageError:
+            raise LibraryUsageError(f"Must call xxxManager.use(...) first.") from None
 
     def client(self, key: ConfKey = ConfKey.GROUP_DEFAULT) -> T:
         if key not in self._resources:
