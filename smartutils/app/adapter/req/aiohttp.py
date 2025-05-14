@@ -1,15 +1,13 @@
 from smartutils.app.adapter.req.abstract import RequestAdapter
+from smartutils.app.adapter.req.factory import RequestAdapterFactory
+from smartutils.app.const import AppKey, HeaderKey
 
 __all__ = ["AIOHTTPRequestAdapter"]
 
-from smartutils.app.const import HeaderKey
 
-
+@RequestAdapterFactory.register(AppKey.AIOHTTP)
 class AIOHTTPRequestAdapter(RequestAdapter):
     def get_header(self, key: HeaderKey):
-        pass
-
-    def gen_trace_id(self) -> str:
         pass
 
     @property

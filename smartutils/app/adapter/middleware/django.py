@@ -1,15 +1,17 @@
 from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin, AbstractMiddleware
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.adapter.req.abstract import RequestAdapter
-from smartutils.app.adapter.req.django import DjangoRequestAdapter
-from smartutils.app.adapter.resp.django import DjangoResponseAdapter
+from smartutils.app.adapter.req.factory import RequestAdapterFactory
+from smartutils.app.adapter.resp.factory import ResponseAdapterFactory
 from smartutils.app.const import AppKey
 from smartutils.app.adapter.middleware.factory import MiddlewareFactory
 
 __all__ = []
 
+key = AppKey.DJANGO
 
-@MiddlewareFactory.register(AppKey.DJANGO)
+
+@MiddlewareFactory.register(key)
 class DjangoMiddleware(AbstractMiddleware):
     def __init__(self, plugin: AbstractMiddlewarePlugin):
         self._plugin = plugin
@@ -21,11 +23,11 @@ class DjangoMiddleware(AbstractMiddleware):
 
         if is_async:
             async def middleware(request):
-                req: RequestAdapter = DjangoRequestAdapter(request)
+                req: RequestAdapter = RequestAdapterFactory.get(key)(request)
 
                 async def next_adapter():
                     response = await get_response(request)
-                    return DjangoResponseAdapter(response)
+                    return ResponseAdapterFactory.get(key)(response)
 
                 resp: ResponseAdapter = await self._plugin.dispatch(req, next_adapter)
                 return resp.response
@@ -33,11 +35,11 @@ class DjangoMiddleware(AbstractMiddleware):
             return middleware
         else:
             def middleware(request):
-                req: RequestAdapter = DjangoRequestAdapter(request)
+                req: RequestAdapter = RequestAdapterFactory.get(key)(request)
 
                 async def next_adapter():
                     response = get_response(request)
-                    return DjangoResponseAdapter(response)
+                    return ResponseAdapterFactory.get(key)(response)
 
                 import asyncio
                 resp: ResponseAdapter = asyncio.run(self._plugin.dispatch(req, next_adapter))

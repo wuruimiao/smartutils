@@ -1,9 +1,11 @@
 from smartutils.app.adapter.req.abstract import RequestAdapter
-from smartutils.app.const import HeaderKey
+from smartutils.app.adapter.req.factory import RequestAdapterFactory
+from smartutils.app.const import AppKey, HeaderKey
 
 __all__ = ["TornadoRequestAdapter"]
 
 
+@RequestAdapterFactory.register(AppKey.TORNADO)
 class TornadoRequestAdapter(RequestAdapter):
     def get_header(self, key: HeaderKey):
         pass
@@ -35,6 +37,3 @@ class TornadoRequestAdapter(RequestAdapter):
     @property
     def url(self) -> str:
         return self.request.full_url()
-
-    def gen_trace_id(self) -> str:  # noqa
-        pass

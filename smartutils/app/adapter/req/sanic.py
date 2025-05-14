@@ -1,10 +1,11 @@
 from smartutils.app.adapter.req.abstract import RequestAdapter
+from smartutils.app.adapter.req.factory import RequestAdapterFactory
+from smartutils.app.const import AppKey, HeaderKey
 
 __all__ = ["SanicRequestAdapter"]
 
-from smartutils.app.const import HeaderKey
 
-
+@RequestAdapterFactory.register(AppKey.SANIC)
 class SanicRequestAdapter(RequestAdapter):
     def get_header(self, key: HeaderKey):
         pass
@@ -32,6 +33,3 @@ class SanicRequestAdapter(RequestAdapter):
     def url(self) -> str:
         # Sanic 没有完整 url 属性，可拼接
         return str(self.request.url)
-
-    def gen_trace_id(self) -> str:
-        pass

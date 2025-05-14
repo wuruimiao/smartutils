@@ -1,10 +1,11 @@
-from smartutils.ID import IDGen
 from smartutils.app.adapter.req.abstract import RequestAdapter
-from smartutils.app.const import HeaderKey
+from smartutils.app.adapter.req.factory import RequestAdapterFactory
+from smartutils.app.const import AppKey, HeaderKey
 
 __all__ = ["StarletteRequestAdapter"]
 
 
+@RequestAdapterFactory.register(AppKey.FASTAPI)
 class StarletteRequestAdapter(RequestAdapter):
     def get_header(self, key: HeaderKey):
         return self.request.headers.get(key)
@@ -24,6 +25,3 @@ class StarletteRequestAdapter(RequestAdapter):
     @property
     def url(self) -> str:
         return str(self.request.url)
-
-    def gen_trace_id(self) -> str:
-        return str(IDGen())
