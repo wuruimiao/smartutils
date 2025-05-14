@@ -14,6 +14,7 @@ from smartutils.ID.abstract import AbstractIDGenerator
 from smartutils.ID.const import IDGenType
 from smartutils.ID.init import IDGen
 from smartutils.design import singleton
+from smartutils.error.sys_err import LibraryUsageError
 
 __all__ = ["ULID", "ULIDGenerator"]
 
@@ -29,7 +30,7 @@ class ULID:
         elif isinstance(ulid_obj, ulid.ULID):
             self.ulid = ulid_obj
         else:
-            raise TypeError("ulid_obj must be str or ulid.ULID")
+            raise LibraryUsageError("ulid_obj must be str or ulid.ULID.")
 
         # 获取128位整数
         self.int = int(self.ulid)

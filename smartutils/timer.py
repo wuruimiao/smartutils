@@ -3,6 +3,7 @@ import inspect
 from time import perf_counter
 
 from smartutils.log import logger
+from smartutils.error.sys_err import LibraryUsageError
 
 __all__ = ["Timer", "timeit"]
 
@@ -15,12 +16,12 @@ class Timer:
 
     def start(self):
         if self._start is not None:
-            raise RuntimeError("Timer already started")
+            raise LibraryUsageError("Timer already started.")
         self._start = self._func()
 
     def stop(self):
         if self._start is None:
-            raise RuntimeError("Timer not started")
+            raise LibraryUsageError("Timer not started, call Timer().start() first.")
         end = self._func()
         self._elapsed += end - self._start
         self._start = None

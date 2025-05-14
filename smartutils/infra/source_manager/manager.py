@@ -7,7 +7,9 @@ from typing import Dict, Callable, Any, Awaitable, Generic
 from smartutils.call import call_hook
 from smartutils.config.const import ConfKey
 from smartutils.ctx import CTXVarManager, CTXKey
-from smartutils.infra.source_manager.abstract import T
+from smartutils.infra.source_manager.abstract import TAbstractResource
+from smartutils.error.sys_err import LibraryError
+
 from smartutils.log import logger
 
 __all__ = ["ResourceManagerRegistry", "CTXResourceManager"]
@@ -34,10 +36,10 @@ class ResourceManagerRegistry:
         )
 
 
-class CTXResourceManager(Generic[T], ABC):
+class CTXResourceManager(Generic[TAbstractResource], ABC):
     def __init__(
             self,
-            resources: Dict[ConfKey, T],
+            resources: Dict[ConfKey, TAbstractResource],
             context_var_name: CTXKey,
             success: Callable[..., Any] = None,
             fail: Callable[..., Any] = None,
@@ -56,7 +58,7 @@ class CTXResourceManager(Generic[T], ABC):
             @functools.wraps(func)
             async def wrapper(*args, **kwargs):
                 if key not in self._resources:
-                    raise RuntimeError(f"No resource found for key: {key}")
+                    raise LibraryError(f"No resource found for key: {key}")
 
                 resource = self._resources[key]
                 async with resource.session() as session:
@@ -68,7 +70,7 @@ class CTXResourceManager(Generic[T], ABC):
                         except Exception as e:
                             await call_hook(self._fail, session)
                             logger.exception("{key} use fail", key=key)
-                            raise RuntimeError(f"{key} use fail") from e
+                            raise RuntimeError(f"{key} use fail") from None
 
             return wrapper
 
@@ -78,9 +80,9 @@ class CTXResourceManager(Generic[T], ABC):
     def curr(self):
         return CTXVarManager.get(self._ctx_key)
 
-    def client(self, key: ConfKey = ConfKey.GROUP_DEFAULT) -> T:
+    def client(self, key: ConfKey = ConfKey.GROUP_DEFAULT) -> TAbstractResource:
         if key not in self._resources:
-            raise RuntimeError(f"No resource found for key: {key}")
+            raise LibraryError(f"No resource found for key: {key}")
         return self._resources[key]
 
     async def close(self):

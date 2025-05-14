@@ -24,14 +24,14 @@ class _IDGen(AbstractIDGenerator, BaseFactory[IDGenType, Tuple[Callable[..., Abs
         self._type = id_gen_type
         if need_conf:
             if not conf:
-                raise LibraryUsageError(f"IDGen {gen_cls} need conf")
+                raise LibraryUsageError(f"IDGen {gen_cls} need conf.")
             self._gen = gen_cls(**conf.kw)
         else:
             self._gen = gen_cls()
 
     def __next__(self):
         if self._gen is None:
-            raise RuntimeError("IDGen need init, call IDGen.init(...) first")
+            raise LibraryUsageError("IDGen need init, call IDGen.init(...) first.")
         return self._gen()
 
     def __repr__(self):

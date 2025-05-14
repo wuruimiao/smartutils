@@ -7,7 +7,7 @@ from smartutils.config.const import ConfKey
 from smartutils.config.factory import ConfFactory
 from smartutils.config.schema.project import ProjectConf
 from smartutils.design import singleton
-from smartutils.error.sys_err import ConfigError
+from smartutils.error.sys_err import ConfigError, LibraryUsageError
 from smartutils.file import load_yaml
 from smartutils.log import logger
 
@@ -62,5 +62,5 @@ def reset():
 
 def get_config() -> Config:
     if _config is None:
-        raise RuntimeError("Config not initialized")
+        raise LibraryUsageError("Config not initialized")
     return _config

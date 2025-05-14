@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import TypeVar, AsyncContextManager
 
-__all__ = ["AbstractResource"]
+__all__ = ["AbstractResource", "TAbstractResource"]
 
 
 class AbstractResource(ABC):
@@ -20,4 +20,4 @@ class AbstractResource(ABC):
         pass
 
 
-T = TypeVar("T", bound=AbstractResource)
+TAbstractResource = TypeVar("TAbstractResource", bound=AbstractResource)

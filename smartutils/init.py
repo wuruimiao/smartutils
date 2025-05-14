@@ -14,8 +14,10 @@ async def init(conf_path: str = "config/config.yaml"):
         IDGen.init(conf=conf.get(ConfKey.INSTANCE))
     except Exception as e:
         from smartutils.log import logger
+        from smartutils.error.factory import ExcFormatFactory
         from smartutils.call import exit_on_fail
-        logger.error(f"init fail: {e}.")
+        logger.error(f"Smartutils init fail for: {ExcFormatFactory.get(e)}.")
+        logger.error("App Exit.")
         exit_on_fail()
 
 
