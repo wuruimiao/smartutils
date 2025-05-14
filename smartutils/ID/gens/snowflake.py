@@ -26,7 +26,7 @@ from smartutils.ID.abstract import AbstractIDGenerator
 from smartutils.ID.const import IDGenType
 from smartutils.ID.init import IDGen
 from smartutils.design import singleton
-from smartutils.error.sys_err import LibraryUsageError, LibraryError
+from smartutils.error.sys_err import LibraryUsageError
 
 __all__ = [
     "SnowflakeClockMovedBackwards",
