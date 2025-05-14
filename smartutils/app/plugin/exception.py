@@ -3,14 +3,14 @@ from typing import Callable, Awaitable
 from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
+from smartutils.app.plugin.factory import MiddlewarePluginFactory
+from smartutils.app.const import MiddlewarePluginKey
 
 __all__ = ["ExceptionPlugin"]
 
 
+@MiddlewarePluginFactory.register(MiddlewarePluginKey.EXCEPTION)
 class ExceptionPlugin(AbstractMiddlewarePlugin):
-    def __init__(self, app_key):
-        self.app_key = app_key
-
     async def dispatch(
             self,
             req: RequestAdapter,

@@ -1,6 +1,6 @@
 from enum import Enum
 
-__all__ = ["HeaderKey", "AppKey"]
+__all__ = ["HeaderKey", "AppKey", "MiddlewarePluginKey"]
 
 
 class HeaderKey(str, Enum):
@@ -20,3 +20,9 @@ class AppKey(Enum):
     @classmethod
     def list(cls):
         return [e.value for e in cls]
+
+
+class MiddlewarePluginKey(Enum):
+    EXCEPTION = "exception"
+    HEADER = "header"
+    LOG = "log"
