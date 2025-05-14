@@ -1,11 +1,6 @@
-from smartutils.app.const import AppKey
+from flask import jsonify  # noqa
 from smartutils.app.adapter.json_resp.factory import JsonRespFactory
-from smartutils.log import logger
-
-try:
-    from flask import jsonify  # noqa
-except ImportError:
-    logger.error("Flask not installed.")
+from smartutils.app.const import AppKey
 
 
 @JsonRespFactory.register(AppKey.FLASK)

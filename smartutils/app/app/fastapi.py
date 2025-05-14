@@ -59,9 +59,9 @@ def create_app(conf_path: str = "config/config.yaml"):
     app = FastAPI(lifespan=lifespan)
     app.state.smartutils_conf_path = conf_path  # noqa
 
-    app.add_middleware(MiddlewareFactory.get(AppKey.FASTAPI), plugin=LogPlugin())
-    app.add_middleware(MiddlewareFactory.get(AppKey.FASTAPI), plugin=HeaderPlugin())
     app.add_middleware(MiddlewareFactory.get(AppKey.FASTAPI), plugin=ExceptionPlugin(AppKey.FASTAPI))
+    app.add_middleware(MiddlewareFactory.get(AppKey.FASTAPI), plugin=HeaderPlugin())
+    app.add_middleware(MiddlewareFactory.get(AppKey.FASTAPI), plugin=LogPlugin())
 
     @app.exception_handler(RequestValidationError)
     async def _(request: Request, exc: RequestValidationError):
