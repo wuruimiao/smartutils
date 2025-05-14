@@ -1,22 +1,42 @@
-from smartutils.app.adapter import get_request_adapter, get_response_adapter
+from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin, AbstractMiddleware
+from smartutils.app.adapter.resp.abstract import ResponseAdapter
+from smartutils.app.adapter.req.abstract import RequestAdapter
+from smartutils.app.adapter.req.django import DjangoRequestAdapter
+from smartutils.app.adapter.resp.django import DjangoResponseAdapter
+from smartutils.app.const import AppKey
+from smartutils.app.adapter.middleware.factory import MiddlewareFactory
 
-__all__ = ["DjangoMiddleware"]
 
+@MiddlewareFactory.register(AppKey.DJANGO)
+class DjangoMiddleware(AbstractMiddleware):
+    def __init__(self, plugin: AbstractMiddlewarePlugin):
+        self._plugin = plugin
 
-class DjangoMiddleware:
-    def __init__(self, get_response):
-        self.get_response = get_response
-        self.plugin = plugin
+    def __call__(self, get_response):
+        # 检查是否异步视图
+        import asyncio
+        is_async = asyncio.iscoroutinefunction(get_response)
 
-    def __call__(self, request):
-        req = get_request_adapter(request)
-        if hasattr(self.plugin, "before_request"):
-            import asyncio
+        if is_async:
+            async def middleware(request):
+                req: RequestAdapter = DjangoRequestAdapter(request)
 
-            asyncio.run(self.plugin.before_request(req))
-        response = self.get_response(request)
-        if hasattr(self.plugin, "after_request"):
-            import asyncio
+                async def next_adapter():
+                    response = await get_response(request)
+                    return DjangoResponseAdapter(response)
 
-            asyncio.run(self.plugin.after_request(req, get_response_adapter(response)))
-        return response
+                resp: ResponseAdapter = await self._plugin.dispatch(req, next_adapter)
+                return resp.response
+            return middleware
+        else:
+            def middleware(request):
+                req: RequestAdapter = DjangoRequestAdapter(request)
+
+                async def next_adapter():
+                    response = get_response(request)
+                    return DjangoResponseAdapter(response)
+
+                import asyncio
+                resp: ResponseAdapter = asyncio.run(self._plugin.dispatch(req, next_adapter))
+                return resp.response
+            return middleware

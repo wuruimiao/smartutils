@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import Callable, Awaitable
 
-__all__ = ["AbstractMiddlewarePlugin"]
-
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
+
+__all__ = ["AbstractMiddlewarePlugin", "AbstractMiddleware"]
 
 
 class AbstractMiddlewarePlugin(ABC):
@@ -15,3 +15,7 @@ class AbstractMiddlewarePlugin(ABC):
             next_adapter: Callable[[], Awaitable[ResponseAdapter]],
     ) -> ResponseAdapter:
         pass
+
+
+class AbstractMiddleware(ABC):
+    pass

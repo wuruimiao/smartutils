@@ -2,13 +2,12 @@ from typing import List, Awaitable, Callable
 
 from loguru import logger
 
+from smartutils.app.adapter.json_resp.factory import JsonRespFactory
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.const import AppKey
-from smartutils.design import BaseFactory
-from smartutils.error.base import BaseError
 from smartutils.error.factory import ExcFactory, ExcFormatFactory
 
-__all__ = ["AppHook", "JsonRespFactory", "ExcJsonResp"]
+__all__ = ["AppHook", "ExcJsonResp"]
 
 
 class AppHook:
@@ -45,10 +44,6 @@ class AppHook:
     async def call_shutdown(cls, *args, **kwargs):
         for hook in cls._shutdown_hooks:
             await hook(*args, **kwargs)
-
-
-class JsonRespFactory(BaseFactory[AppKey, Callable[[BaseError], ResponseAdapter]]):
-    pass
 
 
 class ExcJsonResp:

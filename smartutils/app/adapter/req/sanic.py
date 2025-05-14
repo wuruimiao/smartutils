@@ -2,8 +2,13 @@ from smartutils.app.adapter.req.abstract import RequestAdapter
 
 __all__ = ["SanicRequestAdapter"]
 
+from smartutils.app.const import HeaderKey
+
 
 class SanicRequestAdapter(RequestAdapter):
+    def get_header(self, key: HeaderKey):
+        pass
+
     @property
     def headers(self) -> dict:
         # Sanic request.headers 是 CIMultiDict，支持 dict 行为

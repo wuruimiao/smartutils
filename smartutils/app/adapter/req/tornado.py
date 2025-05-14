@@ -1,9 +1,13 @@
 from smartutils.app.adapter.req.abstract import RequestAdapter
+from smartutils.app.const import HeaderKey
 
 __all__ = ["TornadoRequestAdapter"]
 
 
 class TornadoRequestAdapter(RequestAdapter):
+    def get_header(self, key: HeaderKey):
+        pass
+
     @property
     def headers(self) -> dict:
         # Tornado request.headers 是 HTTPHeaders（dict-like）

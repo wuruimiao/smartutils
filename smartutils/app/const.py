@@ -10,9 +10,12 @@ class HeaderKey(str, Enum):
 
 
 class AppKey(Enum):
-    FASTAPI = "fastapi"
+    AIOHTTP = "aiohttp"
     DJANGO = "django"
     FLASK = "flask"
+    SANIC = "sanic"
+    FASTAPI = "fastapi"
+    TORNADO = "tornado"
 
     @classmethod
     def list(cls):

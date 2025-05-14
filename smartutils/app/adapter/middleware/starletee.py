@@ -1,16 +1,19 @@
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin
+from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin, AbstractMiddleware
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.req.starlette import StarletteRequestAdapter
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.adapter.resp.starlette import StarletteResponseAdapter
+from smartutils.app.const import AppKey
+from smartutils.app.adapter.middleware.factory import MiddlewareFactory
 
 __all__ = ["StarletteMiddleware"]
 
 
-class StarletteMiddleware(BaseHTTPMiddleware):
+@MiddlewareFactory.register(AppKey.FASTAPI)
+class StarletteMiddleware(AbstractMiddleware, BaseHTTPMiddleware):
     def __init__(self, app, plugin: AbstractMiddlewarePlugin):
         super().__init__(app)
         self._plugin = plugin
