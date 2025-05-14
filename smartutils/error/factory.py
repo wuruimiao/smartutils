@@ -13,9 +13,9 @@ class ExcFactory(BaseFactory[Type[BaseException], Callable[[BaseException], Base
         if isinstance(exc, BaseError):
             return exc
 
-        for ext_type, handler in cls._registry.items():
-            if isinstance(exc, ext_type):
-                return handler(exc)
+        for exc_type, trans_exc_error in cls._registry.items():
+            if isinstance(exc, exc_type):
+                return trans_exc_error(exc)
 
         return SysError(detail=str(exc))
 
@@ -23,8 +23,8 @@ class ExcFactory(BaseFactory[Type[BaseException], Callable[[BaseException], Base
 class ExcFormatFactory(BaseFactory[Type[BaseException], Callable[[BaseException], str]]):
     @classmethod
     def get(cls, exc: BaseException) -> str:
-        for ext_type, handler in cls._registry.items():
-            if isinstance(exc, ext_type):
+        for exc_type, handler in cls._registry.items():
+            if isinstance(exc, exc_type):
                 return handler(exc)
 
         return str(exc)
