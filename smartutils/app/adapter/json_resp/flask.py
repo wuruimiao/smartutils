@@ -3,7 +3,7 @@ from smartutils.app.factory import JsonRespFactory
 from smartutils.log import logger
 
 try:
-    from flask import jsonify # noqa
+    from flask import jsonify  # noqa
 except ImportError:
     logger.error("Flask not installed.")
 

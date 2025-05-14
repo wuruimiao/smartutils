@@ -1,4 +1,5 @@
 from typing import Callable, Awaitable
+
 from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.resp.abstract import ResponseAdapter

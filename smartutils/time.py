@@ -26,7 +26,6 @@ __all__ = [
     "today_remain_sec",
 ]
 
-
 _DefaultFormat = "%Y-%m-%d %H:%M:%S"
 _DefaultTZ = ZoneInfo("Asia/Shanghai")
 
@@ -81,7 +80,7 @@ def get_now_stamp_str() -> str:
 
 
 def get_stamp_after(
-    stamp: float = None, day: int = 0, hour: int = 0, minute: int = 0, second: int = 0
+        stamp: float = None, day: int = 0, hour: int = 0, minute: int = 0, second: int = 0
 ) -> float:
     """
     获取一段时间后的时间戳
@@ -104,7 +103,7 @@ def get_stamp_after(
 
 
 def get_stamp_before(
-    stamp: float = None, day: int = 0, hour: int = 0, minute: int = 0, second: int = 0
+        stamp: float = None, day: int = 0, hour: int = 0, minute: int = 0, second: int = 0
 ) -> float:
     if not stamp:
         stamp = get_now_stamp_float()
@@ -132,7 +131,7 @@ def get_pass_time(early: datetime, latest: datetime) -> Tuple[int, int, int, int
 
 
 def get_remain_time(
-    early: datetime, latest: datetime, day: int, hour: int, minute: int, second: int
+        early: datetime, latest: datetime, day: int, hour: int, minute: int, second: int
 ) -> Tuple[int, int, int, int]:
     """
 
@@ -153,7 +152,7 @@ def get_remain_time(
 
 
 def parse_time_str(
-    time_str: str, str_format: str = _DefaultFormat, tz: ZoneInfo = _DefaultTZ
+        time_str: str, str_format: str = _DefaultFormat, tz: ZoneInfo = _DefaultTZ
 ) -> datetime:
     dt = datetime.strptime(time_str, str_format)
     return dt.replace(tzinfo=tz)
