@@ -6,10 +6,8 @@ from smartutils.app.const import AppKey
 
 __all__ = []
 
-key = AppKey.TORNADO
 
-
-@MiddlewareFactory.register(key)
+@MiddlewareFactory.register(AppKey.TORNADO)
 class TornadoMiddleware(AbstractMiddleware):
     def __call__(self, app):
         # patch 原始 Application.__call__

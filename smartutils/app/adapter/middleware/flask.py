@@ -8,10 +8,8 @@ from smartutils.app.const import AppKey
 
 __all__ = []
 
-key = AppKey.FLASK
 
-
-@MiddlewareFactory.register(key)
+@MiddlewareFactory.register(AppKey.FLASK)
 class FlaskMiddleware(AbstractMiddleware):
     def __call__(self, app):
         # 装饰 Flask 应用，注册 before_request 和 after_request 钩子
