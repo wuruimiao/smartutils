@@ -6,9 +6,13 @@ from smartutils.app.const import AppKey
 
 __all__ = []
 
+key = AppKey.DJANGO
 
-@MiddlewareFactory.register(AppKey.DJANGO)
+
+@MiddlewareFactory.register(key)
 class DjangoMiddleware(AbstractMiddleware):
+    _key = key
+
     def __call__(self, get_response):
         # 检查是否异步视图
         import asyncio

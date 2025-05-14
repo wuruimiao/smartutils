@@ -7,9 +7,6 @@ from smartutils.app.const import AppKey
 __all__ = ["run"]
 
 
-# TODO: 兼容多种应用，不限于fastapi
-
-
 def run():
     parser = argparse.ArgumentParser(description="Run app/main")
     parser.add_argument("--host", type=str, default="0.0.0.0", help="Host to bind")

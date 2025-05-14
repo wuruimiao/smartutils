@@ -4,11 +4,14 @@ from typing import Callable, Awaitable
 from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
+from smartutils.app.const import MiddlewarePluginKey
+from smartutils.app.plugin.factory import MiddlewarePluginFactory
 from smartutils.log import logger
 
 __all__ = ["LogPlugin"]
 
 
+@MiddlewarePluginFactory.register(MiddlewarePluginKey.LOG)
 class LogPlugin(AbstractMiddlewarePlugin):
     async def dispatch(
             self,

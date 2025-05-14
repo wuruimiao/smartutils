@@ -2,12 +2,18 @@ from abc import ABC, abstractmethod
 from typing import Callable, Awaitable
 
 from smartutils.app.adapter.req.abstract import RequestAdapter
+from smartutils.app.adapter.req.factory import RequestAdapterFactory
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
+from smartutils.app.adapter.resp.factory import ResponseAdapterFactory
+from smartutils.error.sys_err import LibraryError
 
 __all__ = ["AbstractMiddlewarePlugin", "AbstractMiddleware"]
 
 
 class AbstractMiddlewarePlugin(ABC):
+    def __init__(self, app_key):
+        self.app_key = app_key
+
     @abstractmethod
     async def dispatch(
             self,
@@ -18,11 +24,14 @@ class AbstractMiddlewarePlugin(ABC):
 
 
 class AbstractMiddleware(ABC):
-    def __init__(self, plugin: AbstractMiddlewarePlugin, req_adapter: type[RequestAdapter],
-                 resp_adapter: type[ResponseAdapter]):
+
+    def __init__(self, plugin: AbstractMiddlewarePlugin):
         self._plugin = plugin
-        self._req_adapter = req_adapter
-        self._resp_adapter = resp_adapter
+        key = getattr(self.__class__, "_key", None)
+        if not key:
+            raise LibraryError(f"{self.__class__.__name__} need _key attr")
+        self._req_adapter = RequestAdapterFactory.get(key)
+        self._resp_adapter = ResponseAdapterFactory.get(key)
 
     def req_adapter(self, request):
         return self._req_adapter(request)
