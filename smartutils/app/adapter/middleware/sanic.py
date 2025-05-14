@@ -6,7 +6,7 @@ from smartutils.app.adapter.resp.sanic import SanicResponseAdapter
 from smartutils.app.const import AppKey
 from smartutils.app.adapter.middleware.factory import MiddlewareFactory
 
-__all__ = ["SanicMiddleware"]
+__all__ = []
 
 
 @MiddlewareFactory.register(AppKey.SANIC)

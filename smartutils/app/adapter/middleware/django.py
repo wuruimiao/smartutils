@@ -6,6 +6,8 @@ from smartutils.app.adapter.resp.django import DjangoResponseAdapter
 from smartutils.app.const import AppKey
 from smartutils.app.adapter.middleware.factory import MiddlewareFactory
 
+__all__ = []
+
 
 @MiddlewareFactory.register(AppKey.DJANGO)
 class DjangoMiddleware(AbstractMiddleware):
@@ -27,6 +29,7 @@ class DjangoMiddleware(AbstractMiddleware):
 
                 resp: ResponseAdapter = await self._plugin.dispatch(req, next_adapter)
                 return resp.response
+
             return middleware
         else:
             def middleware(request):
@@ -39,4 +42,5 @@ class DjangoMiddleware(AbstractMiddleware):
                 import asyncio
                 resp: ResponseAdapter = asyncio.run(self._plugin.dispatch(req, next_adapter))
                 return resp.response
+
             return middleware

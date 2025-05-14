@@ -6,7 +6,7 @@ from smartutils.app.adapter.resp.tornado import TornadoResponseAdapter
 from smartutils.app.const import AppKey
 from smartutils.app.adapter.middleware.factory import MiddlewareFactory
 
-__all__ = ["TornadoMiddleware"]
+__all__ = []
 
 
 @MiddlewareFactory.register(AppKey.TORNADO)

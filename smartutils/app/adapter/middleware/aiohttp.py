@@ -6,7 +6,7 @@ from smartutils.app.adapter.resp.aiohttp import AiohttpResponseAdapter
 from smartutils.app.adapter.middleware.factory import MiddlewareFactory
 from smartutils.app.const import AppKey
 
-__all__ = ["AiohttpMiddleware"]
+__all__ = []
 
 
 @MiddlewareFactory.register(AppKey.AIOHTTP)

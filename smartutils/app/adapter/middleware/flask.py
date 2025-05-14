@@ -7,7 +7,7 @@ from smartutils.app.adapter.resp.flask import FlaskResponseAdapter
 from smartutils.app.const import AppKey
 from smartutils.app.adapter.middleware.factory import MiddlewareFactory
 
-__all__ = ["FlaskMiddleware"]
+__all__ = []
 
 
 @MiddlewareFactory.register(AppKey.FLASK)
