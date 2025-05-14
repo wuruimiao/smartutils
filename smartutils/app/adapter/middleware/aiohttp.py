@@ -6,10 +6,8 @@ from smartutils.app.const import AppKey
 
 __all__ = []
 
-key = AppKey.AIOHTTP
 
-
-@MiddlewareFactory.register(key)
+@MiddlewareFactory.register(AppKey.AIOHTTP)
 class AiohttpMiddleware(AbstractMiddleware):
     def __call__(self, app):
         async def middleware(request, handler):

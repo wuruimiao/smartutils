@@ -6,10 +6,8 @@ from smartutils.app.const import AppKey
 
 __all__ = []
 
-key = AppKey.SANIC
 
-
-@MiddlewareFactory.register(key)
+@MiddlewareFactory.register(AppKey.SANIC)
 class SanicMiddleware(AbstractMiddleware):
     def __call__(self, app):
         # Sanic 的中间件是 async def(request) or async def(request, response)

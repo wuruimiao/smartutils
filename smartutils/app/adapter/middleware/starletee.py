@@ -9,10 +9,8 @@ from smartutils.app.const import AppKey
 
 __all__ = []
 
-key = AppKey.FASTAPI
 
-
-@MiddlewareFactory.register(key)
+@MiddlewareFactory.register(AppKey.FASTAPI)
 class StarletteMiddleware(AbstractMiddleware, BaseHTTPMiddleware):
     def __init__(self, app, plugin: AbstractMiddlewarePlugin, req_adapter: type[RequestAdapter],
                  resp_adapter: type[ResponseAdapter]):

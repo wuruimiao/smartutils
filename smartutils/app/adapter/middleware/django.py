@@ -6,10 +6,8 @@ from smartutils.app.const import AppKey
 
 __all__ = []
 
-key = AppKey.DJANGO
 
-
-@MiddlewareFactory.register(key)
+@MiddlewareFactory.register(AppKey.DJANGO)
 class DjangoMiddleware(AbstractMiddleware):
     def __call__(self, get_response):
         # 检查是否异步视图
