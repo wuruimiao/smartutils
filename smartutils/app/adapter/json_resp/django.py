@@ -1,11 +1,7 @@
-from smartutils.app.const import AppKey
-from smartutils.app.adapter.json_resp.factory import JsonRespFactory
-from smartutils.log import logger
+from django.http import JsonResponse  # noqa
 
-try:
-    from django.http import JsonResponse  # noqa
-except ImportError:
-    logger.error(f"Django not installed.")
+from smartutils.app.adapter.json_resp.factory import JsonRespFactory
+from smartutils.app.const import AppKey
 
 
 @JsonRespFactory.register(AppKey.DJANGO)
