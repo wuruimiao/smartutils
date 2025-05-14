@@ -1,15 +1,13 @@
 from smartutils.app.adapter.req.abstract import RequestAdapter
+from smartutils.app.adapter.req.factory import RequestAdapterFactory
+from smartutils.app.const import AppKey, HeaderKey
 
 __all__ = ["FlaskRequestAdapter"]
 
-from smartutils.app.const import HeaderKey
 
-
+@RequestAdapterFactory.register(AppKey.FLASK)
 class FlaskRequestAdapter(RequestAdapter):
     def get_header(self, key: HeaderKey):
-        pass
-
-    def gen_trace_id(self) -> str:
         pass
 
     @property

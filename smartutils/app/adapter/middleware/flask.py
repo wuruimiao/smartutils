@@ -1,16 +1,19 @@
 import asyncio
+import flask
 
 from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin, AbstractMiddleware
 from smartutils.app.adapter.req.abstract import RequestAdapter
-from smartutils.app.adapter.req.flask import FlaskRequestAdapter
-from smartutils.app.adapter.resp.flask import FlaskResponseAdapter
+from smartutils.app.adapter.req.factory import RequestAdapterFactory
+from smartutils.app.adapter.resp.factory import ResponseAdapterFactory
 from smartutils.app.const import AppKey
 from smartutils.app.adapter.middleware.factory import MiddlewareFactory
 
 __all__ = []
 
+key = AppKey.FLASK
 
-@MiddlewareFactory.register(AppKey.FLASK)
+
+@MiddlewareFactory.register(key)
 class FlaskMiddleware(AbstractMiddleware):
     def __init__(self, plugin: AbstractMiddlewarePlugin):
         self._plugin = plugin
@@ -21,17 +24,15 @@ class FlaskMiddleware(AbstractMiddleware):
         def before_request():
             # 在 Flask 里，before_request 不能获取响应对象
             # 但可以保存开始时间，或其他 request 相关信息
-            import flask
-            flask.g._middleware_req_adapter = FlaskRequestAdapter(flask.request)
+            flask.g._middleware_req_adapter = RequestAdapterFactory.get(key)(flask.request)
             flask.g._middleware_start = asyncio.get_event_loop().time() if asyncio.get_event_loop().is_running() else None
 
         @app.after_request
         def after_request(response):
-            import flask
             req: RequestAdapter = getattr(flask.g, "_middleware_req_adapter", None)
             if req is None:
-                req = FlaskRequestAdapter(flask.request)
-            resp = FlaskResponseAdapter(response)
+                req = RequestAdapterFactory.get(key)(flask.request)
+            resp = ResponseAdapterFactory.get(key)(response)
 
             async def next_adapter():
                 return resp

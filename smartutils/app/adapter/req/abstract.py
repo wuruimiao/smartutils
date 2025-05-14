@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 
-__all__ = ["RequestAdapter"]
-
 from smartutils.app.const import HeaderKey
+from smartutils.ID import IDGen
+
+__all__ = ["RequestAdapter"]
 
 
 class RequestAdapter(ABC):
@@ -33,6 +34,5 @@ class RequestAdapter(ABC):
     def url(self) -> str:
         pass
 
-    @abstractmethod
     def gen_trace_id(self) -> str:
-        pass
+        return str(IDGen())

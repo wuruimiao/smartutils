@@ -1,9 +1,11 @@
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
-from smartutils.app.const import HeaderKey
+from smartutils.app.const import HeaderKey, AppKey
+from smartutils.app.adapter.resp.factory import ResponseAdapterFactory
 
 __all__ = ["AiohttpResponseAdapter"]
 
 
+@ResponseAdapterFactory.register(AppKey.AIOHTTP)
 class AiohttpResponseAdapter(ResponseAdapter):
     def set_header(self, key: HeaderKey, value: str):
         self._response.headers[key] = value
