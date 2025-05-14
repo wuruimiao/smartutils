@@ -56,5 +56,5 @@ class ExcJsonResp:
     def handle(cls, exc: BaseException, key: AppKey) -> ResponseAdapter:
         mapped_exc = ExcFactory.get(exc)
         resp_fn = JsonRespFactory.get(key)
-        logger.error("ExcJsonResp handle {e}", e=ExcFormatFactory.get(exc))
+        logger.exception("ExcJsonResp handle {e}", e=ExcFormatFactory.get(exc))
         return resp_fn(mapped_exc)
