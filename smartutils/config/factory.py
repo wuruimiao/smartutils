@@ -5,7 +5,7 @@ from pydantic import ValidationError
 from smartutils.config.const import ConfKey
 from smartutils.design import BaseFactory
 from smartutils.error.factory import ExcFormatFactory
-from smartutils.error.sys_err import ConfigError
+from smartutils.error.sys import ConfigError
 from smartutils.log import logger
 
 __all__ = ["ConfFactory"]

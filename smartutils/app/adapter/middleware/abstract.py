@@ -5,7 +5,7 @@ from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.req.factory import RequestAdapterFactory
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.adapter.resp.factory import ResponseAdapterFactory
-from smartutils.error.sys_err import LibraryError
+from smartutils.error.sys import LibraryError
 
 __all__ = ["AbstractMiddlewarePlugin", "AbstractMiddleware"]
 

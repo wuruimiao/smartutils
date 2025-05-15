@@ -2,7 +2,7 @@ from typing import Type, Callable
 
 from smartutils.design import BaseFactory
 from smartutils.error.base import BaseError
-from smartutils.error.sys_err import SysError
+from smartutils.error.sys import SysError
 
 __all__ = ["ExcFactory", "ExcFormatFactory"]
 

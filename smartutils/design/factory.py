@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from typing import TypeVar, Generic, Tuple, final, Iterator
 
-from smartutils.error.sys_err import LibraryError, LibraryUsageError
+from smartutils.error.sys import LibraryError, LibraryUsageError
 
 K = TypeVar('K')
 V = TypeVar('V')

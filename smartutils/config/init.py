@@ -7,7 +7,7 @@ from smartutils.config.const import ConfKey
 from smartutils.config.factory import ConfFactory
 from smartutils.config.schema.project import ProjectConf
 from smartutils.design import singleton
-from smartutils.error.sys_err import ConfigError, LibraryUsageError
+from smartutils.error.sys import ConfigError, LibraryUsageError
 from smartutils.file import load_yaml
 from smartutils.log import logger
 

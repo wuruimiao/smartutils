@@ -7,7 +7,7 @@ from aiokafka import AIOKafkaProducer, AIOKafkaConsumer, TopicPartition, errors
 
 from smartutils.config.schema.kafka import KafkaConf
 from smartutils.error.factory import ExcFormatFactory
-from smartutils.error.sys_err import MQError
+from smartutils.error.sys import MQError
 from smartutils.infra.source_manager.abstract import AbstractResource
 from smartutils.log import logger
 

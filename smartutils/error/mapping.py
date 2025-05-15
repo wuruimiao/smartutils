@@ -1,6 +1,6 @@
 from types import MappingProxyType
 
-from smartutils.error.sys_err import (
+from smartutils.error.sys import (
     SysError,
     ValidationError,
     UnsupportedMediaTypeError,
