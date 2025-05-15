@@ -5,8 +5,8 @@ from smartutils.app.const import AppKey
 from smartutils.design import BaseFactory
 from smartutils.error.base import BaseError
 
-__all__ = ["ErrorJsonRespFactory"]
+__all__ = ["ErrorRespAdapterFactory"]
 
 
-class ErrorJsonRespFactory(BaseFactory[AppKey, Callable[[BaseError], ResponseAdapter]]):
+class ErrorRespAdapterFactory(BaseFactory[AppKey, Callable[[BaseError], ResponseAdapter]]):
     pass
