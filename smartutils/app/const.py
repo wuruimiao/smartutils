@@ -1,6 +1,7 @@
-from enum import Enum
+from enum import Enum, IntEnum
+import sys
 
-__all__ = ["HeaderKey", "AppKey", "MiddlewarePluginKey"]
+__all__ = ["HeaderKey", "AppKey", "MiddlewarePluginKey", "MiddlewarePluginOrder"]
 
 
 class HeaderKey(str, Enum):
@@ -26,3 +27,9 @@ class MiddlewarePluginKey(Enum):
     EXCEPTION = "exception"
     HEADER = "header"
     LOG = "log"
+
+
+class MiddlewarePluginOrder(IntEnum):
+    EXCEPTION = -sys.maxsize
+    HEADER = sys.maxsize
+    LOG = 1

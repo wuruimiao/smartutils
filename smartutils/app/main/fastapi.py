@@ -47,12 +47,6 @@ async def lifespan(app: FastAPI):
 
 def create_app(conf_path: str = "config/config.yaml"):
     from smartutils.ret import ResponseModel
-    from smartutils.app.adapter.middleware.factory import MiddlewareFactory
-    from smartutils.app.adapter.req.factory import RequestAdapterFactory
-    from smartutils.app.adapter.resp.factory import ResponseAdapterFactory
-    from smartutils.app.plugin.header import HeaderPlugin
-    from smartutils.app.plugin.log import LogPlugin
-    from smartutils.app.plugin.exception import ExceptionPlugin
     from smartutils.app.factory import ExcJsonResp
     from smartutils.app.main.init_middleware import init_middlewares
     from smartutils.app.const import AppKey
@@ -61,23 +55,6 @@ def create_app(conf_path: str = "config/config.yaml"):
     app.state.smartutils_conf_path = conf_path  # noqa
 
     init_middlewares(app, AppKey.FASTAPI)
-
-    # app.add_middleware(
-    #     MiddlewareFactory.get(AppKey.FASTAPI),
-    #     plugin=ExceptionPlugin(AppKey.FASTAPI),
-    #     req_adapter=RequestAdapterFactory.get(AppKey.FASTAPI),
-    #     resp_adapter=ResponseAdapterFactory.get(AppKey.FASTAPI),
-    # )
-    # app.add_middleware(
-    #     MiddlewareFactory.get(AppKey.FASTAPI), plugin=HeaderPlugin(),
-    #     req_adapter=RequestAdapterFactory.get(AppKey.FASTAPI),
-    #     resp_adapter=ResponseAdapterFactory.get(AppKey.FASTAPI),
-    # )
-    # app.add_middleware(
-    #     MiddlewareFactory.get(AppKey.FASTAPI), plugin=LogPlugin(),
-    #     req_adapter=RequestAdapterFactory.get(AppKey.FASTAPI),
-    #     resp_adapter=ResponseAdapterFactory.get(AppKey.FASTAPI),
-    # )
 
     @app.exception_handler(RequestValidationError)
     async def _(request: Request, exc: RequestValidationError):

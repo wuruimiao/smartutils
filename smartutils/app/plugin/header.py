@@ -3,7 +3,7 @@ from typing import Callable, Awaitable
 from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
-from smartutils.app.const import HeaderKey, MiddlewarePluginKey
+from smartutils.app.const import HeaderKey, MiddlewarePluginKey, MiddlewarePluginOrder
 from smartutils.app.plugin.factory import MiddlewarePluginFactory
 from smartutils.app.header import CustomHeader
 from smartutils.ctx import CTXKey, CTXVarManager
@@ -14,7 +14,7 @@ __all__ = ["HeaderPlugin"]
 @CTXVarManager.register(CTXKey.USERID)
 @CTXVarManager.register(CTXKey.USERNAME)
 @CTXVarManager.register(CTXKey.TRACE_ID)
-@MiddlewarePluginFactory.register(MiddlewarePluginKey.HEADER)
+@MiddlewarePluginFactory.register(MiddlewarePluginKey.HEADER, order=MiddlewarePluginOrder.HEADER)
 class HeaderPlugin(AbstractMiddlewarePlugin):
     async def dispatch(
             self,

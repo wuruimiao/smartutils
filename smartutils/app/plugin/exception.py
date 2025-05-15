@@ -4,12 +4,12 @@ from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.plugin.factory import MiddlewarePluginFactory
-from smartutils.app.const import MiddlewarePluginKey
+from smartutils.app.const import MiddlewarePluginKey, MiddlewarePluginOrder
 
 __all__ = ["ExceptionPlugin"]
 
 
-@MiddlewarePluginFactory.register(MiddlewarePluginKey.EXCEPTION)
+@MiddlewarePluginFactory.register(MiddlewarePluginKey.EXCEPTION, order=MiddlewarePluginOrder.EXCEPTION)
 class ExceptionPlugin(AbstractMiddlewarePlugin):
     async def dispatch(
             self,
