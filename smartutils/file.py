@@ -4,6 +4,8 @@ import yaml
 
 from smartutils.error.sys_err import FileError
 
+__all__ = ["load_yaml"]
+
 
 def load_yaml(filepath: str) -> Dict:
     try:
