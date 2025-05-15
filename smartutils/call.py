@@ -33,4 +33,4 @@ def register_package(package: types.ModuleType):
 
 def exit_on_fail():
     # 非0，k8s判定启动失败；应用在 lifespan 阶段（即启动/关闭事件）报错，uvicorn 退出码是 3
-    os._exit(1)
+    os._exit(1)  # noqa

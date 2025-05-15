@@ -1,5 +1,7 @@
 import inspect
 
+from smartutils.call import call_hook
+
 __all__ = ["init", "release"]
 
 
@@ -20,10 +22,8 @@ async def init():
             continue
 
         logger.debug("infra initializing {comp_key} ...", comp_key=comp_key)
-        if inspect.iscoroutinefunction(init_func):
-            await init_func(conf)
-        else:
-            init_func(conf)
+
+        await call_hook(init_func, conf)
 
         logger.info("infra {comp_key} inited.", comp_key=comp_key)
 
