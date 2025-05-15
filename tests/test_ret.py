@@ -6,10 +6,10 @@ from smartutils.ret import (
     OK,
     INTERVAL_SERVER,
     TIMEOUT,
-    ResponseModel,
     success_res,
     fail_res,
 )
+from smartutils.app.main.fastapi import ResponseModel
 
 
 def test_error_ok():

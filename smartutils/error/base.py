@@ -1,7 +1,7 @@
 from abc import ABC
 from typing import Dict
 
-__all__ = ["BaseError"]
+__all__ = ["BaseError", "OK"]
 
 
 class BaseError(Exception, ABC):
@@ -20,3 +20,13 @@ class BaseError(Exception, ABC):
 
     def dict(self) -> Dict:
         return {"code": self.code, "msg": self.msg, "detail": self.detail}
+
+    @property
+    def is_ok(self) -> bool:
+        return self.code != 0
+
+
+class OK(BaseError):
+    code = 0
+    msg = "success"
+    status_code = 200
