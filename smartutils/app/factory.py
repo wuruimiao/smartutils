@@ -11,7 +11,7 @@ __all__ = ["ExcJsonResp"]
 class ExcJsonResp:
     @classmethod
     def handle(cls, exc: BaseException, key: AppKey) -> ResponseAdapter:
-        mapped_exc = ExcErrorFactory.get(exc)
+        error = ExcErrorFactory.get(exc)
         resp_fn = ErrorRespAdapterFactory.get(key)
         logger.exception("ExcJsonResp handle {e}", e=ExcDetailFactory.get(exc))
-        return resp_fn(mapped_exc)
+        return resp_fn(error)
