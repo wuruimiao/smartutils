@@ -2,7 +2,9 @@ import ipaddress
 import json
 import re
 
-__all__ = ["dict_json", "check_ip", "check_domain", "check_port"]
+__all__ = ["dict_json", "check_ip", "check_domain", "check_port", "max_int", "min_int"]
+
+import sys
 
 DOMAIN_REGEX = re.compile(
     r"^(?!-)[A-Za-z0-9-]{1,63}(?<!-)"
@@ -29,3 +31,10 @@ def check_domain(domain: str) -> bool:
 
 def check_port(port: int) -> bool:
     return 1 <= port <= 65535
+
+
+def max_int() -> int:
+    return sys.maxsize
+
+def min_int() -> int:
+    return - sys.maxsize

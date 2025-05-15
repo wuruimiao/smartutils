@@ -1,3 +1,6 @@
+import traceback
+
+
 async def init(conf_path: str = "config/config.yaml"):
     try:
         from smartutils.config import init, get_config, ConfKey
@@ -13,11 +16,10 @@ async def init(conf_path: str = "config/config.yaml"):
         conf = get_config()
         IDGen.init(conf=conf.get(ConfKey.INSTANCE))
     except Exception as e:
-        from smartutils.log import logger
-        from smartutils.error.factory import ExcFormatFactory
         from smartutils.call import exit_on_fail
-        logger.error(f"Smartutils init fail for: {ExcFormatFactory.get(e)}.")
-        logger.error("App Exit.")
+        print(f"Smartutils init fail for: {e}")
+        print(f"Traceback: {traceback.format_exc()}")
+        print("App Exit.")
         exit_on_fail()
 
 
