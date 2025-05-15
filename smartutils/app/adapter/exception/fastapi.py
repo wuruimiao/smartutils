@@ -1,10 +1,13 @@
 from typing import Union
 
-from fastapi.exceptions import RequestValidationError, HTTPException
+from fastapi.exceptions import RequestValidationError, HTTPException as FastAPIHTTPException
+from starlette.exceptions import HTTPException
 from pydantic import ValidationError as PydanticValidationError
 
+from smartutils.data import max_int
 from smartutils.error.factory import ExcFactory, ExcFormatFactory
-from smartutils.error.sys_err import ValidationError
+from smartutils.error.mapping import HTTP_STATUS_CODE_MAP
+from smartutils.error.sys_err import ValidationError, SysError
 
 
 @ExcFormatFactory.register(PydanticValidationError)
@@ -22,8 +25,10 @@ def _(exc: Union[PydanticValidationError, RequestValidationError]):
     return ValidationError(detail=ExcFormatFactory.get(exc))
 
 
-# @ExcFactory.register(HTTPException)
-# def _(exc: HTTPException):
-#     if exc.status_code == 405:
-#         return
-#     return ValidationError(detail=ExcFormatFactory.get(exc))
+@ExcFactory.register(HTTPException, order=max_int())
+@ExcFactory.register(FastAPIHTTPException, order=max_int())
+def _(exc: Union[HTTPException, FastAPIHTTPException]):
+    detail = ExcFormatFactory.get(exc)
+    code = exc.status_code
+    err_cls = HTTP_STATUS_CODE_MAP.get(code, SysError)
+    return err_cls(detail=detail)

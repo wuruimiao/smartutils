@@ -35,7 +35,7 @@ class Config:
 
         logger.info("Config init by {conf_path}.", conf_path=conf_path)
 
-        for key in ConfFactory.all_keys():
+        for key, _ in ConfFactory.all():
             self._instances[key] = ConfFactory.create(key, self._config.get(key))
 
     def get(self, name: str) -> T:
