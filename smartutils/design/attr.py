@@ -1,6 +1,6 @@
 from abc import ABCMeta
 
-from smartutils.error.sys_err import LibraryError
+from smartutils.error.sys import LibraryError
 
 
 class RequireAttrs(type):

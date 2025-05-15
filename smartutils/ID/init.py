@@ -3,7 +3,7 @@ from typing import Optional, Type, Tuple, Callable
 from smartutils.ID.abstract import AbstractIDGenerator
 from smartutils.ID.const import IDGenType
 from smartutils.design import BaseFactory
-from smartutils.error.sys_err import LibraryUsageError
+from smartutils.error.sys import LibraryUsageError
 
 
 class _IDGen(AbstractIDGenerator, BaseFactory[IDGenType, Tuple[Callable[..., AbstractIDGenerator], bool]]):

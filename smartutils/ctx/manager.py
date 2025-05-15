@@ -4,7 +4,7 @@ from typing import Any
 
 from smartutils.ctx.const import CTXKey
 from smartutils.design import BaseFactory
-from smartutils.error.sys_err import LibraryUsageError
+from smartutils.error.sys import LibraryUsageError
 
 __all__ = ["CTXVarManager"]
 

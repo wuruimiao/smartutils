@@ -6,7 +6,7 @@ from redis import asyncio as redis, ResponseError
 
 from smartutils.config.schema.redis import RedisConf
 from smartutils.error.factory import ExcFormatFactory
-from smartutils.error.sys_err import CacheError
+from smartutils.error.sys import CacheError
 from smartutils.infra.source_manager.abstract import AbstractResource
 from smartutils.log import logger
 from smartutils.time import get_now_stamp

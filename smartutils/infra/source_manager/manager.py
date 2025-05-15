@@ -7,7 +7,7 @@ from typing import Dict, Callable, Any, Awaitable, Generic
 from smartutils.call import call_hook
 from smartutils.config.const import ConfKey
 from smartutils.ctx import CTXVarManager, CTXKey
-from smartutils.error.sys_err import LibraryError, LibraryUsageError
+from smartutils.error.sys import LibraryError, LibraryUsageError
 from smartutils.infra.source_manager.abstract import T
 from smartutils.log import logger
 

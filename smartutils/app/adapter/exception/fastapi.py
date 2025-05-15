@@ -7,7 +7,7 @@ from pydantic import ValidationError as PydanticValidationError
 from smartutils.data import max_int
 from smartutils.error.factory import ExcFactory, ExcFormatFactory
 from smartutils.error.mapping import HTTP_STATUS_CODE_MAP
-from smartutils.error.sys_err import ValidationError, SysError
+from smartutils.error.sys import ValidationError, SysError
 
 
 @ExcFormatFactory.register(PydanticValidationError)
