@@ -6,6 +6,5 @@ from smartutils.log import logger
 
 def init_middlewares(app, key: AppKey):
     for plugin_name, plugin_cls in MiddlewarePluginFactory.all().items():
-        add_func = AddMiddlewareFactory.get(key)
-        add_func(app, plugin_cls(key))
+        AddMiddlewareFactory.get(key)(app, plugin_cls(key))
         logger.info(f"Middleware {plugin_name} inited.")
