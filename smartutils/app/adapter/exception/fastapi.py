@@ -5,13 +5,13 @@ from starlette.exceptions import HTTPException
 from pydantic import ValidationError as PydanticValidationError
 
 from smartutils.data import max_int
-from smartutils.error.factory import ExcFactory, ExcFormatFactory
+from smartutils.error.factory import ExcErrorFactory, ExcDetailFactory
 from smartutils.error.mapping import HTTP_STATUS_CODE_MAP
 from smartutils.error.sys import ValidationError, SysError
 
 
-@ExcFormatFactory.register(PydanticValidationError)
-@ExcFormatFactory.register(RequestValidationError)
+@ExcDetailFactory.register(PydanticValidationError)
+@ExcDetailFactory.register(RequestValidationError)
 def _(exc: Union[PydanticValidationError, RequestValidationError]):
     for error in exc.errors():
         loc = '.'.join(str(_loc) for _loc in error['loc'])
@@ -19,16 +19,16 @@ def _(exc: Union[PydanticValidationError, RequestValidationError]):
         return f"{loc}: {msg}"
 
 
-@ExcFactory.register(PydanticValidationError)
-@ExcFactory.register(RequestValidationError)
+@ExcErrorFactory.register(PydanticValidationError)
+@ExcErrorFactory.register(RequestValidationError)
 def _(exc: Union[PydanticValidationError, RequestValidationError]):
-    return ValidationError(detail=ExcFormatFactory.get(exc))
+    return ValidationError(detail=ExcDetailFactory.get(exc))
 
 
-@ExcFactory.register(HTTPException, order=max_int())
-@ExcFactory.register(FastAPIHTTPException, order=max_int())
+@ExcErrorFactory.register(HTTPException, order=max_int())
+@ExcErrorFactory.register(FastAPIHTTPException, order=max_int())
 def _(exc: Union[HTTPException, FastAPIHTTPException]):
-    detail = ExcFormatFactory.get(exc)
+    detail = ExcDetailFactory.get(exc)
     code = exc.status_code
     err_cls = HTTP_STATUS_CODE_MAP.get(code, SysError)
     return err_cls(detail=detail)

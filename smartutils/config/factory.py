@@ -4,7 +4,7 @@ from pydantic import ValidationError
 
 from smartutils.config.const import ConfKey
 from smartutils.design import BaseFactory
-from smartutils.error.factory import ExcFormatFactory
+from smartutils.error.factory import ExcDetailFactory
 from smartutils.error.sys import ConfigError
 from smartutils.log import logger
 
@@ -25,7 +25,7 @@ class ConfFactory(BaseFactory[ConfKey, Tuple[Type, bool, bool]]):
         try:
             return conf_cls(**conf)
         except ValidationError as e:
-            raise ConfigError(f"ConfFactory invalid {name}-{key} in config.yml: {ExcFormatFactory.get(e)}")
+            raise ConfigError(f"ConfFactory invalid {name}-{key} in config.yml: {ExcDetailFactory.get(e)}")
 
     @classmethod
     def create(cls, name: ConfKey, conf: Dict):

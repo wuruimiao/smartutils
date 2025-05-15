@@ -5,7 +5,7 @@ from typing import Any, Optional
 from redis import asyncio as redis, ResponseError
 
 from smartutils.config.schema.redis import RedisConf
-from smartutils.error.factory import ExcFormatFactory
+from smartutils.error.factory import ExcDetailFactory
 from smartutils.error.sys import CacheError
 from smartutils.infra.source_manager.abstract import AbstractResource
 from smartutils.log import logger
@@ -278,7 +278,7 @@ class AsyncRedisCli(AbstractResource):
             )
         except ResponseError as e:
             if "BUSYGROUP Consumer Group name already exists" not in str(e):
-                raise CacheError(ExcFormatFactory.get(e)) from None
+                raise CacheError(ExcDetailFactory.get(e)) from None
 
     @asynccontextmanager
     async def xread_xack(
