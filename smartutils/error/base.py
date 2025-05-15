@@ -3,6 +3,8 @@ from typing import Dict
 
 __all__ = ["BaseError", "OK"]
 
+_DEBUG: bool = False
+
 
 class BaseError(Exception, ABC):
     code: int = 1000
@@ -19,7 +21,12 @@ class BaseError(Exception, ABC):
         super().__init__(self.detail)
 
     def dict(self) -> Dict:
-        return {"code": self.code, "msg": self.msg, "detail": self.detail}
+        return {"code": self.code, "msg": self.msg, "detail": self.detail if _DEBUG else ""}
+
+    @classmethod
+    def set_debug(cls, on: bool):
+        global _DEBUG
+        _DEBUG = on
 
     @property
     def is_ok(self) -> bool:
