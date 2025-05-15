@@ -26,7 +26,7 @@ project:
 
     app = create_app()
 
-    from smartutils.ret import ResponseModel
+    from smartutils.app.main.fastapi import ResponseModel
     from smartutils.app import ReqCTX
 
     @app.get("/info")

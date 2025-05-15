@@ -1,12 +1,28 @@
 import dataclasses
 from contextlib import asynccontextmanager
+from typing import TypeVar, Generic, Optional
 
 from fastapi import FastAPI, Request, Header
+from pydantic import BaseModel
 
 from smartutils.app.const import HeaderKey
 from smartutils.design import deprecated
+from smartutils.error.base import BaseError
 
-__all__ = ["create_app"]
+__all__ = ["create_app", "ResponseModel"]
+
+T = TypeVar("T")
+
+
+class ResponseModel(BaseModel, Generic[T]):
+    code: int = 0
+    msg: str = "success"
+    data: Optional[T] = None
+    detail: str = ""
+
+    @classmethod
+    def from_error(cls, error: BaseError) -> "ResponseModel":
+        return ResponseModel(**error.dict())
 
 
 @asynccontextmanager
@@ -45,7 +61,6 @@ async def lifespan(app: FastAPI):
 
 
 def create_app(conf_path: str = "config/config.yaml"):
-    from smartutils.ret import ResponseModel
     from smartutils.app.factory import ExcJsonResp
     from smartutils.app.main.init_middleware import init_middlewares
     from smartutils.app.const import AppKey
