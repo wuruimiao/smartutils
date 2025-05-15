@@ -7,13 +7,14 @@ from smartutils.error.sys_err import (
     UnsupportedError,
     RequestTooLargeError,
     TimeOutError,
+    NotFoundError,
 )
 
 HTTP_STATUS_CODE_MAP = MappingProxyType({
     400: ValidationError,
     401: ValidationError,
     403: ValidationError,
-    404: ValidationError,
+    404: NotFoundError,
     405: UnsupportedError,
     408: TimeOutError,
     413: RequestTooLargeError,
