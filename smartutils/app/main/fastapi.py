@@ -28,7 +28,7 @@ async def lifespan(app: FastAPI):
     if not conf.project.debug:
         app.docs_url = None
 
-    from smartutils.app.factory import AppHook
+    from smartutils.app.hook import AppHook
 
     await AppHook.call_startup(app)
 
