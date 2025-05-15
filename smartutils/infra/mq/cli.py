@@ -6,7 +6,7 @@ from typing import List, Dict, Callable, Optional, Any, AsyncContextManager
 from aiokafka import AIOKafkaProducer, AIOKafkaConsumer, TopicPartition, errors
 
 from smartutils.config.schema.kafka import KafkaConf
-from smartutils.error.factory import ExcFormatFactory
+from smartutils.error.factory import ExcDetailFactory
 from smartutils.error.sys import MQError
 from smartutils.infra.source_manager.abstract import AbstractResource
 from smartutils.log import logger
@@ -50,7 +50,7 @@ class AsyncKafkaCli(AbstractResource):
         except errors.KafkaConnectionError as e:
             logger.exception("start kafka producer {servers} fail", servers=self._bootstrap_servers)
             await producer.stop()
-            raise MQError(ExcFormatFactory.get(e)) from None
+            raise MQError(ExcDetailFactory.get(e)) from None
 
     async def start_producer(self):
         if self._producer:

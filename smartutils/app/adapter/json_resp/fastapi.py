@@ -3,10 +3,10 @@ from fastapi.responses import ORJSONResponse
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.adapter.resp.starlette import StarletteResponseAdapter
 from smartutils.app.const import AppKey
-from smartutils.app.adapter.json_resp.factory import ExcJsonRespFactory
+from smartutils.app.adapter.json_resp.factory import ErrorJsonRespFactory
 
 
-@ExcJsonRespFactory.register(AppKey.FASTAPI)
+@ErrorJsonRespFactory.register(AppKey.FASTAPI)
 def _(error) -> ResponseAdapter:
     return StarletteResponseAdapter(
         ORJSONResponse(

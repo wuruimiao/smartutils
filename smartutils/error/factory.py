@@ -4,10 +4,10 @@ from smartutils.design import BaseFactory
 from smartutils.error.base import BaseError
 from smartutils.error.sys import SysError
 
-__all__ = ["ExcFactory", "ExcFormatFactory"]
+__all__ = ["ExcErrorFactory", "ExcDetailFactory"]
 
 
-class ExcFactory(BaseFactory[Type[BaseException], Callable[[BaseException], BaseError]]):
+class ExcErrorFactory(BaseFactory[Type[BaseException], Callable[[BaseException], BaseError]]):
     @classmethod
     def get(cls, exc: BaseException) -> BaseError:
         if isinstance(exc, BaseError):
@@ -20,7 +20,7 @@ class ExcFactory(BaseFactory[Type[BaseException], Callable[[BaseException], Base
         return SysError(detail=str(exc))
 
 
-class ExcFormatFactory(BaseFactory[Type[BaseException], Callable[[BaseException], str]]):
+class ExcDetailFactory(BaseFactory[Type[BaseException], Callable[[BaseException], str]]):
     @classmethod
     def get(cls, exc: BaseException) -> str:
         for exc_type, handler in cls.all():
