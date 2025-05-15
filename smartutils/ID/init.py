@@ -12,9 +12,9 @@ class _IDGen(AbstractIDGenerator, BaseFactory[IDGenType, Tuple[Callable[..., Abs
         self._type: Optional[IDGenType] = None
 
     @classmethod
-    def register(cls, id_type: IDGenType, need_conf: bool = False):
+    def register(cls, id_type: IDGenType, need_conf: bool = False, **kwargs):
         def decorator(gen_cls: Type[AbstractIDGenerator]) -> Type[AbstractIDGenerator]:
-            super(_IDGen, cls).register(id_type)((gen_cls, need_conf))
+            super(_IDGen, cls).register(id_type, **kwargs)((gen_cls, need_conf))
             return gen_cls
 
         return decorator

@@ -34,7 +34,7 @@ class CTXVarManager(BaseFactory[CTXKey, contextvars.ContextVar]):
     @classmethod
     def register(cls, key: CTXKey, **kwargs):
         def decorator(obj):
-            super(CTXVarManager, cls).register(key)(contextvars.ContextVar(key))
+            super(CTXVarManager, cls).register(key, **kwargs)(contextvars.ContextVar(key))
             return obj
 
         return decorator

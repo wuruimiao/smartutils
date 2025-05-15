@@ -2,7 +2,6 @@ import dataclasses
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request, Header
-from fastapi.exceptions import RequestValidationError
 
 from smartutils.app.const import HeaderKey
 from smartutils.design import deprecated
@@ -50,6 +49,8 @@ def create_app(conf_path: str = "config/config.yaml"):
     from smartutils.app.factory import ExcJsonResp
     from smartutils.app.main.init_middleware import init_middlewares
     from smartutils.app.const import AppKey
+    from fastapi.exceptions import RequestValidationError
+    from starlette.exceptions import HTTPException
 
     app = FastAPI(lifespan=lifespan)
     app.state.smartutils_conf_path = conf_path  # noqa
@@ -58,6 +59,10 @@ def create_app(conf_path: str = "config/config.yaml"):
 
     @app.exception_handler(RequestValidationError)
     async def _(request: Request, exc: RequestValidationError):
+        return ExcJsonResp.handle(exc, AppKey.FASTAPI).response
+
+    @app.exception_handler(HTTPException)
+    async def _(request: Request, exc: HTTPException):
         return ExcJsonResp.handle(exc, AppKey.FASTAPI).response
 
     @app.get("/")

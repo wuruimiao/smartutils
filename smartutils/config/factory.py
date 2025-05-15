@@ -20,10 +20,6 @@ class ConfFactory(BaseFactory[ConfKey, Tuple[Type, bool, bool]]):
 
         return decorator
 
-    @classmethod
-    def all_keys(cls) -> Tuple:
-        return tuple(cls._registry.keys())
-
     @staticmethod
     def _init_conf_cls(name, key, conf_cls, conf):
         try:

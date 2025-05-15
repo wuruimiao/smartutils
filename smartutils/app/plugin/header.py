@@ -11,9 +11,6 @@ from smartutils.ctx import CTXKey, CTXVarManager
 __all__ = ["HeaderPlugin"]
 
 
-@CTXVarManager.register(CTXKey.USERID)
-@CTXVarManager.register(CTXKey.USERNAME)
-@CTXVarManager.register(CTXKey.TRACE_ID)
 @MiddlewarePluginFactory.register(MiddlewarePluginKey.HEADER, order=MiddlewarePluginOrder.HEADER)
 class HeaderPlugin(AbstractMiddlewarePlugin):
     async def dispatch(

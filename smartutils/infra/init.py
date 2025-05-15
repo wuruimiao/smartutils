@@ -12,7 +12,7 @@ async def init():
 
     from smartutils.infra.factory import InfraFactory
 
-    for comp_key, info in InfraFactory.all().items():
+    for comp_key, info in InfraFactory.all():
         init_func, need_conf = info
         conf = config.get(comp_key)
         if need_conf and not conf:
