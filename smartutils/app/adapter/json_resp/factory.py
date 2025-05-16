@@ -3,10 +3,10 @@ from typing import Callable
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.const import AppKey
 from smartutils.design import BaseFactory
-from smartutils.error.base import BaseError
+from smartutils.error.base import BaseDataDict
 
-__all__ = ["ErrorRespAdapterFactory"]
+__all__ = ["JsonRespFactory"]
 
 
-class ErrorRespAdapterFactory(BaseFactory[AppKey, Callable[[BaseError], ResponseAdapter]]):
+class JsonRespFactory(BaseFactory[AppKey, Callable[[BaseDataDict], ResponseAdapter]]):
     pass

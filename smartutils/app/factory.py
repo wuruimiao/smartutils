@@ -1,6 +1,6 @@
 from loguru import logger
 
-from smartutils.app.adapter.json_resp.factory import ErrorRespAdapterFactory
+from smartutils.app.adapter.json_resp.factory import JsonRespFactory
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.const import AppKey
 from smartutils.error.factory import ExcErrorFactory, ExcDetailFactory
@@ -13,9 +13,9 @@ __all__ = ["ExcJsonResp"]
 class ExcJsonResp:
     def __init__(self, key: AppKey):
         self._key = key
-        self._resp_fn = ErrorRespAdapterFactory.get(key)
+        self._resp_fn = JsonRespFactory.get(key)
 
     def handle(self, exc: BaseException) -> ResponseAdapter:
         error = ExcErrorFactory.get(exc)
         logger.exception("ExcJsonResp handle {e}", e=ExcDetailFactory.get(exc))
-        return self._resp_fn(error)
+        return self._resp_fn(error.dict)

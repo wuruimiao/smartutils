@@ -1,9 +1,21 @@
 from abc import ABC
 from typing import Dict, Any, ClassVar
 
-__all__ = ["BaseError", "BaseData"]
+__all__ = ["BaseError", "BaseData", "BaseDataDict"]
 
 _DEBUG: bool = False
+
+
+class BaseDataDict(dict):
+    @property
+    def status_code(self) -> int:
+        return self.get("status_code")
+
+    @property
+    def data(self) -> Dict:
+        if "status_code" in self:
+            self.pop("status_code")
+        return self
 
 
 class BaseData:
@@ -14,8 +26,11 @@ class BaseData:
     data: Any
 
     @property
-    def dict(self) -> Dict:
-        return {"code": self.code, "msg": self.msg, "detail": self.detail if _DEBUG else "", "data": self.data}
+    def dict(self) -> BaseDataDict:
+        return BaseDataDict({
+            "code": self.code, "msg": self.msg, "status_code": self.status_code,
+            "detail": self.detail if _DEBUG else "", "data": self.data
+        })
 
     @classmethod
     def set_debug(cls, on: bool):
