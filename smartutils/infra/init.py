@@ -1,5 +1,3 @@
-import inspect
-
 from smartutils.call import call_hook
 
 __all__ = ["init", "release"]

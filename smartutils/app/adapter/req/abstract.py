@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
-from smartutils.app.const import HeaderKey
 from smartutils.ID import IDGen
+from smartutils.app.const import HeaderKey
 
 __all__ = ["RequestAdapter"]
 

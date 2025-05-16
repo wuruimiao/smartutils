@@ -1,8 +1,8 @@
 from typing import Union
 
 from fastapi.exceptions import RequestValidationError, HTTPException as FastAPIHTTPException
-from starlette.exceptions import HTTPException
 from pydantic import ValidationError as PydanticValidationError
+from starlette.exceptions import HTTPException
 
 from smartutils.data import max_int
 from smartutils.error.factory import ExcErrorFactory, ExcDetailFactory

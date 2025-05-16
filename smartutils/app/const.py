@@ -1,5 +1,5 @@
-from enum import Enum, IntEnum
 import sys
+from enum import Enum, IntEnum
 
 __all__ = ["HeaderKey", "AppKey", "MiddlewarePluginKey", "MiddlewarePluginOrder"]
 
