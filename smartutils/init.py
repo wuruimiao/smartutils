@@ -20,7 +20,7 @@ async def init(conf_path: str = "config/config.yaml"):
     except Exception as e:
         from smartutils.call import exit_on_fail
         print(f"Smartutils init fail for: {e}")
-        print(f"Traceback: {traceback.format_exc()}")
+        print(f"{traceback.format_exc()}")
         print("App Exit.")
         exit_on_fail()
 
