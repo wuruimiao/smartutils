@@ -115,5 +115,5 @@ def main(filename):
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Usage: python add_all.py your_file.py")
-        sys.exit(1)
-    main(sys.argv[1])
+    else:
+        main(sys.argv[1])
