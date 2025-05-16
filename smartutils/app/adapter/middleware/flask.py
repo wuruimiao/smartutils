@@ -1,7 +1,7 @@
 import asyncio
 
 import flask
-from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin, AbstractMiddleware
+from smartutils.app.adapter.middleware.abstract import AbstractMiddleware
 from smartutils.app.adapter.middleware.factory import MiddlewareFactory
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.const import AppKey

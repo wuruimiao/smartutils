@@ -4,8 +4,8 @@ from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.const import HeaderKey, MiddlewarePluginKey, MiddlewarePluginOrder
-from smartutils.app.plugin.factory import MiddlewarePluginFactory
 from smartutils.app.header import CustomHeader
+from smartutils.app.plugin.factory import MiddlewarePluginFactory
 from smartutils.ctx import CTXKey, CTXVarManager
 
 __all__ = ["HeaderPlugin"]

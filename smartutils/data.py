@@ -36,5 +36,6 @@ def check_port(port: int) -> bool:
 def max_int() -> int:
     return sys.maxsize
 
+
 def min_int() -> int:
     return - sys.maxsize

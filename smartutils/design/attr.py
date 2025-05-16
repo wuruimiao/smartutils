@@ -1,5 +1,3 @@
-from abc import ABCMeta
-
 from smartutils.error.sys import LibraryError
 
 
