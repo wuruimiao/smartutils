@@ -1,13 +1,23 @@
-import argparse
+import os
+from pathlib import Path
+from dotenv import load_dotenv
 
-import uvicorn
+load_dotenv(dotenv_path=Path("config") / ".env", override=True)
 
-from smartutils.app.const import AppKey
+if os.environ.get("ENABLE_OTEL_AUTO_INSTRUMENT", "1") == "1":
+    from opentelemetry.instrumentation.auto_instrumentation.sitecustomize import initialize
+
+    print("load open telemetry.")
+    initialize()
 
 __all__ = ["run"]
 
 
 def run():
+    import argparse
+    import uvicorn
+    from smartutils.app.const import AppKey
+
     parser = argparse.ArgumentParser(description="Run app/main")
     parser.add_argument("--host", type=str, default="0.0.0.0", help="Host to bind")
     parser.add_argument("--port", type=int, default=80, help="Port to bind")
