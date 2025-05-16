@@ -10,5 +10,5 @@ from smartutils.error.base import BaseError
 @ErrorRespAdapterFactory.register(AppKey.DJANGO)
 def _(error: BaseError) -> ResponseAdapter:
     return DjangoResponseAdapter(
-        JsonResponse(error.dict(), status=error.status_code)
+        JsonResponse(error.dict, status=error.status_code)
     )
