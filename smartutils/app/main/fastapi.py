@@ -72,15 +72,17 @@ def create_app(conf_path: str = "config/config.yaml"):
     app = FastAPI(lifespan=lifespan)
     app.state.smartutils_conf_path = conf_path  # noqa
 
-    init_middlewares(app, AppKey.FASTAPI)
+    key = AppKey.FASTAPI
+
+    init_middlewares(app, key)
 
     @app.exception_handler(RequestValidationError)
     async def _(request: Request, exc: RequestValidationError):
-        return ExcJsonResp.handle(exc, AppKey.FASTAPI).response
+        return ExcJsonResp(key).handle(exc).response
 
     @app.exception_handler(HTTPException)
     async def _(request: Request, exc: HTTPException):
-        return ExcJsonResp.handle(exc, AppKey.FASTAPI).response
+        return ExcJsonResp(key).handle(exc).response
 
     @app.get("/")
     def root() -> ResponseModel:

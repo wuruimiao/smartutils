@@ -4,14 +4,18 @@ from smartutils.app.adapter.json_resp.factory import ErrorRespAdapterFactory
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.const import AppKey
 from smartutils.error.factory import ExcErrorFactory, ExcDetailFactory
+from smartutils.design import singleton
 
 __all__ = ["ExcJsonResp"]
 
 
+@singleton
 class ExcJsonResp:
-    @classmethod
-    def handle(cls, exc: BaseException, key: AppKey) -> ResponseAdapter:
+    def __init__(self, key: AppKey):
+        self._key = key
+        self._resp_fn = ErrorRespAdapterFactory.get(key)
+
+    def handle(self, exc: BaseException) -> ResponseAdapter:
         error = ExcErrorFactory.get(exc)
-        resp_fn = ErrorRespAdapterFactory.get(key)
         logger.exception("ExcJsonResp handle {e}", e=ExcDetailFactory.get(exc))
-        return resp_fn(error)
+        return self._resp_fn(error)
