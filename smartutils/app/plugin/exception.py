@@ -21,6 +21,5 @@ class ExceptionPlugin(AbstractMiddlewarePlugin):
             return resp
         except Exception as exc:
             from smartutils.app.factory import ExcJsonResp
-            from smartutils.app.const import AppKey
 
-            return ExcJsonResp.handle(exc, self.app_key)
+            return ExcJsonResp(self.app_key).handle(exc)
