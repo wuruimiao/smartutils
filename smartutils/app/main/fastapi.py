@@ -1,6 +1,6 @@
 import dataclasses
 from contextlib import asynccontextmanager
-from typing import TypeVar, Generic, Optional, ClassVar
+from typing import TypeVar, Generic, Optional, ClassVar, Any
 
 from fastapi import FastAPI, Request, Header
 from fastapi.responses import ORJSONResponse
@@ -69,13 +69,14 @@ def create_app(conf_path: str = "config/config.yaml"):
     from smartutils.app.factory import ExcJsonResp
     from smartutils.app.main.init_middleware import init_middlewares
     from smartutils.app.const import AppKey
+    from smartutils.app.adapter.json_resp.fastapi import STJsonResponse
     from fastapi.exceptions import RequestValidationError
     from starlette.exceptions import HTTPException
 
-    app = FastAPI(lifespan=lifespan)
-    app.state.smartutils_conf_path = conf_path  # noqa
-
     key = AppKey.FASTAPI
+
+    app = FastAPI(lifespan=lifespan, default_response_class=STJsonResponse)
+    app.state.smartutils_conf_path = conf_path  # noqa
 
     init_middlewares(app, key)
 
