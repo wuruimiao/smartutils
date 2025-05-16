@@ -10,5 +10,5 @@ from smartutils.error.base import BaseError
 @ErrorRespAdapterFactory.register(AppKey.FASTAPI)
 def _(error: BaseError) -> ResponseAdapter:
     return StarletteResponseAdapter(
-        ORJSONResponse(status_code=error.status_code, content=error.dict())
+        ORJSONResponse(status_code=error.status_code, content=error.dict)
     )

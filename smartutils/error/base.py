@@ -1,27 +1,21 @@
 from abc import ABC
-from typing import Dict
+from typing import Dict, Any, ClassVar
 
-__all__ = ["BaseError", "OK"]
+__all__ = ["BaseError", "BaseData"]
 
 _DEBUG: bool = False
 
 
-class BaseError(Exception, ABC):
-    code: int = 1000
-    msg: str = "Internal Server Error"
-    status_code: int = 500
-    detail: str = ""
+class BaseData:
+    code: int
+    msg: str
+    status_code: ClassVar[int]
+    detail: ClassVar[str]
+    data: Any
 
-    def __init__(self, detail: str = "", code: int = None, msg: str = None,
-                 status_code: int = None):
-        self.code = code if code is not None else self.code
-        self.msg = msg if msg is not None else self.msg
-        self.status_code = status_code if status_code is not None else self.status_code
-        self.detail = detail or self.detail
-        super().__init__(self.detail)
-
+    @property
     def dict(self) -> Dict:
-        return {"code": self.code, "msg": self.msg, "detail": self.detail if _DEBUG else ""}
+        return {"code": self.code, "msg": self.msg, "detail": self.detail if _DEBUG else "", "data": self.data}
 
     @classmethod
     def set_debug(cls, on: bool):
@@ -33,7 +27,17 @@ class BaseError(Exception, ABC):
         return self.code != 0
 
 
-class OK(BaseError):
-    code = 0
-    msg = "success"
-    status_code = 200
+class BaseError(Exception, ABC, BaseData):
+    code = 1000
+    msg = "Internal Server Error"
+    status_code = 500
+    detail = ""
+    data = None
+
+    def __init__(self, detail: str = "", code: int = None, msg: str = None,
+                 status_code: int = None):
+        self.code = code if code is not None else self.code
+        self.msg = msg if msg is not None else self.msg
+        self.status_code = status_code if status_code is not None else self.status_code
+        self.detail = detail or self.detail
+        super(Exception, self).__init__(self.detail)

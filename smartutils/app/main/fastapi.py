@@ -1,28 +1,31 @@
 import dataclasses
 from contextlib import asynccontextmanager
-from typing import TypeVar, Generic, Optional
+from typing import TypeVar, Generic, Optional, ClassVar
 
 from fastapi import FastAPI, Request, Header
+from fastapi.responses import ORJSONResponse
+from fastapi.routing import APIRoute
 from pydantic import BaseModel
 
 from smartutils.app.const import HeaderKey
 from smartutils.design import deprecated
-from smartutils.error.base import BaseError
+from smartutils.error.base import BaseError, BaseData
+from smartutils.log import logger
 
 __all__ = ["create_app", "ResponseModel"]
 
 T = TypeVar("T")
 
 
-class ResponseModel(BaseModel, Generic[T]):
+class ResponseModel(BaseModel, BaseData, Generic[T]):
     code: int = 0
     msg: str = "success"
+    status_code: ClassVar[int] = 200
     data: Optional[T] = None
-    detail: str = ""
 
     @classmethod
     def from_error(cls, error: BaseError) -> "ResponseModel":
-        return ResponseModel(**error.dict())
+        return ResponseModel(**error.dict)
 
 
 @asynccontextmanager
