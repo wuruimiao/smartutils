@@ -2,12 +2,12 @@ import asyncio
 import functools
 import threading
 from abc import ABC
-from typing import Dict, Callable, Any, Awaitable, Generic
+from typing import Dict, Callable, Any, Awaitable, Generic, Type
 
 from smartutils.call import call_hook
 from smartutils.config.const import ConfKey
 from smartutils.ctx import CTXVarManager, CTXKey
-from smartutils.error.sys import LibraryError, LibraryUsageError
+from smartutils.error.sys import SysError, LibraryError, LibraryUsageError
 from smartutils.infra.source_manager.abstract import T
 from smartutils.log import logger
 
@@ -42,11 +42,13 @@ class CTXResourceManager(Generic[T], ABC):
             context_var_name: CTXKey,
             success: Callable[..., Any] = None,
             fail: Callable[..., Any] = None,
+            error: Type[SysError] = None
     ):
         self._ctx_key: CTXKey = context_var_name
         self._resources = resources
         self._success = success
         self._fail = fail
+        self._error = error if error else SysError
         ResourceManagerRegistry.register(self)
 
     def __str__(self) -> str:
@@ -68,8 +70,8 @@ class CTXResourceManager(Generic[T], ABC):
                             return result
                         except Exception as e:
                             await call_hook(self._fail, session)
-                            logger.exception("{key} use fail", key=key)
-                            raise RuntimeError(f"{key} use fail") from None
+                            # logger.exception("{key} use fail", key=key)
+                            raise self._error(f"{key} use fail: {e}") from None
 
             return wrapper
 
