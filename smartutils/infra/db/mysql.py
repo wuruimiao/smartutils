@@ -9,6 +9,7 @@ from smartutils.design import singleton
 from smartutils.infra.db.cli import AsyncDBCli, db_commit, db_rollback
 from smartutils.infra.factory import InfraFactory
 from smartutils.infra.source_manager.manager import CTXResourceManager
+from smartutils.error.sys import DatabaseError
 
 __all__ = ["MySQLManager"]
 
@@ -19,7 +20,7 @@ class MySQLManager(CTXResourceManager[AsyncDBCli]):
     def __init__(self, confs: Dict[ConfKey, MySQLConf]):
         resources = {k: AsyncDBCli(conf, f"mysql_{k}") for k, conf in confs.items()}
         super().__init__(
-            resources, CTXKey.DB_MYSQL, success=db_commit, fail=db_rollback
+            resources, CTXKey.DB_MYSQL, success=db_commit, fail=db_rollback, error=DatabaseError,
         )
 
     @property
