@@ -3,8 +3,8 @@ from loguru import logger
 from smartutils.app.adapter.json_resp.factory import JsonRespFactory
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.const import AppKey
-from smartutils.error.factory import ExcErrorFactory, ExcDetailFactory
 from smartutils.design import singleton
+from smartutils.error.factory import ExcErrorFactory, ExcDetailFactory
 
 __all__ = ["ExcJsonResp"]
 
