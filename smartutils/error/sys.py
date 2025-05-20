@@ -65,25 +65,25 @@ class CacheError(SysError):
     status_code = 500  # Internal Server Error
 
 
-class LibraryError(SysError):
+class MQError(SysError):
     code = 1011
+    msg = "Message Queue Error"
+    status_code = 500  # Internal Server Error
+
+
+class LibraryError(SysError):
+    code = 1012
     msg = "Library Error"
     status_code = 500  # Internal Server Error
 
 
 class ConfigError(SysError):
-    code = 1012
+    code = 1013
     msg = "Config Error"
     status_code = 500  # Internal Server Error
 
 
 class FileError(SysError):
-    code = 1013
-    msg = "File Error"
-    status_code = 500  # Internal Server Error
-
-
-class MQError(SysError):
     code = 1014
-    msg = "Message Queue Error"
+    msg = "File Error"
     status_code = 500  # Internal Server Error

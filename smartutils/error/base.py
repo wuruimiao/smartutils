@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Dict, Any, ClassVar
+from typing import Dict, Any
 
 __all__ = ["BaseError", "BaseData", "BaseDataDict"]
 
@@ -13,24 +13,27 @@ class BaseDataDict(dict):
 
     @property
     def data(self) -> Dict:
-        if "status_code" in self:
-            self.pop("status_code")
-        return self
+        return {k: v for k, v in self.items() if k != "status_code"}
 
 
 class BaseData:
     code: int
     msg: str
-    status_code: ClassVar[int]
-    detail: ClassVar[str]
+    status_code: int
+    detail: str
     data: Any
 
     @property
     def dict(self) -> BaseDataDict:
-        return BaseDataDict({
-            "code": self.code, "msg": self.msg, "status_code": self.status_code,
-            "detail": self.detail if _DEBUG else "", "data": self.data
-        })
+        return BaseDataDict(
+            {
+                "code": self.code,
+                "msg": self.msg,
+                "status_code": self.status_code,
+                "detail": self.detail if _DEBUG else "",
+                "data": self.data,
+            }
+        )
 
     @classmethod
     def set_debug(cls, on: bool):
@@ -49,8 +52,13 @@ class BaseError(Exception, ABC, BaseData):
     detail = ""
     data = None
 
-    def __init__(self, detail: str = "", code: int = None, msg: str = None,
-                 status_code: int = None):
+    def __init__(
+        self,
+        detail: str = "",
+        code: int = None,
+        msg: str = None,
+        status_code: int = None,
+    ):
         self.code = code if code is not None else self.code
         self.msg = msg if msg is not None else self.msg
         self.status_code = status_code if status_code is not None else self.status_code
