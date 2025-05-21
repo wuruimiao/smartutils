@@ -84,12 +84,12 @@ def _write_in_session(session: AsyncSession):
 
 
 async def db_commit(session: AsyncSession):
-    if _write_in_session(session):
-        await session.commit()
-        logger.debug("auto commit")
+    # if _write_in_session(session):
+    await session.commit()
+    logger.debug("auto commit")
 
 
 async def db_rollback(session: AsyncSession):
-    if _write_in_session(session):
-        await session.rollback()
-        logger.debug("auto rollback")
+    # if _write_in_session(session):
+    await session.rollback()
+    logger.debug("auto rollback")
