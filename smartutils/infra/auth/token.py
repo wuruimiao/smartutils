@@ -9,13 +9,19 @@ from smartutils.design import singleton
 from smartutils.infra.factory import InfraFactory
 from smartutils.time import get_stamp_after
 
-__all__ = ["User", "TokenHelper"]
+__all__ = ["User", "Token", "TokenHelper"]
 
 
 @dataclass
 class User:
     id: int
     name: str
+
+
+@dataclass
+class Token:
+    token: str
+    exp: int
 
 
 @singleton
@@ -27,7 +33,7 @@ class TokenHelper:
         self._refresh_exp_sec: int = conf.refresh_exp_day * 24 * 60
 
     @staticmethod
-    def _generate_token(user: User, secret: str, exp_sec: int) -> Tuple[str, int]:
+    def _generate_token(user: User, secret: str, exp_sec: int) -> Token:
         exp_time = int(get_stamp_after(second=exp_sec))
 
         token = jwt.encode(
@@ -35,7 +41,7 @@ class TokenHelper:
             secret,
             algorithm="HS256",
         )
-        return token, exp_time
+        return Token(token, exp_time)
 
     @staticmethod
     def verify_token(token: str, secret: str):
@@ -47,25 +53,26 @@ class TokenHelper:
         except jwt.InvalidTokenError:
             return None
 
-    def token(self, user: User) -> Tuple[str, int, str, int]:
-        access, access_exp = self._generate_token(
+    def token(self, user: User) -> Tuple[Token, Token]:
+        access_t = self._generate_token(
             user, self._access_secret, self._access_exp_sec
         )
-        refresh, refresh_exp = self._generate_token(
+        refresh_t = self._generate_token(
             user, self._refresh_secret, self._refresh_exp_sec
         )
-        return access, access_exp, refresh, refresh_exp
+        return access_t, refresh_t
 
-    def refresh(self, refresh_token) -> Optional[Tuple[str, int, str, int]]:
+    def refresh(self, refresh_token) -> Optional[Tuple[Token, Token]]:
         payload = self.verify_token(refresh_token, self._refresh_secret)
         if not payload:
             return None
         user = User(payload["userid"], payload["username"])
-        # access, access_exp = self._generate_token(
-        #     user, self._access_secret, self._access_exp_sec
-        # )
-        access, access_exp, refresh, refresh_exp = self.token(user)
-        return access, access_exp, refresh_token, payload["exp"]
+        access_t = self._generate_token(
+            user, self._access_secret, self._access_exp_sec
+        )
+        # 默认刷新token不延期
+        # access_t, refresh_t = self.token(user)
+        return access_t, Token(refresh_token, payload["exp"])
 
 
 @InfraFactory.register(ConfKey.TOKEN)
