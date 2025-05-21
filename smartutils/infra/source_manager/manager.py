@@ -70,7 +70,7 @@ class CTXResourceManager(Generic[T], ABC):
                             return result
                         except Exception as e:
                             await call_hook(self._fail, session)
-                            # logger.exception("{key} use fail", key=key)
+                            logger.exception("{key} use fail", key=key)
                             raise self._error(f"{key} use fail: {e}") from None
 
             return wrapper

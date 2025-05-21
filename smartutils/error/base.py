@@ -1,7 +1,7 @@
 from abc import ABC
 from typing import Dict, Any
 
-__all__ = ["BaseError", "BaseData", "BaseDataDict"]
+__all__ = ["BaseError", "BaseData", "BaseDataDict", "OK"]
 
 _DEBUG: bool = False
 
@@ -42,7 +42,7 @@ class BaseData:
 
     @property
     def is_ok(self) -> bool:
-        return self.code != 0
+        return self.code == 0
 
 
 class BaseError(Exception, ABC, BaseData):
@@ -64,3 +64,6 @@ class BaseError(Exception, ABC, BaseData):
         self.status_code = status_code if status_code is not None else self.status_code
         self.detail = detail or self.detail
         super(Exception, self).__init__(self.detail)
+
+
+OK = BaseError("", 0, "success", 200)
