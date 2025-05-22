@@ -21,7 +21,7 @@ class HeaderPlugin(AbstractMiddlewarePlugin):
         trace_id = CustomHeader.traceid(req)
         if not trace_id:
             trace_id = req.gen_trace_id()
-        userid = CustomHeader.userid(req) or "''"
+        userid = CustomHeader.userid(req) or "0"
         username = CustomHeader.username(req) or "''"
         with (
             CTXVarManager.use(CTXKey.TRACE_ID, trace_id),
