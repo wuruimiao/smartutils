@@ -104,12 +104,11 @@ class ZhEnumBase(Enum):
 
     @property
     def zh(self) -> str:
-        return self._zh_map()[self]
+        return self._obj_zh_map()[self]
 
     @classmethod
     def from_zh(cls: Type[T], zh: str) -> T:
-        reverse_map = {v: k for k, v in cls._zh_map().items() if isinstance(k, cls)}
-        return reverse_map[zh]
+        return cls._zh_obj_map()[zh]
 
     @classmethod
     def zh_from_value(cls: Type[T], value: Any) -> str:
@@ -128,8 +127,9 @@ class ZhEnumBase(Enum):
         return [e.zh for e in cls]
 
     @staticmethod
-    def _zh_map() -> Dict[Any, str]:
-        """
-        子类必须实现本方法（推荐用lambda或staticmethod绑定），返回映射字典。
-        """
-        raise NotImplementedError("子类必须实现 _zh_map 方法")
+    def _obj_zh_map() -> Dict[Any, str]:
+        raise NotImplementedError("子类必须实现 _obj_zh_map 方法")
+
+    @staticmethod
+    def _zh_obj_map() -> Dict[str, Any]:
+        raise NotImplementedError("子类必须实现 _zh_obj_map 方法")
