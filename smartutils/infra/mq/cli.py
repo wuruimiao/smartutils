@@ -1,8 +1,8 @@
 import asyncio
-import json
 from contextlib import asynccontextmanager
 from typing import List, Dict, Callable, Optional, Any, AsyncContextManager
 
+import orjson
 from aiokafka import AIOKafkaProducer, AIOKafkaConsumer, TopicPartition, errors
 
 from smartutils.config.schema.kafka import KafkaConf
@@ -73,7 +73,7 @@ class AsyncKafkaCli(AbstractResource):
         await self.start_producer()
         for record in data:
             await self._producer.send_and_wait(
-                topic, json.dumps(record).encode("utf-8")
+                topic, orjson.dumps(record)
             )
 
 
