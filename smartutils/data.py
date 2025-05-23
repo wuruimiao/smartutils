@@ -123,6 +123,10 @@ class ZhEnumBase(Enum):
         return [(e, e.zh) for e in cls]
 
     @classmethod
+    def zh_choices_str(cls) -> str:
+        return " ".join(f"{item.value}: {item.zh}" for item in cls)
+
+    @classmethod
     def zh_list(cls: Type[T]):
         return [e.zh for e in cls]
 
