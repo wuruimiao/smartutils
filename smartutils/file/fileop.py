@@ -12,10 +12,18 @@ from smartutils.error.sys import FileError, NoFileError, FileInvalidError
 from smartutils.log import logger
 from smartutils.system import is_win
 
-from ._path import norm_path, get_path_last_part, check_path_exist
-from .filename import is_link, check_file_exist, get_file_path, filepath_in_dir, buff_size, _path_format_is_file
+from smartutils.file._path import norm_path, get_path_last_part, check_path_exist
+from smartutils.file.filename import (
+    is_link,
+    check_file_exist,
+    get_file_path,
+    filepath_in_dir,
+    buff_size,
+    _path_format_is_file,
+)
 
-_text_chars = bytearray({7, 8, 9, 10, 12, 13, 27} | set(range(0x20, 0x100)) - {0x7f})
+_TextChars = bytearray({7, 8, 9, 10, 12, 13, 27} | set(range(0x20, 0x100)) - {0x7F})
+TMP_PREFIX = "ds_utils_download_"
 
 
 def load_f_line(filename: str) -> tuple[list[str], BaseError]:
@@ -63,7 +71,9 @@ def append_f_line(filename: str, line: str, line_break: bool = True) -> BaseErro
 
 
 def append_f_lines(filename: str, lines: list[str]) -> BaseError:
-    lines = [f"{line.strip() if isinstance(line, str) else str(line)}\n" for line in lines]
+    lines = [
+        f"{line.strip() if isinstance(line, str) else str(line)}\n" for line in lines
+    ]
     with open(filename, "a+", encoding="utf-8") as f:
         f.writelines(lines)
     return OK
@@ -166,7 +176,7 @@ def copy_dir(src, dest, override=False):
     count = 0
     if not check_path_exist(dest):
         os.mkdir(dest)
-    items = glob.glob(get_file_path(src, '*'))
+    items = glob.glob(get_file_path(src, "*"))
     for item in items:
         if os.path.isdir(item):
             path = get_file_path(dest, get_path_last_part(item))
@@ -221,7 +231,7 @@ def is_binary_f(filepath: str) -> bool:
         return False
     with open(filepath, "rb") as f:
         b = f.read(1024)
-    return bool(b.translate(None, _text_chars))
+    return bool(b.translate(None, _TextChars))
 
 
 def is_binary_f2(filepath: str) -> bool:
@@ -271,7 +281,7 @@ def cmp_file(f1: str, f2: str) -> bool:
     if st1.st_size != st2.st_size:
         return False
     size = 8 * 1024
-    with open(f1, 'rb') as fp1, open(f2, 'rb') as fp2:
+    with open(f1, "rb") as fp1, open(f2, "rb") as fp2:
         while True:
             b1 = fp1.read(size)  # 读取指定大小的数据进行比较
             b2 = fp2.read(size)
@@ -294,7 +304,7 @@ def get_f_last_line(filepath: str) -> str:
     with open(filepath, "rb") as f:
         try:  # catch OSError in case of a one line file
             f.seek(-2, os.SEEK_END)
-            while f.read(1) != b'\n':
+            while f.read(1) != b"\n":
                 f.seek(-2, os.SEEK_CUR)
         except OSError:
             f.seek(0)
@@ -331,9 +341,15 @@ def utils_tmp_dir():
 
 
 @contextlib.contextmanager
-def save_content(_dir: str, filename: str, merge: bool = False, file_checker: Callable = None, ext: str = None):
+def save_content(
+    _dir: str,
+    filename: str,
+    merge: bool = False,
+    file_checker: Callable = None,
+    ext: str = None,
+):
     if not file_checker:
-        file_checker = lambda x: True # noqa
+        file_checker = lambda x: True  # noqa
 
     tmp_fd, tmp_f = tempfile.mkstemp(prefix=TMP_PREFIX, suffix=ext, dir=utils_tmp_dir())
     os.close(tmp_fd)
@@ -364,6 +380,3 @@ def save_content(_dir: str, filename: str, merge: bool = False, file_checker: Ca
 
 def file_size(filepath: str) -> int:
     return os.path.getsize(filepath)
-
-
-TMP_PREFIX = "ds_utils_download_"
