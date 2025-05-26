@@ -6,7 +6,7 @@ from smartutils.log import logger
 try:
     from redis import asyncio as redis, ResponseError
 except ImportError:
-    logger.debug("infra.cache depend on redis, install before use")
+    logger.debug("smartutils.infra.cache.cli depend on redis, install before use")
     redis = None
     ResponseError = None
 
