@@ -2,10 +2,20 @@ from smartutils.data.base import (
     max_int,
     min_int,
     make_parent,
-    make_children, dict_json,
+    make_children,
+    dict_json,
 )
 from smartutils.data.type import ZhEnumBase
-from smartutils.data.check import check_ip, check_domain, check_port
+from smartutils.data.check import (
+    check_ip,
+    check_domain,
+    check_port,
+    check_mail,
+    check_phone,
+    check_username,
+    USERNAME_PATTERN,
+    MAIL_PATTERN,
+)
 from smartutils.data.url import (
     is_same_url,
     url_path,
@@ -25,7 +35,6 @@ from smartutils.data.url import (
     url_last_segment,
     dict_to_query_params,
 )
-from smartutils.data.data import *
 
 __all__ = [
     "max_int",
@@ -38,5 +47,9 @@ __all__ = [
     "is_url_missing_host",
     "resolve_relative_url",
     "url_host",
-
+    "USERNAME_PATTERN",
+    "MAIL_PATTERN",
+    "check_mail",
+    "check_phone",
+    "check_username",
 ]
