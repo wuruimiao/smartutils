@@ -2,31 +2,27 @@ import base64
 from io import BytesIO
 from typing import Tuple
 
+from smartutils.log import logger
+
 try:
     import pyotp
     import qrcode
 except ImportError:
+    logger.debug("OtpHelper depend on pyotp & qrcode, install before use.")
     pyotp = None
     qrcode = None
 
 from smartutils.config import ConfKey
 from smartutils.design import singleton
-from smartutils.error.sys import LibraryUsageError
 from smartutils.infra.factory import InfraFactory
 
 __all__ = ["OtpHelper"]
-
-
-def _check_dep():
-    if not pyotp or qrcode:
-        raise LibraryUsageError("use otp must install pyotp and qrcode, by install [auth]")
 
 
 @singleton
 class OtpHelper:
     @staticmethod
     def generate_qr(username: str) -> Tuple[str, str]:
-        _check_dep()
         otp_secret = pyotp.random_base32()
         totp = pyotp.TOTP(otp_secret)
 
@@ -40,7 +36,6 @@ class OtpHelper:
 
     @staticmethod
     def verify_totp(otp_secret: str, user_totp: str) -> bool:
-        _check_dep()
         totp = pyotp.TOTP(otp_secret)
         return totp.verify(user_totp)
 

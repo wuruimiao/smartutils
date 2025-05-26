@@ -1,7 +1,13 @@
 from dataclasses import dataclass
 from typing import Tuple, Optional
 
-import jwt
+from smartutils.log import logger
+
+try:
+    import jwt
+except ImportError:
+    logger.debug("TokenHelper depend on jwt, install first.")
+    jwt = None
 
 from smartutils.config import ConfKey
 from smartutils.config.schema.token import TokenConf
@@ -54,9 +60,7 @@ class TokenHelper:
             return None
 
     def token(self, user: User) -> Tuple[Token, Token]:
-        access_t = self._generate_token(
-            user, self._access_secret, self._access_exp_sec
-        )
+        access_t = self._generate_token(user, self._access_secret, self._access_exp_sec)
         refresh_t = self._generate_token(
             user, self._refresh_secret, self._refresh_exp_sec
         )
@@ -67,9 +71,7 @@ class TokenHelper:
         if not payload:
             return None
         user = User(payload["userid"], payload["username"])
-        access_t = self._generate_token(
-            user, self._access_secret, self._access_exp_sec
-        )
+        access_t = self._generate_token(user, self._access_secret, self._access_exp_sec)
         # 默认刷新token不延期
         # access_t, refresh_t = self.token(user)
         return access_t, Token(refresh_token, payload["exp"])
