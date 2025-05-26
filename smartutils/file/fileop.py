@@ -4,8 +4,10 @@ import hashlib
 import os
 import shutil
 from subprocess import call
-from typing import BinaryIO, Callable
+from typing import BinaryIO, Callable, Dict
 import tempfile
+
+import yaml
 
 from smartutils.error import BaseError, OK
 from smartutils.error.sys import FileError, NoFileError, FileInvalidError
@@ -380,3 +382,11 @@ def save_content(
 
 def file_size(filepath: str) -> int:
     return os.path.getsize(filepath)
+
+
+def load_yaml(filepath: str) -> Dict:
+    try:
+        with open(filepath) as f:
+            return yaml.safe_load(f)
+    except (FileNotFoundError, PermissionError, yaml.YAMLError) as e:
+        raise FileError(f"yaml file {filepath} load fail")

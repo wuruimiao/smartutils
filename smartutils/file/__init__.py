@@ -7,5 +7,6 @@ from .fileop import *
 from .type import *
 
 __all__ = [
-    "dump_f"
+    "dump_f",
+    "load_yaml",
 ]
