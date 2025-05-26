@@ -1,4 +1,6 @@
 import csv
+import sys
+from typing import List, Iterator, Dict
 
 
 def csv_to_data(file_path: str, line_handler):
@@ -10,14 +12,14 @@ def csv_to_data(file_path: str, line_handler):
                 break
 
 
-def csv_data(file_path: str):
+def csv_data(file_path: str) -> Iterator[Dict[str, str]]:
     with open(file_path, mode='r') as f:
         reader = csv.DictReader(f)
         for line in reader:
             yield line
 
 
-def get_cvs_data(file_path: str):
+def get_csv_data(file_path: str) -> List[str]:
     result = []
     with open(file_path, mode='r') as f:
         reader = csv.DictReader(f)
@@ -27,16 +29,14 @@ def get_cvs_data(file_path: str):
 
 
 def increase_csv_limit():
-    import sys
-    import csv
-    maxInt = sys.maxsize
+    max_int = sys.maxsize
 
     while True:
         # decrease the maxInt value by factor 10
         # as long as the OverflowError occurs.
 
         try:
-            csv.field_size_limit(maxInt)
+            csv.field_size_limit(max_int)
             break
         except OverflowError:
-            maxInt = int(maxInt / 10)
+            max_int = int(max_int / 10)

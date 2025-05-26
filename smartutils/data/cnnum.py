@@ -1,8 +1,9 @@
-""" Chinese number <=> int/float conversion methods """
+"""Chinese number <=> int/float conversion methods"""
 
 from __future__ import annotations
 
 from typing import Callable, Union, List
+
 # region chinese chars
 from typing import Tuple
 
@@ -129,6 +130,7 @@ NUMBERING_TYPES: Tuple[str, str, str] = ("low", "mid", "high")
     |`'mid'`|\(10^{8}\)|\(10^{12}\)|\(10^{16}\)|\(10^{20}\)|\(10^{24}\)|\(10^{28}\)|\(10^{32}\)|\(10^{36}\)|\(10^{40}\)|\(10^{44}\)|
     |`'high'`|\(10^{8}\)|\(10^{16}\)|\(10^{32}\)|\(10^{64}\)|\(10^{128}\)|\(10^{256}\)|\(10^{512}\)|\(10^{1024}\)|\(10^{2048}\)|\(10^{4096}\)|
 """
+
 
 # region char classes
 class ChineseChar:
