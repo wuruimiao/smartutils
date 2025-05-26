@@ -5,7 +5,7 @@ from smartutils.log import logger
 try:
     import psutil
 except ImportError:
-    logger.debug("IOController depend on psutil, install before use.")
+    logger.debug("smartutils.system.cgroup.IOController depend on psutil, install before use.")
     psutil = None
 
 

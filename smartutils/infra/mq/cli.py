@@ -3,13 +3,18 @@ from contextlib import asynccontextmanager
 from typing import List, Dict, Callable, Optional, Any, AsyncContextManager
 
 import orjson
-from aiokafka import AIOKafkaProducer, AIOKafkaConsumer, TopicPartition, errors
+from smartutils.log import logger
+
+try:
+    from aiokafka import AIOKafkaProducer, AIOKafkaConsumer, TopicPartition, errors
+except ImportError:
+    logger.debug("smartutils.infra.mq.cli depend on aiokafka, install before use")
+    AIOKafkaProducer, AIOKafkaConsumer, TopicPartition, errors = None, None, None, None
 
 from smartutils.config.schema.kafka import KafkaConf
 from smartutils.error.factory import ExcDetailFactory
 from smartutils.error.sys import MQError
 from smartutils.infra.source_manager.abstract import AbstractResource
-from smartutils.log import logger
 
 __all__ = ["AsyncKafkaCli", "KafkaBatchConsumer"]
 
