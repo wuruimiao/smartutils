@@ -1,0 +1,13 @@
+# 针对所有文本文件，强制统一提交为LF
+* text=auto
+
+# 明确指定某些类型文件始终为LF
+*.sh   text eol=lf
+*.py   text eol=lf
+*.js   text eol=lf
+*.ts   text eol=lf
+*.md   text eol=lf
+
+# 明确指定某些类型文件始终为CRLF（如有极特殊需求可加）
+# *.bat text eol=crlf
+
