@@ -1,4 +1,5 @@
 import os
+import sys
 
 from smartutils.file._path import norm_path, check_path_exist, get_file_path
 
@@ -134,3 +135,69 @@ def get_name_with_i(name, i):
     if i == 0:
         return name
     return filename_add_num(name, i)
+
+
+def format_file_name(name: str, version: int = sys.maxsize) -> str:
+    """
+    规范化文件名中，一些会导致显示异常的字符
+    :param name:
+    :param version: 1原样 2替换|/\\
+    :return:
+    """
+    if version == 1:
+        return name
+
+    name = name.replace("|", "_").replace("/", "").replace("\\", "")
+    if version <= 2:
+        return name
+
+    # 版本3除了下面替换，还有最后的去空格和_
+    if version >= 3:
+        name = name.replace("\n", " ").replace("\r\n", " ")
+        # -不能换成_
+        name = name.replace("……", "_").replace('"', "_").replace("'", "_") \
+            .replace("！", " ").replace("!", " ") \
+            .replace(",", " ").replace(".", " ") \
+            .replace("，", " ").replace("。", " ") \
+            .replace("[", " ").replace("]", " ") \
+            .replace("【", " ").replace("】", " ")
+
+    if version >= 4:
+        name = name.replace("(", " ").replace(")", " ") \
+            .replace("~", " ") \
+            .replace("&", " ") \
+            .replace("$", " ") \
+            .replace("=", " ")
+
+    if version >= 5:
+        name = name.replace(":", " ").replace("*", " ").replace("?", " ") \
+            .replace("<", " ").replace(">", " ")
+
+    name = name.strip()
+    name = ' '.join(name.split())
+    name = name.replace(" ", "_")
+    return name
+
+
+linux_illegal = ('/', '\\', '?', '%', '*', ':', '|', '"', '<', '>', '.', ' ')
+windows_illegal = ('<', '>', ':', '"', '/', '\\', '|', '?', '*')
+
+
+def sanitize_filename(name: str, linux: bool = True, windows: bool = True):
+    """
+    格式化文件名非法字符
+    :param name:
+    :param linux:
+    :param windows:
+    :return:
+    """
+    replace_char = "_"
+    if linux:
+        for char in linux_illegal:
+            name = name.replace(char, replace_char)
+    if windows:
+        for char in windows_illegal:
+            name = name.replace(char, replace_char)
+        name = name.rstrip(". ")
+
+    return name

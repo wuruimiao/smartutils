@@ -13,6 +13,7 @@ __all__ = [
     "min_int",
     "make_parent",
     "make_children",
+    "is_num",
 ]
 _IntReg = re.compile(r"\d+")
 _ChineseNumReg = re.compile("[一二三四五六七八九十百千万]+")

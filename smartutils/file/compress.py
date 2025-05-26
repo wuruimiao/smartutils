@@ -1,13 +1,14 @@
 import os
 import shutil
 import zipfile
+import zlib
 
 from smartutils.error import BaseError, OK
 from smartutils.error.sys import FileError, NoFileError
 from smartutils.log import logger
 
-from ._path import get_file_path
-from .filename import check_file_exist
+from smartutils.file._path import get_file_path
+from smartutils.file.filename import check_file_exist
 
 _compress_suffix = {"gz", "tar", "zip", "rar", "tar.gz"}
 
@@ -58,3 +59,10 @@ def compress(path: str, target_path: str = None) -> tuple[str, BaseError]:
         target_path = f"{path}"
     shutil.make_archive(target_path, "zip", path)
     return f"{target_path}.zip", OK
+
+
+def decode_gzip(b: bytes) -> bytes:
+    try:
+        return zlib.decompress(b, 16 + zlib.MAX_WBITS)
+    except zlib.error:
+        return b

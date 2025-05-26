@@ -4,7 +4,7 @@ import stat
 import traceback
 from pathlib import Path
 
-from smartutils.data import is_num
+from smartutils.data.base import is_num
 from smartutils.error import OK, BaseError
 from smartutils.log import logger
 from smartutils.system import is_win
