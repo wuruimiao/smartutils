@@ -1,14 +1,20 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import Any, Optional
+from smartutils.log import logger
 
-from redis import asyncio as redis, ResponseError
+try:
+    from redis import asyncio as redis, ResponseError
+except ImportError:
+    logger.debug("infra.cache depend on redis, install before use")
+    redis = None
+    ResponseError = None
+
 
 from smartutils.config.schema.redis import RedisConf
 from smartutils.error.factory import ExcDetailFactory
 from smartutils.error.sys import CacheError
 from smartutils.infra.source_manager.abstract import AbstractResource
-from smartutils.log import logger
 from smartutils.time import get_now_stamp
 
 __all__ = ["AsyncRedisCli"]
