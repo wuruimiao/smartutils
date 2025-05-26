@@ -1,6 +1,8 @@
+from smartutils.log import logger
 try:
     import filetype
 except ImportError:
+    logger.debug("file.type depend on filetype, install before use.")
     filetype = None
 
 """

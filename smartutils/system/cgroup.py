@@ -1,18 +1,26 @@
 import time
 import os
+from smartutils.log import logger
 
 try:
     import psutil
 except ImportError:
+    logger.debug("IOController depend on psutil, install before use.")
     psutil = None
-
-from smartutils.log import logger
 
 
 class IOController:
-    def __init__(self, name: str, devices: list[str], command_names: list[str],
-                 rbps: int = None, wbps: int = None, riops: int = None, wiops: int = None,
-                 cgroup_version="v2"):
+    def __init__(
+        self,
+        name: str,
+        devices: list[str],
+        command_names: list[str],
+        rbps: int = None,
+        wbps: int = None,
+        riops: int = None,
+        wiops: int = None,
+        cgroup_version="v2",
+    ):
         """
         v2文档：https://facebookmicrosites.github.io/cgroup2/docs/io-controller.html
         :param name: cgroup名
@@ -39,7 +47,9 @@ class IOController:
             os.makedirs(f"{self._dir}", exist_ok=True)
             self.enable_io_controller()  # Enable controller if needed
         else:
-            raise ValueError("Invalid cgroup version. Supported values are 'v1' and 'v2'.")
+            raise ValueError(
+                "Invalid cgroup version. Supported values are 'v1' and 'v2'."
+            )
 
     def enable_io_controller(self):
         if self.version != "v2":
@@ -74,7 +84,9 @@ class IOController:
                 with open(f"{self._dir}/io.max", "a") as f:
                     f.write(f"{device}{self._get_v2_limit()}\n")
             else:
-                raise ValueError("Invalid cgroup version. Supported values are 'v1' and 'v2'.")
+                raise ValueError(
+                    "Invalid cgroup version. Supported values are 'v1' and 'v2'."
+                )
 
     def monitor_processes(self):
         running_processes = {}
@@ -92,7 +104,7 @@ class IOController:
 
                     if need_limit:
                         if pid not in running_processes:
-                            logger.info(f'add {pid}')
+                            logger.info(f"add {pid}")
                             self.add_process_to_cgroup(pid)
                             running_processes[pid] = True
                     elif pid in running_processes:
@@ -105,7 +117,11 @@ class IOController:
                 exit(0)
 
     def add_process_to_cgroup(self, pid):
-        file_path = f"{self._dir}/tasks" if self.version == "v1" else f"{self._dir}/cgroup.procs"
+        file_path = (
+            f"{self._dir}/tasks"
+            if self.version == "v1"
+            else f"{self._dir}/cgroup.procs"
+        )
         try:
             with open(file_path, "a") as f:
                 f.write(str(pid) + "\n")
@@ -113,7 +129,11 @@ class IOController:
             logger.error(f"add process {pid} fail {e}")
 
     def remove_process_from_cgroup(self, pid=None):
-        file_path = f"{self._dir}/tasks" if self.version == "v1" else f"{self._dir}/cgroup.procs"
+        file_path = (
+            f"{self._dir}/tasks"
+            if self.version == "v1"
+            else f"{self._dir}/cgroup.procs"
+        )
 
         if pid:
             with open(file_path, "r") as f:
@@ -131,6 +151,7 @@ class IOController:
         self.create_cgroup()
         self.set_io_limits()
         self.monitor_processes()
+
 
 # Example usage:
 # io_controller = IOController(
