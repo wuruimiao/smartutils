@@ -83,7 +83,19 @@ class ConfigError(SysError):
     status_code = 500  # Internal Server Error
 
 
-class FileError(SysError):
+class NoFileError(SysError):
     code = 1014
+    msg = "No File Error"
+    status_code = 500
+
+
+class FileError(SysError):
+    code = 1015
     msg = "File Error"
     status_code = 500  # Internal Server Error
+
+
+class FileInvalidError(SysError):
+    code = 1016
+    msg = "File Invalid Error"
+    status_code = 500
