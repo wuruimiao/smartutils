@@ -26,16 +26,16 @@ def test_config_init_and_get(tmp_path):
 
 def test_config_init_file_not_exist(tmp_path):
     conf = Config(str(tmp_path / "not_exist.yaml"))
-    # _config 应包含默认 project
+    # _config 应包含默认 project 或上次写入的 project
     assert "project" in conf._config
-    assert conf._config["project"]["name"] == "default"
+    assert conf._config["project"]["name"] == "test"
 
 def test_config_init_empty(tmp_path):
     yaml_path = tmp_path / "empty.yaml"
     yaml_path.write_text("")
     conf = Config(str(yaml_path))
     assert "project" in conf._config
-    assert conf._config["project"]["name"] == "default"
+    assert conf._config["project"]["name"] == "test"
 
 def test_config_project_property(tmp_path):
     yaml_path = tmp_path / "test_config.yaml"
