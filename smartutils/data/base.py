@@ -24,7 +24,11 @@ def min_int() -> int:
 
 
 def is_num(s) -> bool:
-    return isinstance(s, int) or isinstance(s, float) or s.replace(".", "", 1).isdigit()
+    if isinstance(s, (int, float)):
+        return True
+    if not isinstance(s, str):
+        return False
+    return s.replace(".", "", 1).isdigit()
 
 
 # str
