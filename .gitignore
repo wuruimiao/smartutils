@@ -27,3 +27,8 @@ tmp*
 test.*
 htmlcov
 smartutils.svg
+.ariana/
+.traces/
+.ariana_saved_traces/
+.vault_secret_key
+__pycache__

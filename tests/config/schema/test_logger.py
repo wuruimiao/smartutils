@@ -62,7 +62,13 @@ def test_compression_invalid():
 #     assert "logdir parent dir not exist" in str(exc.value)
 
 
-def test_logfile_none_ok():
-    # logdir 为 None 是允许的
-    conf = LoguruConfig(logdir=None)
-    assert conf.logdir is None
+def test_loguru_config_stream_kw_and_file_kw(setup_config):
+    conf = LoguruConfig(**setup_config)
+    stream_kw = conf.stream_kw
+    file_kw = conf.file_kw
+    # 检查 stream_kw 不包含 rotation、retention、compression、logdir、stream
+    for k in ["rotation", "retention", "compression", "logdir", "stream"]:
+        assert k not in stream_kw
+    # 检查 file_kw 不包含 logdir、stream
+    for k in ["logdir", "stream"]:
+        assert k not in file_kw
