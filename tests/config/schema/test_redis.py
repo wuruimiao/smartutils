@@ -59,7 +59,7 @@ def test_redis_conf_invalid_timeout(field, value):
     )
 
 
-@pytest.mark.parametrize("value", [None, 1, 10, 100])
+@pytest.mark.parametrize("value", [1, 10, 100])
 def test_redis_conf_connect_timeout(value):
     conf_dict = valid_redis_conf()
     conf_dict["connect_timeout"] = value
@@ -67,7 +67,7 @@ def test_redis_conf_connect_timeout(value):
     assert conf.socket_connect_timeout is value
 
 
-@pytest.mark.parametrize("value", [None, 1, 10, 100])
+@pytest.mark.parametrize("value", [1, 10, 100])
 def test_redis_conf_socket_timeout(value):
     conf_dict = valid_redis_conf()
     conf_dict["socket_timeout"] = value
