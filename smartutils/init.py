@@ -19,6 +19,7 @@ async def init(conf_path: str = "config/config.yaml"):
         IDGen.init(conf=conf.get(ConfKey.INSTANCE))
     except Exception as e:
         from smartutils.call import exit_on_fail
+
         print(f"Smartutils init fail for: {e}")
         print(f"{traceback.format_exc()}")
         print("App Exit.")
@@ -35,7 +36,7 @@ async def reset_all():
 
     from smartutils.ctx import CTXVarManager
 
-    CTXVarManager.reset_registered()
+    CTXVarManager.reset()
 
     from smartutils.infra.source_manager.manager import ResourceManagerRegistry
 

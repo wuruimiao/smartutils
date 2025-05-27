@@ -181,8 +181,9 @@ def test_config_loads_all(setup_config: str):
 
 def test_config_empty(setup_conf_empty: str):
     from smartutils.config import init
-
-    init(setup_conf_empty)
+    from smartutils.error.sys import ConfigError
+    with pytest.raises(ConfigError):
+        init(setup_conf_empty)
 
 
 def test_config_no_conf_class(setup_no_conf_class_config: str):
@@ -193,10 +194,9 @@ def test_config_no_conf_class(setup_no_conf_class_config: str):
 
 def test_config_no_default(setup_no_conf_default_config: str):
     from smartutils.config import init
-
-    with pytest.raises(ValueError) as exc:
+    from smartutils.error.sys import ConfigError
+    with pytest.raises(ConfigError):
         init(setup_no_conf_default_config)
-    assert "default not in mysql" in str(exc.value)
 
 
 def test_config_no_config_file(setup_config):
@@ -208,12 +208,10 @@ def test_config_no_config_file(setup_config):
 def test_config_no_config(setup_config):
     from smartutils.config import get_config
     from smartutils.config.init import reset
-
+    from smartutils.error.sys import LibraryUsageError
     reset()
-
-    with pytest.raises(RuntimeError) as exc:
-        conf = get_config()
-    assert "Config not initialized" in str(exc.value)
+    with pytest.raises(LibraryUsageError):
+        get_config()
 
 
 def test_project_conf_inherit(setup_config: str):
