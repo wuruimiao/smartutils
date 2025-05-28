@@ -62,12 +62,12 @@ class AsyncDBCli(AbstractResource):
     def engine(self):
         return self._engine
 
-    async def get_db(self) -> AsyncGenerator[AsyncSession, None]:
-        session = self._session()
-        try:
-            yield session
-        finally:
-            await session.close()
+    # async def get_db(self) -> AsyncGenerator[AsyncSession, None]:
+    #     session = self._session()
+    #     try:
+    #         yield session
+    #     finally:
+    #         await session.close()
 
     async def create_tables(self, bases):
         async with self.engine.begin() as conn:

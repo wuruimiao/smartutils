@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from typing import Dict
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -26,6 +27,11 @@ class MySQLManager(CTXResourceManager[AsyncDBCli]):
     @property
     def curr(self) -> AsyncSession:
         return super().curr
+
+    @asynccontextmanager
+    async def session(self, key: ConfKey = ConfKey.GROUP_DEFAULT):
+        async with self._resources.get(key).session() as session:
+            yield session
 
 
 @InfraFactory.register(ConfKey.MYSQL)
