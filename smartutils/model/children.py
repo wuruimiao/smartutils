@@ -13,6 +13,7 @@ async def children_ids(
 ) -> List[Any]:
     """
     通用递归查找树结构所有子节点ID。
+    不做环检测，太复杂，用数据库超时代替
     :param session: SQLAlchemy AsyncSession
     :param model: ORM模型类
     :param pk_field: 主键字段，如 model.id
