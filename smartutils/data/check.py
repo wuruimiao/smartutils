@@ -3,11 +3,9 @@ import re
 
 from smartutils.data.base import is_num
 
-DOMAIN_REGEX = re.compile(
-    r"^(?!-)[A-Za-z0-9-]{1,63}(?<!-)"
-    r"(\.(?!-)[A-Za-z0-9-]{1,63}(?<!-))*"
-    r"\.[A-Za-z]{2,}$"
-)
+IPV4_REGEX = re.compile(r"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$")
+IPV6_REGEX = re.compile(r"^([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}$")
+DOMAIN_REGEX = re.compile(r"^(?!-)[A-Za-z0-9-]{1,63}(?<!-)(\.(?!-)[A-Za-z0-9-]{1,63}(?<!-))*\.[A-Za-z]{2,}$")
 USERNAME_PATTERN = r"^[a-zA-Z0-9]+$"
 MAIL_PATTERN = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
 
@@ -16,6 +14,8 @@ _MAIL_REGEX = re.compile(MAIL_PATTERN)
 
 
 def check_ip(ip: str) -> bool:
+    if not isinstance(ip, str):
+        return False
     try:
         ipaddress.ip_address(ip)
         return True
@@ -24,10 +24,17 @@ def check_ip(ip: str) -> bool:
 
 
 def check_domain(domain: str) -> bool:
-    return not not DOMAIN_REGEX.match(domain)
+    if not isinstance(domain, str):
+        return False
+    return bool(DOMAIN_REGEX.match(domain))
 
 
-def check_port(port: int) -> bool:
+def check_port(port) -> bool:
+    if not isinstance(port, int):
+        try:
+            port = int(port)
+        except Exception:
+            return False
     return 1 <= port <= 65535
 
 
