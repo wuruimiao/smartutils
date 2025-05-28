@@ -4,7 +4,9 @@ import re
 import sys
 from ast import literal_eval
 from collections import OrderedDict
-from typing import List, Mapping, Dict, Any, Union
+from typing import List, Mapping, Dict, Any, Union, Tuple
+
+from smartutils.log import logger
 
 from smartutils.data.cnnum import cn2num
 
@@ -24,7 +26,11 @@ def min_int() -> int:
 
 
 def is_num(s) -> bool:
-    return isinstance(s, int) or isinstance(s, float) or s.replace(".", "", 1).isdigit()
+    if isinstance(s, (int, float)):
+        return True
+    if not isinstance(s, str):
+        return False
+    return s.replace(".", "", 1).isdigit()
 
 
 # str
@@ -109,6 +115,40 @@ def remove_list_dup_save_first(data: list):
     return result
 
 
+def detect_cycle(id_to_parent: Dict) -> Tuple[bool, Dict]:
+    """
+    检测数据中是否存在循环引用（环）。
+
+    Args:
+        id_to_parent (Dict): 节点ID到父节点ID的映射字典。
+
+    Returns:
+        Tuple[bool, Dict]: 第一个元素表示是否存在环，第二个元素是节点ID到父节点ID的映射字典。
+    """
+    
+    # 对每个节点进行深度优先搜索，检测是否存在环
+    for node_id in id_to_parent:
+        visited = set()  # 当前路径上已访问的节点
+        current = node_id
+        path = [current]  # 记录路径，用于日志输出
+        
+        while current in id_to_parent and id_to_parent[current] != 0:
+            current = id_to_parent[current]
+            
+            # 如果当前节点已经在访问路径中，说明存在环
+            if current in visited:
+                cycle_path = path[path.index(current):] + [current]
+                logger.error(f"检测到数据中存在循环引用: {' -> '.join(map(str, cycle_path))}")
+                return True, id_to_parent
+            
+            # 如果当前节点是新节点，但在其他路径中已被标记为有环，直接返回
+            if current in id_to_parent:
+                visited.add(current)
+                path.append(current)
+    
+    return False, id_to_parent
+
+
 def make_parent(
     data: List[Mapping], info_cls, data_key: str = "id", parent_key: str = "parent_id"
 ) -> Dict:
@@ -124,6 +164,14 @@ def make_parent(
     Returns:
         Dict: 顶层节点的字典（以主键为 key），每个节点应包含 children 属性（列表），子节点挂载在其下。
     """
+    # 构建节点ID到父节点ID的映射
+    id_to_parent = {row[data_key]: row.get(parent_key, 0) for row in data}
+    
+    # 检测是否存在环
+    has_cycle, _ = detect_cycle(id_to_parent)
+    if has_cycle:
+        return {}
+        
     node_map = {row[data_key]: info_cls(**row) for row in data}
     result = {}
     for node in node_map.values():
@@ -156,6 +204,14 @@ def make_children(
     Returns:
         Dict[int, List]: 每个节点 id 映射到该节点的祖先路径（List），路径顺序为 [根, ..., 当前节点]。
     """
+    # 构建节点ID到父节点ID的映射
+    id_to_parent = {row[data_key]: row.get(parent_key, 0) for row in data}
+    
+    # 检测是否存在环
+    has_cycle, _ = detect_cycle(id_to_parent)
+    if has_cycle:
+        return {}
+        
     node_map = {row[data_key]: info_cls(**row) for row in data}
     result = {}
 
