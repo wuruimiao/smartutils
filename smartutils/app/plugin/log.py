@@ -11,15 +11,23 @@ from smartutils.log import logger
 __all__ = ["LogPlugin"]
 
 
-@MiddlewarePluginFactory.register(MiddlewarePluginKey.LOG, order=MiddlewarePluginOrder.LOG)
+@MiddlewarePluginFactory.register(
+    MiddlewarePluginKey.LOG, order=MiddlewarePluginOrder.LOG
+)
 class LogPlugin(AbstractMiddlewarePlugin):
     async def dispatch(
-            self,
-            req: RequestAdapter,
-            next_adapter: Callable[[], Awaitable[ResponseAdapter]],
+        self,
+        req: RequestAdapter,
+        next_adapter: Callable[[], Awaitable[ResponseAdapter]],
     ) -> ResponseAdapter:
         start = perf_counter()
-
+        logger.debug(
+            "{client} - '{method} {url}' - Query: {query}",
+            client=req.client_host,
+            method=req.method,
+            url=req.url,
+            query=req.query_params,
+        )
         resp = await next_adapter()
 
         cost = (perf_counter() - start) * 1000
