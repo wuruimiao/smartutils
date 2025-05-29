@@ -1,5 +1,6 @@
+import difflib
 from enum import Enum
-from typing import TypeVar, Type, Any, Dict
+from typing import TypeVar, Type, Any, Dict, Optional
 
 __all__ = ["ZhEnumBase", "LowStr"]
 
@@ -20,6 +21,20 @@ class ZhEnumBase(Enum):
     @classmethod
     def from_zh(cls: Type[T], zh: str) -> T:
         return cls._zh_obj_map()[zh]
+
+    @classmethod
+    def from_zh_fuzzy(cls: Type[T], zh_fuzzy: str, cutoff: float = 0.6) -> Optional[T]:
+        """
+        从中文模糊匹配到Enum类型对象。
+        :param zh_fuzzy: 模糊中文字符串
+        :param cutoff: 匹配相似度阈值，0.0-1.0之间，越高匹配越严格
+        :return: 匹配到的Enum对象
+        """
+        zh_map = cls._zh_obj_map()
+        matches = difflib.get_close_matches(zh_fuzzy, zh_map.keys(), n=1, cutoff=cutoff)
+        if not matches:
+            return None
+        return zh_map[matches[0]]
 
     @classmethod
     def zh_from_value(cls: Type[T], value: Any) -> str:
