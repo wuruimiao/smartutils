@@ -12,8 +12,8 @@ from smartutils.error.base import BaseDataDict
 
 class STJsonResponse(ORJSONResponse):
     def render(self, content: Any) -> bytes:
-        logger.info(content)
-        logger.info(type(content))
+        # logger.info(content)
+        # logger.info(type(content))
         return super().render(content)
 
 
