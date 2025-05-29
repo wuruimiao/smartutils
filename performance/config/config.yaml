@@ -1,0 +1,7 @@
+loguru:
+  level: INFO
+  stream: true
+
+project:
+  name: auth
+  debug: false
