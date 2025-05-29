@@ -33,3 +33,4 @@ smartutils.svg
 .vault_secret_key
 __pycache__
 .venv
+.coverage
