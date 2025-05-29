@@ -39,6 +39,16 @@ def check_port(port) -> bool:
 
 
 def check_mail(s: str) -> bool:
+    """检查邮箱格式是否正确
+
+    Args:
+        s (str): 邮箱字符串
+
+    Returns:
+        bool: 是否正确
+    """
+    if s is None:
+        return False
     return bool(_MAIL_REGEX.fullmatch(s))
 
 
@@ -47,4 +57,14 @@ def check_phone(s: str) -> bool:
 
 
 def check_username(s: str) -> bool:
+    """检查用户名格式是否正确
+
+    Args:
+        s (str): 用户名字符串
+
+    Returns:
+        bool: 是否正确
+    """
+    if s is None:
+        return False
     return bool(_USERNAME_REGEX.fullmatch(s))

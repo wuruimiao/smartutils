@@ -32,3 +32,5 @@ smartutils.svg
 .ariana_saved_traces/
 .vault_secret_key
 __pycache__
+.venv
+.coverage
