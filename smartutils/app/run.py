@@ -4,11 +4,11 @@ from dotenv import load_dotenv
 
 load_dotenv(dotenv_path=Path("config") / ".env", override=True)
 
-if os.environ.get("ENABLE_OTEL_AUTO_INSTRUMENT", "1") == "1":
-    from opentelemetry.instrumentation.auto_instrumentation.sitecustomize import initialize
-
-    print("load open telemetry.")
-    initialize()
+#if os.environ.get("ENABLE_OTEL_AUTO_INSTRUMENT", "1") == "1":
+#    from opentelemetry.instrumentation.auto_instrumentation.sitecustomize import initialize
+#
+#    print("load open telemetry.")
+#    initialize()
 
 __all__ = ["run"]
 
