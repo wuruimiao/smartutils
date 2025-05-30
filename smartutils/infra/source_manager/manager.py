@@ -7,6 +7,7 @@ from typing import Dict, Callable, Any, Awaitable, Generic, Type
 from smartutils.call import call_hook
 from smartutils.config.const import ConfKey
 from smartutils.ctx import CTXVarManager, CTXKey
+from smartutils.error.base import BaseError
 from smartutils.error.sys import SysError, LibraryError, LibraryUsageError
 from smartutils.infra.source_manager.abstract import T
 from smartutils.log import logger
@@ -68,6 +69,8 @@ class CTXResourceManager(Generic[T], ABC):
                             result = await func(*args, **kwargs)
                             await call_hook(self._success, session)
                             return result
+                        except BaseError as e:
+                            raise e
                         except Exception as e:
                             await call_hook(self._fail, session)
                             logger.exception("{key} use fail", key=key)
