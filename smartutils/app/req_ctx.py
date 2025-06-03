@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from smartutils.ctx import CTXVarManager, CTXKey
 
@@ -19,5 +19,5 @@ class ReqCTX:
         return CTXVarManager.get(CTXKey.TRACE_ID)
 
     @classmethod
-    def get_permission_user_ids(cls) -> List[int]:
+    def get_permission_user_ids(cls) -> Optional[List[int]]:
         return CTXVarManager.get(CTXKey.PERMISSION_USER_IDS)
