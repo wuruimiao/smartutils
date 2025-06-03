@@ -34,19 +34,23 @@ class CTXVarManager(BaseFactory[CTXKey, contextvars.ContextVar]):
 
     @classmethod
     def get(cls, key: CTXKey, default: Any = None) -> Any:
-        var = super(CTXVarManager, cls).get(key)
         try:
+            var = super(CTXVarManager, cls).get(key)
             return var.get()
-        except LookupError as e:
+        except (LookupError, LibraryUsageError):
             if default is not None:
                 return default
 
-            raise LibraryUsageError(f"Must call CTXVarManager.use({key}) first.") from None
+            raise LibraryUsageError(
+                f"Must call CTXVarManager.use({key}) first."
+            ) from None
 
     @classmethod
     def register(cls, key: CTXKey, **kwargs):
         def decorator(obj):
-            super(CTXVarManager, cls).register(key, **kwargs)(contextvars.ContextVar(key))
+            super(CTXVarManager, cls).register(key, **kwargs)(
+                contextvars.ContextVar(key)
+            )
             return obj
 
         return decorator
