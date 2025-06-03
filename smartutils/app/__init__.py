@@ -12,6 +12,7 @@ register_package(_plugin)
 CTXVarManager.register(CTXKey.USERID)(None)
 CTXVarManager.register(CTXKey.USERNAME)(None)
 CTXVarManager.register(CTXKey.TRACE_ID)(None)
+CTXVarManager.register(CTXKey.PERMISSION_USER_IDS)(None)
 
 __all__ = [
     "ReqCTX",

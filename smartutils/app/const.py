@@ -8,6 +8,7 @@ class HeaderKey(str, Enum):
     X_USER_ID = "X-User-Id"
     X_USER_NAME = "X-User-Name"
     X_TRACE_ID = "X-Trace-ID"
+    X_P_USER_IDS = "X-P-User-Ids"
 
 
 class AppKey(Enum):

@@ -14,6 +14,7 @@ class CTXKey(str, Enum):
     TRACE_ID = "traceid"
     USERID = "userid"
     USERNAME = "username"
+    PERMISSION_USER_IDS = "permission_user_ids"
 
     LOGGER_LOGURU = "logger_loguru"
 

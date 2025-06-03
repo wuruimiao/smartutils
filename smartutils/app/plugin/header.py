@@ -23,10 +23,12 @@ class HeaderPlugin(AbstractMiddlewarePlugin):
             trace_id = req.gen_trace_id()
         userid = CustomHeader.userid(req) or "0"
         username = CustomHeader.username(req) or "''"
+        permission_user_ids = CustomHeader.permission_user_ids(req)
         with (
             CTXVarManager.use(CTXKey.TRACE_ID, trace_id),
             CTXVarManager.use(CTXKey.USERID, userid),
             CTXVarManager.use(CTXKey.USERNAME, username),
+            CTXVarManager.use(CTXKey.PERMISSION_USER_IDS, permission_user_ids)
         ):
             resp: ResponseAdapter = await next_adapter()
             resp.set_header(HeaderKey.X_TRACE_ID, trace_id)
