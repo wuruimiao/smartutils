@@ -1,3 +1,5 @@
+import base64
+
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.const import HeaderKey
 
@@ -11,7 +13,7 @@ class CustomHeader:
 
     @classmethod
     def username(cls, adapter: RequestAdapter):
-        return adapter.get_header(HeaderKey.X_USER_NAME)
+        return base64.b64decode(adapter.get_header(HeaderKey.X_USER_NAME)).decode('utf-8')
 
     @classmethod
     def traceid(cls, adapter: RequestAdapter):
