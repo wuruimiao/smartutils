@@ -37,6 +37,7 @@ from smartutils.data.url import (
 )
 
 __all__ = [
+    "ZhEnumBase",
     "max_int",
     "min_int",
     "make_parent",
