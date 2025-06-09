@@ -7,8 +7,9 @@ def main():
     with open(PYPROJECT_FILE, "r", encoding="utf-8") as f:
         doc = tomlkit.parse(f.read())
 
-    poetry_deps = doc["tool"]["poetry"]["dependencies"]
-    extras = doc["tool"]["poetry"]["extras"]
+    poetry_section = doc.get("tool", {}).get("poetry", {})
+    poetry_deps = poetry_section.get("dependencies")
+    extras = poetry_section.get("extras")
 
     # 只收集 optional=true 的依赖（不包含主依赖和python本身）
     all_pkgs = []
