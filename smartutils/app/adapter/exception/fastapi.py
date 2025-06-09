@@ -1,6 +1,9 @@
 from typing import Union
 
-from fastapi.exceptions import RequestValidationError, HTTPException as FastAPIHTTPException
+from fastapi.exceptions import (
+    RequestValidationError,
+    HTTPException as FastAPIHTTPException,
+)
 from pydantic import ValidationError as PydanticValidationError
 from starlette.exceptions import HTTPException
 
@@ -14,8 +17,8 @@ from smartutils.error.sys import ValidationError, SysError
 @ExcDetailFactory.register(RequestValidationError)
 def _(exc: Union[PydanticValidationError, RequestValidationError]):
     for error in exc.errors():
-        loc = '.'.join(str(_loc) for _loc in error['loc'])
-        msg = error['msg']
+        loc = ".".join(str(_loc) for _loc in error["loc"])
+        msg = error["msg"]
         return f"{loc}: {msg}"
 
 
