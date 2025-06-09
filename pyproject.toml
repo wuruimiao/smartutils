@@ -1,8 +1,11 @@
 [tool.poetry]
-name = "smartutils"
+name = "smartutils-py"
 version = "0.0.1"
 description = "Your description here"
 authors = ["wuruimiao <dev.wuruimiao@qq.com>"]
+
+[[tool.poetry.packages]]
+include = "smartutils"
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -68,9 +71,6 @@ opentelemetry = [
     "opentelemetry-instrumentation-requests",
 ]
 all = [
-    "PyYAML",
-    "loguru",
-    "contextvars",
     "sqlalchemy",
     "asyncmy",
     "asyncpg",
@@ -81,18 +81,27 @@ all = [
     "fastapi",
     "starlette",
     "pydantic",
-    "ulid-py",
     "uvicorn",
+    "ulid-py",
     "bcrypt",
     "PyJWT",
     "pyotp",
     "qrcode",
+    "opentelemetry-sdk",
+    "opentelemetry-instrumentation-fastapi",
+    "opentelemetry-exporter-otlp",
+    "opentelemetry-instrumentation-requests",
 ]
 
 [[tool.poetry.source]]
 name = "tsinghua"
 url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 priority = "primary"
+
+[[tool.poetry.source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+priority = "supplemental"
 
 [build-system]
 requires = ["poetry-core"]
