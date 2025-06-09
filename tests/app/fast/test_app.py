@@ -1,6 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 from smartutils.app.const import HeaderKey
+from smartutils.app import AppHook
 
 import pytest
 from httpx import AsyncClient
@@ -18,26 +19,24 @@ project:
     with open(config_file, "w") as f:
         f.write(config_str)
 
-    from smartutils.init import init
+    @AppHook.on_startup
+    async def init(app):
+        @app.get("/info")
+        def info():
+            return ResponseModel(
+                data={
+                    "userid": ReqCTX.get_userid(),
+                    "username": ReqCTX.get_username(),
+                    "traceid": ReqCTX.get_traceid(),
+                }
+            )
 
-    await init(str(config_file))
+    from smartutils.app.main.fastapi import create_app
 
-    from smartutils.app import create_app
-
-    app = create_app()
+    app = create_app(str(config_file))
 
     from smartutils.app.main.fastapi import ResponseModel
     from smartutils.app import ReqCTX
-
-    @app.get("/info")
-    def info():
-        return ResponseModel(
-            data={
-                "userid": ReqCTX.get_userid(),
-                "username": ReqCTX.get_username(),
-                "traceid": ReqCTX.get_traceid(),
-            }
-        )
 
     with TestClient(app) as c:
         yield c
@@ -52,7 +51,7 @@ async def test_root(client):
     assert resp.status_code == 200
     data = resp.json()
     assert data["code"] == 0
-    assert data["message"] == "success"
+    assert data["msg"] == "success"
 
 
 def test_healthy(client):
@@ -60,7 +59,7 @@ def test_healthy(client):
     assert resp.status_code == 200
     data = resp.json()
     assert data["code"] == 0
-    assert data["message"] == "success"
+    assert data["msg"] == "success"
 
 
 def test_trace_id_header(client):
@@ -77,16 +76,18 @@ def test_trace_id_header(client):
 
 
 def test_info_header_propagation(client):
+    import base64
+
     headers = {
         "X-User-Id": "1234",
-        "X-User-Name": "tester",
+        # username传递base64格式
+        "X-User-Name": base64.b64encode("tester".encode("utf-8")).decode("utf-8"),
         "X-Trace-ID": "abcde-12345",
     }
     resp = client.get("/info", headers=headers)
     assert resp.status_code == 200
     data = resp.json()
-    # 你项目的ResponseModel结构，假设data在data字段下
     payload = data["data"]
-    assert payload["userid"] == "1234"  # 或 int("1234")，看你的中间件是否自动转int
+    assert payload["userid"] == 1234
     assert payload["username"] == "tester"
     assert payload["traceid"] == "abcde-12345"
