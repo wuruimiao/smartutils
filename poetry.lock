@@ -3758,6 +3758,23 @@ url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 reference = "tsinghua"
 
 [[package]]
+name = "uhashring"
+version = "2.4"
+description = "Full featured consistent hashing python library compatible with ketama."
+optional = false
+python-versions = ">=3.8"
+groups = ["main"]
+files = [
+    {file = "uhashring-2.4-py3-none-any.whl", hash = "sha256:0d6cae4ac3205ef039860b0befd6bc762f1686a276805bf1b998c8657124df62"},
+    {file = "uhashring-2.4.tar.gz", hash = "sha256:8ab30868f4ac079d2a8c58c43c35a294339efef7b069d260428617da48e5f020"},
+]
+
+[package.source]
+type = "legacy"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+reference = "tsinghua"
+
+[[package]]
 name = "ulid-py"
 version = "1.1.0"
 description = "Universally Unique Lexicographically Sortable Identifier"
@@ -4488,4 +4505,4 @@ redis = ["redis"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "4d0faabb30e7926763dbef8ae702e6e2a4eaf93ededb451d440db0a612397976"
+content-hash = "a465b455149e0331c9914f69f0786cbf2f3626c8c289df13da03fe6ce79e3499"

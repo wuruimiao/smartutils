@@ -5,8 +5,12 @@ from smartutils.log import logger
 try:
     from uhashring import HashRing as _HashRing
 except ImportError:
-    logger.debug("smartutils.data.hashring.HashRing depend on uhashring, install before use.")
-    _HashRing = None
+    logger.debug(
+        "smartutils.data.hashring.HashRing depend on uhashring, install before use."
+    )
+
+    class _HashRing:
+        pass
 
 
 class HashRing(_HashRing):

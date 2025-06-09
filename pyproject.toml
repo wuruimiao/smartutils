@@ -60,6 +60,7 @@ opentelemetry-exporter-otlp = { version = "~1.33.1", optional = true }
 opentelemetry-instrumentation-requests = { version = "~0.54b1", optional = true }
 
 #pip install opentelemetry-distro # 开箱即用
+uhashring = { version = "^2.4", optional = true }
 
 [tool.poetry.group.dev.dependencies]
 pytest = "~8.3.5"
@@ -105,6 +106,7 @@ all = [
     "opentelemetry-instrumentation-fastapi",
     "opentelemetry-exporter-otlp",
     "opentelemetry-instrumentation-requests",
+    "uhashring",
 ]
 
 [[tool.poetry.source]]
