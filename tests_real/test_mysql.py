@@ -43,7 +43,7 @@ project:
     with open(config_file, "w") as f:
         f.write(config_str)
 
-    from smartutils import init
+    from smartutils.init import init
 
     await init(str(config_file))
 
@@ -88,7 +88,7 @@ project:
     with open(config_file, "w") as f:
         f.write(config_str)
 
-    from smartutils import init
+    from smartutils.init import init
 
     await init(str(config_file))
 
