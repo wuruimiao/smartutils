@@ -1,11 +1,11 @@
 [tool.poetry]
 name = "smartutils"
-version = "0.1.0"
+version = "0.0.1"
 description = "Your description here"
 authors = ["wuruimiao <dev.wuruimiao@qq.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.10"
 PyYAML = "~6.0.2"
 loguru = "~0.7.3"
 contextvars = "~2.4"
@@ -88,6 +88,11 @@ all = [
     "pyotp",
     "qrcode",
 ]
+
+[[tool.poetry.source]]
+name = "tsinghua"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+priority = "primary"
 
 [build-system]
 requires = ["poetry-core"]
