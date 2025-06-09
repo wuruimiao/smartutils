@@ -38,7 +38,7 @@ poetry install
 ## 快速开始
 
 ```python
-from smartutils import init
+from smartutils.init import init
 
 # 初始化 smartutils，加载配置
 await init("config/config.yaml")
