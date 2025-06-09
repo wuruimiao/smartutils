@@ -13,6 +13,8 @@ def test_timer_basic(monkeypatch):
     def fake_counter():
         return next(cg)
 
+    from smartutils.error.sys import LibraryUsageError
+
     t = Timer(func=fake_counter)
     assert not t.running
     assert t.elapsed == 0.0
@@ -20,7 +22,7 @@ def test_timer_basic(monkeypatch):
     t.start()  # fake_counter() -> 0.0
     assert t.running
     assert t.elapsed == 1.0  # fake_counter() -> 1.0, 1.0 - 0.0 = 1.0 正在运行时
-    with pytest.raises(RuntimeError):
+    with pytest.raises(LibraryUsageError):
         t.start()
 
     t.stop()  # fake_counter() -> 2.0, 2.0 - 0.0 = 2.0
@@ -163,8 +165,8 @@ def test_timeit_no_prefix(capture_logger):
 
 def test_stop_without_start_raises():
     t = Timer()
-    # 直接stop，不先start，应抛出RuntimeError
-    import pytest
+    # 直接stop，不先start，应抛出LibraryUsageError
+    from smartutils.error.sys import LibraryUsageError
 
-    with pytest.raises(RuntimeError, match="Timer not started"):
+    with pytest.raises(LibraryUsageError, match="Timer not started"):
         t.stop()
