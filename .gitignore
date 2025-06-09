@@ -34,3 +34,4 @@ smartutils.svg
 __pycache__
 .venv
 .coverage
+dist
