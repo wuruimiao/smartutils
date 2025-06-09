@@ -69,10 +69,7 @@ def timeit(log: str = ""):
                 async with Timer() as t:
                     result = await func(*args, **kwargs)
                 logger.info(
-                    "{log}{name} cost {cost:.3f}s (async)",
-                    log=log,
-                    name=func.__name__,
-                    cost=t.elapsed,
+                    "{}{} cost {:.3f}s (async)".format(log, func.__name__, t.elapsed)
                 )
                 return result
 
@@ -84,10 +81,7 @@ def timeit(log: str = ""):
                 with Timer() as t:
                     result = func(*args, **kwargs)
                 logger.info(
-                    "{log}{name} cost {cost:.3f}s (sync)",
-                    log=log,
-                    name=func.__name__,
-                    cost=t.elapsed,
+                    "{}{} cost {:.3f}s (sync)".format(log, func.__name__, t.elapsed)
                 )
                 return result
 

@@ -3761,9 +3761,10 @@ reference = "tsinghua"
 name = "uhashring"
 version = "2.4"
 description = "Full featured consistent hashing python library compatible with ketama."
-optional = false
+optional = true
 python-versions = ">=3.8"
 groups = ["main"]
+markers = "extra == \"all\""
 files = [
     {file = "uhashring-2.4-py3-none-any.whl", hash = "sha256:0d6cae4ac3205ef039860b0befd6bc762f1686a276805bf1b998c8657124df62"},
     {file = "uhashring-2.4.tar.gz", hash = "sha256:8ab30868f4ac079d2a8c58c43c35a294339efef7b069d260428617da48e5f020"},
@@ -4493,7 +4494,7 @@ url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 reference = "tsinghua"
 
 [extras]
-all = ["PyJWT", "aiokafka", "asyncmy", "asyncpg", "bcrypt", "fastapi", "opentelemetry-exporter-otlp", "opentelemetry-instrumentation-fastapi", "opentelemetry-instrumentation-requests", "opentelemetry-sdk", "pydantic", "pyotp", "python-snappy", "qrcode", "redis", "sqlalchemy", "starlette", "ulid-py", "uvicorn", "zstandard"]
+all = ["PyJWT", "aiokafka", "asyncmy", "asyncpg", "bcrypt", "fastapi", "opentelemetry-exporter-otlp", "opentelemetry-instrumentation-fastapi", "opentelemetry-instrumentation-requests", "opentelemetry-sdk", "pydantic", "pyotp", "python-snappy", "qrcode", "redis", "sqlalchemy", "starlette", "uhashring", "ulid-py", "uvicorn", "zstandard"]
 auth = ["PyJWT", "bcrypt", "pyotp", "qrcode"]
 fastapi = ["fastapi", "pydantic", "starlette", "ulid-py", "uvicorn"]
 kafka = ["aiokafka", "python-snappy", "zstandard"]
@@ -4505,4 +4506,4 @@ redis = ["redis"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "a465b455149e0331c9914f69f0786cbf2f3626c8c289df13da03fe6ce79e3499"
+content-hash = "7adcd2f51a20651a7672d74150e8b96a2169c343cf1d048e5583d55eac288efd"
