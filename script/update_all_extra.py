@@ -10,23 +10,13 @@ def main():
     poetry_deps = doc["tool"]["poetry"]["dependencies"]
     extras = doc["tool"]["poetry"]["extras"]
 
-    # 收集所有非-dev依赖（主依赖 + optional=true 的可选依赖），不包含 python 本身
+    # 只收集 optional=true 的依赖（不包含主依赖和python本身）
     all_pkgs = []
     for pkg, val in poetry_deps.items():
         if pkg == "python":
             continue
-        # 字符串为主依赖
-        if isinstance(val, str):
+        if isinstance(val, dict) and val.get("optional", False):
             all_pkgs.append(pkg)
-        # dict: 只要不是dev依赖都收集
-        elif isinstance(val, dict):
-            if val.get("optional", False):
-                all_pkgs.append(pkg)
-            else:
-                all_pkgs.append(pkg)
-        else:
-            pass  # 一般不会有别的类型
-
     # 去重并排序美观
     all_pkgs = sorted(
         set(all_pkgs), key=lambda x: all_pkgs.index(x) if x in all_pkgs else 9999
