@@ -1,8 +1,22 @@
 [tool.poetry]
 name = "smartutils-py"
-version = "0.0.1"
-description = "Your description here"
+version = "0.0.2"
+description = "一个面向中大型项目的Python基础工具库，涵盖配置管理、日志、上下文、ID生成、数据处理、设计模式、定时、异常处理等基础功能。"
 authors = ["wuruimiao <dev.wuruimiao@qq.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/wuruimiao/smartutils"
+repository = "https://github.com/wuruimiao/smartutils"
+keywords = ["utils", "python", "基础工具", "日志", "配置", "ID", "设计模式", "定时"]
+classifiers = [
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Development Status :: 4 - Beta",
+    "Topic :: Software Development :: Libraries :: Python Modules"
+]
 
 [[tool.poetry.packages]]
 include = "smartutils"
