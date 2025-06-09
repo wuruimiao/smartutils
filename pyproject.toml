@@ -61,7 +61,7 @@ opentelemetry-instrumentation-requests = { version = "~0.54b1", optional = true 
 
 #pip install opentelemetry-distro # 开箱即用
 
-[poetry.group.dev.dependencies]
+[tool.poetry.group.dev.dependencies]
 pytest = "~8.3.5"
 pytest-cov = "~6.1.1"
 pytest-asyncio = "~0.26.0"
