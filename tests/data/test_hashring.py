@@ -1,6 +1,8 @@
-import pytest
-from unittest.mock import MagicMock
 import types
+from unittest.mock import MagicMock
+
+import pytest
+
 import smartutils.data.hashring as hashring_mod
 
 
@@ -33,9 +35,7 @@ def test_hashring_empty_nodes(mock_hashring):
 
 
 def test_hashring_node_weight():
-    # 假设HashRing支持接收 dict 作为节点和权重
     ring = hashring_mod.HashRing({"a": 1, "b": 2})
-    # 通过runtime._nodes访问节点权重
     assert ring.runtime._nodes["a"]["weight"] == 1
     assert ring.runtime._nodes["b"]["weight"] == 2
 
@@ -44,14 +44,25 @@ def test_hashring_get_next_nodes(mock_hashring):
     ring = hashring_mod.HashRing(["a", "b"])
     next_nodes = ring.get_node_next_nodes("a")
     assert "b" in next_nodes
-    # 对于最后一个节点，应返回第一个节点
     next_nodes = ring.get_node_next_nodes("b")
     assert "a" in next_nodes
 
 
 def test_hashring_edge_cases(mock_hashring):
     ring = hashring_mod.HashRing(["a"])
-    # 单节点的情况
     assert ring.get_node_next_nodes("a") == ["a"]
-    # 不存在的节点
     assert ring.get_node_next_nodes("not_exist") == []
+
+
+def test_hashring_import_fallback(monkeypatch):
+    import importlib
+    import sys
+
+    m = importlib.util.find_spec("uhashring")
+    if m:
+        monkeypatch.setitem(sys.modules, "uhashring", None)  # 模拟找不到模块
+    import smartutils.data.hashring as hashring_reload
+
+    importlib.reload(hashring_reload)
+    HashRingCls = getattr(hashring_reload, "_HashRing")
+    assert isinstance(HashRingCls(), object)

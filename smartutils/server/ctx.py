@@ -1,13 +1,16 @@
 from functools import wraps
-from smartutils.time import get_now_stamp, get_stamp_after
+
 from smartutils.error.sys import TimeOutError
+from smartutils.time import get_now_stamp, get_stamp_after
 
 __all__ = ["Context", "timeoutd"]
 
 
 class Context:
-    def __init__(self, sec: int, start=get_now_stamp()):
+    def __init__(self, sec: int, start=None):
         self._start = start
+        if start is None:
+            self._start = get_now_stamp()
         self._deadline = int(get_stamp_after(self._start, second=sec))
         self.timeout = sec
 

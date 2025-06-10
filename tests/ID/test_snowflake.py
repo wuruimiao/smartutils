@@ -1,11 +1,12 @@
 import pytest
+
+from smartutils.error.sys import LibraryUsageError
 from smartutils.ID.gens.snowflake import (
-    Snowflake,
-    SnowflakeGenerator,
     MAX_INSTANCE,
     MAX_SEQ,
+    Snowflake,
+    SnowflakeGenerator,
 )
-from smartutils.error.sys import LibraryUsageError
 
 
 def test_snowflake_parse_and_int():
