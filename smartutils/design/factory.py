@@ -1,10 +1,10 @@
 from collections import OrderedDict
-from typing import TypeVar, Generic, Tuple, final, Iterator
+from typing import Generic, Iterator, Tuple, TypeVar, final
 
 from smartutils.error.sys import LibraryError, LibraryUsageError
 
-K = TypeVar('K')
-V = TypeVar('V')
+K = TypeVar("K")
+V = TypeVar("V")
 
 
 class BaseFactory(Generic[K, V]):
@@ -16,7 +16,13 @@ class BaseFactory(Generic[K, V]):
     @classmethod
     def register(cls, key: K, only_register_once: bool = True, order: int = 0):
         """
-        order越大，生效顺序越靠后
+        order越大，生效顺序越靠后；
+        注意：类装饰器的注册/副作用”只会在首次 import 时发生，之后重新实例化并不会自动重新注册
+
+        Args:
+            key (K): key类
+            only_register_once (bool, optional): 只能注册一次. Defaults to True.
+            order (int, optional): 生效顺序. Defaults to 0.
         """
 
         def decorator(func_or_obj: V):

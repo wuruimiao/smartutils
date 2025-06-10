@@ -1,11 +1,14 @@
-from unittest.mock import MagicMock, AsyncMock
+from unittest.mock import MagicMock
 
 import pytest
 
-from smartutils.infra import MySQLManager
+from smartutils.error.sys import DatabaseError, LibraryUsageError
+
+# 不能在这儿import，setup_config中为防止单例影响，会先reset_all
+# from smartutils.infra import MySQLManager
 
 
-@pytest.fixture(scope="function", autouse=True)
+@pytest.fixture(scope="function")
 async def setup_config(tmp_path_factory):
     config_str = """
 mysql:
@@ -34,36 +37,39 @@ project:
     with open(config_file, "w") as f:
         f.write(config_str)
 
-    from smartutils.init import init
-
-    await init(str(config_file))
-
-    yield
-
     from smartutils.init import reset_all
 
     await reset_all()
 
+    from smartutils.test import patched_manager_with_mocked_dbcli
 
-async def test_mysql_manager_use_and_curr(monkeypatch, setup_config):
-    fake_session = AsyncMock()
-    fake_session.in_transaction = MagicMock(return_value=True)
-    fake_session.commit = AsyncMock()
-    fake_session.rollback = AsyncMock()
-    fake_session.__aenter__.return_value = fake_session
-    fake_session.__aexit__.return_value = None
+    with patched_manager_with_mocked_dbcli("smartutils.infra.db.mysql.AsyncDBCli") as (
+        MockDBCli,
+        fake_session,
+        instance,
+    ):
+        from smartutils.infra.db import mysql
 
-    fake_cli = MagicMock()
-    fake_cli.session.return_value.__aenter__.return_value = fake_session
-    fake_cli.session.return_value.__aexit__.return_value = None
+        assert isinstance(mysql.AsyncDBCli, MagicMock)
+        from smartutils.init import init
 
-    # Patch Manager的_resource字典
+        await init(str(config_file))
+        yield {
+            "fake_session": fake_session,
+            "MockDBCli": MockDBCli,
+            "instance": instance,
+        }
+
+
+async def test_mysql_manager_use_and_curr(setup_config):
+    fake_session = setup_config["fake_session"]
+    from smartutils.infra import MySQLManager
+
     mysql_mgr = MySQLManager()
-    monkeypatch.setattr(mysql_mgr, "_resources", {"default": fake_cli})
 
     @mysql_mgr.use()
     async def biz():
-        session = mysql_mgr.curr()
+        session = mysql_mgr.curr
         assert session == fake_session
         return "ok"
 
@@ -71,17 +77,19 @@ async def test_mysql_manager_use_and_curr(monkeypatch, setup_config):
     assert ret == "ok"
     fake_session.commit.assert_awaited()
 
-    # 异常回滚
     @mysql_mgr.use()
     async def biz2():
         raise ValueError("fail")
 
-    with pytest.raises(RuntimeError):
+    with pytest.raises(DatabaseError) as excinfo:
         await biz2()
+    assert "fail" in str(excinfo.value)
     fake_session.rollback.assert_awaited()
 
 
 async def test_curr_no_context(setup_config):
+    from smartutils.infra import MySQLManager
+
     mysql_mgr = MySQLManager()
-    with pytest.raises(RuntimeError):
-        mysql_mgr.curr()
+    with pytest.raises(LibraryUsageError):
+        mysql_mgr.curr

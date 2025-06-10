@@ -1,10 +1,11 @@
+from unittest.mock import MagicMock
+
 import pytest
-from unittest.mock import patch, MagicMock, AsyncMock
 
-from smartutils.infra import PostgresqlManager
+from smartutils.error.sys import DatabaseError, LibraryUsageError
 
 
-@pytest.fixture(scope="function", autouse=True)
+@pytest.fixture(scope="function")
 async def setup_config(tmp_path_factory):
     config_str = """
 postgresql:
@@ -33,36 +34,41 @@ project:
     with open(config_file, "w") as f:
         f.write(config_str)
 
-    from smartutils.init import init
-
-    await init(str(config_file))
-
-    yield
-
     from smartutils.init import reset_all
 
     await reset_all()
+    from smartutils.test import patched_manager_with_mocked_dbcli
+
+    with patched_manager_with_mocked_dbcli(
+        "smartutils.infra.db.postgresql.AsyncDBCli"
+    ) as (
+        MockDBCli,
+        fake_session,
+        instance,
+    ):
+        from smartutils.infra.db import postgresql
+
+        assert isinstance(postgresql.AsyncDBCli, MagicMock)
+
+        from smartutils.init import init
+
+        await init(str(config_file))
+        yield {
+            "fake_session": fake_session,
+            "MockDBCli": MockDBCli,
+            "instance": instance,
+        }
 
 
-async def test_mysql_manager_use_and_curr(monkeypatch):
-    fake_session = AsyncMock()
-    fake_session.in_transaction = MagicMock(return_value=True)
-    fake_session.commit = AsyncMock()
-    fake_session.rollback = AsyncMock()
-    fake_session.__aenter__.return_value = fake_session
-    fake_session.__aexit__.return_value = None
+async def test_pgsql_manager_use_and_curr(setup_config):
+    fake_session = setup_config["fake_session"]
+    from smartutils.infra import PostgresqlManager
 
-    fake_cli = MagicMock()
-    fake_cli.session.return_value.__aenter__.return_value = fake_session
-    fake_cli.session.return_value.__aexit__.return_value = None
-
-    # Patch Manager的_resource字典
     pgsql_mgr = PostgresqlManager()
-    monkeypatch.setattr(pgsql_mgr, "_resources", {"default": fake_cli})
 
     @pgsql_mgr.use()
     async def biz():
-        session = pgsql_mgr.curr()
+        session = pgsql_mgr.curr
         assert session == fake_session
         return "ok"
 
@@ -75,12 +81,16 @@ async def test_mysql_manager_use_and_curr(monkeypatch):
     async def biz2():
         raise ValueError("fail")
 
-    with pytest.raises(RuntimeError):
+    with pytest.raises(DatabaseError) as excinfo:
         await biz2()
+
+    assert "fail" in str(excinfo.value)
     fake_session.rollback.assert_awaited()
 
 
-async def test_curr_no_context():
+async def test_curr_no_context(setup_config):
+    from smartutils.infra import PostgresqlManager
+
     pgsql_mgr = PostgresqlManager()
-    with pytest.raises(RuntimeError):
-        pgsql_mgr.curr()
+    with pytest.raises(LibraryUsageError):
+        pgsql_mgr.curr

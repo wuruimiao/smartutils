@@ -82,7 +82,7 @@ async def test_set_get(setup_cache):
 
     @redis_mgr.use()
     async def func():
-        cli = redis_mgr.curr()
+        cli = redis_mgr.curr
         assert cli is not None
         await cli.set("pytest:curr_cache", "123", expire=1)
         val = await cli.get("pytest:curr_cache")
