@@ -1,5 +1,11 @@
 import pytest
-from smartutils.ID.gens.snowflake import Snowflake, SnowflakeGenerator, MAX_INSTANCE, MAX_SEQ
+from smartutils.ID.gens.snowflake import (
+    Snowflake,
+    SnowflakeGenerator,
+    MAX_INSTANCE,
+    MAX_SEQ,
+)
+from smartutils.error.sys import LibraryUsageError
 
 
 def test_snowflake_parse_and_int():
@@ -41,17 +47,17 @@ def test_snowflake_generator_snowflake_obj():
 
 def test_invalid_instance():
     """测试非法机器ID、序列号、时间戳等参数校验"""
-    with pytest.raises(ValueError):
+    with pytest.raises(LibraryUsageError):
         SnowflakeGenerator(instance=-1)
-    with pytest.raises(ValueError):
+    with pytest.raises(LibraryUsageError):
         SnowflakeGenerator(instance=MAX_INSTANCE + 1)
-    with pytest.raises(ValueError):
+    with pytest.raises(LibraryUsageError):
         Snowflake(timestamp=0, instance=-1)
-    with pytest.raises(ValueError):
+    with pytest.raises(LibraryUsageError):
         Snowflake(timestamp=0, instance=MAX_INSTANCE + 1)
-    with pytest.raises(ValueError):
+    with pytest.raises(LibraryUsageError):
         Snowflake(timestamp=0, instance=1, seq=-1)
-    with pytest.raises(ValueError):
+    with pytest.raises(LibraryUsageError):
         Snowflake(timestamp=0, instance=1, seq=MAX_SEQ + 1)
 
 

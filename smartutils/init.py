@@ -5,7 +5,7 @@ __all__ = ["init"]
 
 async def init(conf_path: str = "config/config.yaml"):
     try:
-        from smartutils.config import init, get_config, ConfKey
+        from smartutils.config import ConfKey, get_config, init
 
         init(conf_path)
 
@@ -29,14 +29,18 @@ async def init(conf_path: str = "config/config.yaml"):
 async def reset_all():
     """
     测试时重置单例状态类型，以及校验
+    以下会在import时初始化
+        1. @CTXVarManager.register，reset后不会再触发，即使init也会报错：LibraryUsageError: CTXVarManager key
+        2. @singleton，reset后，再次init时会创建，没问题
+        3. @InfraFactory.register，reset后不会再触发，导致init时即使有配置也不会初始化，隐形错误
     """
     from smartutils.design.singleton import reset_all
 
     reset_all()
 
-    from smartutils.ctx import CTXVarManager
+    # from smartutils.ctx import CTXVarManager
 
-    CTXVarManager.reset()
+    # CTXVarManager.reset()
 
     from smartutils.infra.source_manager.manager import ResourceManagerRegistry
 
