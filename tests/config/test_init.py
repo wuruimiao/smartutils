@@ -1,9 +1,12 @@
-import pytest
-import tempfile
 import os
-from smartutils.config.init import Config, init, reset, get_config
-from smartutils.error.sys import ConfigError, LibraryUsageError
+import tempfile
+
+import pytest
+
+from smartutils.config.init import Config, get_config, init, reset
 from smartutils.config.schema.project import ProjectConf
+from smartutils.error.sys import ConfigError, LibraryUsageError
+
 
 def project_yaml():
     return (
@@ -15,27 +18,27 @@ def project_yaml():
         "  key: k\n"
     )
 
+
 def test_config_init_and_get(tmp_path):
     yaml_path = tmp_path / "test_config.yaml"
     yaml_path.write_text(project_yaml())
     conf = Config(str(yaml_path))
     assert conf._config["project"]["name"] == "test"
-    # get方法
     assert isinstance(conf.get("project"), ProjectConf)
     assert conf.get("project").name == "test"
 
+
 def test_config_init_file_not_exist(tmp_path):
     conf = Config(str(tmp_path / "not_exist.yaml"))
-    # _config 应包含默认 project 或上次写入的 project
-    assert "project" in conf._config
-    assert conf._config["project"]["name"] == "test"
+    assert "project" not in conf._config
+
 
 def test_config_init_empty(tmp_path):
     yaml_path = tmp_path / "empty.yaml"
     yaml_path.write_text("")
-    conf = Config(str(yaml_path))
-    assert "project" in conf._config
-    assert conf._config["project"]["name"] == "test"
+    with pytest.raises(ConfigError):
+        Config(str(yaml_path))
+
 
 def test_config_project_property(tmp_path):
     yaml_path = tmp_path / "test_config.yaml"
@@ -43,6 +46,7 @@ def test_config_project_property(tmp_path):
     conf = Config(str(yaml_path))
     assert isinstance(conf.project, ProjectConf)
     assert conf.project.name == "test"
+
 
 def test_init_and_reset(tmp_path):
     yaml_path = tmp_path / "test_config.yaml"

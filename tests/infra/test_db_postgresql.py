@@ -34,9 +34,6 @@ project:
     with open(config_file, "w") as f:
         f.write(config_str)
 
-    from smartutils.init import reset_all
-
-    await reset_all()
     from smartutils.test import patched_manager_with_mocked_dbcli
 
     with patched_manager_with_mocked_dbcli(

@@ -1,6 +1,8 @@
-import smartutils.data.csv as csv_mod
-import tempfile
 import os
+import tempfile
+
+import smartutils.data.csv as csv_mod
+
 
 def test_csv_module():
     # 创建临时csv文件
@@ -8,9 +10,11 @@ def test_csv_module():
         f.write("a,b\n1,2\n3,4\n")
         fname = f.name
     called = []
+
     def handler(line):
         called.append(line)
         return True
+
     csv_mod.csv_to_data(fname, handler)
     assert len(called) == 2
     rows = list(csv_mod.csv_data(fname))
@@ -20,6 +24,7 @@ def test_csv_module():
     assert rows2[0]["a"] == "1"
     csv_mod.increase_csv_limit()  # 只需覆盖
     os.remove(fname)
+
 
 def test_csv_edge_cases():
     # 空文件
@@ -33,9 +38,11 @@ def test_csv_edge_cases():
         f.write("a,b\n1,2\n3,4\n")
         fname = f.name
     called = []
+
     def handler(line):
         called.append(line)
         return False
+
     csv_mod.csv_to_data(fname, handler)
     assert len(called) == 1
     os.remove(fname)
@@ -44,3 +51,19 @@ def test_csv_edge_cases():
         list(csv_mod.csv_data("not_exist.csv"))
     except Exception:
         pass
+
+
+def test_increase_csv_limit_overflow(monkeypatch):
+    # 模拟 csv.field_size_limit 抛出 OverflowError 一次，然后成功
+    import smartutils.data.csv as csv_mod
+
+    called = {"count": 0}
+
+    def fake_limit(val):
+        if called["count"] == 0:
+            called["count"] += 1
+            raise OverflowError
+        return 123
+
+    monkeypatch.setattr(csv_mod.csv, "field_size_limit", fake_limit)
+    csv_mod.increase_csv_limit()

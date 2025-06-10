@@ -1,11 +1,11 @@
-# import pytest
+import asyncio
+
+import pytest
+
+from smartutils.init import reset_all
 
 
-# # 自动应用到所有测试函数
-# @pytest.fixture(autouse=True)
-# async def cleanup():
-#     yield
-
-#     from smartutils.infra import release
-
-#     await release()
+@pytest.fixture(autouse=True, scope="function")
+async def ensure_smartutils_init():
+    await reset_all()
+    yield

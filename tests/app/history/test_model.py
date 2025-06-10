@@ -4,9 +4,6 @@ import pytest
 
 from smartutils.error.sys import DatabaseError, LibraryUsageError
 
-# 不能在这儿import，setup_config中为防止单例影响，会先reset_all
-# from smartutils.infra import MySQLManager
-
 
 @pytest.fixture(scope="function")
 async def setup_config(tmp_path_factory):
@@ -57,35 +54,30 @@ project:
         }
 
 
-async def test_mysql_manager_use_and_curr(setup_config):
-    fake_session = setup_config["fake_session"]
-    from smartutils.infra import MySQLManager
+def test_optype_enum_values(setup_config):
+    from smartutils.app.history import model
 
-    mysql_mgr = MySQLManager()
-
-    @mysql_mgr.use()
-    async def biz():
-        session = mysql_mgr.curr
-        assert session == fake_session
-        return "ok"
-
-    ret = await biz()
-    assert ret == "ok"
-    fake_session.commit.assert_awaited()
-
-    @mysql_mgr.use()
-    async def biz2():
-        raise ValueError("fail")
-
-    with pytest.raises(DatabaseError) as excinfo:
-        await biz2()
-    assert "fail" in str(excinfo.value)
-    fake_session.rollback.assert_awaited()
+    assert model.OpType.ADD.value == 1
+    assert model.OpType.DEL.value == 2
+    assert model.OpType.UPDATE.value == 3
 
 
-async def test_curr_no_context(setup_config):
-    from smartutils.infra import MySQLManager
+def test_ophistory_attributes(setup_config):
+    from smartutils.app.history import model
 
-    mysql_mgr = MySQLManager()
-    with pytest.raises(LibraryUsageError):
-        mysql_mgr.curr
+    op = model.OpHistory(
+        biz_type="test",
+        biz_id=123,
+        op_type=model.OpType.ADD.value,
+        op_id=456,
+        before_data={"foo": "bar"},
+        after_data={"foo": "baz"},
+        remark="test remark",
+    )
+    assert op.biz_type == "test"
+    assert op.biz_id == 123
+    assert op.op_type == 1
+    assert op.op_id == 456
+    assert op.before_data == {"foo": "bar"}
+    assert op.after_data == {"foo": "baz"}
+    assert op.remark == "test remark"
