@@ -18,15 +18,15 @@
 """
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta, tzinfo, timezone
+from datetime import datetime, timedelta, timezone, tzinfo
 from time import time
 from typing import Optional
 
+from smartutils.design import singleton
+from smartutils.error.sys import LibraryUsageError
 from smartutils.ID.abstract import AbstractIDGenerator
 from smartutils.ID.const import IDGenType
 from smartutils.ID.init import IDGen
-from smartutils.design import singleton
-from smartutils.error.sys import LibraryUsageError
 
 __all__ = [
     "SnowflakeClockMovedBackwards",
@@ -144,13 +144,13 @@ class SnowflakeGenerator(AbstractIDGenerator):
     """
 
     def __init__(
-            self,
-            instance: int,
-            *,
-            seq: int = 0,
-            epoch: int = 0,
-            timestamp: Optional[int] = None,
-            **kwargs,
+        self,
+        instance: int,
+        *,
+        seq: int = 0,
+        epoch: int = 0,
+        timestamp: Optional[int] = None,
+        **kwargs,
     ):
         """
         :param instance: 当前节点/进程编号（0~1023）
