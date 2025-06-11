@@ -1,12 +1,12 @@
 from collections import defaultdict
-from typing import Optional, Dict, Any, List
-
 from dataclasses import dataclass
-from sqlalchemy import func, asc, select, desc, or_
+from typing import Any, Dict, List, Optional
 
-from smartutils.app.history.model import OpType, OpHistory
-from smartutils.infra import MySQLManager
+from sqlalchemy import asc, desc, func, or_, select
+
+from smartutils.app.history.model import OpHistory, OpType
 from smartutils.design import singleton
+from smartutils.infra import MySQLManager
 from smartutils.log import logger
 
 db: MySQLManager = MySQLManager()

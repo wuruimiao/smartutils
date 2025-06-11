@@ -5,12 +5,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from smartutils.config.const import ConfKey
 from smartutils.config.schema.mysql import MySQLConf
-from smartutils.ctx import CTXVarManager, CTXKey
+from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.design import singleton
+from smartutils.error.sys import DatabaseError
 from smartutils.infra.db.cli import AsyncDBCli, db_commit, db_rollback
 from smartutils.infra.factory import InfraFactory
 from smartutils.infra.source_manager.manager import CTXResourceManager
-from smartutils.error.sys import DatabaseError
 
 __all__ = ["MySQLManager"]
 
@@ -21,7 +21,11 @@ class MySQLManager(CTXResourceManager[AsyncDBCli]):
     def __init__(self, confs: Dict[ConfKey, MySQLConf]):
         resources = {k: AsyncDBCli(conf, f"mysql_{k}") for k, conf in confs.items()}
         super().__init__(
-            resources, CTXKey.DB_MYSQL, success=db_commit, fail=db_rollback, error=DatabaseError,
+            resources,
+            CTXKey.DB_MYSQL,
+            success=db_commit,
+            fail=db_rollback,
+            error=DatabaseError,
         )
 
     @property

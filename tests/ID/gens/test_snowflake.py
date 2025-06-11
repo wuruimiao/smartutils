@@ -1,11 +1,17 @@
+import time
+from datetime import timedelta, timezone
+
 import pytest
 
 from smartutils.error.sys import LibraryUsageError
 from smartutils.ID.gens.snowflake import (
     MAX_INSTANCE,
     MAX_SEQ,
+    MAX_TS,
     Snowflake,
+    SnowflakeClockMovedBackwards,
     SnowflakeGenerator,
+    SnowflakeTimestampOverflow,
 )
 
 
@@ -21,6 +27,19 @@ def test_snowflake_parse_and_int():
     assert sf2.epoch == 10000
     # value属性一致
     assert sf2.value == val
+
+
+def test_snowflake_repr_and_properties():
+    sf = Snowflake(timestamp=1000, instance=5, epoch=100, seq=10)
+    text = repr(sf)
+    assert "Snowflake(" in text
+    assert sf.timedelta == timedelta(milliseconds=100)
+    assert sf.milliseconds == 1000 + 100
+    assert abs(sf.seconds - ((1000 + 100) / 1000)) < 1
+    dt_utc = sf.datetime
+    dt_other = sf.datetime_tz(timezone(timedelta(hours=8)))
+    assert dt_utc.tzinfo is not None
+    assert dt_other.utcoffset().total_seconds() == 8 * 3600
 
 
 def test_snowflake_generator_basic():
@@ -39,7 +58,6 @@ def test_snowflake_generator_snowflake_obj():
     sf = gen.next_snowflake()
     assert isinstance(sf, Snowflake)
     val = int(sf)
-    # 反解析
     sf2 = Snowflake.parse(val, epoch=0)
     assert sf2.timestamp == sf.timestamp
     assert sf2.instance == sf.instance
@@ -62,11 +80,35 @@ def test_invalid_instance():
         Snowflake(timestamp=0, instance=1, seq=MAX_SEQ + 1)
 
 
+def test_invalid_generator_timestamp_epoch():
+    import time as pyt
+
+    cur = int(pyt.time() * 1000)
+    # timestamp < 0
+    with pytest.raises(LibraryUsageError):
+        SnowflakeGenerator(instance=1, timestamp=-1)
+    # epoch < 0
+    with pytest.raises(LibraryUsageError):
+        SnowflakeGenerator(instance=1, epoch=-1)
+    # timestamp > now
+    with pytest.raises(LibraryUsageError):
+        SnowflakeGenerator(instance=1, timestamp=cur + 10000)
+    # epoch > now
+    with pytest.raises(LibraryUsageError):
+        SnowflakeGenerator(instance=1, epoch=cur + 20000)
+
+
+def test_snowflake_int_value():
+    sf = Snowflake(timestamp=1234, instance=1)
+    val = int(sf)
+    assert isinstance(val, int)
+    assert val == sf.value
+
+
 def test_monotonic_seq():
     """测试同一毫秒内序列号自增"""
     gen = SnowflakeGenerator(instance=1, epoch=0)
     ids = [gen() for _ in range(5)]
-    # 低12位应该递增
     seqs = [i & 0xFFF for i in ids]
     assert seqs == sorted(seqs)
 
@@ -84,5 +126,4 @@ def test_snowflake_datetime():
     now_epoch = 1609459200000  # 2021-01-01 00:00:00
     sf = Snowflake(timestamp=1000, instance=1, epoch=now_epoch)
     dt = sf.datetime
-    # 检查时间戳是否正确
     assert abs(dt.timestamp() - ((now_epoch + 1000) / 1000)) < 1

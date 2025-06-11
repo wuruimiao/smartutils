@@ -41,6 +41,7 @@ project:
         fake_session,
         instance,
     ):
+        print(">>> setup_config: start fixture patch/db generation")
         from smartutils.infra.db import mysql
 
         assert isinstance(mysql.AsyncDBCli, MagicMock)
@@ -55,20 +56,20 @@ project:
 
 
 def test_optype_enum_values(setup_config):
-    from smartutils.app.history import model
+    from smartutils.app.history import OpType
 
-    assert model.OpType.ADD.value == 1
-    assert model.OpType.DEL.value == 2
-    assert model.OpType.UPDATE.value == 3
+    assert OpType.ADD.value == 1
+    assert OpType.DEL.value == 2
+    assert OpType.UPDATE.value == 3
 
 
 def test_ophistory_attributes(setup_config):
-    from smartutils.app.history import model
+    from smartutils.app.history import OpHistory, OpType
 
-    op = model.OpHistory(
+    op = OpHistory(
         biz_type="test",
         biz_id=123,
-        op_type=model.OpType.ADD.value,
+        op_type=OpType.ADD.value,
         op_id=456,
         before_data={"foo": "bar"},
         after_data={"foo": "baz"},
