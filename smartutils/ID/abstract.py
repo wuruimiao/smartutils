@@ -24,5 +24,5 @@ class AbstractIDGenerator(ABC):
         return next(self)
 
     @abstractmethod
-    def __repr__(self):
+    def __repr__(self) -> str:
         pass

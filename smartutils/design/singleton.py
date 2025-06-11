@@ -14,7 +14,29 @@ def singleton(cls):
     @singleton
     class MyClass: ...
     """
+    # 未拦截__init__，每次调用实例化都会执行一次__init__
+    # class _SingletonWrapper(cls):
+    #     _instance = None
+    #     _lock = threading.Lock()
 
+    #     def __new__(cls, *args, **kwargs):
+    #         if cls._instance is None:
+    #             with cls._lock:
+    #                 if cls._instance is None:
+    #                     # 兼容父类 __new__ 是否支持参数
+    #                     try:
+    #                         cls._instance = super(_SingletonWrapper, cls).__new__(
+    #                             cls, *args, **kwargs
+    #                         )
+    #                     except TypeError:
+    #                         cls._instance = super(_SingletonWrapper, cls).__new__(cls)
+    #         return cls._instance
+
+    # _SingletonWrapper.__name__ = cls.__name__
+    # _SingletonWrapper.__doc__ = cls.__doc__
+    # return _SingletonWrapper
+
+    # 用 class 装饰器返回了实例（不是类），破坏了类方法的运行机制
     @wraps(cls)
     def get_instance(*args, **kwargs):
         if cls not in _singleton_instances:
