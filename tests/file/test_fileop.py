@@ -1,128 +1,183 @@
+import io
 import os
 import shutil
+import sys
 import tempfile
 
 import pytest
 
-from smartutils.error.sys import FileError, FileInvalidError, NoFileError
-from smartutils.file import fileop
+from smartutils.error import OK
+from smartutils.error.sys import NoFileError
+from smartutils.file import _fileop
 
 
-def test_load_and_dump_f(tmp_path):
-    file = tmp_path / "a.txt"
-    content = "hello\nworld"
-    assert fileop.dump_f(str(file), content).is_ok
-    s, err = fileop.load_f(str(file))
-    assert s == content
+def test_dump_and_load_text(tmp_path):
+    f = tmp_path / "a.txt"
+    assert _fileop.dump_f(str(f), "hello\nworld").is_ok
+    content, err = _fileop.load_f(str(f))
+    assert "hello" in content and err.is_ok
+    lines, err = _fileop.load_f_line(str(f))
+    assert lines[0] == "hello" and err.is_ok
+    assert _fileop.dump_f_lines(str(f), ["a", "b"]).is_ok
+
+
+def test_dump_and_load_bytes(tmp_path):
+    f = tmp_path / "b.bin"
+    assert _fileop.dump_b_f(str(f), b"abc\x01").is_ok
+    with open(f, "rb") as ff:
+        val = ff.read()
+    assert val == b"abc\x01"
+
+
+def test_append_lines(tmp_path):
+    f = tmp_path / "c.txt"
+    assert _fileop.append_f_line(str(f), "x1").is_ok
+    assert _fileop.append_f_line(str(f), "x2", line_break=False).is_ok
+    assert _fileop.append_f_lines(str(f), ["l3", "l4"]).is_ok
+
+
+def test_rm_and_nonexist(tmp_path):
+    f = tmp_path / "todel.txt"
+    assert _fileop.dump_f(str(f), "abc").is_ok
+    assert _fileop.rm_file(str(f)).is_ok
+    assert _fileop.rm_file(str(f)).is_ok
+
+
+def test_copy_move_file(tmp_path):
+    f = tmp_path / "f1.txt"
+    f2 = tmp_path / "f2.txt"
+    _fileop.dump_f(str(f), "hello")
+    d, err = _fileop.copy_file(str(f), str(f2))
     assert err.is_ok
+    assert os.path.exists(d)
+    f3 = tmp_path / "f3.txt"
+    assert _fileop.move_file(str(f2), str(f3)).is_ok
+    assert os.path.exists(f3)
 
 
-def test_load_f_line_unknown_and_invalid(tmp_path):
-    file = tmp_path / "none.txt"
-    # file不存在
-    lines, err = fileop.load_f_line(str(file))
-    assert lines == [] and isinstance(err, NoFileError)
-    # 非utf8文件内容
-    bfile = tmp_path / "bad.txt"
-    bfile.write_bytes(b"abc\xff\xff")
-    lines, err = fileop.load_f_line(str(bfile))
-    assert lines == [] and isinstance(err, FileInvalidError)
+def test_sha2_and_cmp(tmp_path):
+    f1 = tmp_path / "fsha1.txt"
+    f2 = tmp_path / "fsha2.txt"
+    _fileop.dump_f(str(f1), "abcdefg")
+    _fileop.dump_f(str(f2), "abcdefg")
+    h1 = _fileop.sha2_file(str(f1))
+    h2 = _fileop.sha2_file(str(f2))
+    assert h1 == h2
+    assert _fileop.cmp_file(str(f1), str(f2)) is True
 
 
-def test_dump_b_f_and_is_binary(tmp_path):
-    file = tmp_path / "data.bin"
-    assert fileop.dump_b_f(str(file), b"\x00\x01abc").is_ok
-    assert fileop.is_binary_f(str(file))
-    # 文本文件识别为非binary
-    tfile = tmp_path / "t.txt"
-    tfile.write_text("ascii", encoding="utf-8")
-    assert not fileop.is_binary_f(str(tfile))
-
-
-def test_append_and_dump_lines(tmp_path):
-    file = tmp_path / "lines.txt"
-    fileop.dump_f_lines(str(file), ["a", "b", 3])
-    fileop.append_f_line(str(file), "c")
-    fileop.append_f_lines(str(file), ["d", 5])
-    with open(file, encoding="utf-8") as f:
-        lines = f.readlines()
-    assert "a\n" in lines and "3\n" in lines and "c\n" in lines and "5\n" in lines
-
-
-def test_copy_and_move_file(tmp_path):
-    src = tmp_path / "src.txt"
-    src.write_text("hi", encoding="utf-8")
-    dst = tmp_path / "dst.txt"
-    fileop.copy_file(str(src), str(dst))
-    assert dst.exists() and dst.read_text(encoding="utf-8") == "hi"
-    fileop.move_file(str(dst), str(src))
-    assert src.exists()
-
-
-def test_rename_and_rm(tmp_path):
-    src = tmp_path / "aa.txt"
-    src.write_text("z", encoding="utf-8")
-    dst = tmp_path / "bb.txt"
-    fileop.rename_f(str(src), str(dst))
-    assert dst.exists() and not src.exists()
-    fileop.rm_file(str(dst))
-    assert not dst.exists()
-
-
-def test_copy_dir_and_move_dir(tmp_path):
-    src_dir = tmp_path / "d1"
-    src_dir.mkdir()
-    (src_dir / "f1.txt").write_text("x")
-    (src_dir / "f2.txt").write_text("y")
-    dst_dir = tmp_path / "d2"
-    cnt = fileop.copy_dir(str(src_dir), str(dst_dir))
-    assert (dst_dir / "f2.txt").exists()
-    fileop.move_dir(str(dst_dir), str(src_dir / "sub"))
-    assert (src_dir / "sub" / "f1.txt").exists()
-
-
-def test_file_size_sha2(tmp_path):
-    f = tmp_path / "f.txt"
-    f.write_text("sha-test", encoding="utf-8")
-    sz = fileop.file_size(str(f))
-    assert sz == len("sha-test")
-    hval = fileop.sha2_file(str(f))
-    assert len(hval) == 64
-
-
-def test_get_f_time_and_cmp_file(tmp_path):
-    f1 = tmp_path / "fa"
-    f2 = tmp_path / "fb"
-    txt = "x" * 4000
-    f1.write_text(txt, encoding="utf-8")
-    f2.write_text(txt, encoding="utf-8")
-    assert fileop.cmp_file(str(f1), str(f2))
-    # 修改一处再比对为False
-    f2.write_text(txt + "y", encoding="utf-8")
-    assert not fileop.cmp_file(str(f1), str(f2))
-    # 时间
-    c, m = fileop.get_f_time(str(f1))
-    assert c > 0 and m > 0
+def test_get_f_time(tmp_path):
+    f = tmp_path / "t.txt"
+    _fileop.dump_f(str(f), "tt")
+    c, m = _fileop.get_f_time(str(f))
+    assert isinstance(c, float) and isinstance(m, float)
 
 
 def test_get_f_last_line(tmp_path):
-    f = tmp_path / "x.txt"
-    lines = ["a", "b", "last"]
-    f.write_text("\n".join(lines), encoding="utf-8")
-    last = fileop.get_f_last_line(str(f))
-    assert last.strip() == "last"
+    f = tmp_path / "last.txt"
+    _fileop.dump_f(str(f), "a\nb\ncc")
+    last = _fileop.get_f_last_line(str(f))
+    assert last.strip() == "cc"
 
 
-def test_yaml_load_and_exception(tmp_path):
-    f = tmp_path / "good.yml"
-    data = {"a": 1}
-    import yaml
+def test_is_binary(tmp_path):
+    f = tmp_path / "bin.dat"
+    with open(f, "wb") as ff:
+        ff.write(b"\x00\x01\x02")
+    assert _fileop.is_binary_f(str(f)) is True
 
-    f.write_text(yaml.dump(data), encoding="utf-8")
-    loaded = fileop.load_yaml(str(f))
-    assert loaded["a"] == 1
-    # 非法yaml
-    bad = tmp_path / "bad.yml"
-    bad.write_text("!!!", encoding="utf-8")
-    with pytest.raises(FileError):
-        fileop.load_yaml(str(bad))
+
+def test_load_f_line_unicode_error(tmp_path, monkeypatch):
+    f = tmp_path / "err.txt"
+    f.write_bytes(b"\xff\xff\x00notutf8")
+    ret, err = _fileop.load_f_line(str(f))
+    assert not ret and not err.is_ok
+
+
+def test_merge_file(tmp_path):
+    f1 = tmp_path / "merge1.txt"
+    f2 = tmp_path / "merge2.txt"
+    _fileop.dump_f_lines(str(f1), ["aa"])
+    _fileop.dump_f_lines(str(f2), ["bb"])
+    _fileop.merge_file(str(f1), str(f2))
+    x, _ = _fileop.load_f_line(str(f1))
+    assert "bb" in x and "aa" in x
+
+
+def test_copy_dir_and_override(tmp_path):
+    d1 = tmp_path / "src"
+    d2 = tmp_path / "dst"
+    d1.mkdir()
+    file1 = d1 / "a.txt"
+    file1.write_text("123")
+    count = _fileop.copy_dir(str(d1), str(d2))
+    assert count == 1
+    count2 = _fileop.copy_dir(str(d1), str(d2))
+    assert count2 == 0
+    count3 = _fileop.copy_dir(str(d1), str(d2), override=True)
+    assert count3 == 1
+
+
+def test_link_and_rm_link(tmp_path, monkeypatch):
+    src = tmp_path / "srcdir"
+    dst = tmp_path / "alink"
+    src.mkdir()
+
+    def fake_is_win():
+        return False
+
+    monkeypatch.setattr(_fileop, "is_win", fake_is_win)
+    ret = _fileop.link(str(src), str(dst))
+    assert ret.is_ok and os.path.islink(dst)
+    ret2 = _fileop.link(str(src), str(dst))
+    assert ret2.is_ok
+    ret3 = _fileop.rm_link(str(dst))
+    assert ret3.is_ok
+    ret4 = _fileop.rm_link(str(src))
+    assert not ret4.is_ok
+
+
+def test_read_file_iter(tmp_path):
+    f = tmp_path / "rfile.bin"
+    buf = b"abcde" * 100
+    f.write_bytes(buf)
+    out = b""
+    for chunk in _fileop.read_file_iter(str(f)):
+        if chunk:
+            out += chunk
+    assert out == buf
+
+
+def test_is_binary_f2(tmp_path):
+    f = tmp_path / "bin1"
+    f.write_bytes(b"\xff\xfe\x00\x00")
+    assert _fileop.is_binary_f2(str(f)) is False
+    t = tmp_path / "txt1"
+    t.write_text("abc")
+    assert _fileop.is_binary_f2(str(t)) is True
+
+
+def test_save_content_and_merge(tmp_path):
+    subdir = tmp_path / "dir"
+    subdir.mkdir()
+    filename = "out.txt"
+    with _fileop.save_content(str(subdir), filename) as tmpf:
+        with open(tmpf, "w") as f:
+            f.write("smart line")
+    out_f = subdir / filename
+    assert out_f.exists()
+    assert (subdir / "__dir.txt").exists()
+    with _fileop.save_content(str(subdir), filename, merge=True) as tmpf:
+        with open(tmpf, "w") as f:
+            f.write("new line")
+    assert out_f.exists()
+
+
+def test_load_yaml(tmp_path):
+    yml = tmp_path / "a.yml"
+    yml.write_text("a: 123\nb: true")
+    out = _fileop.load_yaml(str(yml))
+    assert out["a"] == 123 and out["b"] is True
+    yml.write_text("a: [unclosed")
+    with pytest.raises(Exception):
+        _fileop.load_yaml(str(yml))

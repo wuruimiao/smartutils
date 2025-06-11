@@ -5,8 +5,8 @@ import yaml
 
 from smartutils.error.base import OK, BaseError
 from smartutils.error.sys import FileInvalidError, NoFileError
+from smartutils.file._filename import check_file_exist
 from smartutils.file._path import norm_path
-from smartutils.file.filename import check_file_exist
 from smartutils.log import logger
 
 
@@ -73,5 +73,5 @@ def tran_json_to_yml_f(json_path: str, yml_path: str):
     with open(json_path, encoding="utf-8") as f:
         conf = json.load(f)
 
-    with open(yml_path, 'w', encoding="utf-8") as f:
+    with open(yml_path, "w", encoding="utf-8") as f:
         yaml.dump(conf, f, allow_unicode=True, default_flow_style=False)

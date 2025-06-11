@@ -26,7 +26,6 @@ def async_kafka_cli(kafka_conf):
     return cli
 
 
-@pytest.mark.asyncio
 async def test_start_producer_and_ping_success(monkeypatch, async_kafka_cli):
     fake_producer = AsyncMock()
     monkeypatch.setattr(
@@ -44,7 +43,6 @@ async def test_start_producer_and_ping_success(monkeypatch, async_kafka_cli):
     fake_producer.client.fetch_all_metadata.assert_awaited()
 
 
-@pytest.mark.asyncio
 async def test_start_producer_kafka_fail(monkeypatch, async_kafka_cli):
     fake_producer = AsyncMock()
 
@@ -67,7 +65,6 @@ async def test_start_producer_kafka_fail(monkeypatch, async_kafka_cli):
         await async_kafka_cli._start_producer()
 
 
-@pytest.mark.asyncio
 async def test_send_data(async_kafka_cli, monkeypatch):
     fake_producer = AsyncMock()
     fake_producer.send_and_wait = AsyncMock()
@@ -79,7 +76,6 @@ async def test_send_data(async_kafka_cli, monkeypatch):
     assert fake_producer.send_and_wait.await_count == 2
 
 
-@pytest.mark.asyncio
 async def test_close(async_kafka_cli):
     fake_producer = AsyncMock()
     async_kafka_cli._producer = fake_producer
@@ -87,7 +83,6 @@ async def test_close(async_kafka_cli):
     fake_producer.stop.assert_awaited()
 
 
-@pytest.mark.asyncio
 async def test_consumer(monkeypatch, async_kafka_cli):
     fake_consumer = AsyncMock()
     monkeypatch.setattr(
@@ -97,7 +92,6 @@ async def test_consumer(monkeypatch, async_kafka_cli):
     assert c == fake_consumer
 
 
-@pytest.mark.asyncio
 async def test_consume_kafka(monkeypatch):
     # 验证消费流程、stop被调用
     cli = MagicMock()
