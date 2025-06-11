@@ -1,13 +1,13 @@
 import dataclasses
 from contextlib import asynccontextmanager
-from typing import TypeVar, Generic, Optional, ClassVar
+from typing import ClassVar, Generic, Optional, TypeVar
 
-from fastapi import FastAPI, Request, Header
+from fastapi import FastAPI, Header, Request
 from pydantic import BaseModel, PrivateAttr
 
 from smartutils.app.const import HeaderKey
 from smartutils.design import deprecated
-from smartutils.error.base import BaseError, BaseData
+from smartutils.error.base import BaseData, BaseError
 
 __all__ = ["create_app", "ResponseModel"]
 
@@ -33,8 +33,8 @@ async def lifespan(app: FastAPI):
     await init(app.state.smartutils_conf_path)  # noqa
 
     from smartutils.config import get_config
-    from smartutils.log import logger
     from smartutils.error.base import BaseError
+    from smartutils.log import logger
 
     conf = get_config()
 
@@ -43,7 +43,9 @@ async def lifespan(app: FastAPI):
     app.description = conf.project.description
     app.debug = conf.project.debug
     BaseError.set_debug(conf.project.debug)
-    logger.info("!!!======run in {env}======!!!", env="prod" if conf.project.debug else "dev")
+    logger.info(
+        "!!!======run in {env}======!!!", env="prod" if conf.project.debug else "dev"
+    )
     if not conf.project.debug:
         app.docs_url = None
 
@@ -64,12 +66,13 @@ async def lifespan(app: FastAPI):
 
 
 def create_app(conf_path: str = "config/config.yaml"):
-    from smartutils.app.factory import ExcJsonResp
-    from smartutils.app.main.init_middleware import init_middlewares
-    from smartutils.app.const import AppKey
-    from smartutils.app.adapter.json_resp.fastapi import STJsonResponse
     from fastapi.exceptions import RequestValidationError
     from starlette.exceptions import HTTPException
+
+    from smartutils.app.adapter.json_resp.fastapi import STJsonResponse
+    from smartutils.app.const import AppKey
+    from smartutils.app.factory import ExcJsonResp
+    from smartutils.app.main.init_middleware import init_middlewares
 
     key = AppKey.FASTAPI
 
@@ -95,29 +98,3 @@ def create_app(conf_path: str = "config/config.yaml"):
         return ResponseModel()
 
     return app
-
-
-@deprecated("")
-@dataclasses.dataclass
-class UserInfo:
-    userid: int
-    username: str
-
-
-@deprecated("Info.get_userid Info.get_username")
-def get_user_info(
-        x_user_id: int = Header(..., alias=HeaderKey.X_USER_ID),
-        x_username: str = Header(..., alias=HeaderKey.X_USER_NAME),
-) -> UserInfo:
-    """
-    Deprecated: Use Info.get_userid Info.get_username instead.
-    """
-    return UserInfo(userid=x_user_id, username=x_username)
-
-
-@deprecated("Info.get_traceid")
-def get_trace_id(x_trace_id: str = Header(..., alias=HeaderKey.X_TRACE_ID)) -> str:
-    """
-    Deprecated: Use Info.get_traceid instead.
-    """
-    return x_trace_id
