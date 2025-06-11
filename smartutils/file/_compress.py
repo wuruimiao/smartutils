@@ -3,12 +3,11 @@ import shutil
 import zipfile
 import zlib
 
-from smartutils.error import BaseError, OK
+from smartutils.error import OK, BaseError
 from smartutils.error.sys import FileError, NoFileError
-from smartutils.log import logger
-
+from smartutils.file._filename import check_file_exist
 from smartutils.file._path import get_file_path
-from smartutils.file.filename import check_file_exist
+from smartutils.log import logger
 
 _compress_suffix = {"gz", "tar", "zip", "rar", "tar.gz"}
 
@@ -16,7 +15,7 @@ _compress_suffix = {"gz", "tar", "zip", "rar", "tar.gz"}
 def is_compress_file(filepath: str) -> bool:
     if "." not in filepath:
         return False
-    suffix = filepath.split('.')[-1]
+    suffix = filepath.split(".")[-1]
     return suffix in _compress_suffix
 
 

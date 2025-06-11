@@ -74,7 +74,6 @@ def fake_OpType(monkeypatch):
     monkeypatch.setattr(mod, "OpType", _OpType)
 
 
-@pytest.mark.asyncio
 async def test_record_history(fake_OpType):
     import smartutils.app.history.service as mod
 
@@ -85,7 +84,6 @@ async def test_record_history(fake_OpType):
     mod.db.curr.add.assert_called()
 
 
-@pytest.mark.asyncio
 async def test_get_op_id_by_order_basic(monkeypatch, fake_OpType):
     import smartutils.app.history.service as mod
 
@@ -101,7 +99,6 @@ async def test_get_op_id_by_order_basic(monkeypatch, fake_OpType):
     assert ids == {}
 
 
-@pytest.mark.asyncio
 async def test_get_op_id_by_order_desc(monkeypatch, fake_OpType):
     import smartutils.app.history.service as mod
 
@@ -115,7 +112,6 @@ async def test_get_op_id_by_order_desc(monkeypatch, fake_OpType):
     assert ids == {4: 30}
 
 
-@pytest.mark.asyncio
 async def test_get_creator_id_and_last_updator_id(fake_OpType, monkeypatch):
     import smartutils.app.history.service as mod
 
@@ -136,7 +132,6 @@ async def test_get_creator_id_and_last_updator_id(fake_OpType, monkeypatch):
     assert ret2 == {8: 33}
 
 
-@pytest.mark.asyncio
 async def test_get_creator_and_last_updator_id_normal(monkeypatch, fake_OpType):
     import smartutils.app.history.service as mod
 
@@ -153,7 +148,6 @@ async def test_get_creator_and_last_updator_id_normal(monkeypatch, fake_OpType):
     assert emp == {}
 
 
-@pytest.mark.asyncio
 async def test_get_op_ids(monkeypatch):
     import smartutils.app.history.service as mod
 
@@ -167,7 +161,6 @@ async def test_get_op_ids(monkeypatch):
     assert emp == {}
 
 
-@pytest.mark.asyncio
 async def test_BizOpInfo_all(monkeypatch, fake_OpType):
     import smartutils.app.history.service as mod
 

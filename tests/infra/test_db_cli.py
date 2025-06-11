@@ -24,7 +24,6 @@ def dbcli(dummy_conf):
     return cli
 
 
-@pytest.mark.asyncio
 async def test_ping_ok(dbcli):
     conn = AsyncMock()
     conn.execute = AsyncMock(return_value=True)
@@ -35,7 +34,6 @@ async def test_ping_ok(dbcli):
     assert await dbcli.ping() is True
 
 
-@pytest.mark.asyncio
 async def test_ping_fail(dbcli, monkeypatch):
     conn = AsyncMock()
     conn.execute = AsyncMock(return_value=True)
@@ -46,13 +44,11 @@ async def test_ping_fail(dbcli, monkeypatch):
     assert await dbcli.ping() is False
 
 
-@pytest.mark.asyncio
 async def test_close(dbcli):
     await dbcli.close()
     dbcli._engine.dispose.assert_awaited()
 
 
-@pytest.mark.asyncio
 async def test_session_ctx(dbcli):
     sess = AsyncMock()
     mgr = AsyncMock()
@@ -67,7 +63,6 @@ def test_engine_property(dbcli):
     assert dbcli.engine == dbcli._engine
 
 
-@pytest.mark.asyncio
 async def test_write_in_session(monkeypatch):
     sess = MagicMock()
     sess.new = {1}
@@ -81,7 +76,6 @@ async def test_write_in_session(monkeypatch):
     assert dbmod._write_in_session(sess) is True
 
 
-@pytest.mark.asyncio
 async def test_db_commit_and_rollback(monkeypatch):
     sess = AsyncMock()
     monkeypatch.setattr(dbmod, "logger", MagicMock())
