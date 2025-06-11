@@ -53,7 +53,9 @@ class AsyncKafkaCli(AbstractResource):
             await producer.start()
             self._producer = producer
         except errors.KafkaConnectionError as e:
-            logger.exception("start kafka producer {servers} fail", servers=self._bootstrap_servers)
+            logger.exception(
+                "start kafka producer {servers} fail", servers=self._bootstrap_servers
+            )
             await producer.stop()
             raise MQError(ExcDetailFactory.get(e)) from None
 
@@ -77,20 +79,18 @@ class AsyncKafkaCli(AbstractResource):
     async def send_data(self, topic: str, data: List[Dict]):
         await self.start_producer()
         for record in data:
-            await self._producer.send_and_wait(
-                topic, orjson.dumps(record)
-            )
+            await self._producer.send_and_wait(topic, orjson.dumps(record))
 
 
 class KafkaBatchConsumer:
     def __init__(
-            self,
-            kafka_cli: AsyncKafkaCli,
-            process_func: Callable[[List[str]], Any],
-            topic: str,
-            group_id: str,
-            batch_size: int = 10000,
-            timeout: int = 1,
+        self,
+        kafka_cli: AsyncKafkaCli,
+        process_func: Callable[[List[str]], Any],
+        topic: str,
+        group_id: str,
+        batch_size: int = 10000,
+        timeout: int = 1,
     ):
         self.kafka_cli = kafka_cli
         self.topic = topic

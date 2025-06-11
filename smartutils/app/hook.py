@@ -14,7 +14,7 @@ class AppHook:
 
     @classmethod
     def on_startup(
-            cls, func: Callable[..., Awaitable[None]]
+        cls, func: Callable[..., Awaitable[None]]
     ) -> Callable[..., Awaitable[None]]:
         """注册服务启动前的钩子函数（参数不限）"""
         cls._startup_hooks.append(func)
@@ -22,7 +22,7 @@ class AppHook:
 
     @classmethod
     def on_shutdown(
-            cls, func: Callable[..., Awaitable[None]]
+        cls, func: Callable[..., Awaitable[None]]
     ) -> Callable[..., Awaitable[None]]:
         """注册服务关闭前的钩子函数（参数不限）"""
         cls._shutdown_hooks.append(func)

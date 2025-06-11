@@ -11,7 +11,7 @@ from smartutils.log import logger
 class Lock:
     def __init__(self, directory):
         self._file_name = os.path.join(directory, "_cook_server_lock")
-        self._fd = open(self._file_name, 'w')
+        self._fd = open(self._file_name, "w")
 
     def _record(self):
         self._fd.write(f"{os.getpid()}\n{threading.current_thread().ident}")

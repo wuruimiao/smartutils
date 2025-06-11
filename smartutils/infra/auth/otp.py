@@ -8,7 +8,9 @@ try:
     import pyotp
     import qrcode
 except ImportError:
-    logger.debug("smartutils.infra.auth.otp.OtpHelper depend on pyotp & qrcode, install before use.")
+    logger.debug(
+        "smartutils.infra.auth.otp.OtpHelper depend on pyotp & qrcode, install before use."
+    )
     pyotp, qrcode = None, None
 
 from smartutils.config import ConfKey

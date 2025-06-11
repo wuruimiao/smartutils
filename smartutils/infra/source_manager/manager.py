@@ -38,12 +38,12 @@ class ResourceManagerRegistry:
 
 class CTXResourceManager(Generic[T], ABC):
     def __init__(
-            self,
-            resources: Dict[ConfKey, T],
-            context_var_name: CTXKey,
-            success: Callable[..., Any] = None,
-            fail: Callable[..., Any] = None,
-            error: Type[SysError] = None
+        self,
+        resources: Dict[ConfKey, T],
+        context_var_name: CTXKey,
+        success: Callable[..., Any] = None,
+        fail: Callable[..., Any] = None,
+        error: Type[SysError] = None,
     ):
         self._ctx_key: CTXKey = context_var_name
         self._resources = resources

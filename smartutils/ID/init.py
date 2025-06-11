@@ -6,7 +6,10 @@ from smartutils.design import BaseFactory
 from smartutils.error.sys import LibraryUsageError
 
 
-class _IDGen(AbstractIDGenerator, BaseFactory[IDGenType, Tuple[Callable[..., AbstractIDGenerator], bool]]):
+class _IDGen(
+    AbstractIDGenerator,
+    BaseFactory[IDGenType, Tuple[Callable[..., AbstractIDGenerator], bool]],
+):
     def __init__(self):
         self._gen: Optional[AbstractIDGenerator] = None
         self._type: Optional[IDGenType] = None

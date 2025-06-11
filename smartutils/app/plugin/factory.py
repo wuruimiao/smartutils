@@ -5,5 +5,7 @@ from smartutils.design import BaseFactory
 __all__ = ["MiddlewarePluginFactory"]
 
 
-class MiddlewarePluginFactory(BaseFactory[MiddlewarePluginKey, AbstractMiddlewarePlugin]):
+class MiddlewarePluginFactory(
+    BaseFactory[MiddlewarePluginKey, AbstractMiddlewarePlugin]
+):
     pass

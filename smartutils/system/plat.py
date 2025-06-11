@@ -8,7 +8,7 @@ def is_win() -> bool:
     是否运行在windows下
     :return:
     """
-    return platform.system().lower() == 'windows'
+    return platform.system().lower() == "windows"
 
 
 def is_linux() -> bool:
@@ -16,7 +16,7 @@ def is_linux() -> bool:
     是否运行在linux下
     :return:
     """
-    return platform.system().lower() == 'linux'
+    return platform.system().lower() == "linux"
 
 
 def fix_win_focus():
@@ -26,5 +26,6 @@ def fix_win_focus():
     """
     print(f"patch windows console")
     import ctypes
+
     kernel32 = ctypes.windll.kernel32
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-10), 128)

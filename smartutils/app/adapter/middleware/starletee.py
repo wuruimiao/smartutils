@@ -1,8 +1,14 @@
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin, AbstractMiddleware
-from smartutils.app.adapter.middleware.factory import MiddlewareFactory, AddMiddlewareFactory
+from smartutils.app.adapter.middleware.abstract import (
+    AbstractMiddlewarePlugin,
+    AbstractMiddleware,
+)
+from smartutils.app.adapter.middleware.factory import (
+    MiddlewareFactory,
+    AddMiddlewareFactory,
+)
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.const import AppKey

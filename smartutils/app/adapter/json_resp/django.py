@@ -9,6 +9,4 @@ from smartutils.error.base import BaseDataDict
 
 @JsonRespFactory.register(AppKey.DJANGO)
 def _(data: BaseDataDict) -> ResponseAdapter:
-    return DjangoResponseAdapter(
-        JsonResponse(data.data, status=data.status_code)
-    )
+    return DjangoResponseAdapter(JsonResponse(data.data, status=data.status_code))

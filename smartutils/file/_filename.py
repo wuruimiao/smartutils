@@ -44,8 +44,7 @@ def filename_add_num(filename: str, num: int) -> str:
 
 
 def is_remote_path(path):
-    """ 判断一个路径是不是远程路径，以"\\"开头，注意："\\\\127.0.0.1\\xxx" 也会认为是远程路径。
-    """
+    """判断一个路径是不是远程路径，以"\\"开头，注意："\\\\127.0.0.1\\xxx" 也会认为是远程路径。"""
     path = norm_path(path)
     return path.startswith(r"\\")
 
@@ -155,32 +154,49 @@ def format_file_name(name: str, version: int = sys.maxsize) -> str:
     if version >= 3:
         name = name.replace("\n", " ").replace("\r\n", " ")
         # -不能换成_
-        name = name.replace("……", "_").replace('"', "_").replace("'", "_") \
-            .replace("！", " ").replace("!", " ") \
-            .replace(",", " ").replace(".", " ") \
-            .replace("，", " ").replace("。", " ") \
-            .replace("[", " ").replace("]", " ") \
-            .replace("【", " ").replace("】", " ")
+        name = (
+            name.replace("……", "_")
+            .replace('"', "_")
+            .replace("'", "_")
+            .replace("！", " ")
+            .replace("!", " ")
+            .replace(",", " ")
+            .replace(".", " ")
+            .replace("，", " ")
+            .replace("。", " ")
+            .replace("[", " ")
+            .replace("]", " ")
+            .replace("【", " ")
+            .replace("】", " ")
+        )
 
     if version >= 4:
-        name = name.replace("(", " ").replace(")", " ") \
-            .replace("~", " ") \
-            .replace("&", " ") \
-            .replace("$", " ") \
+        name = (
+            name.replace("(", " ")
+            .replace(")", " ")
+            .replace("~", " ")
+            .replace("&", " ")
+            .replace("$", " ")
             .replace("=", " ")
+        )
 
     if version >= 5:
-        name = name.replace(":", " ").replace("*", " ").replace("?", " ") \
-            .replace("<", " ").replace(">", " ")
+        name = (
+            name.replace(":", " ")
+            .replace("*", " ")
+            .replace("?", " ")
+            .replace("<", " ")
+            .replace(">", " ")
+        )
 
     name = name.strip()
-    name = ' '.join(name.split())
+    name = " ".join(name.split())
     name = name.replace(" ", "_")
     return name
 
 
-linux_illegal = ('/', '\\', '?', '%', '*', ':', '|', '"', '<', '>', '.', ' ')
-windows_illegal = ('<', '>', ':', '"', '/', '\\', '|', '?', '*')
+linux_illegal = ("/", "\\", "?", "%", "*", ":", "|", '"', "<", ">", ".", " ")
+windows_illegal = ("<", ">", ":", '"', "/", "\\", "|", "?", "*")
 
 
 def sanitize_filename(name: str, linux: bool = True, windows: bool = True):
