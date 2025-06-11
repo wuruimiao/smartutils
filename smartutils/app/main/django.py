@@ -20,7 +20,9 @@ def _init_smartutils(conf_path: str):
 
     init(conf_path)  # 同步调用
     conf = get_config()
-    logger.info("!!!======run in {env}======!!!", env="prod" if conf.project.debug else "dev")
+    logger.info(
+        "!!!======run in {env}======!!!", env="prod" if conf.project.debug else "dev"
+    )
 
 
 def create_app(conf_path: str = "config/config.yaml"):
@@ -30,9 +32,15 @@ def create_app(conf_path: str = "config/config.yaml"):
     # 2. 注入 smartutils 中间件到 settings.MIDDLEWARE
     #    插件顺序：ExceptionPlugin/HeaderPlugin/LogPlugin
     middleware_classes = [
-        lambda get_response: MiddlewareFactory.get(AppKey.DJANGO)(ExceptionPlugin(AppKey.DJANGO))(get_response),
-        lambda get_response: MiddlewareFactory.get(AppKey.DJANGO)(HeaderPlugin())(get_response),
-        lambda get_response: MiddlewareFactory.get(AppKey.DJANGO)(LogPlugin())(get_response),
+        lambda get_response: MiddlewareFactory.get(AppKey.DJANGO)(
+            ExceptionPlugin(AppKey.DJANGO)
+        )(get_response),
+        lambda get_response: MiddlewareFactory.get(AppKey.DJANGO)(HeaderPlugin())(
+            get_response
+        ),
+        lambda get_response: MiddlewareFactory.get(AppKey.DJANGO)(LogPlugin())(
+            get_response
+        ),
     ]
 
     # 动态注入到 settings
@@ -54,6 +62,7 @@ def create_app(conf_path: str = "config/config.yaml"):
     if not hasattr(settings, "ROOT_URLCONF") or not settings.ROOT_URLCONF:
         # 动态添加
         from types import ModuleType
+
         urls = ModuleType("smartutils_auto_urls")
         urls.urlpatterns = [
             path("", root_view),
@@ -61,6 +70,7 @@ def create_app(conf_path: str = "config/config.yaml"):
         ]
         settings.ROOT_URLCONF = "smartutils_auto_urls"
         import sys
+
         sys.modules["smartutils_auto_urls"] = urls
     else:
         # 已有 ROOT_URLCONF，建议在主 urls.py 里加健康检查

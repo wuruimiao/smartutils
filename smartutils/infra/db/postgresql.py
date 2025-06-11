@@ -22,7 +22,11 @@ class PostgresqlManager(CTXResourceManager[AsyncDBCli]):
             k: AsyncDBCli(conf, f"postgresql_{k}") for k, conf in confs.items()
         }
         super().__init__(
-            resources, CTXKey.DB_POSTGRESQL, success=db_commit, fail=db_rollback, error=DatabaseError,
+            resources,
+            CTXKey.DB_POSTGRESQL,
+            success=db_commit,
+            fail=db_rollback,
+            error=DatabaseError,
         )
 
     @property

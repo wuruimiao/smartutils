@@ -15,7 +15,9 @@ class ConfFactory(BaseFactory[ConfKey, Tuple[Type, bool, bool]]):
     @classmethod
     def register(cls, name: ConfKey, multi: bool = False, require: bool = True):
         def decorator(conf_cls: Type):
-            super(ConfFactory, cls).register(name, only_register_once=False)((conf_cls, multi, require))
+            super(ConfFactory, cls).register(name, only_register_once=False)(
+                (conf_cls, multi, require)
+            )
             return conf_cls
 
         return decorator
@@ -25,7 +27,9 @@ class ConfFactory(BaseFactory[ConfKey, Tuple[Type, bool, bool]]):
         try:
             return conf_cls(**conf)
         except ValidationError as e:
-            raise ConfigError(f"ConfFactory invalid {name}-{key} in config.yml: {ExcDetailFactory.get(e)}")
+            raise ConfigError(
+                f"ConfFactory invalid {name}-{key} in config.yml: {ExcDetailFactory.get(e)}"
+            )
 
     @classmethod
     def create(cls, name: ConfKey, conf: Dict):
@@ -42,7 +46,9 @@ class ConfFactory(BaseFactory[ConfKey, Tuple[Type, bool, bool]]):
 
         if multi:
             if ConfKey.GROUP_DEFAULT not in conf:
-                raise ConfigError(f"ConfFactory no {ConfKey.GROUP_DEFAULT} below {name}")
+                raise ConfigError(
+                    f"ConfFactory no {ConfKey.GROUP_DEFAULT} below {name}"
+                )
 
             return {
                 key: cls._init_conf_cls(name, key, conf_cls, _conf)

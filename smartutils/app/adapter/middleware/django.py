@@ -16,9 +16,11 @@ class DjangoMiddleware(AbstractMiddleware):
     def __call__(self, get_response):
         # 检查是否异步视图
         import asyncio
+
         is_async = asyncio.iscoroutinefunction(get_response)
 
         if is_async:
+
             async def middleware(request):
                 req: RequestAdapter = self.req_adapter(request)
 
@@ -31,6 +33,7 @@ class DjangoMiddleware(AbstractMiddleware):
 
             return middleware
         else:
+
             def middleware(request):
                 req: RequestAdapter = self.req_adapter(request)
 
@@ -39,7 +42,10 @@ class DjangoMiddleware(AbstractMiddleware):
                     return self.resp_adapter(response)
 
                 import asyncio
-                resp: ResponseAdapter = asyncio.run(self._plugin.dispatch(req, next_adapter))
+
+                resp: ResponseAdapter = asyncio.run(
+                    self._plugin.dispatch(req, next_adapter)
+                )
                 return resp.response
 
             return middleware

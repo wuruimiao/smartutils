@@ -16,9 +16,9 @@ class AbstractMiddlewarePlugin(ABC):
 
     @abstractmethod
     async def dispatch(
-            self,
-            req: RequestAdapter,
-            next_adapter: Callable[[], Awaitable[ResponseAdapter]],
+        self,
+        req: RequestAdapter,
+        next_adapter: Callable[[], Awaitable[ResponseAdapter]],
     ) -> ResponseAdapter:
         pass
 

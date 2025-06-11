@@ -6,7 +6,9 @@ from smartutils.log import logger
 try:
     import jwt
 except ImportError:
-    logger.debug("smartutils.infra.auth.token.TokenHelper depend on jwt, install first.")
+    logger.debug(
+        "smartutils.infra.auth.token.TokenHelper depend on jwt, install first."
+    )
     jwt = None
 
 from smartutils.config import ConfKey

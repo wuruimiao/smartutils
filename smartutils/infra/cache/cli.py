@@ -159,7 +159,7 @@ class AsyncRedisCli(AbstractResource):
         return await self._redis.zcard(zset_name)
 
     async def zrange(
-            self, zset_name: str, start: int, end: int, withscores: bool = False
+        self, zset_name: str, start: int, end: int, withscores: bool = False
     ) -> list:
         """
         获取有序集合指定区间成员。
@@ -168,7 +168,7 @@ class AsyncRedisCli(AbstractResource):
         return await self._redis.zrange(zset_name, start, end, withscores=withscores)
 
     async def zrangebyscore(
-            self, zset_name: str, score_min: int, score_max: int, withscores: bool = False
+        self, zset_name: str, score_min: int, score_max: int, withscores: bool = False
     ) -> list:
         """
         按分数区间获取有序集合成员。
@@ -188,7 +188,7 @@ class AsyncRedisCli(AbstractResource):
     # 队列: list
     @asynccontextmanager
     async def safe_rpop_zadd(
-            self, list_ready: str, zset_pending: str, score: int = None
+        self, list_ready: str, zset_pending: str, score: int = None
     ) -> AsyncGenerator[Optional[str]]:
         """
         安全地从队列弹出任务并放入有序集合。
@@ -215,7 +215,7 @@ class AsyncRedisCli(AbstractResource):
         yield None
 
     async def safe_rpush_zrem(
-            self, list_ready: str, zset_pending: str, value: str
+        self, list_ready: str, zset_pending: str, value: str
     ) -> str:
         """
         将某任务从有序集合移除并放回队列。
@@ -232,7 +232,7 @@ class AsyncRedisCli(AbstractResource):
     # 队列：zset
     @asynccontextmanager
     async def safe_zpop_zadd(
-            self, zset_ready: str, zset_pending: str, score: int = None
+        self, zset_ready: str, zset_pending: str, score: int = None
     ) -> AsyncGenerator[Optional[str]]:
         """
         安全地从有序集合弹出优先级最高任务并放入另一有序集合。
@@ -258,7 +258,7 @@ class AsyncRedisCli(AbstractResource):
         yield None
 
     async def safe_zrem_zadd(
-            self, zset_processing: str, zset_ready: str, value: str, score: int
+        self, zset_processing: str, zset_ready: str, value: str, score: int
     ) -> str:
         """
         从处理中集合移除任务并归还到等待队列（可调整优先级）。
@@ -288,7 +288,7 @@ class AsyncRedisCli(AbstractResource):
 
     @asynccontextmanager
     async def xread_xack(
-            self, stream: str, group: str, count: int = 1
+        self, stream: str, group: str, count: int = 1
     ) -> AsyncGenerator[Optional[dict], None]:
         """使用 with 语句读取并处理 Redis Stream，自动提交 ACK"""
         message_ids = set()

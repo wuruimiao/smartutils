@@ -9,12 +9,14 @@ from smartutils.app.plugin.factory import MiddlewarePluginFactory
 __all__ = ["ExceptionPlugin"]
 
 
-@MiddlewarePluginFactory.register(MiddlewarePluginKey.EXCEPTION, order=MiddlewarePluginOrder.EXCEPTION)
+@MiddlewarePluginFactory.register(
+    MiddlewarePluginKey.EXCEPTION, order=MiddlewarePluginOrder.EXCEPTION
+)
 class ExceptionPlugin(AbstractMiddlewarePlugin):
     async def dispatch(
-            self,
-            req: RequestAdapter,
-            next_adapter: Callable[[], Awaitable[ResponseAdapter]],
+        self,
+        req: RequestAdapter,
+        next_adapter: Callable[[], Awaitable[ResponseAdapter]],
     ) -> ResponseAdapter:
         try:
             resp = await next_adapter()

@@ -7,10 +7,7 @@ __all__ = [
     "singleton",
     "SingletonBase",
     "SingletonMeta",
-
     "deprecated",
-
     "BaseFactory",
-
     "RequireAttrs",
 ]

@@ -1,6 +1,9 @@
 from typing import Callable
 
-from smartutils.app.adapter.middleware.abstract import AbstractMiddleware, AbstractMiddlewarePlugin
+from smartutils.app.adapter.middleware.abstract import (
+    AbstractMiddleware,
+    AbstractMiddlewarePlugin,
+)
 from smartutils.app.const import AppKey
 from smartutils.design import BaseFactory
 
@@ -11,5 +14,7 @@ class MiddlewareFactory(BaseFactory[AppKey, AbstractMiddleware]):
     pass
 
 
-class AddMiddlewareFactory(BaseFactory[AppKey, Callable[[object, AbstractMiddlewarePlugin], None]]):
+class AddMiddlewareFactory(
+    BaseFactory[AppKey, Callable[[object, AbstractMiddlewarePlugin], None]]
+):
     pass

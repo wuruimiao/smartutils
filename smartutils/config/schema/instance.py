@@ -17,7 +17,9 @@ class InstanceConf(BaseModel):
     @field_validator("release_time", mode="after")
     def must_be_aware(cls, v):
         if v.tzinfo is None or v.tzinfo.utcoffset(v) is None:
-            raise ValueError("release_time must be an aware datetime (must contain timezone)")
+            raise ValueError(
+                "release_time must be an aware datetime (must contain timezone)"
+            )
         return v
 
     @property

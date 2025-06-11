@@ -125,7 +125,7 @@ def rm_dirs(path: str) -> BaseError:
     path = get_file_path(path)
     try:
         shutil.rmtree(path, onerror=_remove_readonly)
-    except Exception: # noqa
+    except Exception:  # noqa
         logger.error(f"rm_dirs {path} err={traceback.format_exc()}")
     return OK
 

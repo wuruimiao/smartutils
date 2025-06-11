@@ -5,7 +5,9 @@ from smartutils.log import logger
 try:
     import bcrypt
 except ImportError:
-    logger.debug("smartutils.infra.auth.password.PasswordHelper depend on bcrypt, install before use.")
+    logger.debug(
+        "smartutils.infra.auth.password.PasswordHelper depend on bcrypt, install before use."
+    )
     bcrypt = None
 
 from smartutils.config import ConfKey

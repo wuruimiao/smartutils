@@ -1,4 +1,5 @@
 from smartutils.log import logger
+
 try:
     import filetype
 except ImportError:

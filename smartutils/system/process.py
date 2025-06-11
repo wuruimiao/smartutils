@@ -32,7 +32,7 @@ def get_host_ip() -> str:
     """
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
-        s.connect(('8.8.8.8', 80))
+        s.connect(("8.8.8.8", 80))
         ip = s.getsockname()[0]
     finally:
         s.close()
@@ -46,7 +46,9 @@ def import_by_name(name: str):
 def run_cmd(cmd: list[str], env=None, timeout=DEFAULT_TIMEOUT) -> tuple[str, bool]:
     try:
         out = subprocess.check_output(
-            cmd, timeout=timeout, env=env,
+            cmd,
+            timeout=timeout,
+            env=env,
             # pass arguments as a list of strings
             # shell=True,
             stderr=subprocess.STDOUT,
@@ -119,12 +121,14 @@ def run_with_timeout(command, timeout, env=None) -> tuple[str, str, BaseError]:
     if proc.is_alive():
         if is_win():
             import psutil
+
             parent = psutil.Process(proc.pid)
             for child in parent.children(recursive=True):
                 child.terminate()
             parent.terminate()
         elif is_linux():
             import signal
+
             os.killpg(pgid, signal.SIGTERM)
         proc.join()
         err = TimeOutError
