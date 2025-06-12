@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 
 from fastapi.responses import ORJSONResponse
 
@@ -6,7 +6,6 @@ from smartutils.app.adapter.json_resp.factory import JsonRespFactory
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.adapter.resp.starlette import StarletteResponseAdapter
 from smartutils.app.const import AppKey
-from smartutils.log import logger
 from smartutils.error.base import BaseDataDict
 
 

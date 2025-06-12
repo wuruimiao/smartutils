@@ -1,5 +1,6 @@
-from typing import List, Any, Type
-from sqlalchemy import select, Column
+from typing import Any, List, Type
+
+from sqlalchemy import Column, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 

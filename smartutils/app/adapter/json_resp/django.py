@@ -1,4 +1,4 @@
-from django.http import JsonResponse  # noqa
+from django.http import JsonResponse
 
 from smartutils.app.adapter.json_resp.factory import JsonRespFactory
 from smartutils.app.adapter.resp.abstract import ResponseAdapter

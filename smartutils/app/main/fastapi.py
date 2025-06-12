@@ -23,7 +23,7 @@ class ResponseModel(BaseModel, BaseData, Generic[T]):
 
     @classmethod
     def from_error(cls, error: BaseError) -> "ResponseModel":
-        return ResponseModel(**error.dict)
+        return ResponseModel(**error.as_dict)
 
 
 @asynccontextmanager
@@ -69,7 +69,7 @@ def create_app(conf_path: str = "config/config.yaml"):
     from fastapi.exceptions import RequestValidationError
     from starlette.exceptions import HTTPException
 
-    from smartutils.app.adapter.json_resp.fastapi import STJsonResponse
+    from smartutils.app.adapter.json_resp._fastapi import STJsonResponse
     from smartutils.app.const import AppKey
     from smartutils.app.factory import ExcJsonResp
     from smartutils.app.main.init_middleware import init_middlewares

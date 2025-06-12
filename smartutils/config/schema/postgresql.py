@@ -1,4 +1,6 @@
-from pydantic import Field, conint
+from typing import Optional
+
+from pydantic import Field
 
 from smartutils.config.const import ConfKey
 from smartutils.config.factory import ConfFactory
@@ -12,8 +14,8 @@ __all__ = ["PostgreSQLConf"]
 class PostgreSQLConf(DBConf, HostConf):
     port: int = 5432
 
-    timeout: conint(gt=0) = Field(default=None, alias="connect_timeout")
-    execute_timeout: conint(gt=0) = None
+    timeout: Optional[int] = Field(default=None, alias="connect_timeout", gt=0)
+    execute_timeout: Optional[int] = Field(default=None, gt=0)
 
     @property
     def url(self) -> str:

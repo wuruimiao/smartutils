@@ -1,12 +1,13 @@
-from pydantic import BaseModel, field_validator
+from pydantic import Field, field_validator
 
-from smartutils.data import check_ip, check_domain, check_port
+from smartutils.data import check_domain, check_ip, check_port
+from smartutils.model.field import StrippedBaseModel
 
 __all__ = ["HostConf"]
 
 
-class HostConf(BaseModel):
-    host: str
+class HostConf(StrippedBaseModel):
+    host: str = Field(..., description="ip/域名")
     port: int
 
     @field_validator("host")
