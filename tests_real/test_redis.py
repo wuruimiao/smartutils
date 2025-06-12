@@ -6,10 +6,10 @@ async def setup_cache(tmp_path_factory):
     config_str = """
 redis:
   default:
-    host: 127.0.0.1
+    host: 192.168.1.56
     port: 6379
     password: ""
-    db: 0
+    db: 10
     pool_size: 10
     connect_timeout: 10
     socket_timeout: 10
@@ -29,13 +29,6 @@ project:
     await init(str(config_file))
 
     yield
-    from smartutils.infra import RedisManager
-
-    await RedisManager().close()
-
-    from smartutils.init import reset_all
-
-    await reset_all()
 
 
 @pytest.fixture
@@ -98,7 +91,7 @@ async def test_out_of_context(setup_cache):
     redis_mgr = RedisManager()
 
     with pytest.raises(RuntimeError):
-        redis_mgr.curr()
+        redis_mgr.curr
 
 
 async def test_ping(setup_cache):
@@ -122,7 +115,7 @@ async def test_incr_and_decr(setup_cache):
 
     @redis_mgr.use()
     async def test():
-        cli = redis_mgr.curr()
+        cli = redis_mgr.curr
         key = "pytest:cli:incr"
         await cli.delete(key)
         v1 = await cli.incr(key)
@@ -143,7 +136,7 @@ async def test_sadd_srem_scard(setup_cache):
 
     @redis_mgr.use()
     async def test():
-        cli = redis_mgr.curr()
+        cli = redis_mgr.curr
         key = "pytest:cli:set"
         await cli.delete(key)
         await cli.sadd(key, "v1", "v2")
@@ -164,7 +157,7 @@ async def test_llen(setup_cache):
 
     @redis_mgr.use()
     async def test():
-        cli = redis_mgr.curr()
+        cli = redis_mgr.curr
         key = "pytest:cli:list"
         await cli.delete(key)
         await cli.rpush(key, "a", "b")
@@ -182,7 +175,7 @@ async def test_zadd_zrem_zrangebyscore(setup_cache):
 
     @redis_mgr.use()
     async def test():
-        cli = redis_mgr.curr()
+        cli = redis_mgr.curr
         zset = "pytest:cli:zset"
         await cli.delete(zset)
         await cli.zadd(zset, "k1", 10)
@@ -205,7 +198,7 @@ async def test_safe_rpop_zadd_and_safe_rpush_zrem(setup_cache):
 
     @redis_mgr.use()
     async def test():
-        cli = redis_mgr.curr()
+        cli = redis_mgr.curr
         list_ready = "pytest:cli:list_ready"
         zset_pending = "pytest:cli:zset_pending"
         await cli.delete(list_ready, zset_pending)
@@ -245,7 +238,7 @@ async def test_safe_zpop_zadd_and_safe_zrem_zadd(setup_cache):
 
     @redis_mgr.use()
     async def test():
-        cli = redis_mgr.curr()
+        cli = redis_mgr.curr
         zset_ready = "pytest:cli:zset_ready"
         zset_pending = "pytest:cli:zset_pending2"
         await cli.delete(zset_ready, zset_pending)
@@ -286,7 +279,7 @@ async def test_xadd_xread_xack(setup_cache):
 
     @redis_mgr.use()
     async def test():
-        cli = redis_mgr.curr()
+        cli = redis_mgr.curr
         stream = "pytest:cli:stream"
         group = "pytestgroup"
         await cli.delete(stream)

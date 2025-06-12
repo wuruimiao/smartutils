@@ -1,8 +1,8 @@
-from typing import Type, Dict, Tuple
+from typing import Dict, Tuple, Type, Union
 
 from pydantic import ValidationError
 
-from smartutils.config.const import ConfKey
+from smartutils.config.const import BaseModelT, ConfKey
 from smartutils.design import BaseFactory
 from smartutils.error.factory import ExcDetailFactory
 from smartutils.error.sys import ConfigError
@@ -13,7 +13,7 @@ __all__ = ["ConfFactory"]
 
 class ConfFactory(BaseFactory[ConfKey, Tuple[Type, bool, bool]]):
     @classmethod
-    def register(cls, name: ConfKey, multi: bool = False, require: bool = True):
+    def register(cls, name: ConfKey, multi: bool = False, require: bool = True):  # type: ignore
         def decorator(conf_cls: Type):
             super(ConfFactory, cls).register(name, only_register_once=False)(
                 (conf_cls, multi, require)
@@ -32,7 +32,9 @@ class ConfFactory(BaseFactory[ConfKey, Tuple[Type, bool, bool]]):
             )
 
     @classmethod
-    def create(cls, name: ConfKey, conf: Dict):
+    def create(
+        cls, name: ConfKey, conf: Dict
+    ) -> Union[BaseModelT, dict[str, BaseModelT], None]:
         info = cls.get(name)
 
         conf_cls, multi, require = info
@@ -40,7 +42,7 @@ class ConfFactory(BaseFactory[ConfKey, Tuple[Type, bool, bool]]):
             if require:
                 raise ConfigError(f"ConfFactory require {name} in config.yml")
             logger.debug("ConfFactory no {name} in config.yml, ignore.", name=name)
-            return
+            return None
 
         logger.info("ConfFactory {name} created.", name=name)
 

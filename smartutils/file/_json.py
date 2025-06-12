@@ -1,5 +1,6 @@
 import json
 import os
+from typing import Optional
 
 import yaml
 
@@ -35,9 +36,9 @@ def dump_json_f(filename: str, _dict: dict) -> BaseError:
     return OK
 
 
-def compare_json_f(path1: str, path2: str, exclude_field: set = None) -> bool:
+def compare_json_f(path1: str, path2: str, exclude_field: Optional[set] = None) -> bool:
     if not exclude_field:
-        exclude_field = {}
+        exclude_field = set()
     json1, err = load_json_f(path1)
     if not err.is_ok:
         logger.error(f"!!!!!!!!!no {path1}")

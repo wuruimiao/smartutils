@@ -1,14 +1,9 @@
 from dataclasses import dataclass
-from typing import Tuple, Optional
-
-from smartutils.log import logger
+from typing import Optional, Tuple
 
 try:
     import jwt
 except ImportError:
-    logger.debug(
-        "smartutils.infra.auth.token.TokenHelper depend on jwt, install first."
-    )
     jwt = None
 
 from smartutils.config import ConfKey
@@ -18,6 +13,8 @@ from smartutils.infra.factory import InfraFactory
 from smartutils.time import get_stamp_after
 
 __all__ = ["User", "Token", "TokenHelper"]
+
+msg = "smartutils.infra.auth.token.TokenHelper depend on jwt, install first."
 
 
 @dataclass
@@ -42,6 +39,7 @@ class TokenHelper:
 
     @staticmethod
     def _generate_token(user: User, secret: str, exp_sec: int) -> Token:
+        assert jwt, msg
         exp_time = int(get_stamp_after(second=exp_sec))
 
         token = jwt.encode(
@@ -53,6 +51,7 @@ class TokenHelper:
 
     @staticmethod
     def verify_token(token: str, secret: str):
+        assert jwt, msg
         try:
             payload = jwt.decode(token, secret, algorithms=["HS256"])
             return payload

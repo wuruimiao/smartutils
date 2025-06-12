@@ -1,9 +1,7 @@
 from pathlib import Path
-from typing import Dict, Any, TypeVar, Optional
+from typing import Dict, Generic, Optional, TypeVar, Union
 
-from pydantic import BaseModel
-
-from smartutils.config.const import ConfKey
+from smartutils.config.const import BaseModelT, ConfKey
 from smartutils.config.factory import ConfFactory
 from smartutils.config.schema.project import ProjectConf
 from smartutils.design import singleton
@@ -13,16 +11,17 @@ from smartutils.log import logger
 
 __all__ = ["Config", "init", "reset", "get_config"]
 
-T = TypeVar("T", bound=BaseModel)
 
 PT = TypeVar("PT", bound=ProjectConf)
 
 
 @singleton
-class Config:
+class Config(Generic[BaseModelT]):
     def __init__(self, conf_path: str):
-        self._instances: Dict[str, T] = {}
-        self._config: Dict[str, Any] = {}
+        self._instances: Union[
+            Dict[str, BaseModelT], Dict[str, Dict[str, BaseModelT]]
+        ] = {}
+        self._config: Dict[str, Dict] = {}
 
         if not Path(conf_path).exists():
             logger.warning("Config no {conf_path}, ignore.", conf_path=conf_path)
@@ -36,14 +35,20 @@ class Config:
         logger.info("Config init by {conf_path}.", conf_path=conf_path)
 
         for key, _ in ConfFactory.all():
-            self._instances[key] = ConfFactory.create(key, self._config.get(key))
+            conf = ConfFactory.create(key, self._config.get(key, {}))
+            if not conf:
+                continue
+            self._instances[key] = conf  # type: ignore
 
-    def get(self, name: str) -> T:
+    def get(self, name: str) -> Union[BaseModelT, Dict[str, BaseModelT], None]:
         return self._instances.get(name)
 
     @property
     def project(self) -> PT:
-        return self.get(ConfKey.PROJECT)
+        conf = self.get(ConfKey.PROJECT)
+        if not conf:
+            raise LibraryUsageError("project must in config.yaml")
+        return conf  # type: ignore
 
 
 _config: Optional[Config] = None

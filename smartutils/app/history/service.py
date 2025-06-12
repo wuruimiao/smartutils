@@ -7,7 +7,6 @@ from sqlalchemy import asc, desc, func, or_, select
 from smartutils.app.history.model import OpHistory, OpType
 from smartutils.design import singleton
 from smartutils.infra import MySQLManager
-from smartutils.log import logger
 
 db: MySQLManager = MySQLManager()
 
@@ -17,8 +16,8 @@ __all__ = ["op_history_controller", "BizOpInfo"]
 
 @dataclass
 class OpUser:
-    creator_id: int = None
-    updator_id: int = None
+    creator_id: Optional[int] = None
+    updator_id: Optional[int] = None
 
 
 @singleton
@@ -30,9 +29,9 @@ class OpHistoryController:
         biz_id: int,
         op_type: OpType,
         op_id: int,
-        before: Dict[str, Any] = None,
-        after: Dict[str, Any] = None,
-        remark: str = None,
+        before: Optional[Dict[str, Any]] = None,
+        after: Optional[Dict[str, Any]] = None,
+        remark: Optional[str] = None,
     ):
         """
         写入一条操作历史记录
@@ -54,7 +53,7 @@ class OpHistoryController:
         biz_type: str,
         biz_ids: List[int],
         order: str = "asc",
-        op_type: OpType = None,
+        op_type: Optional[OpType] = None,
     ) -> Dict[int, int]:
         """
         根据排序方式获取每个biz_id首条（asc）或末条（desc）的操作人id
@@ -88,7 +87,7 @@ class OpHistoryController:
             OpHistory.biz_type == biz_type,
             OpHistory.biz_id.in_(biz_ids),
         ]
-        if op_type:
+        if op_type is not None:
             condition.append(OpHistory.op_type == op_type.value)
         stmt = (
             select(OpHistory.biz_id, OpHistory.op_id)

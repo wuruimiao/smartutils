@@ -5,7 +5,7 @@ import os
 import shutil
 import tempfile
 from subprocess import call
-from typing import BinaryIO, Callable, Dict
+from typing import BinaryIO, Callable, Dict, Optional
 
 import yaml
 
@@ -346,8 +346,8 @@ def save_content(
     _dir: str,
     filename: str,
     merge: bool = False,
-    file_checker: Callable = None,
-    ext: str = None,
+    file_checker: Optional[Callable] = None,
+    ext: Optional[str] = None,
 ):
     if not file_checker:
         file_checker = lambda x: True  # noqa

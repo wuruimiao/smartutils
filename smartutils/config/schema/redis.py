@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import Field, conint, constr
+from pydantic import Field
 
 from smartutils.config.const import ConfKey
 from smartutils.config.factory import ConfFactory

@@ -1,4 +1,4 @@
-from typing import Type, Callable
+from typing import Callable, Type
 
 from smartutils.design import BaseFactory
 from smartutils.error.base import BaseError
@@ -11,7 +11,7 @@ class ExcErrorFactory(
     BaseFactory[Type[BaseException], Callable[[BaseException], BaseError]]
 ):
     @classmethod
-    def get(cls, exc: BaseException) -> BaseError:
+    def get(cls, exc: BaseException) -> BaseError:  # type: ignore
         if isinstance(exc, BaseError):
             return exc
 
@@ -26,7 +26,7 @@ class ExcDetailFactory(
     BaseFactory[Type[BaseException], Callable[[BaseException], str]]
 ):
     @classmethod
-    def get(cls, exc: BaseException) -> str:
+    def get(cls, exc: BaseException) -> str:  # type: ignore
         for exc_type, handler in cls.all():
             if isinstance(exc, exc_type):
                 return handler(exc)

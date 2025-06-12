@@ -2,6 +2,7 @@ import os
 import shutil
 import zipfile
 import zlib
+from typing import Optional
 
 from smartutils.error import OK, BaseError
 from smartutils.error.sys import FileError, NoFileError
@@ -39,7 +40,7 @@ def check_zip_file(filepath: str) -> BaseError:
     return OK
 
 
-def extract_compressed(path: str, target_path: str = None) -> BaseError:
+def extract_compressed(path: str, target_path: Optional[str] = None) -> BaseError:
     """
     解压压缩文件
     :param target_path:
@@ -52,7 +53,7 @@ def extract_compressed(path: str, target_path: str = None) -> BaseError:
     return OK
 
 
-def compress(path: str, target_path: str = None) -> tuple[str, BaseError]:
+def compress(path: str, target_path: Optional[str] = None) -> tuple[str, BaseError]:
     path = get_file_path(path, "")
     if target_path is None:
         target_path = f"{path}"

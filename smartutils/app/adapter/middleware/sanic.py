@@ -3,6 +3,7 @@ from smartutils.app.adapter.middleware.factory import MiddlewareFactory
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.const import AppKey
+from smartutils.error.sys import LibraryError
 
 __all__ = []
 
@@ -18,7 +19,12 @@ class SanicMiddleware(AbstractMiddleware):
 
         @app.middleware("response")
         async def after_response(request, response):
-            req: RequestAdapter = getattr(request.ctx, "_req_adapter", None)
+            req_adapter = getattr(request.ctx, "_req_adapter", None)
+            if not req_adapter:
+                raise LibraryError(
+                    "sanic no _middleware_req_adapter, check before_request."
+                )
+            req: RequestAdapter = req_adapter
             if req is None:
                 req = self.req_adapter(request)
             resp = self.resp_adapter(response)

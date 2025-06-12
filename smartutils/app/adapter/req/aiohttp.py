@@ -7,8 +7,8 @@ __all__ = ["AIOHTTPRequestAdapter"]
 
 @RequestAdapterFactory.register(AppKey.AIOHTTP)
 class AIOHTTPRequestAdapter(RequestAdapter):
-    def get_header(self, key: HeaderKey):
-        pass
+    def get_header(self, key: HeaderKey) -> str:
+        return self.request.headers.get(key)
 
     @property
     def headers(self):

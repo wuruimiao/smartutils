@@ -59,7 +59,6 @@ def patch_db(monkeypatch):
     fake_db = MagicMock()
     fake_db.curr = MagicMock()
     monkeypatch.setattr(mod, "db", fake_db)
-    monkeypatch.setattr(mod, "logger", MagicMock())
 
 
 class _OpType:
@@ -156,9 +155,9 @@ async def test_get_op_ids(monkeypatch):
     fake_row.fetchall.return_value = [(9, 111), (9, 112), (10, 120)]
     mod.db.curr.execute.return_value = fake_row
     ret = await mod.op_history_controller.get_op_ids("BT", [9, 10])
-    assert ret == {9: [111, 112], 10: [120]}
+    assert dict(ret) == {9: [111, 112], 10: [120]}
     emp = await mod.op_history_controller.get_op_ids("BT", [])
-    assert emp == {}
+    assert dict(emp) == {}
 
 
 async def test_BizOpInfo_all(monkeypatch, fake_OpType):

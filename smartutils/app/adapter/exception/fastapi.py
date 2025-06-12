@@ -1,37 +1,38 @@
-from typing import Union
-
+from fastapi.exceptions import (
+    HTTPException as FastAPIHTTPException,
+)
 from fastapi.exceptions import (
     RequestValidationError,
-    HTTPException as FastAPIHTTPException,
 )
 from pydantic import ValidationError as PydanticValidationError
 from starlette.exceptions import HTTPException
 
 from smartutils.data import max_int
-from smartutils.error.factory import ExcErrorFactory, ExcDetailFactory
+from smartutils.error.base import BaseError
+from smartutils.error.factory import ExcDetailFactory, ExcErrorFactory
 from smartutils.error.mapping import HTTP_STATUS_CODE_MAP
-from smartutils.error.sys import ValidationError, SysError
+from smartutils.error.sys import SysError, ValidationError
 
 
 @ExcDetailFactory.register(PydanticValidationError)
 @ExcDetailFactory.register(RequestValidationError)
-def _(exc: Union[PydanticValidationError, RequestValidationError]):
-    for error in exc.errors():
-        loc = ".".join(str(_loc) for _loc in error["loc"])
-        msg = error["msg"]
-        return f"{loc}: {msg}"
+def _(exc: BaseException) -> str:
+    if hasattr(exc, "errors"):
+        errors = getattr(exc, "errors", lambda: [])()
+        msg = "; ".join([str(e.get("msg", "")) for e in errors])
+        return msg if msg else "Param Validate Fail!"
+    return "Unknown Validate Fail!"
 
 
 @ExcErrorFactory.register(PydanticValidationError)
 @ExcErrorFactory.register(RequestValidationError)
-def _(exc: Union[PydanticValidationError, RequestValidationError]):
+def _(exc: BaseException) -> BaseError:
     return ValidationError(detail=ExcDetailFactory.get(exc))
 
 
 @ExcErrorFactory.register(HTTPException, order=max_int())
 @ExcErrorFactory.register(FastAPIHTTPException, order=max_int())
-def _(exc: Union[HTTPException, FastAPIHTTPException]):
+def _(exc: BaseException) -> BaseError:
     detail = ExcDetailFactory.get(exc)
-    code = exc.status_code
-    err_cls = HTTP_STATUS_CODE_MAP.get(code, SysError)
+    err_cls = HTTP_STATUS_CODE_MAP.get(getattr(exc, "status_code", 0), SysError)
     return err_cls(detail=detail)

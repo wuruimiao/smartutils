@@ -21,7 +21,7 @@ class DjangoMiddleware(AbstractMiddleware):
 
         if is_async:
 
-            async def middleware(request):
+            async def async_middleware(request):
                 req: RequestAdapter = self.req_adapter(request)
 
                 async def next_adapter():
@@ -31,10 +31,10 @@ class DjangoMiddleware(AbstractMiddleware):
                 resp: ResponseAdapter = await self._plugin.dispatch(req, next_adapter)
                 return resp.response
 
-            return middleware
+            return async_middleware
         else:
 
-            def middleware(request):
+            def sync_middleware(request):
                 req: RequestAdapter = self.req_adapter(request)
 
                 async def next_adapter():
@@ -48,4 +48,4 @@ class DjangoMiddleware(AbstractMiddleware):
                 )
                 return resp.response
 
-            return middleware
+            return sync_middleware

@@ -1,14 +1,13 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import Any, Optional
+
 from smartutils.log import logger
 
 try:
-    from redis import asyncio as redis, ResponseError
+    import redis
 except ImportError:
-    logger.debug("smartutils.infra.cache.cli depend on redis, install before use")
     redis = None
-    ResponseError = None
 
 
 from smartutils.config.schema.redis import RedisConf
@@ -19,17 +18,22 @@ from smartutils.time import get_now_stamp
 
 __all__ = ["AsyncRedisCli"]
 
+msg = "smartutils.infra.cache.cli depend on redis, install before use"
+
 
 class AsyncRedisCli(AbstractResource):
     """异步 Redis 客户端封装，线程安全、协程安全"""
 
     def __init__(self, conf: RedisConf, name: str):
+        assert redis, msg
+        from redis.asyncio import ConnectionPool, Redis
+
         self._name = name
 
         kw = conf.kw
         kw["decode_responses"] = True
-        self._pool = redis.ConnectionPool.from_url(conf.url, **kw)
-        self._redis = redis.Redis.from_pool(connection_pool=self._pool)
+        self._pool: ConnectionPool = ConnectionPool.from_url(conf.url, **kw)
+        self._redis: Redis = Redis.from_pool(connection_pool=self._pool)
 
     async def ping(self) -> bool:
         try:
@@ -278,11 +282,12 @@ class AsyncRedisCli(AbstractResource):
         return await self._redis.xadd(stream, fields)
 
     async def ensure_stream_and_group(self, stream_name: str, group_name: str):
+        assert redis, msg
         try:
             await self._redis.xgroup_create(
                 stream_name, group_name, id="0", mkstream=True
             )
-        except ResponseError as e:
+        except redis.ResponseError as e:
             if "BUSYGROUP Consumer Group name already exists" not in str(e):
                 raise CacheError(ExcDetailFactory.get(e)) from None
 
