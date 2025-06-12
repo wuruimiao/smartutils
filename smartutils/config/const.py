@@ -1,6 +1,11 @@
 from enum import Enum
+from typing import TypeVar
 
-__all__ = ["ConfKey"]
+from pydantic import BaseModel
+
+__all__ = ["ConfKey", "BaseModelT"]
+
+BaseModelT = TypeVar("BaseModelT", bound=BaseModel)
 
 
 class ConfKey(str, Enum):

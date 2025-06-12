@@ -1,7 +1,8 @@
 from smartutils.design.attr import RequireAttrs
 from smartutils.design.deprecated import deprecated
 from smartutils.design.factory import BaseFactory
-from smartutils.design.singleton import singleton, SingletonBase, SingletonMeta
+from smartutils.design.module import require_modules
+from smartutils.design.singleton import SingletonBase, SingletonMeta, singleton
 
 __all__ = [
     "singleton",
@@ -10,4 +11,5 @@ __all__ = [
     "deprecated",
     "BaseFactory",
     "RequireAttrs",
+    "require_modules",
 ]

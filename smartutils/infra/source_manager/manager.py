@@ -2,13 +2,13 @@ import asyncio
 import functools
 import threading
 from abc import ABC
-from typing import Dict, Callable, Any, Awaitable, Generic, Type
+from typing import Any, Awaitable, Callable, Dict, Generic, Optional, Type
 
 from smartutils.call import call_hook
 from smartutils.config.const import ConfKey
-from smartutils.ctx import CTXVarManager, CTXKey
+from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.error.base import BaseError
-from smartutils.error.sys import SysError, LibraryError, LibraryUsageError
+from smartutils.error.sys import LibraryError, LibraryUsageError, SysError
 from smartutils.infra.source_manager.abstract import T
 from smartutils.log import logger
 
@@ -41,9 +41,9 @@ class CTXResourceManager(Generic[T], ABC):
         self,
         resources: Dict[ConfKey, T],
         context_var_name: CTXKey,
-        success: Callable[..., Any] = None,
-        fail: Callable[..., Any] = None,
-        error: Type[SysError] = None,
+        success: Optional[Callable[..., Any]] = None,
+        fail: Optional[Callable[..., Any]] = None,
+        error: Optional[Type[SysError]] = None,
     ):
         self._ctx_key: CTXKey = context_var_name
         self._resources = resources
@@ -85,7 +85,7 @@ class CTXResourceManager(Generic[T], ABC):
         try:
             return CTXVarManager.get(self._ctx_key)
         except LibraryUsageError:
-            raise LibraryUsageError(f"Must call xxxManager.use(...) first.") from None
+            raise LibraryUsageError("Must call xxxManager.use(...) first.") from None
 
     def client(self, key: ConfKey = ConfKey.GROUP_DEFAULT) -> T:
         if key not in self._resources:

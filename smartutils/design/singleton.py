@@ -49,7 +49,7 @@ def singleton(cls):
         with _singleton_lock:
             _singleton_instances.pop(cls, None)
 
-    get_instance.reset = reset
+    get_instance.reset = reset  # type: ignore
     return get_instance
 
 

@@ -2,10 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Callable, Union, List
-
 # region chinese chars
-from typing import Tuple
+from typing import Callable, List, Optional, Tuple, Union
 
 CHINESE_DIGITS: str = "零一二三四五六七八九"
 """零一二三四五六七八九
@@ -345,7 +343,7 @@ class ChineseMath(ChineseChar):
         simplified: str,
         traditional: str,
         symbol: str,
-        expression: Callable = None,
+        expression: Optional[Callable] = None,
     ):
         """
         Args:

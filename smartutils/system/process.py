@@ -1,3 +1,4 @@
+import multiprocessing
 import os
 import random
 import socket
@@ -5,13 +6,14 @@ import subprocess
 import threading
 import time
 from importlib import import_module
-from smartutils.log import logger
-from smartutils.error import OK
-from smartutils.error.sys import TimeOutError, SysError
-from smartutils.error.base import BaseError
-import multiprocessing
+from typing import Optional
 
-from .plat import is_win, is_linux
+from smartutils.error import OK
+from smartutils.error.base import BaseError
+from smartutils.error.sys import SysError, TimeOutError
+from smartutils.log import logger
+
+from .plat import is_linux, is_win
 
 # 秒数
 DEFAULT_TIMEOUT = 30 * 60
@@ -71,7 +73,7 @@ def run_cmd(cmd: list[str], env=None, timeout=DEFAULT_TIMEOUT) -> tuple[str, boo
         return out, False
 
 
-def sleep(sec: int, at_least: int = None):
+def sleep(sec: int, at_least: Optional[int] = None):
     if not at_least:
         at_least = max(sec - 2 * sec // 3, 1)
     sec = random.randint(at_least, sec)

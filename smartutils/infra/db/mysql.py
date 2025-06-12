@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
-from typing import Dict
+from tkinter import N
+from typing import Dict, Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -7,7 +8,7 @@ from smartutils.config.const import ConfKey
 from smartutils.config.schema.mysql import MySQLConf
 from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.design import singleton
-from smartutils.error.sys import DatabaseError
+from smartutils.error.sys import DatabaseError, LibraryUsageError
 from smartutils.infra.db.cli import AsyncDBCli, db_commit, db_rollback
 from smartutils.infra.factory import InfraFactory
 from smartutils.infra.source_manager.manager import CTXResourceManager
@@ -18,7 +19,9 @@ __all__ = ["MySQLManager"]
 @singleton
 @CTXVarManager.register(CTXKey.DB_MYSQL)
 class MySQLManager(CTXResourceManager[AsyncDBCli]):
-    def __init__(self, confs: Dict[ConfKey, MySQLConf]):
+    def __init__(self, confs: Optional[Dict[ConfKey, MySQLConf]] = None):
+        if confs is None:
+            raise LibraryUsageError("MySQLManager must init by infra.")
         resources = {k: AsyncDBCli(conf, f"mysql_{k}") for k, conf in confs.items()}
         super().__init__(
             resources,
@@ -34,7 +37,7 @@ class MySQLManager(CTXResourceManager[AsyncDBCli]):
 
     @asynccontextmanager
     async def session(self, key: ConfKey = ConfKey.GROUP_DEFAULT):
-        async with self._resources.get(key).session() as session:
+        async with self._resources[key].session() as session:
             yield session
 
 

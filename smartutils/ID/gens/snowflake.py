@@ -105,7 +105,7 @@ class Snowflake:
         """
         return datetime.fromtimestamp(self.seconds, tz=timezone.utc)
 
-    def datetime_tz(self, tz: Optional[tzinfo] = None) -> datetime:
+    def datetime_tz(self, tz: Optional[tzinfo] = None) -> "datetime":
         """
         返回指定时区的 datetime
         """
@@ -193,7 +193,7 @@ class SnowflakeGenerator(AbstractIDGenerator):
         """
         return self._epo
 
-    def __next__(self) -> int:
+    def __next__(self) -> int:  # type: ignore
         """
         生成下一个唯一ID（int）。如本毫秒内序列号溢出，则等待下一毫秒。
         """

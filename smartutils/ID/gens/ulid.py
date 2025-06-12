@@ -10,11 +10,11 @@ from datetime import datetime, timezone
 
 import ulid  # noqa
 
+from smartutils.design import singleton
+from smartutils.error.sys import LibraryUsageError
 from smartutils.ID.abstract import AbstractIDGenerator
 from smartutils.ID.const import IDGenType
 from smartutils.ID.init import IDGen
-from smartutils.design import singleton
-from smartutils.error.sys import LibraryUsageError
 
 __all__ = ["ULID", "ULIDGenerator"]
 
@@ -78,7 +78,7 @@ class ULIDGenerator(AbstractIDGenerator):
     def __init__(self, **kwargs):
         pass
 
-    def __next__(self):
+    def __next__(self):  # type: ignore
         return str(ulid.new())
 
     @staticmethod

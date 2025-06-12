@@ -1,12 +1,9 @@
-import dataclasses
 from contextlib import asynccontextmanager
-from typing import ClassVar, Generic, Optional, TypeVar
+from typing import Generic, Optional, TypeVar
 
-from fastapi import FastAPI, Header, Request
-from pydantic import BaseModel, PrivateAttr
+from fastapi import FastAPI, Request
+from pydantic import BaseModel
 
-from smartutils.app.const import HeaderKey
-from smartutils.design import deprecated
 from smartutils.error.base import BaseData, BaseError
 
 __all__ = ["create_app", "ResponseModel"]

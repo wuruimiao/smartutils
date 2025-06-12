@@ -1,9 +1,9 @@
-from typing import Optional, Type, Tuple, Callable
+from typing import Callable, Optional, Tuple, Type
 
-from smartutils.ID.abstract import AbstractIDGenerator
-from smartutils.ID.const import IDGenType
 from smartutils.design import BaseFactory
 from smartutils.error.sys import LibraryUsageError
+from smartutils.ID.abstract import AbstractIDGenerator
+from smartutils.ID.const import IDGenType
 
 
 class _IDGen(
@@ -15,7 +15,7 @@ class _IDGen(
         self._type: Optional[IDGenType] = None
 
     @classmethod
-    def register(cls, id_type: IDGenType, need_conf: bool = False, **kwargs):
+    def register(cls, id_type: IDGenType, need_conf: bool = False, **kwargs):  # type: ignore
         def decorator(gen_cls: Type[AbstractIDGenerator]) -> Type[AbstractIDGenerator]:
             super(_IDGen, cls).register(id_type, **kwargs)((gen_cls, need_conf))
             return gen_cls

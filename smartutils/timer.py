@@ -65,7 +65,7 @@ def timeit(log: str = ""):
         if inspect.iscoroutinefunction(func):
 
             @functools.wraps(func)
-            async def wrapper(*args, **kwargs):
+            async def async_wrapper(*args, **kwargs):
                 async with Timer() as t:
                     result = await func(*args, **kwargs)
                 logger.info(
@@ -73,11 +73,11 @@ def timeit(log: str = ""):
                 )
                 return result
 
-            return wrapper
+            return async_wrapper
         else:
 
             @functools.wraps(func)
-            def wrapper(*args, **kwargs):
+            def sync_wrapper(*args, **kwargs):
                 with Timer() as t:
                     result = func(*args, **kwargs)
                 logger.info(
@@ -85,6 +85,6 @@ def timeit(log: str = ""):
                 )
                 return result
 
-            return wrapper
+            return sync_wrapper
 
     return decorator

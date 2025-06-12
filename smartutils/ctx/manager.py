@@ -46,7 +46,7 @@ class CTXVarManager(BaseFactory[CTXKey, contextvars.ContextVar]):
             ) from None
 
     @classmethod
-    def register(cls, key: CTXKey, **kwargs):
+    def register(cls, key: CTXKey, **kwargs):  # type: ignore
         def decorator(obj):
             super(CTXVarManager, cls).register(key, **kwargs)(
                 contextvars.ContextVar(key)

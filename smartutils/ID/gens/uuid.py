@@ -9,10 +9,10 @@
 
 import uuid
 
+from smartutils.design import singleton
 from smartutils.ID.abstract import AbstractIDGenerator
 from smartutils.ID.const import IDGenType
 from smartutils.ID.init import IDGen
-from smartutils.design import singleton
 
 __all__ = ["UUIDGenerator"]
 
@@ -27,7 +27,7 @@ class UUIDGenerator(AbstractIDGenerator):
     def __init__(self, **kwargs):
         pass
 
-    def __next__(self):
+    def __next__(self):  # type: ignore
         return str(uuid.uuid4())
 
     @staticmethod

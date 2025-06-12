@@ -1,10 +1,13 @@
 import asyncio
 
 import flask
+
 from smartutils.app.adapter.middleware.abstract import AbstractMiddleware
 from smartutils.app.adapter.middleware.factory import MiddlewareFactory
 from smartutils.app.adapter.req.abstract import RequestAdapter
+from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.const import AppKey
+from smartutils.error.sys import LibraryError
 
 __all__ = []
 
@@ -30,7 +33,12 @@ class FlaskMiddleware(AbstractMiddleware):
 
         @app.after_request
         def after_request(response):
-            req: RequestAdapter = getattr(flask.g, "_middleware_req_adapter", None)
+            req_adapter = getattr(flask.g, "_middleware_req_adapter", None)
+            if not req_adapter:
+                raise LibraryError(
+                    "flask no _middleware_req_adapter, check before_request."
+                )
+            req: RequestAdapter = req_adapter
             if req is None:
                 req = self.req_adapter(flask.request)
             resp = self.resp_adapter(response)
@@ -40,10 +48,11 @@ class FlaskMiddleware(AbstractMiddleware):
 
             # 兼容异步/同步
             if asyncio.iscoroutinefunction(self._plugin.dispatch):
-                result = asyncio.run(self._plugin.dispatch(req, next_adapter))
+                result: ResponseAdapter = asyncio.run(
+                    self._plugin.dispatch(req, next_adapter)
+                )
             else:
-                result = self._plugin.dispatch(req, next_adapter)
-            # result 应该是 ResponseAdapter
+                result: ResponseAdapter = self._plugin.dispatch(req, next_adapter)  # type: ignore
             return result.response
 
         return app

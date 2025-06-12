@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
-from smartutils.ID import IDGen
 from smartutils.app.const import HeaderKey
+from smartutils.ID import IDGen
 
 __all__ = ["RequestAdapter"]
 
@@ -11,7 +11,7 @@ class RequestAdapter(ABC):
         self.request = request
 
     @abstractmethod
-    def get_header(self, key: HeaderKey):
+    def get_header(self, key: HeaderKey) -> str:
         pass
 
     @property

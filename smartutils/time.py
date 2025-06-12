@@ -1,5 +1,4 @@
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 from time import time
 from typing import Tuple
 from zoneinfo import ZoneInfo
@@ -80,7 +79,7 @@ def get_now_stamp_str() -> str:
 
 
 def get_stamp_after(
-    stamp: float = None, day: int = 0, hour: int = 0, minute: int = 0, second: int = 0
+    stamp: float = 0, day: int = 0, hour: int = 0, minute: int = 0, second: int = 0
 ) -> float:
     """
     获取一段时间后的时间戳
@@ -103,7 +102,7 @@ def get_stamp_after(
 
 
 def get_stamp_before(
-    stamp: float = None, day: int = 0, hour: int = 0, minute: int = 0, second: int = 0
+    stamp: float = 0, day: int = 0, hour: int = 0, minute: int = 0, second: int = 0
 ) -> float:
     if not stamp:
         stamp = get_now_stamp_float()

@@ -1,9 +1,6 @@
-from smartutils.log import logger
-
 try:
     import filetype
 except ImportError:
-    logger.debug("smartutils.file.type depend on filetype, install before use.")
     filetype = None
 
 """
@@ -11,8 +8,11 @@ extension形如zip
 mine形如application/zip
 """
 
+msg = "smartutils.file.type depend on filetype, install before use."
+
 
 def file_mime(filepath: str) -> str:
+    assert filetype, msg
     kind = filetype.guess(filepath)
     if not kind:
         return ""
@@ -34,6 +34,7 @@ def file_type(filepath: str) -> str:
     :param filepath:
     :return:
     """
+    assert filetype, msg
     kind = filetype.guess(filepath)
     if not kind:
         return ""
