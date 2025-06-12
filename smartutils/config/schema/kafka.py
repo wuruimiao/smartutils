@@ -1,24 +1,25 @@
 from typing import List, Literal
 
-from pydantic import BaseModel, conlist, conint, constr
+from pydantic import Field
 
 from smartutils.config.const import ConfKey
 from smartutils.config.factory import ConfFactory
 from smartutils.config.schema.host import HostConf
+from smartutils.model.field import StrippedBaseModel
 
 __all__ = ["KafkaConf"]
 
 
 @ConfFactory.register(ConfKey.KAFKA, multi=True, require=False)
-class KafkaConf(BaseModel):
-    bootstrap_servers: conlist(HostConf, min_length=1)
-    client_id: constr(strip_whitespace=True, min_length=1)
+class KafkaConf(StrippedBaseModel):
+    bootstrap_servers: List[HostConf] = Field(..., min_length=1)
+    client_id: str = Field(..., min_length=1)
     acks: Literal["all", 1, 0] = "all"
     compression_type: Literal["zstd", "snappy", None] = None
-    max_batch_size: conint(gt=0) = 16384
-    linger_ms: conint(ge=0) = 0
-    request_timeout_ms: conint(gt=0) = 40000
-    retry_backoff_ms: conint(gt=0) = 100
+    max_batch_size: int = Field(16384, gt=0)
+    linger_ms: int = Field(0, ge=0)
+    request_timeout_ms: int = Field(40000, gt=0)
+    retry_backoff_ms: int = Field(100, gt=0)
 
     @property
     def urls(self) -> List[str]:

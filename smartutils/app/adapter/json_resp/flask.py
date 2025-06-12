@@ -1,4 +1,5 @@
-from flask import jsonify  # noqa
+from flask import jsonify
+
 from smartutils.app.adapter.json_resp.factory import JsonRespFactory
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.adapter.resp.flask import FlaskResponseAdapter

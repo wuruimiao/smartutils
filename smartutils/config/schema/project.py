@@ -1,14 +1,15 @@
-from pydantic import BaseModel, constr
+from pydantic import Field
 
 from smartutils.config.const import ConfKey
 from smartutils.config.factory import ConfFactory
+from smartutils.model.field import StrippedBaseModel
 
 __all__ = ["ProjectConf"]
 
 
 @ConfFactory.register(ConfKey.PROJECT, multi=False, require=True)
-class ProjectConf(BaseModel):
-    name: constr(strip_whitespace=True, min_length=1)
-    description: constr(strip_whitespace=True, min_length=1) = ""
-    version: constr(strip_whitespace=True, min_length=1) = "0.0.1"
+class ProjectConf(StrippedBaseModel):
+    name: str = Field(min_length=1)
+    description: str = Field("", min_length=1)
+    version: str = Field("0.0.1", min_length=1)
     debug: bool = False

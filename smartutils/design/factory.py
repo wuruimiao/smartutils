@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import Generic, Iterator, Tuple, TypeVar, final
+from typing import Callable, Generic, Iterator, Tuple, TypeVar, final
 
 from smartutils.error.sys import LibraryError, LibraryUsageError
 
@@ -14,7 +14,9 @@ class BaseFactory(Generic[K, V]):
         cls._registry = OrderedDict()
 
     @classmethod
-    def register(cls, key: K, only_register_once: bool = True, order: int = 0):
+    def register(
+        cls, key: K, only_register_once: bool = True, order: int = 0
+    ) -> Callable[[V], V]:
         """
         order越大，生效顺序越靠后；
         注意：类装饰器的注册/副作用”只会在首次 import 时发生，之后重新实例化并不会自动重新注册

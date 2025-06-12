@@ -1,4 +1,6 @@
-from pydantic import conint
+from typing import Optional
+
+from pydantic import Field
 
 from smartutils.config.const import ConfKey
 from smartutils.config.factory import ConfFactory
@@ -12,8 +14,8 @@ class MySQLConf(DBConf):
     port: int = 3306
 
     # 统一单位：秒
-    connect_timeout: conint(gt=0) = None
-    execute_timeout: conint(gt=0) = None
+    connect_timeout: Optional[int] = Field(None, gt=0)
+    execute_timeout: Optional[int] = Field(None, gt=0)
 
     @property
     def url(self) -> str:

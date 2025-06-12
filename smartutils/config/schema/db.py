@@ -1,4 +1,4 @@
-from pydantic import conint, constr
+from pydantic import Field
 
 from smartutils.config.schema.host import HostConf
 
@@ -6,14 +6,14 @@ __all__ = ["DBConf"]
 
 
 class DBConf(HostConf):
-    user: constr(strip_whitespace=True, min_length=1)
-    passwd: constr(strip_whitespace=True, min_length=1)
-    db: constr(strip_whitespace=True, min_length=1)
+    user: str = Field(..., min_length=1, description="用户名")
+    passwd: str = Field(..., min_length=1, description="密码")
+    db: str = Field(..., min_length=1, description="库")
 
-    pool_size: conint(gt=0) = 10
-    max_overflow: conint(ge=0) = 5
-    pool_timeout: conint(gt=0) = 10
-    pool_recycle: conint(gt=0) = 3600
+    pool_size: int = Field(10, gt=0)
+    max_overflow: int = Field(5, ge=0)
+    pool_timeout: int = Field(10, gt=0)
+    pool_recycle: int = Field(3600, gt=0)
     echo: bool = False
     echo_pool: bool = False
 

@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Type
 
 from smartutils.app.adapter.middleware.abstract import (
     AbstractMiddleware,
@@ -10,7 +10,7 @@ from smartutils.design import BaseFactory
 __all__ = ["MiddlewareFactory", "AddMiddlewareFactory"]
 
 
-class MiddlewareFactory(BaseFactory[AppKey, AbstractMiddleware]):
+class MiddlewareFactory(BaseFactory[AppKey, Type[AbstractMiddleware]]):
     pass
 
 
