@@ -9,8 +9,8 @@ from smartutils.server.ctx import Context, timeoutd
 def test_context_basics(monkeypatch):
     fake_now = 1000
 
-    # 固定 get_now_stamp - 保证start和检验点一致
-    monkeypatch.setattr("smartutils.server.ctx.get_now_stamp", lambda: fake_now)
+    # 固定 get_now_stamp_float - 保证start和检验点一致
+    monkeypatch.setattr("smartutils.server.ctx.get_now_stamp_float", lambda: fake_now)
     monkeypatch.setattr(
         "smartutils.server.ctx.get_stamp_after", lambda x, second=0: x + second
     )
@@ -21,7 +21,9 @@ def test_context_basics(monkeypatch):
     assert ctx.timeout == 5
 
     # remain_sec 边界
-    monkeypatch.setattr("smartutils.server.ctx.get_now_stamp", lambda: fake_now + 2)
+    monkeypatch.setattr(
+        "smartutils.server.ctx.get_now_stamp_float", lambda: fake_now + 2
+    )
     assert ctx.remain_sec(fake_now + 2) == 3
     assert ctx.timeoutd(fake_now + 2) is False
     assert ctx.remain_sec(fake_now + 10) == 0
@@ -30,7 +32,7 @@ def test_context_basics(monkeypatch):
 
 def test_context_remain_sec_clipped(monkeypatch):
     fake_now = 100
-    monkeypatch.setattr("smartutils.server.ctx.get_now_stamp", lambda: fake_now)
+    monkeypatch.setattr("smartutils.server.ctx.get_now_stamp_float", lambda: fake_now)
     monkeypatch.setattr(
         "smartutils.server.ctx.get_stamp_after", lambda x, second=0: x + second
     )

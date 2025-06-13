@@ -1,6 +1,6 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 
 from smartutils.log import logger
 
@@ -22,7 +22,7 @@ msg = "smartutils.infra.cache.cli depend on redis, install before use"
 
 
 class AsyncRedisCli(AbstractResource):
-    """异步 Redis 客户端封装，线程安全、协程安全"""
+    """异步 Redis 客户端封装，线程安全、协程安全。"""
 
     def __init__(self, conf: RedisConf, name: str):
         assert redis, msg
@@ -34,6 +34,10 @@ class AsyncRedisCli(AbstractResource):
         kw["decode_responses"] = True
         self._pool: ConnectionPool = ConnectionPool.from_url(conf.url, **kw)
         self._redis: Redis = Redis.from_pool(connection_pool=self._pool)
+
+    def __getattr__(self, name):
+        # 当访问 AsyncRedisCli 未定义的属性/方法时，由 _redis 处理
+        return getattr(self._redis, name)
 
     async def ping(self) -> bool:
         try:
@@ -48,31 +52,13 @@ class AsyncRedisCli(AbstractResource):
         await self._pool.disconnect()
 
     @asynccontextmanager
-    async def session(self):
+    async def session(self) -> AsyncGenerator["AsyncRedisCli", None]:
         yield self
 
-    async def set(self, key: str, value: Any, expire: Optional[int] = None) -> bool:
-        """
-        设置键值对，可选过期时间
-        :return: 操作是否成功，True/False
-        """
-        return await self._redis.set(key, value, ex=expire)
+    async def _eval(self, *args, **kwargs):
+        return await self._redis.eval(*args, **kwargs)  # type: ignore
 
-    async def get(self, key: str) -> Optional[str]:
-        """
-        获取键的值。
-        :return: 字符串值或 None
-        """
-        return await self._redis.get(key)
-
-    async def delete(self, *key: str) -> int:
-        """
-        删除一个或多个键。
-        :return: 实际被删除的key数量，int
-        """
-        return await self._redis.delete(*key)
-
-    async def incr(self, key: str, expire: Optional[int] = None) -> str:
+    async def incr(self, key: str, ex: Optional[int] = None) -> str:
         """
         原子自增计数器。
         :return: 自增后的数值（字符串类型）
@@ -84,9 +70,9 @@ class AsyncRedisCli(AbstractResource):
         end
         return current
         """
-        return await self._redis.eval(lua_script, 1, key, str(expire) if expire else "")
+        return await self._eval(lua_script, 1, key, str(ex) if ex else "")
 
-    async def decr(self, key: str, expire: Optional[int] = None) -> str:
+    async def decr(self, key: str, ex: Optional[int] = None) -> str:
         """
         原子自减计数器。
         :return: 自减后的数值（字符串类型）
@@ -98,51 +84,7 @@ class AsyncRedisCli(AbstractResource):
         end
         return current
         """
-        return await self._redis.eval(lua_script, 1, key, str(expire) if expire else "")
-
-    # 集合
-    async def sadd(self, key, *values) -> int:
-        """
-        向集合添加元素。
-        :return: 实际添加的新元素数量，int
-        """
-        return await self._redis.sadd(key, *values)
-
-    async def srem(self, key, *values) -> int:
-        """
-        从集合中移除元素。
-        :return: 实际移除的元素数量，int
-        """
-        return await self._redis.srem(key, *values)
-
-    async def scard(self, key: str) -> int:
-        """
-        获取集合的元素数量。
-        :return: 集合大小，int
-        """
-        return await self._redis.scard(key)
-
-    # list
-    async def llen(self, key: str) -> int:
-        """
-        获取列表长度。
-        :return: 列表长度，int
-        """
-        return await self._redis.llen(key)
-
-    async def rpush(self, key: str, *value: str) -> int:
-        """
-        从右侧插入一个或多个元素到列表。
-        :return: 操作后列表长度，int
-        """
-        return await self._redis.rpush(key, *value)
-
-    async def lrange(self, key: str, start: int, end: int) -> list:
-        """
-        获取列表指定区间元素。
-        :return: 区间内的元素列表
-        """
-        return await self._redis.lrange(key, start, end)
+        return await self._eval(lua_script, 1, key, str(ex) if ex else "")
 
     # zset
     async def zadd(self, zset_name: str, key: str, score: int) -> int:
@@ -152,47 +94,17 @@ class AsyncRedisCli(AbstractResource):
         """
         return await self._redis.zadd(zset_name, {key: score})
 
-    async def zadd_multi(self, zset_name: str, key_score: dict) -> int:
+    async def zadd_multi(self, zset_name: str, key_score: Dict[str, int]) -> int:
         """
         批量向有序集合添加成员。
         :return: 添加的新成员数量，int
         """
         return await self._redis.zadd(zset_name, key_score)
 
-    async def zcard(self, zset_name) -> int:
-        return await self._redis.zcard(zset_name)
-
-    async def zrange(
-        self, zset_name: str, start: int, end: int, withscores: bool = False
-    ) -> list:
-        """
-        获取有序集合指定区间成员。
-        :return: 成员列表，如 withscores=True 则为[(member, score), ...]
-        """
-        return await self._redis.zrange(zset_name, start, end, withscores=withscores)
-
-    async def zrangebyscore(
-        self, zset_name: str, score_min: int, score_max: int, withscores: bool = False
-    ) -> list:
-        """
-        按分数区间获取有序集合成员。
-        :return: 成员列表，如 withscores=True 则为[(member, score), ...]
-        """
-        return await self._redis.zrangebyscore(
-            zset_name, min=score_min, max=score_max, withscores=withscores
-        )
-
-    async def zrem(self, zset_name: str, *members: str) -> int:
-        """
-        删除有序集合中的成员。
-        :return: 实际删除的成员数量，int
-        """
-        return await self._redis.zrem(zset_name, *members)
-
     # 队列: list
     @asynccontextmanager
     async def safe_rpop_zadd(
-        self, list_ready: str, zset_pending: str, score: int = None
+        self, list_ready: str, zset_pending: str, score: Optional[int] = None
     ) -> AsyncGenerator[Optional[str]]:
         """
         安全地从队列弹出任务并放入有序集合。
@@ -236,7 +148,7 @@ class AsyncRedisCli(AbstractResource):
     # 队列：zset
     @asynccontextmanager
     async def safe_zpop_zadd(
-        self, zset_ready: str, zset_pending: str, score: int = None
+        self, zset_ready: str, zset_pending: str, score: Optional[int] = None
     ) -> AsyncGenerator[Optional[str]]:
         """
         安全地从有序集合弹出优先级最高任务并放入另一有序集合。
@@ -334,7 +246,7 @@ class AsyncRedisCli(AbstractResource):
                     }
                     yield fields
         except:  # noqa
-            logger.exception(f"xread xack fail")
+            logger.exception("xread xack fail")
             yield None
         finally:
             # 在退出时提交 ACK

@@ -1,5 +1,7 @@
 import pytest
 
+from smartutils.error.sys import LibraryUsageError
+
 
 @pytest.fixture
 async def setup_cache(tmp_path_factory):
@@ -59,13 +61,6 @@ project:
     await init(str(config_file))
 
     yield
-    from smartutils.infra import RedisManager
-
-    await RedisManager().close()
-
-    from smartutils.init import reset_all
-
-    await reset_all()
 
 
 async def test_set_get(setup_cache):
@@ -77,7 +72,7 @@ async def test_set_get(setup_cache):
     async def func():
         cli = redis_mgr.curr
         assert cli is not None
-        await cli.set("pytest:curr_cache", "123", expire=1)
+        await cli.set("pytest:curr_cache", "123", ex=1)
         val = await cli.get("pytest:curr_cache")
         assert val == "123"
         await cli._redis.delete("pytest:curr_cache")
@@ -90,7 +85,7 @@ async def test_out_of_context(setup_cache):
 
     redis_mgr = RedisManager()
 
-    with pytest.raises(RuntimeError):
+    with pytest.raises(LibraryUsageError):
         redis_mgr.curr
 
 
@@ -291,3 +286,119 @@ async def test_xadd_xread_xack(setup_cache):
         await cli.delete(stream)
 
     await test()
+
+
+def test_redis_manager_init_with_none():
+    from smartutils.infra.cache.redis import RedisManager
+
+    with pytest.raises(LibraryUsageError):
+        RedisManager(None)
+
+
+def test_redis_manager_init_with_empty():
+    from smartutils.infra.cache.redis import RedisManager
+
+    with pytest.raises(Exception):
+        RedisManager({})
+
+
+def test_asyncrediscli_import_fail():
+    # 模拟 redis 未安装情况下断言触发
+
+    from smartutils.infra.cache import cli
+
+    old_redis = cli.redis
+    cli.redis = None
+    from smartutils.config.schema.redis import RedisConf
+
+    conf = RedisConf(
+        host="127.0.0.1",
+        port=6379,
+        db=0,
+        pool_size=10,
+        connect_timeout=10,
+        socket_timeout=10,
+        password="",
+    )
+    with pytest.raises(AssertionError):
+        cli.AsyncRedisCli(conf, "test")
+    cli.redis = old_redis
+
+
+async def test_async_methods_exception_branches(monkeypatch, setup_cache):
+    from smartutils.config.schema.redis import RedisConf
+    from smartutils.infra.cache.cli import AsyncRedisCli
+
+    conf = RedisConf(
+        host="192.168.1.56",
+        port=6379,
+        db=10,
+        pool_size=10,
+        connect_timeout=10,
+        socket_timeout=10,
+        password="",
+    )
+    cli = AsyncRedisCli(conf, "pytest-exception")
+
+    # 强制 _redis 某方法抛出异常以测 except 分支
+    monkeypatch.setattr(
+        cli._redis, "delete", lambda *a, **k: (_ for _ in ()).throw(Exception("fail"))
+    )
+    with pytest.raises(Exception):
+        await cli.delete("foo")
+
+    # monkeypatch close 分支
+    monkeypatch.setattr(
+        cli._redis, "aclose", lambda: (_ for _ in ()).throw(Exception("fail"))
+    )
+    monkeypatch.setattr(
+        cli._pool, "disconnect", lambda: (_ for _ in ()).throw(Exception("fail"))
+    )
+    # 不抛出异常，只是走 except 路径
+    try:
+        await cli.close()
+    except Exception:
+        pass
+
+
+# 针对 safe_rpop_zadd 及 xread_xack、safe_zpop_zadd 的 yield None/异常分支
+
+
+async def test_safe_context_none_branches(setup_cache):
+    from smartutils.config.schema.redis import RedisConf
+    from smartutils.infra.cache.cli import AsyncRedisCli
+
+    conf = RedisConf(
+        host="192.168.1.56",
+        port=6379,
+        db=10,
+        pool_size=10,
+        connect_timeout=10,
+        socket_timeout=10,
+        password="",
+    )
+    cli = AsyncRedisCli(conf, "pytest-none")
+    # safe_rpop_zadd: 没有元素时 yield None
+    key1, key2 = "pytest:none:list", "pytest:none:zset"
+    await cli.delete(key1, key2)
+    async with cli.safe_rpop_zadd(key1, key2) as ret:
+        assert ret is None
+
+    # safe_zpop_zadd: 没有元素时 yield None
+    await cli.delete(key1, key2)
+    async with cli.safe_zpop_zadd(key1, key2) as ret:
+        assert ret is None
+
+    # xread_xack 发生异常
+    stream, group = "pytest:none:stream", "pytestnonegroup"
+    await cli.delete(stream)
+    # monkeypatch _redis.xreadgroup 让它抛异常
+    orig_xreadgroup = cli._redis.xreadgroup
+
+    async def fail(*a, **k):
+        raise Exception("fail")
+
+    cli._redis.xreadgroup = fail
+    async with cli.xread_xack(stream, group, count=1) as msg:
+        assert msg is None
+    cli._redis.xreadgroup = orig_xreadgroup
