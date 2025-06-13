@@ -4,11 +4,10 @@ import re
 import sys
 from ast import literal_eval
 from collections import OrderedDict
-from typing import List, Mapping, Dict, Any, Union, Tuple
-
-from smartutils.log import logger
+from typing import Any, Dict, List, Mapping, Sequence, Tuple, Union
 
 from smartutils.data.cnnum import cn2num
+from smartutils.log import logger
 
 _IntReg = re.compile(r"\d+")
 _ChineseNumReg = re.compile("[一二三四五六七八九十百千万]+")
@@ -163,7 +162,10 @@ def detect_cycle(id_to_parent: Dict) -> Tuple[bool, Dict]:
 
 
 def make_parent(
-    data: List[Mapping], info_cls, data_key: str = "id", parent_key: str = "parent_id"
+    data: Sequence[Mapping],
+    info_cls,
+    data_key: str = "id",
+    parent_key: str = "parent_id",
 ) -> Dict:
     """
     构建树形结构，将数据列表按父子关系组织成多叉树。
@@ -204,7 +206,10 @@ def make_parent(
 
 
 def make_children(
-    data: List[Mapping], info_cls, data_key: str = "id", parent_key: str = "parent_id"
+    data: Sequence[Mapping],
+    info_cls,
+    data_key: str = "id",
+    parent_key: str = "parent_id",
 ) -> Dict[int, List]:
     """
     构建每个节点的祖先路径（从根到当前节点）。

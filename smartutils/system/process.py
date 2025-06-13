@@ -23,7 +23,7 @@ def cur_pid() -> int:
     return os.getpid()
 
 
-def cur_tid() -> int:
+def cur_tid() -> Optional[int]:
     return threading.currentThread().ident
 
 
@@ -111,10 +111,6 @@ def run_with_timeout(command, timeout, env=None) -> tuple[str, str, BaseError]:
         result = subprocess.run(cmd, capture_output=True, env=e)
         q.put((result.stdout, result.stderr, result.returncode))
 
-    if is_linux():
-        pgid = os.getpid()
-        os.setpgrp()
-
     output_q = multiprocessing.Queue()
     proc = multiprocessing.Process(target=_run_command, args=(command, env, output_q))
     proc.start()
@@ -131,12 +127,14 @@ def run_with_timeout(command, timeout, env=None) -> tuple[str, str, BaseError]:
         elif is_linux():
             import signal
 
+            pgid = os.getpid()
+            os.setpgrp()
             os.killpg(pgid, signal.SIGTERM)
         proc.join()
-        err = TimeOutError
+        err = TimeOutError()
         stdout = ""
         stderr = "超时"
     else:
         stdout, stderr, ret_code = output_q.get()
-        err = OK if ret_code == 0 else SysError
+        err = OK if ret_code == 0 else SysError()
     return stdout, stderr, err

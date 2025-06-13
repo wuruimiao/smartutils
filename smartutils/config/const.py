@@ -28,3 +28,9 @@ class ConfKey(str, Enum):
     OPEN_TELEMETRY = "open_telemetry"
 
     GROUP_DEFAULT = "default"
+
+    # 允许注册自定义Key供测试和灵活扩展
+    TEST = "__test__"
+    TEST2 = "__test2__"
+    TEST3 = "__test3__"
+    TEST4 = "__test4__"

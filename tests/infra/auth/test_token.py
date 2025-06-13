@@ -40,6 +40,7 @@ def test_generate_and_verify_token(mock_stamp, mock_jwt, user):
     assert access.exp == 1234567 and refresh.exp == 1234567
     # 校验token
     payload = helper.verify_token("jwt-token", conf.access_secret)
+    assert payload
     assert payload["userid"] == 123 and payload["exp"] == 1234567
 
 

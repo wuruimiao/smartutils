@@ -164,16 +164,16 @@ def test_config_loads_all(setup_config: str):
     config = get_config()
     assert config is not None
     assert (
-        config.get("mysql")["default"].url
+        config.get("mysql")["default"].url  # type: ignore
         == "mysql+asyncmy://root:naobo@localhost:3306/test_db"
     )
     assert (
-        config.get("postgresql")["default"].url
+        config.get("postgresql")["default"].url  # type: ignore
         == "postgresql+asyncpg://root:naobo@localhost:5432/test_db"
     )
-    assert config.get("redis")["default"].url == "redis://localhost:6379"
-    assert config.get("kafka")["default"].urls == ["localhost:19092", "127.0.0.1:9093"]
-    assert config.get("canal")["default"].clients[0].name == "c1"
+    assert config.get("redis")["default"].url == "redis://localhost:6379"  # type: ignore
+    assert config.get("kafka")["default"].urls == ["localhost:19092", "127.0.0.1:9093"]  # type: ignore
+    assert config.get("canal")["default"].clients[0].name == "c1"  # type: ignore
     assert config.project.name == "auth"
     assert config.project.description == "test_auth"
     assert config.project.version == "0.0.1"
@@ -182,6 +182,7 @@ def test_config_loads_all(setup_config: str):
 def test_config_empty(setup_conf_empty: str):
     from smartutils.config import init
     from smartutils.error.sys import ConfigError
+
     with pytest.raises(ConfigError):
         init(setup_conf_empty)
 
@@ -195,6 +196,7 @@ def test_config_no_conf_class(setup_no_conf_class_config: str):
 def test_config_no_default(setup_no_conf_default_config: str):
     from smartutils.config import init
     from smartutils.error.sys import ConfigError
+
     with pytest.raises(ConfigError):
         init(setup_no_conf_default_config)
 
@@ -209,13 +211,14 @@ def test_config_no_config(setup_config):
     from smartutils.config import get_config
     from smartutils.config.init import reset
     from smartutils.error.sys import LibraryUsageError
+
     reset()
     with pytest.raises(LibraryUsageError):
         get_config()
 
 
 def test_project_conf_inherit(setup_config: str):
-    from smartutils.config import ConfFactory, ConfKey, ProjectConf, init, get_config
+    from smartutils.config import ConfFactory, ConfKey, ProjectConf, get_config, init
 
     @ConfFactory.register(ConfKey.PROJECT)
     class MyProjectConf(ProjectConf):

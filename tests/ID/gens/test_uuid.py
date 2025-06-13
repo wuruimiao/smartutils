@@ -1,7 +1,5 @@
 import uuid
 
-import pytest
-
 from smartutils.ID.gens.uuid import UUIDGenerator
 
 
@@ -15,12 +13,12 @@ def test_uuid_generator_next_and_type():
 
 
 def test_uuid_generator_next_uuid():
-    u_obj = UUIDGenerator.next_uuid()
+    u_obj = UUIDGenerator.next_uuid()  # type: ignore
     assert isinstance(u_obj, uuid.UUID)
     # 字符串格式
     assert len(str(u_obj)) == 36
     # 再次调用不会重复
-    assert UUIDGenerator.next_uuid() != u_obj
+    assert UUIDGenerator.next_uuid() != u_obj  # type: ignore
 
 
 def test_uuid_generator_repr():

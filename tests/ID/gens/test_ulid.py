@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from unittest.mock import patch
 
 import pytest
@@ -48,6 +48,6 @@ def test_ulid_generator_next_and_repr():
         next_ulid = next(gen)
         # 26字符
         assert isinstance(next_ulid, str) and len(next_ulid) == 26
-        v2 = gen.next_ulid()
+        v2 = gen.next_ulid()  # type: ignore
         assert isinstance(v2, LibULID)
         assert gen.__repr__() == "<ULIDGenerator()>"

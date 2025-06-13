@@ -49,7 +49,7 @@ def test_db_con_no_host_port():
 def test_db_con_default():
     conf = DBConf(
         host="localhost", port=3306, user="root", passwd="123456", db="testdb"
-    )
+    )  # type: ignore
     assert conf.pool_size == 10
     assert conf.max_overflow == 5
     assert conf.pool_timeout == 10
