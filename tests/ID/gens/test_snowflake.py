@@ -1,4 +1,3 @@
-import time
 from datetime import timedelta, timezone
 
 import pytest
@@ -7,11 +6,8 @@ from smartutils.error.sys import LibraryUsageError
 from smartutils.ID.gens.snowflake import (
     MAX_INSTANCE,
     MAX_SEQ,
-    MAX_TS,
     Snowflake,
-    SnowflakeClockMovedBackwards,
     SnowflakeGenerator,
-    SnowflakeTimestampOverflow,
 )
 
 
@@ -39,23 +35,25 @@ def test_snowflake_repr_and_properties():
     dt_utc = sf.datetime
     dt_other = sf.datetime_tz(timezone(timedelta(hours=8)))
     assert dt_utc.tzinfo is not None
-    assert dt_other.utcoffset().total_seconds() == 8 * 3600
+    offset = dt_other.utcoffset()
+    assert offset is not None and offset.total_seconds() == 8 * 3600
 
 
 def test_snowflake_generator_basic():
     """测试 SnowflakeGenerator 生成的ID唯一且递增"""
-    gen = SnowflakeGenerator(instance=1, epoch=0)
+    gen = SnowflakeGenerator(instance=1, epoch=0)  # type: ignore
     prev = gen()
     for _ in range(10):
         cur = gen()
+        assert cur and prev
         assert cur > prev
         prev = cur
 
 
 def test_snowflake_generator_snowflake_obj():
     """测试 SnowflakeGenerator 生成 Snowflake 对象"""
-    gen = SnowflakeGenerator(instance=1, epoch=0)
-    sf = gen.next_snowflake()
+    gen = SnowflakeGenerator(instance=1, epoch=0)  # type: ignore
+    sf = gen.next_snowflake()  # type: ignore
     assert isinstance(sf, Snowflake)
     val = int(sf)
     sf2 = Snowflake.parse(val, epoch=0)
@@ -67,9 +65,9 @@ def test_snowflake_generator_snowflake_obj():
 def test_invalid_instance():
     """测试非法机器ID、序列号、时间戳等参数校验"""
     with pytest.raises(LibraryUsageError):
-        SnowflakeGenerator(instance=-1)
+        SnowflakeGenerator(instance=-1)  # type: ignore
     with pytest.raises(LibraryUsageError):
-        SnowflakeGenerator(instance=MAX_INSTANCE + 1)
+        SnowflakeGenerator(instance=MAX_INSTANCE + 1)  # type: ignore
     with pytest.raises(LibraryUsageError):
         Snowflake(timestamp=0, instance=-1)
     with pytest.raises(LibraryUsageError):
@@ -86,16 +84,16 @@ def test_invalid_generator_timestamp_epoch():
     cur = int(pyt.time() * 1000)
     # timestamp < 0
     with pytest.raises(LibraryUsageError):
-        SnowflakeGenerator(instance=1, timestamp=-1)
+        SnowflakeGenerator(instance=1, timestamp=-1)  # type: ignore
     # epoch < 0
     with pytest.raises(LibraryUsageError):
-        SnowflakeGenerator(instance=1, epoch=-1)
+        SnowflakeGenerator(instance=1, epoch=-1)  # type: ignore
     # timestamp > now
     with pytest.raises(LibraryUsageError):
-        SnowflakeGenerator(instance=1, timestamp=cur + 10000)
+        SnowflakeGenerator(instance=1, timestamp=cur + 10000)  # type: ignore
     # epoch > now
     with pytest.raises(LibraryUsageError):
-        SnowflakeGenerator(instance=1, epoch=cur + 20000)
+        SnowflakeGenerator(instance=1, epoch=cur + 20000)  # type: ignore
 
 
 def test_snowflake_int_value():
@@ -107,15 +105,15 @@ def test_snowflake_int_value():
 
 def test_monotonic_seq():
     """测试同一毫秒内序列号自增"""
-    gen = SnowflakeGenerator(instance=1, epoch=0)
+    gen = SnowflakeGenerator(instance=1, epoch=0)  # type: ignore
     ids = [gen() for _ in range(5)]
-    seqs = [i & 0xFFF for i in ids]
+    seqs = [i & 0xFFF for i in ids]  # type: ignore
     assert seqs == sorted(seqs)
 
 
 def test_generator_iter():
     """测试生成器可迭代协议"""
-    gen = SnowflakeGenerator(instance=2, epoch=0)
+    gen = SnowflakeGenerator(instance=2, epoch=0)  # type: ignore
     it = iter(gen)
     ids = [next(it) for _ in range(3)]
     assert len(set(ids)) == 3

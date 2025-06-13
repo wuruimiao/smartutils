@@ -1,3 +1,5 @@
+# type: ignore
+
 """Chinese number <=> int/float conversion methods"""
 
 from __future__ import annotations

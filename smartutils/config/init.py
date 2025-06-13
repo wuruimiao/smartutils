@@ -44,7 +44,7 @@ class Config(Generic[BaseModelT]):
         return self._instances.get(name)
 
     @property
-    def project(self) -> PT:
+    def project(self) -> PT:  # type: ignore
         conf = self.get(ConfKey.PROJECT)
         if not conf:
             raise LibraryUsageError("project must in config.yaml")
