@@ -2,7 +2,17 @@ import asyncio
 import functools
 import threading
 from abc import ABC
-from typing import Any, Awaitable, Callable, Dict, Generic, Optional, Type
+from typing import (
+    Any,
+    Awaitable,
+    Callable,
+    Dict,
+    Generic,
+    Optional,
+    Type,
+    Union,
+    overload,
+)
 
 from smartutils.call import call_hook
 from smartutils.config.const import ConfKey
@@ -101,7 +111,27 @@ class CTXResourceManager(Generic[T], ABC):
 
         return wrapper
 
-    def use(self, arg=None):
+    @overload
+    def use(
+        self, arg: None = ...
+    ) -> Callable[[Callable[..., Awaitable[Any]]], Callable[..., Awaitable[Any]]]: ...
+    @overload
+    def use(
+        self, arg: str
+    ) -> Callable[[Callable[..., Awaitable[Any]]], Callable[..., Awaitable[Any]]]: ...
+    @overload
+    def use(
+        self, arg: Callable[..., Awaitable[Any]]
+    ) -> Callable[..., Awaitable[Any]]: ...
+
+    def use(
+        self, arg: Optional[Union[str, Callable[..., Awaitable[Any]]]] = None
+    ) -> Any:
+        """支持以下三种调用方式：
+        use()
+        use
+        use(ConfKey.xxx)
+        """
         # 支持 @mgr.use
         if callable(arg):
             func = arg
@@ -109,8 +139,10 @@ class CTXResourceManager(Generic[T], ABC):
             return self._build_wrapper(func, key)
 
         # 支持 @mgr.use() 或 @mgr.use('key')
-        def decorator(func):
-            key = arg if arg else ConfKey.GROUP_DEFAULT
+        def decorator(
+            func: Callable[..., Awaitable[Any]],
+        ) -> Callable[..., Awaitable[Any]]:
+            key = arg if isinstance(arg, str) and arg else ConfKey.GROUP_DEFAULT
             return self._build_wrapper(func, key)
 
         return decorator
