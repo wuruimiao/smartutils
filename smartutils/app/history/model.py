@@ -1,9 +1,7 @@
-from enum import Enum
-
 from sqlalchemy import JSON, Column, Integer, String, func
 from sqlalchemy.orm import declarative_base
 
-from smartutils.data import ZhEnumBase
+from smartutils.data.type import ZhEnumBase
 
 Base = declarative_base()
 

@@ -1,5 +1,14 @@
-from smartutils.data import check_ip, check_domain, check_port, check_mail, check_phone, check_username
-from smartutils.data.check import USERNAME_PATTERN, MAIL_PATTERN
+from smartutils.data.check import (
+    MAIL_PATTERN,
+    USERNAME_PATTERN,
+    check_domain,
+    check_ip,
+    check_mail,
+    check_phone,
+    check_port,
+    check_username,
+)
+
 
 def test_check_ip():
     assert check_ip("127.0.0.1")
@@ -8,6 +17,7 @@ def test_check_ip():
     assert not check_ip("999.999.999.999")
     assert not check_ip("abcd")
     assert not check_ip("")
+
 
 def test_check_domain():
     assert check_domain("example.com")
@@ -19,12 +29,14 @@ def test_check_domain():
     assert not check_domain("ex@mple.com")
     assert not check_domain("")
 
+
 def test_check_port():
     assert check_port(80)
     assert check_port(65535)
     assert not check_port(0)
     assert not check_port(65536)
     assert not check_port(-1)
+
 
 def test_check_edge_cases():
     assert not check_ip(None)
@@ -34,6 +46,7 @@ def test_check_edge_cases():
     assert not check_port(None)
     assert not check_port("")
     assert not check_port("abc")
+
 
 def test_check_mail():
     assert check_mail("user@example.com")
@@ -46,6 +59,7 @@ def test_check_mail():
     assert not check_mail("")
     assert not check_mail(None)
 
+
 def test_check_phone():
     assert check_phone("12345678901")
     assert check_phone("123456789012")
@@ -53,6 +67,7 @@ def test_check_phone():
     assert not check_phone("")
     assert not check_phone(None)
     assert not check_phone("123a456")
+
 
 def test_check_username():
     assert check_username("user123")
@@ -63,6 +78,7 @@ def test_check_username():
     assert not check_username("")
     assert not check_username(None)
     assert not check_username(" user123")
+
 
 def test_patterns():
     # 验证正则模式字符串存在且格式正确

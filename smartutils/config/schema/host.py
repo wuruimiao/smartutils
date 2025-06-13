@@ -1,6 +1,6 @@
 from pydantic import Field, field_validator
 
-from smartutils.data import check_domain, check_ip, check_port
+from smartutils.data.check import check_domain, check_ip, check_port
 from smartutils.model.field import StrippedBaseModel
 
 __all__ = ["HostConf"]

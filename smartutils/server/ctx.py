@@ -1,23 +1,22 @@
 from functools import wraps
+from typing import Optional
 
 from smartutils.error.sys import TimeOutError
-from smartutils.time import get_now_stamp, get_stamp_after
+from smartutils.time import get_now_stamp_float, get_stamp_after
 
 __all__ = ["Context", "timeoutd"]
 
 
 class Context:
     def __init__(self, sec: int, start=None):
-        self._start = start
-        if start is None:
-            self._start = get_now_stamp()
+        self._start = start or get_now_stamp_float()
         self._deadline = int(get_stamp_after(self._start, second=sec))
         self.timeout = sec
 
-    def timeoutd(self, now=get_now_stamp()) -> bool:
+    def timeoutd(self, now=get_now_stamp_float()) -> bool:
         return now >= self._deadline
 
-    def remain_sec(self, now=get_now_stamp()) -> int:
+    def remain_sec(self, now=get_now_stamp_float()) -> float:
         return max(0, self._deadline - now)
 
 
@@ -25,7 +24,7 @@ def timeoutd(default_ret=None):
     def _decorator(func):
         @wraps(func)
         def decorated(*args, **kwargs):
-            ctx: Context = kwargs.get("ctx", None)
+            ctx: Optional[Context] = kwargs.get("ctx", None)
             if not ctx and len(args) > 0:
                 for arg in args:
                     if not isinstance(arg, Context):
