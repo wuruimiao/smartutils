@@ -1,9 +1,11 @@
 import pytest
-from sqlalchemy import text
-
-from sqlalchemy import Column, Integer, String
-
+from sqlalchemy import Column, Integer, String, insert, select
+from sqlalchemy import delete as sql_delete
+from sqlalchemy import update as sql_update
 from sqlalchemy.orm import declarative_base
+
+from smartutils.error.sys import DatabaseError, LibraryUsageError
+from smartutils.infra.db.cli import db_commit, db_rollback
 
 Base = declarative_base()
 
@@ -19,7 +21,7 @@ async def setup_db(tmp_path_factory):
     config_str = """
 mysql:
   default:
-    host: 127.0.0.1
+    host: 192.168.1.56
     port: 3306
     user: root
     passwd: naobo
@@ -52,11 +54,6 @@ project:
     my_mgr = MySQLManager()
     await my_mgr.client().create_tables([Base])
     yield
-    await my_mgr.close()
-
-    from smartutils.init import reset_all
-
-    await reset_all()
 
 
 @pytest.fixture
@@ -92,129 +89,235 @@ project:
 
     await init(str(config_file))
 
-    from smartutils.infra import MySQLManager
-
-    my_mgr = MySQLManager()
     yield
-    await my_mgr.close()
-
-    from smartutils.init import reset_all
-
-    await reset_all()
 
 
-async def test_get_db(setup_db):
+async def test_mysql_manager_no_confs():
     from smartutils.infra import MySQLManager
 
-    my_mgr = MySQLManager()
-    # 测试插入/查询/删除
-    async for session in my_mgr.client().get_db():
-        user = User(name="pytest")
-        session.add(user)
+    with pytest.raises(LibraryUsageError):
+        MySQLManager()
+
+
+async def test_mysql_session_insert_query(setup_db):
+    from smartutils.infra import MySQLManager
+
+    mgr = MySQLManager()
+    async with mgr.session() as session:
+        stmt = insert(User).values(name="SessionUser1")
+        result = await session.execute(stmt)
         await session.commit()
-
-        user2 = await session.get(User, user.id)
-        assert user2.name == "pytest"
-
-        await session.delete(user2)
-        await session.commit()
-
-
-async def test_with_db_success_and_rollback(setup_db):
-    from smartutils.infra import MySQLManager
-
-    my_mgr = MySQLManager()
-
-    @my_mgr.use()
-    async def insert_and_fail(name):
-        session = my_mgr.curr()
-        user = User(name=name)
-        session.add(user)
-        await session.flush()
-        raise ValueError("fail")  # 模拟失败触发回滚
-
-    # Should rollback, user not in db
-    with pytest.raises(RuntimeError) as exc:
-        await insert_and_fail("default use err")
-    assert isinstance(exc.value.__cause__, ValueError)
-
-    async for session in my_mgr.client().get_db():
-        result = await session.execute(
-            text("SELECT COUNT(*) FROM users WHERE name='rollback_user'")
-        )
-        assert result.scalar() == 0
-
-
-async def test_with_db_commit(setup_db):
-    from smartutils.infra import MySQLManager
-
-    my_mgr = MySQLManager()
-
-    @my_mgr.use()
-    async def insert_user(name):
-        session = my_mgr.curr()
-        user = User(name=name)
-        session.add(user)
-        await session.flush()
-        return user.id
-
-    user_id = await insert_user("committed_user")
-    async for session in my_mgr.client().get_db():
-        u = await session.get(User, user_id)
-        assert u.name == "committed_user"
-        # 清理
-        await session.delete(u)
+        user_id = result.inserted_primary_key[0]
+        stmt = select(User).where(User.id == user_id)
+        user = (await session.execute(stmt)).scalar_one()
+        assert user.name == "SessionUser1"
+        await session.execute(sql_delete(User).where(User.id == user_id))
         await session.commit()
 
 
-async def test_curr_db_no_context(setup_db):
+async def test_mysql_session_update_commit(setup_db):
     from smartutils.infra import MySQLManager
 
-    my_mgr = MySQLManager()
+    mgr = MySQLManager()
+    async with mgr.session() as session:
+        result = await session.execute(insert(User).values(name="SessionUpdate"))
+        await session.commit()
+        user_id = result.inserted_primary_key[0]
+        upd = sql_update(User).where(User.id == user_id).values(name="AfterUpdate")
+        await session.execute(upd)
+        await db_commit(session)
+        new_name = (
+            await session.execute(select(User.name).where(User.id == user_id))
+        ).scalar_one()
+        assert new_name == "AfterUpdate"
+        await session.execute(sql_delete(User).where(User.id == user_id))
+        await session.commit()
 
-    with pytest.raises(RuntimeError):
-        my_mgr.curr()
 
-
-async def test_ping(setup_db):
+async def test_mysql_session_update_rollback(setup_db):
     from smartutils.infra import MySQLManager
 
-    my_mgr = MySQLManager()
-    result = await my_mgr.client().ping()
-    assert result
+    mgr = MySQLManager()
+    async with mgr.session() as session:
+        result = await session.execute(insert(User).values(name="RollbackTest"))
+        await session.commit()
+        user_id = result.inserted_primary_key[0]
+        upd = sql_update(User).where(User.id == user_id).values(name="ShouldRollback")
+        await session.execute(upd)
+        await db_rollback(session)
+        name = (
+            await session.execute(select(User.name).where(User.id == user_id))
+        ).scalar_one()
+        assert name == "RollbackTest"
+        await session.execute(sql_delete(User).where(User.id == user_id))
+        await session.commit()
 
 
-async def test_fail_ping(setup_unreachable_db):
+async def test_mysql_session_delete(setup_db):
     from smartutils.infra import MySQLManager
 
-    my_mgr = MySQLManager()
-    result = await my_mgr.client().ping()
-    assert not result
+    mgr = MySQLManager()
+    async with mgr.session() as session:
+        result = await session.execute(insert(User).values(name="DeleteTest"))
+        await session.commit()
+        user_id = result.inserted_primary_key[0]
+        await session.execute(sql_delete(User).where(User.id == user_id))
+        await session.commit()
+        res = await session.execute(select(User).where(User.id == user_id))
+        user = res.scalar_one_or_none()
+        assert user is None
 
 
-async def test_health_check(setup_db):
+async def test_mysql_cli_ping(setup_db):
     from smartutils.infra import MySQLManager
 
-    my_mgr = MySQLManager()
-    result = await my_mgr.health_check()
-    assert "default" in result
-    assert result["default"]
+    mgr = MySQLManager()
+    cli = mgr.client()
+    assert await cli.ping() is True
 
 
-async def test_no_client(setup_db):
+async def test_mysql_cli_close(setup_db):
     from smartutils.infra import MySQLManager
 
-    my_mgr = MySQLManager()
-    with pytest.raises(RuntimeError) as exc:
-        my_mgr.client("no_key")
-    assert "No resource found for key: no_key" in str(exc.value)
+    mgr = MySQLManager()
+    cli = mgr.client()
+    await cli.close()
 
-    with pytest.raises(RuntimeError) as exc:
 
-        @my_mgr.use("no_key")
-        async def test():
-            pass
+async def test_mysql_create(setup_db):
+    from smartutils.infra import MySQLManager
 
-        await test()
+    mgr = MySQLManager()
 
-    assert "No resource found for key: no_key" in str(exc.value)
+    @mgr.use()
+    async def create():
+        insert_stmt = insert(User).values(name="TestUser")
+        result = await mgr.curr.execute(insert_stmt)
+        await mgr.curr.commit()
+        return result.inserted_primary_key[0]
+
+    user_id = await create()
+    assert isinstance(user_id, int) and user_id > 0
+
+
+async def test_mysql_read(setup_db):
+    from smartutils.infra import MySQLManager
+
+    mgr = MySQLManager()
+
+    @mgr.use()
+    async def create():
+        insert_stmt = insert(User).values(name="UserRead")
+        result = await mgr.curr.execute(insert_stmt)
+        await mgr.curr.commit()
+        return result.inserted_primary_key[0]
+
+    user_id = await create()
+
+    @mgr.use()
+    async def read():
+        stmt = select(User).where(User.id == user_id)
+        result = await mgr.curr.execute(stmt)
+        user = result.scalar_one()
+        assert user.name == "UserRead"
+
+    await read()
+
+
+async def test_mysql_update(setup_db):
+    from smartutils.infra import MySQLManager
+
+    mgr = MySQLManager()
+
+    @mgr.use()
+    async def create():
+        insert_stmt = insert(User).values(name="UserUpdate")
+        result = await mgr.curr.execute(insert_stmt)
+        await mgr.curr.commit()
+        return result.inserted_primary_key[0]
+
+    user_id = await create()
+
+    @mgr.use()
+    async def update():
+        upd_stmt = sql_update(User).where(User.id == user_id).values(name="UpdatedUser")
+        await mgr.curr.execute(upd_stmt)
+        await mgr.curr.commit()
+        stmt = select(User).where(User.id == user_id)
+        result = await mgr.curr.execute(stmt)
+        user = result.scalar_one()
+        assert user.name == "UpdatedUser"
+
+    await update()
+
+
+async def test_mysql_delete(setup_db):
+    from smartutils.infra import MySQLManager
+
+    mgr = MySQLManager()
+
+    @mgr.use()
+    async def create():
+        insert_stmt = insert(User).values(name="UserDelete")
+        result = await mgr.curr.execute(insert_stmt)
+        await mgr.curr.commit()
+        return result.inserted_primary_key[0]
+
+    user_id = await create()
+
+    @mgr.use()
+    async def delete_and_check():
+        del_stmt = sql_delete(User).where(User.id == user_id)
+        await mgr.curr.execute(del_stmt)
+        await mgr.curr.commit()
+        stmt = select(User).where(User.id == user_id)
+        result = await mgr.curr.execute(stmt)
+        user = result.scalar_one_or_none()
+        assert user is None
+
+    await delete_and_check()
+
+
+async def test_mysql_cli_ping_fail(setup_unreachable_db):
+    from smartutils.infra import MySQLManager
+
+    cli = MySQLManager().client()
+    # ping 不可用时直接返回False不抛出
+    assert await cli.ping() is False
+
+
+async def test_mysql_cli_create_tables_fail(setup_unreachable_db):
+    from smartutils.infra import MySQLManager
+
+    cli = MySQLManager().client()
+    # 尝试 create_tables 触发连接异常
+    from sqlalchemy.orm import declarative_base
+
+    Base = declarative_base()
+    with pytest.raises(Exception):
+        await cli.create_tables([Base])
+
+
+async def test_mysql_manager_session_unreachable(setup_unreachable_db):
+    from smartutils.infra import MySQLManager
+
+    mgr = MySQLManager()
+    with pytest.raises(Exception):
+        async with mgr.session() as session:
+            # 实际执行一次SQL，才能确保抛出连接异常
+            await session.execute(select(User))
+
+
+async def test_mysql_manager_use_unreachable(setup_unreachable_db):
+    from smartutils.infra import MySQLManager
+
+    mgr = MySQLManager()
+
+    @mgr.use()
+    async def demo():
+        from sqlalchemy import select
+
+        await mgr.curr.execute(select(User))
+
+    with pytest.raises(DatabaseError):
+        await demo()
