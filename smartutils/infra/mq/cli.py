@@ -1,16 +1,22 @@
 import asyncio
 from contextlib import asynccontextmanager
-from typing import Any, AsyncContextManager, Callable, Dict, List, Optional
+from typing import (
+    Any,
+    AsyncGenerator,
+    Callable,
+    Dict,
+    List,
+    Optional,
+)
 
 import orjson
 
 from smartutils.log import logger
 
 try:
-    from aiokafka import AIOKafkaConsumer, AIOKafkaProducer, TopicPartition, errors
+    import aiokafka
 except ImportError:
-    logger.debug("smartutils.infra.mq.cli depend on aiokafka, install before use")
-    AIOKafkaProducer, AIOKafkaConsumer, TopicPartition, errors = None, None, None, None
+    aiokafka = None
 
 from smartutils.config.schema.kafka import KafkaConf
 from smartutils.error.factory import ExcDetailFactory
@@ -20,8 +26,14 @@ from smartutils.infra.source_manager.abstract import AbstractResource
 __all__ = ["AsyncKafkaCli", "KafkaBatchConsumer"]
 
 
+install_msg = "smartutils.infra.mq.cli depend on aiokafka, install before use"
+
+
 class AsyncKafkaCli(AbstractResource):
     def __init__(self, conf: KafkaConf, name: str):
+        assert aiokafka, install_msg
+        from aiokafka import AIOKafkaProducer
+
         self._conf = conf
         self._name = name
         self._bootstrap_servers = self._conf.urls
@@ -31,10 +43,11 @@ class AsyncKafkaCli(AbstractResource):
     async def ping(self) -> bool:
         try:
             await self.start_producer()
+            assert self._producer, "AsyncKafkaCli start producer failed."
             await self._producer.client.fetch_all_metadata()
             return True
         except Exception as e:
-            logger.warning("[{name}] Kafka ping failed: {e}", name=self._name)
+            logger.warning("[{name}] Kafka ping failed: {e}", name=self._name, e=e)
             return False
 
     async def close(self):
@@ -42,11 +55,14 @@ class AsyncKafkaCli(AbstractResource):
             await self._producer.stop()
 
     @asynccontextmanager
-    async def session(self) -> AsyncContextManager:
+    async def session(self) -> AsyncGenerator["AsyncKafkaCli", None]:
         await self.start_producer()
         yield self
 
     async def _start_producer(self):
+        assert aiokafka, install_msg
+        from aiokafka import AIOKafkaProducer, errors
+
         producer = AIOKafkaProducer(
             bootstrap_servers=self._bootstrap_servers, **self._conf.kw
         )
@@ -69,6 +85,9 @@ class AsyncKafkaCli(AbstractResource):
             await self._start_producer()
 
     def consumer(self, topic: str, group_id: str, auto_offset_reset: str = "latest"):
+        assert aiokafka, install_msg
+        from aiokafka import AIOKafkaConsumer
+
         return AIOKafkaConsumer(
             topic,
             group_id=group_id,
@@ -79,6 +98,7 @@ class AsyncKafkaCli(AbstractResource):
 
     async def send_data(self, topic: str, data: List[Dict]):
         await self.start_producer()
+        assert self._producer, "AsyncKafkaCli start producer failed."
         for record in data:
             await self._producer.send_and_wait(topic, orjson.dumps(record))
 
@@ -103,6 +123,9 @@ class KafkaBatchConsumer:
         self._should_stop = asyncio.Event()
 
     async def start(self):
+        assert aiokafka, install_msg
+        from aiokafka import AIOKafkaConsumer
+
         consumer: AIOKafkaConsumer = self.kafka_cli.consumer(
             self.topic, self.group_id, auto_offset_reset="earliest"
         )
@@ -113,7 +136,7 @@ class KafkaBatchConsumer:
     async def stop(self):
         self._should_stop.set()
 
-    async def _consume_kafka(self, consumer: AIOKafkaConsumer):
+    async def _consume_kafka(self, consumer):
         await consumer.start()
         try:
             async for msg in consumer:
@@ -121,7 +144,10 @@ class KafkaBatchConsumer:
         finally:
             await consumer.stop()
 
-    async def _process_batch(self, consumer: AIOKafkaConsumer):
+    async def _process_batch(self, consumer):
+        assert aiokafka, install_msg
+        from aiokafka import TopicPartition
+
         while not self._should_stop.is_set():
             batch = []
             try:
