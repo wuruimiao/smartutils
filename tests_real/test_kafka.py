@@ -1,7 +1,8 @@
-import pytest
 import asyncio
 import json
 import time
+
+import pytest
 
 TEST_TOPIC = "pytest-test-topic"
 GROUP_ID = "pytest-group"
@@ -38,14 +39,6 @@ project:
     await init(str(config_file))
 
     yield
-
-    from smartutils.infra import KafkaManager
-
-    await KafkaManager().close()
-
-    from smartutils.init import reset_all
-
-    await reset_all()
 
 
 @pytest.fixture
@@ -90,8 +83,9 @@ project:
 
 
 async def test_send_and_consume(setup_kafka):
-    from smartutils.infra import KafkaManager
     import uuid
+
+    from smartutils.infra import KafkaManager
 
     data = [{"msg": "hello"}, {"msg": "world"}]
     kafka_mgr = KafkaManager()

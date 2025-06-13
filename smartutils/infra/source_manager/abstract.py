@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import TypeVar, AsyncContextManager
+from typing import Any, AsyncContextManager, TypeVar
 
 __all__ = ["AbstractResource", "T"]
 
@@ -16,7 +16,7 @@ class AbstractResource(ABC):
         pass
 
     @abstractmethod
-    async def session(self) -> AsyncContextManager:
+    def session(self) -> AsyncContextManager[Any]:
         pass
 
 

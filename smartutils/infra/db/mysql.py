@@ -1,6 +1,5 @@
 from contextlib import asynccontextmanager
-from tkinter import N
-from typing import Dict, Optional
+from typing import AsyncGenerator, Dict, Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -36,7 +35,9 @@ class MySQLManager(CTXResourceManager[AsyncDBCli]):
         return super().curr
 
     @asynccontextmanager
-    async def session(self, key: ConfKey = ConfKey.GROUP_DEFAULT):
+    async def session(
+        self, key: ConfKey = ConfKey.GROUP_DEFAULT
+    ) -> AsyncGenerator[AsyncSession, None]:
         async with self._resources[key].session() as session:
             yield session
 

@@ -2,9 +2,12 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import Union
 
-from sqlalchemy.engine.base import Engine
-from sqlalchemy.ext.asyncio import AsyncSession, AsyncEngine, create_async_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 from sqlalchemy.sql import text
 
 from smartutils.config.schema.mysql import MySQLConf
@@ -14,14 +17,14 @@ from smartutils.log import logger
 
 __all__ = ["AsyncDBCli", "db_commit", "db_rollback"]
 
-_FLUSHED = "smartutils_flushed"
+# _FLUSHED = "smartutils_flushed"
 
 
-class MarkedAsyncSession(AsyncSession):
-    async def flush(self, *args, **kwargs):
-        result = await super().flush(*args, **kwargs)
-        self.info[_FLUSHED] = True
-        return result
+# class MarkedAsyncSession(AsyncSession):
+#     async def flush(self, *args, **kwargs):
+#         result = await super().flush(*args, **kwargs)
+#         self.info[_FLUSHED] = True
+#         return result
 
 
 class AsyncDBCli(AbstractResource):
@@ -32,10 +35,11 @@ class AsyncDBCli(AbstractResource):
         kw["pool_pre_ping"] = True
         kw["future"] = True
 
-        self._engine: Union[Engine, AsyncEngine] = create_async_engine(conf.url, **kw)
-        self._session = sessionmaker(
+        self._engine: AsyncEngine = create_async_engine(conf.url, **kw)
+        self._session = async_sessionmaker(
             bind=self._engine,
-            class_=MarkedAsyncSession,
+            # class_=MarkedAsyncSession,
+            class_=AsyncSession,
             expire_on_commit=False,
             autocommit=False,
             autoflush=False,
@@ -54,7 +58,7 @@ class AsyncDBCli(AbstractResource):
         await self._engine.dispose()
 
     @asynccontextmanager
-    async def session(self):
+    async def session(self) -> AsyncGenerator[AsyncSession, None]:
         async with self._session() as session:
             yield session
 
@@ -75,12 +79,12 @@ class AsyncDBCli(AbstractResource):
                 await conn.run_sync(base.metadata.create_all)
 
 
-def _write_in_session(session: AsyncSession):
-    written = bool(session.new) or bool(session.dirty) or bool(session.deleted)
-    flushed = session.info.get(_FLUSHED, False)
-    in_t = hasattr(session, "in_transaction") and session.in_transaction()
-    logger.debug("written={a};flushed={b};in_t={c}", a=written, b=flushed, c=in_t)
-    return written or flushed and in_t
+# def _write_in_session(session: AsyncSession):
+#     written = bool(session.new) or bool(session.dirty) or bool(session.deleted)
+#     flushed = session.info.get(_FLUSHED, False)
+#     in_t = hasattr(session, "in_transaction") and session.in_transaction()
+#     logger.debug("written={a};flushed={b};in_t={c}", a=written, b=flushed, c=in_t)
+#     return written or flushed and in_t
 
 
 async def db_commit(session: AsyncSession):
