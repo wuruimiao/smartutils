@@ -1,5 +1,7 @@
-import time
 import os
+import time
+from typing import Optional
+
 from smartutils.log import logger
 
 try:
@@ -17,10 +19,10 @@ class IOController:
         name: str,
         devices: list[str],
         command_names: list[str],
-        rbps: int = None,
-        wbps: int = None,
-        riops: int = None,
-        wiops: int = None,
+        rbps: Optional[int] = None,
+        wbps: Optional[int] = None,
+        riops: Optional[int] = None,
+        wiops: Optional[int] = None,
         cgroup_version="v2",
     ):
         """
@@ -114,7 +116,7 @@ class IOController:
                         self.remove_process_from_cgroup(pid)
                 time.sleep(2)
             except KeyboardInterrupt:
-                logger.info(f"exit")
+                logger.info("exit")
                 self.remove_process_from_cgroup()
                 exit(0)
 

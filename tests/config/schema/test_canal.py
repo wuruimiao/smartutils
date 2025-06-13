@@ -28,7 +28,7 @@ def test_canal_client_conf_valid():
 def test_canal_client_conf_none(field):
     conf_dict = valid_canal_client_conf()
     with pytest.raises(ValidationError) as exc:
-        conf_dict[field] = None
+        conf_dict[field] = None  # type: ignore
         CanalClientConf(**conf_dict)
     assert "Input should be a valid string" in str(exc.value) and field in str(
         exc.value

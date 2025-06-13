@@ -22,7 +22,7 @@ def test_config_init_and_get(tmp_path):
     conf = Config(str(yaml_path))
     assert conf._config["project"]["name"] == "test"
     assert isinstance(conf.get("project"), ProjectConf)
-    assert conf.get("project").name == "test"
+    assert conf.get("project").name == "test"  # type: ignore
 
 
 def test_config_init_file_not_exist(tmp_path):

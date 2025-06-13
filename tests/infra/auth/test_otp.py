@@ -32,11 +32,11 @@ def test_qr_b64_pic(monkeypatch):
         def save(self, buf, format=None):
             buf.write(fake_img_bytes)
 
-    otpmodule.pyotp.random_base32.return_value = "SECRET12"
+    otpmodule.pyotp.random_base32 = MagicMock(return_value="SECRET12")
     totp = MagicMock()
     totp.provisioning_uri.return_value = "otpauth://auth"
-    otpmodule.pyotp.TOTP.return_value = totp
-    otpmodule.qrcode.make.return_value = DummyImg()
+    otpmodule.pyotp.TOTP = MagicMock(return_value=totp)
+    otpmodule.qrcode.make = MagicMock(return_value=DummyImg())
     # 断言base64流程
     secret, img_b64 = otpmodule.OtpHelper.generate_qr("userB")
     assert secret == "SECRET12"
@@ -50,7 +50,7 @@ def test_verify_totp_mock(monkeypatch):
     monkeypatch.setattr(otpmodule, "pyotp", MagicMock())
     totp = MagicMock()
     totp.verify.return_value = True
-    otpmodule.pyotp.TOTP.return_value = totp
+    otpmodule.pyotp.TOTP = MagicMock(return_value=totp)
     assert otpmodule.OtpHelper.verify_totp("sec", "111222") is True
     totp.verify.return_value = False
     assert otpmodule.OtpHelper.verify_totp("sec", "333333") is False

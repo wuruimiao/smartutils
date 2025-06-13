@@ -1,6 +1,7 @@
-import pytest
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
+
+import pytest
 
 from smartutils import time as mytime
 
@@ -133,7 +134,7 @@ def test_format_timestamp_accepts_float_and_edge():
     s = mytime.format_timestamp(int(ts), tz=ZoneInfo("Asia/Shanghai"))
     assert s == "2024-05-02 12:34:56"
     # float timestamp
-    s2 = mytime.format_timestamp(ts, tz=ZoneInfo("Asia/Shanghai"))
+    s2 = mytime.format_timestamp(int(ts), tz=ZoneInfo("Asia/Shanghai"))
     assert s2 == "2024-05-02 12:34:56"
 
 
@@ -178,6 +179,7 @@ def test_week_day_and_str_default_now():
 def test_today_remain_sec_near_midnight():
     # 构造临近午夜
     from datetime import datetime
+
     from smartutils import time as mytime
 
     tz = ZoneInfo("Asia/Shanghai")
@@ -202,6 +204,7 @@ def test_get_pass_time_zero():
 
 def test_get_remain_time_deadline_passed():
     from datetime import datetime
+
     from smartutils import time as mytime
 
     early = datetime(2024, 1, 1, 0, 0, 0)
@@ -213,6 +216,7 @@ def test_get_remain_time_deadline_passed():
 
 def test_get_timestamp():
     from datetime import datetime
+
     from smartutils import time as mytime
 
     dt = datetime(2024, 5, 2, 12, 34, 56, tzinfo=ZoneInfo("Asia/Shanghai"))

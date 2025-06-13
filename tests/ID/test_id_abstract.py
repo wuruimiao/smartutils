@@ -7,7 +7,7 @@ class DummyIDGen(AbstractIDGenerator):
     def __init__(self):
         self.cur = 0
 
-    def __next__(self):
+    def __next__(self):  # type: ignore
         self.cur += 1
         return self.cur
 
@@ -28,4 +28,4 @@ def test_iter_and_call():
 def test_abstract_cannot_instantiate():
     # 抽象类不能直接实例化
     with pytest.raises(TypeError):
-        AbstractIDGenerator()
+        AbstractIDGenerator()  # type: ignore

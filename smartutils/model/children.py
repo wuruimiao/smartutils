@@ -11,7 +11,7 @@ async def children_ids(
     pk_field: Column,
     parent_pk_field: Column,
     root_id: Any,
-) -> List[Any]:
+) -> List[int]:
     """
     通用递归查找树结构所有子节点ID。
     不做环检测，太复杂，用数据库超时代替
@@ -32,4 +32,4 @@ async def children_ids(
         select(node_alias.id).where(node_alias.parent_id == sub_query.c.id)
     )
     result = await session.execute(select(sub_query.c.id))
-    return result.scalars().all()
+    return list(result.scalars().all())

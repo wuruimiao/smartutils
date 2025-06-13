@@ -17,7 +17,7 @@ class User(Base):
 
 
 @pytest.fixture
-async def setup_db(tmp_path_factory):
+async def setup_db(tmp_path_factory: pytest.TempPathFactory):
     config_str = """
 mysql:
   default:
@@ -57,7 +57,7 @@ project:
 
 
 @pytest.fixture
-async def setup_unreachable_db(tmp_path_factory):
+async def setup_unreachable_db(tmp_path_factory: pytest.TempPathFactory):
     config_str = """
 mysql:
   default:
@@ -99,7 +99,7 @@ async def test_mysql_manager_no_confs():
         MySQLManager()
 
 
-async def test_mysql_session_insert_query(setup_db):
+async def test_mysql_session_insert_query(setup_db: None):
     from smartutils.infra import MySQLManager
 
     mgr = MySQLManager()
@@ -107,21 +107,23 @@ async def test_mysql_session_insert_query(setup_db):
         stmt = insert(User).values(name="SessionUser1")
         result = await session.execute(stmt)
         await session.commit()
+        assert result.inserted_primary_key
         user_id = result.inserted_primary_key[0]
         stmt = select(User).where(User.id == user_id)
         user = (await session.execute(stmt)).scalar_one()
-        assert user.name == "SessionUser1"
+        assert user.name == "SessionUser1"  # type: ignore
         await session.execute(sql_delete(User).where(User.id == user_id))
         await session.commit()
 
 
-async def test_mysql_session_update_commit(setup_db):
+async def test_mysql_session_update_commit(setup_db: None):
     from smartutils.infra import MySQLManager
 
     mgr = MySQLManager()
     async with mgr.session() as session:
         result = await session.execute(insert(User).values(name="SessionUpdate"))
         await session.commit()
+        assert result.inserted_primary_key
         user_id = result.inserted_primary_key[0]
         upd = sql_update(User).where(User.id == user_id).values(name="AfterUpdate")
         await session.execute(upd)
@@ -134,13 +136,14 @@ async def test_mysql_session_update_commit(setup_db):
         await session.commit()
 
 
-async def test_mysql_session_update_rollback(setup_db):
+async def test_mysql_session_update_rollback(setup_db: None):
     from smartutils.infra import MySQLManager
 
     mgr = MySQLManager()
     async with mgr.session() as session:
         result = await session.execute(insert(User).values(name="RollbackTest"))
         await session.commit()
+        assert result.inserted_primary_key
         user_id = result.inserted_primary_key[0]
         upd = sql_update(User).where(User.id == user_id).values(name="ShouldRollback")
         await session.execute(upd)
@@ -153,13 +156,14 @@ async def test_mysql_session_update_rollback(setup_db):
         await session.commit()
 
 
-async def test_mysql_session_delete(setup_db):
+async def test_mysql_session_delete(setup_db: None):
     from smartutils.infra import MySQLManager
 
     mgr = MySQLManager()
     async with mgr.session() as session:
         result = await session.execute(insert(User).values(name="DeleteTest"))
         await session.commit()
+        assert result.inserted_primary_key
         user_id = result.inserted_primary_key[0]
         await session.execute(sql_delete(User).where(User.id == user_id))
         await session.commit()
@@ -168,7 +172,7 @@ async def test_mysql_session_delete(setup_db):
         assert user is None
 
 
-async def test_mysql_cli_ping(setup_db):
+async def test_mysql_cli_ping(setup_db: None):
     from smartutils.infra import MySQLManager
 
     mgr = MySQLManager()
@@ -176,7 +180,7 @@ async def test_mysql_cli_ping(setup_db):
     assert await cli.ping() is True
 
 
-async def test_mysql_cli_close(setup_db):
+async def test_mysql_cli_close(setup_db: None):
     from smartutils.infra import MySQLManager
 
     mgr = MySQLManager()
@@ -184,7 +188,7 @@ async def test_mysql_cli_close(setup_db):
     await cli.close()
 
 
-async def test_mysql_create(setup_db):
+async def test_mysql_create(setup_db: None):
     from smartutils.infra import MySQLManager
 
     mgr = MySQLManager()
@@ -194,13 +198,14 @@ async def test_mysql_create(setup_db):
         insert_stmt = insert(User).values(name="TestUser")
         result = await mgr.curr.execute(insert_stmt)
         await mgr.curr.commit()
+        assert result.inserted_primary_key
         return result.inserted_primary_key[0]
 
     user_id = await create()
     assert isinstance(user_id, int) and user_id > 0
 
 
-async def test_mysql_read(setup_db):
+async def test_mysql_read(setup_db: None):
     from smartutils.infra import MySQLManager
 
     mgr = MySQLManager()
@@ -210,6 +215,7 @@ async def test_mysql_read(setup_db):
         insert_stmt = insert(User).values(name="UserRead")
         result = await mgr.curr.execute(insert_stmt)
         await mgr.curr.commit()
+        assert result.inserted_primary_key
         return result.inserted_primary_key[0]
 
     user_id = await create()
@@ -219,12 +225,12 @@ async def test_mysql_read(setup_db):
         stmt = select(User).where(User.id == user_id)
         result = await mgr.curr.execute(stmt)
         user = result.scalar_one()
-        assert user.name == "UserRead"
+        assert user.name == "UserRead"  # type: ignore
 
     await read()
 
 
-async def test_mysql_update(setup_db):
+async def test_mysql_update(setup_db: None):
     from smartutils.infra import MySQLManager
 
     mgr = MySQLManager()
@@ -234,6 +240,7 @@ async def test_mysql_update(setup_db):
         insert_stmt = insert(User).values(name="UserUpdate")
         result = await mgr.curr.execute(insert_stmt)
         await mgr.curr.commit()
+        assert result.inserted_primary_key
         return result.inserted_primary_key[0]
 
     user_id = await create()
@@ -246,12 +253,12 @@ async def test_mysql_update(setup_db):
         stmt = select(User).where(User.id == user_id)
         result = await mgr.curr.execute(stmt)
         user = result.scalar_one()
-        assert user.name == "UpdatedUser"
+        assert user.name == "UpdatedUser"  # type: ignore
 
     await update()
 
 
-async def test_mysql_delete(setup_db):
+async def test_mysql_delete(setup_db: None):
     from smartutils.infra import MySQLManager
 
     mgr = MySQLManager()
@@ -261,6 +268,7 @@ async def test_mysql_delete(setup_db):
         insert_stmt = insert(User).values(name="UserDelete")
         result = await mgr.curr.execute(insert_stmt)
         await mgr.curr.commit()
+        assert result.inserted_primary_key
         return result.inserted_primary_key[0]
 
     user_id = await create()
@@ -278,7 +286,7 @@ async def test_mysql_delete(setup_db):
     await delete_and_check()
 
 
-async def test_mysql_cli_ping_fail(setup_unreachable_db):
+async def test_mysql_cli_ping_fail(setup_unreachable_db: None):
     from smartutils.infra import MySQLManager
 
     cli = MySQLManager().client()
@@ -286,7 +294,7 @@ async def test_mysql_cli_ping_fail(setup_unreachable_db):
     assert await cli.ping() is False
 
 
-async def test_mysql_cli_create_tables_fail(setup_unreachable_db):
+async def test_mysql_cli_create_tables_fail(setup_unreachable_db: None):
     from smartutils.infra import MySQLManager
 
     cli = MySQLManager().client()
@@ -298,7 +306,7 @@ async def test_mysql_cli_create_tables_fail(setup_unreachable_db):
         await cli.create_tables([Base])
 
 
-async def test_mysql_manager_session_unreachable(setup_unreachable_db):
+async def test_mysql_manager_session_unreachable(setup_unreachable_db: None):
     from smartutils.infra import MySQLManager
 
     mgr = MySQLManager()
@@ -308,7 +316,7 @@ async def test_mysql_manager_session_unreachable(setup_unreachable_db):
             await session.execute(select(User))
 
 
-async def test_mysql_manager_use_unreachable(setup_unreachable_db):
+async def test_mysql_manager_use_unreachable(setup_unreachable_db: None):
     from smartutils.infra import MySQLManager
 
     mgr = MySQLManager()

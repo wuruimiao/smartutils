@@ -21,7 +21,7 @@ def test_csv_module():
     assert rows[0]["a"] == "1"
     assert rows[1]["b"] == "4"
     rows2 = csv_mod.get_csv_data(fname)
-    assert rows2[0]["a"] == "1"
+    assert rows2[0]["a"] == "1"  # type: ignore
     csv_mod.increase_csv_limit()  # 只需覆盖
     os.remove(fname)
 

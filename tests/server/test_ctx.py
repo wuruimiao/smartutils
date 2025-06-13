@@ -45,7 +45,7 @@ def test_timeoutd_decorator_default_ret(monkeypatch):
     def fake_timeoutd(_now=None):
         return True
 
-    ctx.timeoutd = fake_timeoutd
+    ctx.timeoutd = fake_timeoutd  # type: ignore
 
     @timeoutd(default_ret="X")
     def foo(ctx=None):

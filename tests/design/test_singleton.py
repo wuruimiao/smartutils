@@ -1,7 +1,7 @@
 import threading
 from unittest.mock import patch
 
-from smartutils.design import singleton, SingletonBase, SingletonMeta
+from smartutils.design import SingletonBase, SingletonMeta, singleton
 
 
 @singleton
@@ -41,8 +41,8 @@ def test_base_singleton_basic():
     a = BaseSingleton(10)
     b = BaseSingleton(20)
     assert a is b
-    assert a.value == 10
-    assert b.value == 10
+    assert a.value == 10  # type: ignore
+    assert b.value == 10  # type: ignore
 
 
 def test_base_singleton_threadsafe():
@@ -88,7 +88,7 @@ def test_meta_singleton_threadsafe():
 
 def test_decorator_singleton_reset():
     a = DecoratorSingleton(1)
-    DecoratorSingleton.reset()
+    DecoratorSingleton.reset()  # type: ignore
     b = DecoratorSingleton(2)
     assert a is not b
     assert b.value == 2
@@ -109,7 +109,7 @@ def test_base_singleton_reset():
     BaseSingleton.reset()
     b = BaseSingleton(6)
     assert a is not b
-    assert b.value == 6
+    assert b.value == 6  # type: ignore
 
 
 def test_base_singleton_reset_all():
@@ -117,7 +117,7 @@ def test_base_singleton_reset_all():
     SingletonBase.reset_all()
     b = BaseSingleton(8)
     assert a is not b
-    assert b.value == 8
+    assert b.value == 8  # type: ignore
 
 
 def test_meta_singleton_reset():
@@ -151,12 +151,12 @@ def test_base_singleton_init_once_called_once():
     a = CounterSingleton(100)
     b = CounterSingleton(200)
     assert a is b
-    assert a.value == 100
-    assert b.value == 100
+    assert a.value == 100  # type: ignore
+    assert b.value == 100  # type: ignore
     assert CounterSingleton.init_count == 1
 
     CounterSingleton.reset()
     c = CounterSingleton(300)
     assert c is not a
-    assert c.value == 300
+    assert c.value == 300  # type: ignore
     assert CounterSingleton.init_count == 2

@@ -3,6 +3,7 @@ import json
 import time
 
 import pytest
+from fastapi.logger import logger
 
 TEST_TOPIC = "pytest-test-topic"
 GROUP_ID = "pytest-group"
@@ -98,6 +99,9 @@ async def test_send_and_consume(setup_kafka):
             while len(received) < len(data) and time.time() - start < 10:
                 try:
                     msg = await asyncio.wait_for(consumer.getone(), timeout=2)
+                    if msg.value is None:
+                        logger.error("get None msg value")
+                        continue
                     received.append(json.loads(msg.value.decode("utf-8")))
                 except asyncio.TimeoutError:
                     break

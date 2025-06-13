@@ -1,5 +1,6 @@
 import ipaddress
 import re
+from typing import Optional
 
 from smartutils.data.base import is_num
 
@@ -15,7 +16,7 @@ _USERNAME_REGEX = re.compile(USERNAME_PATTERN)
 _MAIL_REGEX = re.compile(MAIL_PATTERN)
 
 
-def check_ip(ip: str) -> bool:
+def check_ip(ip: Optional[str]) -> bool:
     if not isinstance(ip, str):
         return False
     try:
@@ -25,7 +26,7 @@ def check_ip(ip: str) -> bool:
         return False
 
 
-def check_domain(domain: str) -> bool:
+def check_domain(domain: Optional[str]) -> bool:
     if not isinstance(domain, str):
         return False
     return bool(DOMAIN_REGEX.match(domain))
@@ -40,7 +41,7 @@ def check_port(port) -> bool:
     return 1 <= port <= 65535
 
 
-def check_mail(s: str) -> bool:
+def check_mail(s: Optional[str]) -> bool:
     """检查邮箱格式是否正确
 
     Args:
@@ -54,11 +55,11 @@ def check_mail(s: str) -> bool:
     return bool(_MAIL_REGEX.fullmatch(s))
 
 
-def check_phone(s: str) -> bool:
+def check_phone(s: Optional[str]) -> bool:
     return is_num(s)
 
 
-def check_username(s: str) -> bool:
+def check_username(s: Optional[str]) -> bool:
     """检查用户名格式是否正确
 
     Args:

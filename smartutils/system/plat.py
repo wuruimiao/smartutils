@@ -24,8 +24,8 @@ def fix_win_focus():
     防止鼠标误触导致阻塞，但也会导致不响应ctrl+c
     :return:
     """
-    print(f"patch windows console")
+    print("patch windows console")
     import ctypes
 
-    kernel32 = ctypes.windll.kernel32
+    kernel32 = ctypes.windll.kernel32  # type: ignore
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-10), 128)

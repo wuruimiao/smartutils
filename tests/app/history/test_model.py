@@ -75,10 +75,10 @@ def test_ophistory_attributes(setup_config):
         after_data={"foo": "baz"},
         remark="test remark",
     )
-    assert op.biz_type == "test"
-    assert op.biz_id == 123
-    assert op.op_type == 1
-    assert op.op_id == 456
-    assert op.before_data == {"foo": "bar"}
-    assert op.after_data == {"foo": "baz"}
-    assert op.remark == "test remark"
+    assert op.biz_type == "test"  # type: ignore
+    assert op.biz_id == 123  # type: ignore
+    assert op.op_type == 1  # type: ignore
+    assert op.op_id == 456  # type: ignore
+    assert op.before_data == {"foo": "bar"}  # type: ignore
+    assert op.after_data == {"foo": "baz"}  # type: ignore
+    assert op.remark == "test remark"  # type: ignore
