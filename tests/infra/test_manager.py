@@ -1,11 +1,10 @@
-import asyncio
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
 from smartutils.config.const import ConfKey
-from smartutils.ctx import CTXKey, CTXVarManager
-from smartutils.error.sys import LibraryError, LibraryUsageError, SysError
+from smartutils.ctx import CTXVarManager
+from smartutils.error.sys import LibraryError, LibraryUsageError
 from smartutils.infra.source_manager.abstract import AbstractResource
 from smartutils.infra.source_manager.manager import (
     CTXResourceManager,
@@ -39,14 +38,14 @@ class DummyManager(CTXResourceManager[DummyResource]):
 
 
 @pytest.fixture
-@CTXVarManager.register("_test_ctx_")
+@CTXVarManager.register("_test_ctx_")  # type: ignore
 def dummy_manager():
     resources = {
         ConfKey.GROUP_DEFAULT: DummyResource("default"),
         "custom_key": DummyResource("custom"),
     }
     # 用一个新的 context key 防止和用户上下文冲突
-    return DummyManager(resources, context_var_name="_test_ctx_")
+    return DummyManager(resources, context_var_name="_test_ctx_")  # type: ignore
 
 
 def test_registry_register_and_get_all(dummy_manager):

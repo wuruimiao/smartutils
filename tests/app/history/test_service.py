@@ -32,7 +32,7 @@ project:
     with open(config_file, "w") as f:
         f.write(config_str)
 
-    from smartutils.test import patched_manager_with_mocked_dbcli
+    from smartutils.patch import patched_manager_with_mocked_dbcli
 
     with patched_manager_with_mocked_dbcli("smartutils.infra.db.mysql.AsyncDBCli") as (
         MockDBCli,
