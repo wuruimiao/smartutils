@@ -7,7 +7,7 @@ from fastapi.exceptions import (
 from pydantic import ValidationError as PydanticValidationError
 from starlette.exceptions import HTTPException
 
-from smartutils.data import max_int
+from smartutils.data.base import max_int
 from smartutils.error.base import BaseError
 from smartutils.error.factory import ExcDetailFactory, ExcErrorFactory
 from smartutils.error.mapping import HTTP_STATUS_CODE_MAP
