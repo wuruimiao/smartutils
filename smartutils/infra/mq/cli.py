@@ -1,12 +1,13 @@
 import asyncio
 from contextlib import asynccontextmanager
-from typing import List, Dict, Callable, Optional, Any, AsyncContextManager
+from typing import Any, AsyncContextManager, Callable, Dict, List, Optional
 
 import orjson
+
 from smartutils.log import logger
 
 try:
-    from aiokafka import AIOKafkaProducer, AIOKafkaConsumer, TopicPartition, errors
+    from aiokafka import AIOKafkaConsumer, AIOKafkaProducer, TopicPartition, errors
 except ImportError:
     logger.debug("smartutils.infra.mq.cli depend on aiokafka, install before use")
     AIOKafkaProducer, AIOKafkaConsumer, TopicPartition, errors = None, None, None, None
@@ -99,6 +100,7 @@ class KafkaBatchConsumer:
         self.timeout = timeout
         self.process_func = process_func
         self.queue = asyncio.Queue(self.batch_size)
+        self._should_stop = asyncio.Event()
 
     async def start(self):
         consumer: AIOKafkaConsumer = self.kafka_cli.consumer(
@@ -107,6 +109,9 @@ class KafkaBatchConsumer:
         await asyncio.gather(
             self._consume_kafka(consumer), self._process_batch(consumer)
         )
+
+    async def stop(self):
+        self._should_stop.set()
 
     async def _consume_kafka(self, consumer: AIOKafkaConsumer):
         await consumer.start()
@@ -117,7 +122,7 @@ class KafkaBatchConsumer:
             await consumer.stop()
 
     async def _process_batch(self, consumer: AIOKafkaConsumer):
-        while True:
+        while not self._should_stop.is_set():
             batch = []
             try:
                 msg = await self.queue.get()

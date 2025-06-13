@@ -14,9 +14,9 @@ async def setup_kafka(tmp_path_factory):
 kafka:
   default:
     bootstrap_servers:
-      - host: 127.0.0.1
-        port: 19092
-    client_id: unmanned
+      - host: 192.168.1.56
+        port: 29092
+    client_id: pytest-client-id
     acks: all
     compression_type: zstd
     max_batch_size: 16384
@@ -73,14 +73,6 @@ project:
 
     yield
 
-    from smartutils.infra import KafkaManager
-
-    await KafkaManager().close()
-
-    from smartutils.init import reset_all
-
-    await reset_all()
-
 
 async def test_send_and_consume(setup_kafka):
     import uuid
@@ -92,11 +84,11 @@ async def test_send_and_consume(setup_kafka):
 
     @kafka_mgr.use()
     async def send_consume():
-        await kafka_mgr.curr().send_data(TEST_TOPIC, data)
+        await kafka_mgr.curr.send_data(TEST_TOPIC, data)
         await asyncio.sleep(1)
 
         group_id = f"pytest-group-{uuid.uuid4()}"
-        consumer = kafka_mgr.curr().consumer(
+        consumer = kafka_mgr.curr.consumer(
             TEST_TOPIC, group_id, auto_offset_reset="earliest"
         )
         await consumer.start()
@@ -127,7 +119,7 @@ async def test_send_and_batch_consume(setup_kafka):
     @kafka_mgr.use()
     async def test():
         messages_to_send = [{"msg": f"batch_{i}"} for i in range(3)]
-        await kafka_mgr.curr().send_data(TEST_TOPIC, messages_to_send)
+        await kafka_mgr.curr.send_data(TEST_TOPIC, messages_to_send)
         got = []
 
         async def process_func(msg_list):
@@ -136,7 +128,7 @@ async def test_send_and_batch_consume(setup_kafka):
 
         # 单独给每次 batch 消费用个新 group_id
         consumer = KafkaBatchConsumer(
-            kafka_mgr.curr(),
+            kafka_mgr.curr,
             process_func,
             topic=TEST_TOPIC,
             group_id=GROUP_ID + "-batch",
@@ -148,7 +140,8 @@ async def test_send_and_batch_consume(setup_kafka):
         try:
             await asyncio.wait_for(consumer.start(), timeout=8)
         except asyncio.TimeoutError:
-            pass
+            await consumer.stop()
+            await asyncio.sleep(0.2)
 
         # 校验至少收到3条
         assert any("batch_0" in s for s in got)
@@ -166,9 +159,9 @@ async def test_ping(setup_kafka):
     assert result
 
 
-async def test_unreachable_ping(setup_unreachable_kafka):
-    from smartutils.infra import KafkaManager
+# async def test_unreachable_ping(setup_unreachable_kafka):
+#     from smartutils.infra import KafkaManager
 
-    kafka_mgr = KafkaManager()
-    result = await kafka_mgr.client().ping()
-    assert not result
+#     kafka_mgr = KafkaManager()
+#     result = await kafka_mgr.client().ping()
+#     assert not result

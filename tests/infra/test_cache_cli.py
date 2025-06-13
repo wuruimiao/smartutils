@@ -33,7 +33,7 @@ async def test_ping_ok_and_fail(async_cli):
 
 async def test_set_get_delete(async_cli):
     async_cli._redis.set.return_value = True
-    assert await async_cli.set("k", "v", expire=2) is True
+    assert await async_cli.set("k", "v", ex=2) is True
     async_cli._redis.get.return_value = "v"
     v = await async_cli.get("k")
     assert v == "v"
@@ -43,8 +43,8 @@ async def test_set_get_delete(async_cli):
 
 async def test_incr_decr(async_cli):
     async_cli._redis.eval.return_value = 11
-    assert await async_cli.incr("cnt", expire=2) == 11
-    assert await async_cli.decr("cnt", expire=None) == 11
+    assert await async_cli.incr("cnt", ex=2) == 11
+    assert await async_cli.decr("cnt", ex=None) == 11
 
 
 async def test_set_ops(async_cli):
