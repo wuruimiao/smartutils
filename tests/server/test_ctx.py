@@ -1,7 +1,3 @@
-import time
-
-import pytest
-
 from smartutils.error.sys import TimeOutError
 from smartutils.server.ctx import Context, timeoutd
 
