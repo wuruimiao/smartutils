@@ -56,7 +56,7 @@ async def test_session_ctx(dbcli):
     mgr.__aexit__.return_value = None
     dbcli._session.return_value = mgr
     async with dbcli.db() as s:
-        assert s == sess
+        assert s == (sess, None)
 
 
 def test_engine_property(dbcli):
@@ -78,8 +78,15 @@ def test_engine_property(dbcli):
 
 async def test_db_commit_and_rollback(monkeypatch):
     sess = AsyncMock()
+    transaction = MagicMock()
+    transaction.commit = AsyncMock()
+    transaction.rollback = AsyncMock()
+
+    session_tuple = (sess, transaction)
     monkeypatch.setattr(dbmod, "logger", MagicMock())
-    await dbmod.db_commit(sess)
-    await dbmod.db_rollback(sess)
-    sess.commit.assert_awaited()
-    sess.rollback.assert_awaited()
+
+    await dbmod.db_commit(session_tuple)
+    transaction.commit.assert_awaited_once()
+
+    await dbmod.db_rollback(session_tuple)
+    transaction.rollback.assert_awaited_once()

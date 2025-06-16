@@ -34,7 +34,7 @@ class PostgresqlManager(CTXResourceManager[AsyncDBCli]):
 
     @property
     def curr(self) -> AsyncSession:
-        return super().curr
+        return super().curr[0]
 
 
 @InfraFactory.register(ConfKey.POSTGRESQL)

@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator, Dict, Optional
+from typing import AsyncGenerator, Dict, Optional, Tuple
 
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, AsyncSessionTransaction
 
 from smartutils.config.const import ConfKey
 from smartutils.config.schema.mysql import MySQLConf
@@ -32,13 +32,13 @@ class MySQLManager(CTXResourceManager[AsyncDBCli]):
 
     @property
     def curr(self) -> AsyncSession:
-        return super().curr
+        return super().curr[0]
 
     @asynccontextmanager
     async def session(
-        self, key: ConfKey = ConfKey.GROUP_DEFAULT
-    ) -> AsyncGenerator[AsyncSession, None]:
-        async with self._resources[key].db() as session:
+        self, key: ConfKey = ConfKey.GROUP_DEFAULT, use_transaction: bool = False
+    ) -> AsyncGenerator[Tuple[AsyncSession, Optional[AsyncSessionTransaction]], None]:
+        async with self._resources[key].db(use_transaction) as session:
             yield session
 
 

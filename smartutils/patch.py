@@ -17,7 +17,8 @@ def patched_manager_with_mocked_dbcli(patch_target):
         fake_session.in_transaction = MagicMock(return_value=True)
 
         async_context_mgr = AsyncMock()
-        async_context_mgr.__aenter__.return_value = fake_session
+        # 这里由仅 fake_session -> (fake_session, None)
+        async_context_mgr.__aenter__.return_value = (fake_session, None)
         async_context_mgr.__aexit__.return_value = None
 
         instance = MockDBCli.return_value
