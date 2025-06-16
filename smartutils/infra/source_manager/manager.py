@@ -71,7 +71,7 @@ class CTXResourceManager(Generic[T], ABC):
             if key not in self._resources:
                 raise LibraryError(f"No resource found for key: {key}")
             resource = self._resources[key]
-            async with resource.session(use_transaction=use_transaction) as session:
+            async with resource.db(use_transaction=use_transaction) as session:
                 with CTXVarManager.use(self._ctx_key, session):
                     try:
                         result = await func(*args, **kwargs)

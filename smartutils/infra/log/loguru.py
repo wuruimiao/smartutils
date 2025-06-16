@@ -86,7 +86,7 @@ class LoggerCli(AbstractResource):
         return True
 
     @asynccontextmanager
-    async def session(self, use_transaction: bool = False):
+    async def db(self, use_transaction: bool = False):
         yield logger
 
 

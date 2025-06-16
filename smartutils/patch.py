@@ -21,7 +21,7 @@ def patched_manager_with_mocked_dbcli(patch_target):
         async_context_mgr.__aexit__.return_value = None
 
         instance = MockDBCli.return_value
-        instance.session.return_value = async_context_mgr
+        instance.db.return_value = async_context_mgr
         instance.close = AsyncMock()
 
         yield MockDBCli, fake_session, instance

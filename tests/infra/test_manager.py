@@ -17,7 +17,7 @@ class DummyResource(AbstractResource):
         self.name = name
         self.closed = False
 
-    def session(self, use_transaction: bool = False):
+    def db(self, use_transaction: bool = False):
         return self
 
     async def __aenter__(self):

@@ -55,7 +55,7 @@ async def test_session_ctx(dbcli):
     mgr.__aenter__.return_value = sess
     mgr.__aexit__.return_value = None
     dbcli._session.return_value = mgr
-    async with dbcli.session() as s:
+    async with dbcli.db() as s:
         assert s == sess
 
 
