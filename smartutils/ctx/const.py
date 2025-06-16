@@ -8,6 +8,7 @@ class CTXKey(str, Enum):
 
     DB_MYSQL = "db_mysql"
     DB_POSTGRESQL = "db_postgresql"
+    DB_MONGO = "db_mongo"
 
     MQ_KAFKA = "mq_kafka"
 

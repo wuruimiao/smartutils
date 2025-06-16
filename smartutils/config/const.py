@@ -11,6 +11,7 @@ BaseModelT = TypeVar("BaseModelT", bound=BaseModel)
 class ConfKey(str, Enum):
     MYSQL = "mysql"
     POSTGRESQL = "postgresql"
+    MONGO = "mongo"
     REDIS = "redis"
     KAFKA = "kafka"
     CANAL = "canal"
