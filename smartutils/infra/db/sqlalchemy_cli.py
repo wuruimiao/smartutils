@@ -1,10 +1,11 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import Union
+from typing import Optional, Tuple, Union
 
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
+    AsyncSessionTransaction,
     async_sessionmaker,
     create_async_engine,
 )
@@ -59,10 +60,13 @@ class AsyncDBCli(AbstractResource):
 
     @asynccontextmanager
     async def db(
-        self, use_transaction: bool = True
-    ) -> AsyncGenerator[AsyncSession, None]:
+        self, use_transaction: bool = False
+    ) -> AsyncGenerator[Tuple[AsyncSession, Optional[AsyncSessionTransaction]], None]:
         async with self._session() as session:
-            yield session
+            if use_transaction:
+                yield session, session.begin()
+            else:
+                yield session, None
 
     @property
     def engine(self):
@@ -89,13 +93,19 @@ class AsyncDBCli(AbstractResource):
 #     return written or flushed and in_t
 
 
-async def db_commit(session: AsyncSession):
+async def db_commit(session: Tuple[AsyncSession, Optional[AsyncSessionTransaction]]):
     # if _write_in_session(session):
-    await session.commit()
+    if session[1]:
+        await session[1].commit()
+    else:
+        await session[0].commit()
     logger.debug("auto commit")
 
 
-async def db_rollback(session: AsyncSession):
+async def db_rollback(session: Tuple[AsyncSession, Optional[AsyncSessionTransaction]]):
     # if _write_in_session(session):
-    await session.rollback()
+    if session[1]:
+        await session[1].rollback()
+    else:
+        await session[0].rollback()
     logger.debug("auto rollback")

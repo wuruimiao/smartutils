@@ -88,22 +88,22 @@ class CTXResourceManager(Generic[T], ABC):
 
     @overload
     def use(
-        self, arg: None = ..., *, use_transaction: bool = True
+        self, arg: None = ..., *, use_transaction: bool = False
     ) -> Callable[[Callable[..., Awaitable[Any]]], Callable[..., Awaitable[Any]]]: ...
     @overload
     def use(
-        self, arg: str, *, use_transaction: bool = True
+        self, arg: str, *, use_transaction: bool = False
     ) -> Callable[[Callable[..., Awaitable[Any]]], Callable[..., Awaitable[Any]]]: ...
     @overload
     def use(
-        self, arg: Callable[..., Awaitable[Any]], *, use_transaction: bool = True
+        self, arg: Callable[..., Awaitable[Any]], *, use_transaction: bool = False
     ) -> Callable[..., Awaitable[Any]]: ...
 
     def use(
         self,
         arg: Optional[Union[str, Callable[..., Awaitable[Any]]]] = None,
         *,
-        use_transaction: bool = True,
+        use_transaction: bool = False,
     ) -> Any:
         """支持以下三种调用方式：
         use()

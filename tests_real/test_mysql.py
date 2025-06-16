@@ -104,6 +104,7 @@ async def test_mysql_session_insert_query(setup_db: None):
 
     mgr = MySQLManager()
     async with mgr.session() as session:
+        session = session[0]
         stmt = insert(User).values(name="SessionUser1")
         result = await session.execute(stmt)
         await session.commit()
@@ -120,14 +121,15 @@ async def test_mysql_session_update_commit(setup_db: None):
     from smartutils.infra import MySQLManager
 
     mgr = MySQLManager()
-    async with mgr.session() as session:
+    async with mgr.session() as _session:
+        session = _session[0]
         result = await session.execute(insert(User).values(name="SessionUpdate"))
         await session.commit()
         assert result.inserted_primary_key
         user_id = result.inserted_primary_key[0]
         upd = sql_update(User).where(User.id == user_id).values(name="AfterUpdate")
         await session.execute(upd)
-        await db_commit(session)
+        await db_commit(_session)
         new_name = (
             await session.execute(select(User.name).where(User.id == user_id))
         ).scalar_one()
@@ -140,14 +142,15 @@ async def test_mysql_session_update_rollback(setup_db: None):
     from smartutils.infra import MySQLManager
 
     mgr = MySQLManager()
-    async with mgr.session() as session:
+    async with mgr.session() as _session:
+        session = _session[0]
         result = await session.execute(insert(User).values(name="RollbackTest"))
         await session.commit()
         assert result.inserted_primary_key
         user_id = result.inserted_primary_key[0]
         upd = sql_update(User).where(User.id == user_id).values(name="ShouldRollback")
         await session.execute(upd)
-        await db_rollback(session)
+        await db_rollback(_session)
         name = (
             await session.execute(select(User.name).where(User.id == user_id))
         ).scalar_one()
@@ -161,6 +164,7 @@ async def test_mysql_session_delete(setup_db: None):
 
     mgr = MySQLManager()
     async with mgr.session() as session:
+        session = session[0]
         result = await session.execute(insert(User).values(name="DeleteTest"))
         await session.commit()
         assert result.inserted_primary_key
@@ -312,6 +316,7 @@ async def test_mysql_manager_session_unreachable(setup_unreachable_db: None):
     mgr = MySQLManager()
     with pytest.raises(Exception):
         async with mgr.session() as session:
+            session = session[0]
             # 实际执行一次SQL，才能确保抛出连接异常
             await session.execute(select(User))
 
