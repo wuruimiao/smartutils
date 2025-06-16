@@ -65,31 +65,6 @@ class CTXResourceManager(Generic[T], ABC):
     def __str__(self) -> str:
         return f"mgr_{self._ctx_key}"
 
-    # def use(self, key: ConfKey = ConfKey.GROUP_DEFAULT):
-    #     def decorator(func: Callable[..., Awaitable[Any]]):
-    #         @functools.wraps(func)
-    #         async def wrapper(*args, **kwargs):
-    #             if key not in self._resources:
-    #                 raise LibraryError(f"No resource found for key: {key}")
-
-    #             resource = self._resources[key]
-    #             async with resource.session() as session:
-    #                 with CTXVarManager.use(self._ctx_key, session):
-    #                     try:
-    #                         result = await func(*args, **kwargs)
-    #                         await call_hook(self._success, session)
-    #                         return result
-    #                     except BaseError as e:
-    #                         raise e
-    #                     except Exception as e:
-    #                         await call_hook(self._fail, session)
-    #                         logger.exception("{key} use fail", key=key)
-    #                         raise self._error(f"{key} use fail: {e}") from None
-
-    #         return wrapper
-
-    #     return decorator
-
     def _build_wrapper(self, func, key, use_transaction: bool = False):
         @functools.wraps(func)
         async def wrapper(*args, **kwargs):
