@@ -38,7 +38,7 @@ class MySQLManager(CTXResourceManager[AsyncDBCli]):
     async def session(
         self, key: ConfKey = ConfKey.GROUP_DEFAULT
     ) -> AsyncGenerator[AsyncSession, None]:
-        async with self._resources[key].session() as session:
+        async with self._resources[key].db() as session:
             yield session
 
 
