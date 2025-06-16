@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-import smartutils.infra.db.cli as dbmod
+import smartutils.infra.db.sqlalchemy_cli as dbmod
 
 
 @pytest.fixture

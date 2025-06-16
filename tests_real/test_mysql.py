@@ -5,7 +5,7 @@ from sqlalchemy import update as sql_update
 from sqlalchemy.orm import declarative_base
 
 from smartutils.error.sys import DatabaseError, LibraryUsageError
-from smartutils.infra.db.cli import db_commit, db_rollback
+from smartutils.infra.db.sqlalchemy_cli import db_commit, db_rollback
 
 Base = declarative_base()
 
