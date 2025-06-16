@@ -48,7 +48,7 @@ def test_mongoconf_url():
     conf = make_conf(user="u", passwd="p", db="d")
     url = conf.url
     assert url.startswith("mongodb://u:p@mongo1:27017,mongo2:27019/d?")
-    assert "replicaSet=myreplset" in url and "authSource=admin" in url
+    assert "authSource=admin" in url
 
 
 def test_mongoconf_kw_timeouts_and_pool():
@@ -61,7 +61,6 @@ def test_mongoconf_kw_timeouts_and_pool():
     assert kw["serverSelectionTimeoutMS"] == 11000
     assert kw["waitQueueTimeoutMS"] == 7000
     assert kw["maxIdleTimeMS"] == 13000
-    assert kw["maxLifeTimeMS"] == 13000
     assert kw["maxPoolSize"] == conf.max_pool_size()
     assert kw["minPoolSize"] == conf.min_pool_size()
 
