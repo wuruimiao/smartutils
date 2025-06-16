@@ -8,7 +8,7 @@ from smartutils.config.schema.mysql import MySQLConf
 from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.design import singleton
 from smartutils.error.sys import DatabaseError, LibraryUsageError
-from smartutils.infra.db.cli import AsyncDBCli, db_commit, db_rollback
+from smartutils.infra.db.sqlalchemy_cli import AsyncDBCli, db_commit, db_rollback
 from smartutils.infra.factory import InfraFactory
 from smartutils.infra.source_manager.manager import CTXResourceManager
 

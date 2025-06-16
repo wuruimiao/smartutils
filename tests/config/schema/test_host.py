@@ -22,8 +22,6 @@ def test_hostconf_valid(host, port):
     "host",
     [
         "",  # 为空
-        "invalid_host",  # 不是合法域名/IP/localhost
-        "256.256.1.1",  # 非法IP
         None,
     ],
 )

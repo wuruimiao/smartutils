@@ -7,15 +7,16 @@ __all__ = ["HostConf"]
 
 
 class HostConf(StrippedBaseModel):
-    host: str = Field(..., description="ip/域名")
+    host: str = Field(..., min_length=1, description="ip/域名")
     port: int
 
-    @field_validator("host")
-    @classmethod
-    def check_host(cls, v):
-        if not v or not (check_ip(v) or check_domain(v) or v == "localhost"):
-            raise ValueError("host不能为空，且必须是有效的IP地址、域名或localhost")
-        return v
+    # 考虑直接使用容器名访问
+    # @field_validator("host")
+    # @classmethod
+    # def check_host(cls, v):
+    #     if not v or not (check_ip(v) or check_domain(v) or v == "localhost"):
+    #         raise ValueError("host不能为空，且必须是有效的IP地址、域名或localhost")
+    #     return v
 
     @field_validator("port")
     @classmethod

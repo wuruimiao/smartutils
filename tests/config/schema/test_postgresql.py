@@ -35,7 +35,7 @@ def test_postgresql_conf_invalid_user(user):
         PostgreSQLConf(**valid_conf_dict(user=user))
 
 
-@pytest.mark.parametrize("host", ["", None, "not_a_host", "256.256.256.256"])
+@pytest.mark.parametrize("host", ["", None])
 def test_postgresql_conf_invalid_host(host):
     with pytest.raises(ValidationError):
         PostgreSQLConf(**valid_conf_dict(host=host))

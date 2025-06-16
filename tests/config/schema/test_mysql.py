@@ -124,14 +124,6 @@ def test_mysql_conf_execute_timeout_invalid():
             MySQLConf(**conf_dict)
 
 
-def test_mysql_conf_host_invalid():
-    # host 非法
-    for v in ["", "999.999.999.999", "-badhost", "ex@mple.com"]:
-        conf_dict = valid_conf_dict(host=v)
-        with pytest.raises(ValidationError):
-            MySQLConf(**conf_dict)
-
-
 def test_mysql_conf_port_invalid():
     # port 非法
     for v in [0, 65536, -1]:
