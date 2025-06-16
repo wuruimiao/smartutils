@@ -4,7 +4,7 @@ from pathlib import Path
 
 from smartutils.config.const import ConfKey
 from smartutils.config.schema.loguru import LoguruConfig
-from smartutils.ctx import CTXVarManager, CTXKey
+from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.design import singleton
 from smartutils.infra.factory import InfraFactory
 from smartutils.infra.source_manager.abstract import AbstractResource
@@ -86,7 +86,7 @@ class LoggerCli(AbstractResource):
         return True
 
     @asynccontextmanager
-    async def session(self):
+    async def session(self, use_transaction: bool = False):
         yield logger
 
 

@@ -90,13 +90,13 @@ class CTXResourceManager(Generic[T], ABC):
 
     #     return decorator
 
-    def _build_wrapper(self, func, key):
+    def _build_wrapper(self, func, key, use_transaction: bool = False):
         @functools.wraps(func)
         async def wrapper(*args, **kwargs):
             if key not in self._resources:
                 raise LibraryError(f"No resource found for key: {key}")
             resource = self._resources[key]
-            async with resource.session() as session:
+            async with resource.session(use_transaction=use_transaction) as session:
                 with CTXVarManager.use(self._ctx_key, session):
                     try:
                         result = await func(*args, **kwargs)
@@ -113,37 +113,41 @@ class CTXResourceManager(Generic[T], ABC):
 
     @overload
     def use(
-        self, arg: None = ...
+        self, arg: None = ..., *, use_transaction: bool = True
     ) -> Callable[[Callable[..., Awaitable[Any]]], Callable[..., Awaitable[Any]]]: ...
     @overload
     def use(
-        self, arg: str
+        self, arg: str, *, use_transaction: bool = True
     ) -> Callable[[Callable[..., Awaitable[Any]]], Callable[..., Awaitable[Any]]]: ...
     @overload
     def use(
-        self, arg: Callable[..., Awaitable[Any]]
+        self, arg: Callable[..., Awaitable[Any]], *, use_transaction: bool = True
     ) -> Callable[..., Awaitable[Any]]: ...
 
     def use(
-        self, arg: Optional[Union[str, Callable[..., Awaitable[Any]]]] = None
+        self,
+        arg: Optional[Union[str, Callable[..., Awaitable[Any]]]] = None,
+        *,
+        use_transaction: bool = True,
     ) -> Any:
         """支持以下三种调用方式：
         use()
         use
         use(ConfKey.xxx)
+        use(use_transaction=False)
         """
         # 支持 @mgr.use
         if callable(arg):
             func = arg
             key = ConfKey.GROUP_DEFAULT
-            return self._build_wrapper(func, key)
+            return self._build_wrapper(func, key, use_transaction=use_transaction)
 
         # 支持 @mgr.use() 或 @mgr.use('key')
         def decorator(
             func: Callable[..., Awaitable[Any]],
         ) -> Callable[..., Awaitable[Any]]:
             key = arg if isinstance(arg, str) and arg else ConfKey.GROUP_DEFAULT
-            return self._build_wrapper(func, key)
+            return self._build_wrapper(func, key, use_transaction=use_transaction)
 
         return decorator
 

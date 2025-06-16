@@ -16,7 +16,7 @@ class AbstractResource(ABC):
         pass
 
     @abstractmethod
-    def session(self) -> AsyncContextManager[Any]:
+    def session(self, use_transaction: bool) -> AsyncContextManager[Any]:
         pass
 
 

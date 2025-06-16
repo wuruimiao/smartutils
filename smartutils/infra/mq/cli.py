@@ -55,7 +55,9 @@ class AsyncKafkaCli(AbstractResource):
             await self._producer.stop()
 
     @asynccontextmanager
-    async def session(self) -> AsyncGenerator["AsyncKafkaCli", None]:
+    async def session(
+        self, use_transaction: bool = True
+    ) -> AsyncGenerator["AsyncKafkaCli", None]:
         await self.start_producer()
         yield self
 
