@@ -52,7 +52,9 @@ class AsyncRedisCli(AbstractResource):
         await self._pool.disconnect()
 
     @asynccontextmanager
-    async def session(self) -> AsyncGenerator["AsyncRedisCli", None]:
+    async def session(
+        self, use_transaction: bool = False
+    ) -> AsyncGenerator["AsyncRedisCli", None]:
         yield self
 
     async def _eval(self, *args, **kwargs):

@@ -58,7 +58,9 @@ class AsyncDBCli(AbstractResource):
         await self._engine.dispose()
 
     @asynccontextmanager
-    async def session(self) -> AsyncGenerator[AsyncSession, None]:
+    async def session(
+        self, use_transaction: bool = True
+    ) -> AsyncGenerator[AsyncSession, None]:
         async with self._session() as session:
             yield session
 
