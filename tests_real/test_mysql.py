@@ -385,7 +385,7 @@ async def test_mysql_use_with_transaction_commit(setup_db: None):
     async def check():
         stmt = select(User).where(User.id == user_id)
         user = (await mgr.curr.execute(stmt)).scalar_one_or_none()
-        assert user is not None and user.name == test_name
+        assert user is not None and user.name == test_name  # type: ignore
 
     await check()
 
