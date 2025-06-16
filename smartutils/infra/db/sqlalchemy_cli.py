@@ -64,7 +64,8 @@ class AsyncDBCli(AbstractResource):
     ) -> AsyncGenerator[Tuple[AsyncSession, Optional[AsyncSessionTransaction]], None]:
         async with self._session() as session:
             if use_transaction:
-                yield session, session.begin()
+                trans = await session.begin()
+                yield session, trans
             else:
                 yield session, None
 

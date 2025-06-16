@@ -334,3 +334,65 @@ async def test_mysql_manager_use_unreachable(setup_unreachable_db: None):
 
     with pytest.raises(DatabaseError):
         await demo()
+
+
+async def test_mysql_use_with_transaction_auto_rollback(setup_db: None):
+    from smartutils.infra import MySQLManager
+
+    mgr = MySQLManager()
+    test_name = "TransAutoRollback"
+
+    @mgr.use(use_transaction=True)
+    async def insert_but_raise():
+        stmt = insert(User).values(name=test_name)
+        await mgr.curr.execute(stmt)
+        # 此时未commit，模拟异常触发rollback
+        raise RuntimeError("trigger rollback")
+
+    # 触发rollback
+    try:
+        await insert_but_raise()
+    except DatabaseError:
+        pass
+
+    # 检查数据应不存在
+    @mgr.use()
+    async def check():
+        stmt = select(User).where(User.name == test_name)
+        user = (await mgr.curr.execute(stmt)).scalar_one_or_none()
+        assert user is None
+
+    await check()
+
+
+async def test_mysql_use_with_transaction_commit(setup_db: None):
+    from smartutils.infra import MySQLManager
+
+    mgr = MySQLManager()
+    test_name = "TransCommit"
+
+    @mgr.use(use_transaction=True)
+    async def do_insert_and_commit():
+        stmt = insert(User).values(name=test_name)
+        result = await mgr.curr.execute(stmt)
+        await mgr.curr.flush()
+        assert result.inserted_primary_key
+        return result.inserted_primary_key[0]
+
+    user_id = await do_insert_and_commit()
+
+    @mgr.use()
+    async def check():
+        stmt = select(User).where(User.id == user_id)
+        user = (await mgr.curr.execute(stmt)).scalar_one_or_none()
+        assert user is not None and user.name == test_name
+
+    await check()
+
+    # 清理
+    @mgr.use()
+    async def cleanup():
+        await mgr.curr.execute(sql_delete(User).where(User.id == user_id))
+        await mgr.curr.commit()
+
+    await cleanup()
