@@ -1,16 +1,19 @@
 import base64
 from io import BytesIO
-from typing import Tuple
+from typing import TYPE_CHECKING, Tuple
+
+from smartutils.config import ConfKey
+from smartutils.design import singleton
+from smartutils.infra.factory import InfraFactory
 
 try:
     import pyotp
     import qrcode
 except ImportError:
-    pyotp, qrcode = None, None
-
-from smartutils.config import ConfKey
-from smartutils.design import singleton
-from smartutils.infra.factory import InfraFactory
+    pass
+if TYPE_CHECKING:
+    import pyotp
+    import qrcode
 
 __all__ = ["OtpHelper"]
 

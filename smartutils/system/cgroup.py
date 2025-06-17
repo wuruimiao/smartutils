@@ -1,16 +1,17 @@
 import os
 import time
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from smartutils.log import logger
 
 try:
     import psutil
 except ImportError:
-    logger.debug(
-        "smartutils.system.cgroup.IOController depend on psutil, install before use."
-    )
-    psutil = None
+    pass
+if TYPE_CHECKING:
+    import psutil
+
+msg = "smartutils.system.cgroup.IOController depend on psutil, install before use."
 
 
 class IOController:
@@ -36,6 +37,7 @@ class IOController:
         :param wiops: Max write IO operations per second
         :param cgroup_version: cgroup版本，v1/v2
         """
+        assert psutil, msg
         self.devices = devices
         self.command_names = command_names
         self.rbps = rbps

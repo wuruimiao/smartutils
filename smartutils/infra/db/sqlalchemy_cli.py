@@ -1,22 +1,37 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import Optional, Tuple, Union
-
-from sqlalchemy.ext.asyncio import (
-    AsyncEngine,
-    AsyncSession,
-    AsyncSessionTransaction,
-    async_sessionmaker,
-    create_async_engine,
-)
-from sqlalchemy.sql import text
+from typing import TYPE_CHECKING, Optional, Tuple, Union
 
 from smartutils.config.schema.mysql import MySQLConf
 from smartutils.config.schema.postgresql import PostgreSQLConf
 from smartutils.infra.source_manager.abstract import AbstractResource
 from smartutils.log import logger
 
-__all__ = ["AsyncDBCli", "db_commit", "db_rollback"]
+try:
+    from sqlalchemy.ext.asyncio import (
+        AsyncEngine,
+        AsyncSession,
+        AsyncSessionTransaction,
+        async_sessionmaker,
+        create_async_engine,
+    )
+    from sqlalchemy.sql import text
+except ImportError:
+    pass
+
+if TYPE_CHECKING:
+    from sqlalchemy.ext.asyncio import (
+        AsyncEngine,
+        AsyncSession,
+        AsyncSessionTransaction,
+        async_sessionmaker,
+        create_async_engine,
+    )
+    from sqlalchemy.sql import text
+
+__all__ = ["AsyncDBCli", "db_commit", "db_rollback", "msg"]
+
+msg = "smartutils.infra.db.mysql/postgresql depend on motor, install before use."
 
 # _FLUSHED = "smartutils_flushed"
 
@@ -30,6 +45,7 @@ __all__ = ["AsyncDBCli", "db_commit", "db_rollback"]
 
 class AsyncDBCli(AbstractResource):
     def __init__(self, conf: Union[MySQLConf, PostgreSQLConf], name: str):
+        assert AsyncEngine, msg
         self._name = name
         kw = conf.kw
         kw["pool_reset_on_return"] = "rollback"

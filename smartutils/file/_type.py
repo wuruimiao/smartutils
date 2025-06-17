@@ -1,7 +1,11 @@
+from typing import TYPE_CHECKING
+
 try:
     import filetype
 except ImportError:
-    filetype = None
+    pass
+if TYPE_CHECKING:
+    import filetype
 
 """
 extension形如zip

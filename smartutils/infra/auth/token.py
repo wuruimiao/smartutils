@@ -1,16 +1,18 @@
 from dataclasses import dataclass
-from typing import Optional, Tuple
-
-try:
-    import jwt
-except ImportError:
-    jwt = None
+from typing import TYPE_CHECKING, Optional, Tuple
 
 from smartutils.config import ConfKey
 from smartutils.config.schema.token import TokenConf
 from smartutils.design import singleton
 from smartutils.infra.factory import InfraFactory
 from smartutils.time import get_stamp_after
+
+try:
+    import jwt
+except ImportError:
+    pass
+if TYPE_CHECKING:
+    import jwt
 
 __all__ = ["User", "Token", "TokenHelper"]
 
@@ -32,6 +34,7 @@ class Token:
 @singleton
 class TokenHelper:
     def __init__(self, conf: TokenConf):
+        assert jwt, msg
         self._access_secret: str = conf.access_secret
         self._access_exp_sec: int = conf.access_exp_min * 60
         self._refresh_secret: str = conf.refresh_secret
