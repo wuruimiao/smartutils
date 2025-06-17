@@ -8,7 +8,7 @@ from smartutils.config.schema.mongo import MongoConf
 from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.design import singleton
 from smartutils.error.sys import DatabaseError, LibraryUsageError
-from smartutils.infra.db.mongo_cli import AsyncMongoCli
+from smartutils.infra.db.mongo_cli import AsyncMongoCli, db_commit, db_rollback
 from smartutils.infra.factory import InfraFactory
 from smartutils.infra.source_manager.manager import CTXResourceManager
 
@@ -25,6 +25,8 @@ class MongoManager(CTXResourceManager[AsyncMongoCli]):
         super().__init__(
             resources,
             CTXKey.DB_MONGO,
+            success=db_commit,
+            fail=db_rollback,
             error=DatabaseError,
         )
 
