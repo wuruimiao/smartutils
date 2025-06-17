@@ -1,17 +1,23 @@
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator, Optional, Tuple
 
-from motor.motor_asyncio import (
-    AsyncIOMotorClient,
-    AsyncIOMotorClientSession,
-    AsyncIOMotorDatabase,
-)
+try:
+    from motor.motor_asyncio import (
+        AsyncIOMotorClient,
+        AsyncIOMotorClientSession,
+        AsyncIOMotorDatabase,
+    )
+except ImportError:
+    AsyncIOMotorClient = AsyncIOMotorClientSession = AsyncIOMotorDatabase = None
+
 
 from smartutils.config.schema.mongo import MongoConf
 from smartutils.infra.source_manager.abstract import AbstractResource
 from smartutils.log import logger
 
 __all__ = ["AsyncMongoCli"]
+
+msg = "smartutils.infra.db.mongo depend on motor, install before use."
 
 
 class AsyncMongoCli(AbstractResource):
