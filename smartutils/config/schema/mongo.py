@@ -25,9 +25,7 @@ class MongoConf(StrippedBaseModel, PoolConf):
 
     connect: bool = Field(False, description="是否立即连接服务器")
 
-    replica_set: Optional[str] = Field(
-        None, description="副本集名称（如为副本集时填写）"
-    )
+    replica_set: str = Field("rs0", description="副本集名称（如为副本集时填写）")
 
     # 统一单位：秒
     connect_timeout: Optional[int] = Field(

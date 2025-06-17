@@ -53,7 +53,6 @@ def test_registry_register_and_get_all(dummy_manager):
     assert dummy_manager in ResourceManagerRegistry.get_all()
 
 
-@pytest.mark.asyncio
 async def test_use_decorator_default(dummy_manager):
     called = {}
 
@@ -68,7 +67,6 @@ async def test_use_decorator_default(dummy_manager):
     assert called["ok"] == "default"
 
 
-@pytest.mark.asyncio
 async def test_use_decorator_with_key(dummy_manager):
     called = {}
 
@@ -83,7 +81,6 @@ async def test_use_decorator_with_key(dummy_manager):
     assert called["ok"] == "custom"
 
 
-@pytest.mark.asyncio
 async def test_use_decorator_function(dummy_manager):
     called = {}
 
@@ -112,7 +109,6 @@ def test_client_ok_and_no_resource(dummy_manager):
         dummy_manager.client("no-such-key")
 
 
-@pytest.mark.asyncio
 async def test_close_should_set_closed(dummy_manager):
     # close 后所有资源应被标记 closed
     await dummy_manager.close()
@@ -120,7 +116,6 @@ async def test_close_should_set_closed(dummy_manager):
         assert r.closed
 
 
-@pytest.mark.asyncio
 async def test_close_should_handle_exception(dummy_manager):
     # 模拟 close 抛异常，不影响流程
     dummy_manager._resources["err"] = MagicMock(
@@ -134,7 +129,6 @@ async def test_close_should_handle_exception(dummy_manager):
         assert logger_exc.call_count >= 1
 
 
-@pytest.mark.asyncio
 async def test_health_check_all_ok(dummy_manager):
     res = await dummy_manager.health_check()
     for k, v in res.items():

@@ -164,3 +164,65 @@ async def test_mongo_manager_use_unreachable(unreachable_mongo, test_coll):
 
     with pytest.raises(DatabaseError):
         await try_insert()
+
+
+async def test_mongo_manager_session(valid_mongo, test_coll):
+    from smartutils.infra import MongoManager
+
+    mgr = MongoManager()
+    doc = {"name": "tx_test", "value": 42}
+
+    @mgr.use(use_transaction=True)
+    async def insert_in_transaction():
+        assert mgr.curr_session is not None
+        ret = await mgr.curr[test_coll].insert_one(doc, session=mgr.curr_session)
+        assert ret.inserted_id is not None
+        inserted_id = await insert_in_transaction()
+        found = await mgr.curr[test_coll].find_one({"_id": inserted_id})
+        assert found["name"] == "tx_test"
+
+
+async def test_mongo_use_transaction(valid_mongo, test_coll):
+    from smartutils.infra import MongoManager
+
+    mgr = MongoManager()
+
+    @mgr.use(use_transaction=True)
+    async def fail_in_transaction():
+        assert mgr.curr_session is not None
+        raise Exception("force fail")
+
+    with pytest.raises(Exception, match="force fail"):
+        await fail_in_transaction()
+
+
+async def test_mongo_use_transaction_auto_rollback(valid_mongo, test_coll):
+    from smartutils.infra import MongoManager
+
+    mgr = MongoManager()
+    doc = {"name": "tx_rollback_test", "value": 10086}
+
+    # 事务内插入并查找，然后制造异常
+    @mgr.use(use_transaction=True)
+    async def insert_and_fail():
+        assert mgr.curr_session is not None
+        ret = await mgr.curr[test_coll].insert_one(doc, session=mgr.curr_session)
+        assert ret.inserted_id is not None
+        # 事务内可查到
+        found = await mgr.curr[test_coll].find_one(
+            {"_id": ret.inserted_id}, session=mgr.curr_session
+        )
+        assert found["value"] == 10086
+        raise RuntimeError("force rollback")
+
+    # 捕获异常，确保事务回滚
+    with pytest.raises(DatabaseError, match="force rollback"):
+        await insert_and_fail()
+
+    # 事务外再查，应该查不到
+    @mgr.use()
+    async def confirm_not_found():
+        result = await mgr.curr[test_coll].find_one({"name": "tx_rollback_test"})
+        assert result is None
+
+    await confirm_not_found()

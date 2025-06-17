@@ -40,8 +40,10 @@ class AsyncMongoCli(AbstractResource):
     ]:
         if use_transaction:
             async with await self._client.start_session() as transaction:
+                transaction.start_transaction()
                 yield self._db, transaction
-        yield self._db, None
+        else:
+            yield self._db, None
 
     @property
     def client(self):
