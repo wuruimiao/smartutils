@@ -179,6 +179,7 @@ async def test_mongo_manager_session(valid_mongo, test_coll):
         assert ret.inserted_id is not None
         inserted_id = await insert_in_transaction()
         found = await mgr.curr[test_coll].find_one({"_id": inserted_id})
+        assert found
         assert found["name"] == "tx_test"
 
 
@@ -212,6 +213,7 @@ async def test_mongo_use_transaction_auto_rollback(valid_mongo, test_coll):
         found = await mgr.curr[test_coll].find_one(
             {"_id": ret.inserted_id}, session=mgr.curr_session
         )
+        assert found
         assert found["value"] == 10086
         raise RuntimeError("force rollback")
 
