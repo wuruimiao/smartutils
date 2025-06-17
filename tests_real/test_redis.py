@@ -256,7 +256,7 @@ async def test_xadd_xread_xack(setup_cache):
         group = "pytestgroup"
         await cli.delete(stream)
         await cli.ensure_stream_and_group(stream, group)
-        msgid = await cli.xadd(stream, {"foo": "bar"})
+        await cli.xadd(stream, {"foo": "bar"})
         # 确保 group 存在
         async with cli.xread_xack(stream, group, count=1) as msg_iter:
             assert msg_iter["foo"] == "bar"  # type: ignore
