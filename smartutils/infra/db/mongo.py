@@ -1,19 +1,22 @@
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator, Dict, Optional, Tuple
-
-try:
-    from motor.motor_asyncio import AsyncIOMotorClientSession, AsyncIOMotorDatabase
-except ImportError:
-    AsyncIOMotorClientSession = AsyncIOMotorDatabase = None
+from typing import TYPE_CHECKING, AsyncGenerator, Dict, Optional, Tuple
 
 from smartutils.config.const import ConfKey
 from smartutils.config.schema.mongo import MongoConf
 from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.design import singleton
 from smartutils.error.sys import DatabaseError, LibraryUsageError
-from smartutils.infra.db.mongo_cli import AsyncMongoCli, db_commit, db_rollback
+from smartutils.infra.db.mongo_cli import AsyncMongoCli, db_commit, db_rollback, msg
 from smartutils.infra.factory import InfraFactory
 from smartutils.infra.source_manager.manager import CTXResourceManager
+
+try:
+    from motor.motor_asyncio import AsyncIOMotorClientSession, AsyncIOMotorDatabase
+except ImportError:
+    pass
+
+if TYPE_CHECKING:
+    from motor.motor_asyncio import AsyncIOMotorClientSession, AsyncIOMotorDatabase
 
 __all__ = ["MongoManager"]
 
@@ -24,6 +27,7 @@ class MongoManager(CTXResourceManager[AsyncMongoCli]):
     def __init__(self, confs: Optional[Dict[ConfKey, MongoConf]] = None):
         if confs is None:
             raise LibraryUsageError("MongoManager must init by infra.")
+        assert AsyncIOMotorDatabase, msg
         resources = {k: AsyncMongoCli(conf, f"mongo_{k}") for k, conf in confs.items()}
         super().__init__(
             resources,

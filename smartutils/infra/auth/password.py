@@ -1,13 +1,16 @@
-from typing import Tuple
-
-try:
-    import bcrypt
-except ImportError:
-    bcrypt = None
+from typing import TYPE_CHECKING, Tuple
 
 from smartutils.config import ConfKey
 from smartutils.design import singleton
 from smartutils.infra.factory import InfraFactory
+
+try:
+    import bcrypt
+except ImportError:
+    pass
+
+if TYPE_CHECKING:
+    import bcrypt
 
 __all__ = ["PasswordHelper"]
 

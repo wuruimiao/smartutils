@@ -1,20 +1,20 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import Dict, Optional
-
-from smartutils.log import logger
-
-try:
-    import redis
-except ImportError:
-    redis = None
-
+from typing import TYPE_CHECKING, Dict, Optional
 
 from smartutils.config.schema.redis import RedisConf
 from smartutils.error.factory import ExcDetailFactory
 from smartutils.error.sys import CacheError
 from smartutils.infra.source_manager.abstract import AbstractResource
+from smartutils.log import logger
 from smartutils.time import get_now_stamp
+
+try:
+    from redis.asyncio import ConnectionPool, Redis, ResponseError
+except ImportError:
+    pass
+if TYPE_CHECKING:
+    from redis.asyncio import ConnectionPool, Redis, ResponseError
 
 __all__ = ["AsyncRedisCli"]
 
@@ -25,9 +25,7 @@ class AsyncRedisCli(AbstractResource):
     """异步 Redis 客户端封装，线程安全、协程安全。"""
 
     def __init__(self, conf: RedisConf, name: str):
-        assert redis, msg
-        from redis.asyncio import ConnectionPool, Redis
-
+        assert Redis, msg
         self._name = name
 
         kw = conf.kw
@@ -196,12 +194,11 @@ class AsyncRedisCli(AbstractResource):
         return await self._redis.xadd(stream, fields)
 
     async def ensure_stream_and_group(self, stream_name: str, group_name: str):
-        assert redis, msg
         try:
             await self._redis.xgroup_create(
                 stream_name, group_name, id="0", mkstream=True
             )
-        except redis.ResponseError as e:
+        except ResponseError as e:
             if "BUSYGROUP Consumer Group name already exists" not in str(e):
                 raise CacheError(ExcDetailFactory.get(e)) from None
 

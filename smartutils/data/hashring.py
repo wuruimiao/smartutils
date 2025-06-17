@@ -1,8 +1,14 @@
 from collections import OrderedDict
-
-from uhashring import HashRing as _HashRing  # type: ignore
+from typing import TYPE_CHECKING
 
 from smartutils.log import logger
+
+try:
+    from uhashring import HashRing as _HashRing
+except ImportError:
+    pass
+if TYPE_CHECKING:
+    from uhashring import HashRing as _HashRing
 
 
 class HashRing(_HashRing):

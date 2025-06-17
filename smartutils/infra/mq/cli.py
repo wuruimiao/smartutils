@@ -1,38 +1,31 @@
 import asyncio
 from contextlib import asynccontextmanager
-from typing import (
-    Any,
-    AsyncGenerator,
-    Callable,
-    Dict,
-    List,
-    Optional,
-)
+from typing import TYPE_CHECKING, Any, AsyncGenerator, Callable, Dict, List, Optional
 
 import orjson
-
-from smartutils.log import logger
-
-try:
-    import aiokafka
-except ImportError:
-    aiokafka = None
 
 from smartutils.config.schema.kafka import KafkaConf
 from smartutils.error.factory import ExcDetailFactory
 from smartutils.error.sys import MQError
 from smartutils.infra.source_manager.abstract import AbstractResource
+from smartutils.log import logger
+
+try:
+    from aiokafka import AIOKafkaConsumer, AIOKafkaProducer, TopicPartition, errors
+except ImportError:
+    pass
+if TYPE_CHECKING:
+    from aiokafka import AIOKafkaConsumer, AIOKafkaProducer, TopicPartition, errors
 
 __all__ = ["AsyncKafkaCli", "KafkaBatchConsumer"]
 
 
-install_msg = "smartutils.infra.mq.cli depend on aiokafka, install before use"
+msg = "smartutils.infra.mq.cli depend on aiokafka, install before use"
 
 
 class AsyncKafkaCli(AbstractResource):
     def __init__(self, conf: KafkaConf, name: str):
-        assert aiokafka, install_msg
-        from aiokafka import AIOKafkaProducer
+        assert AIOKafkaProducer, msg
 
         self._conf = conf
         self._name = name
@@ -62,9 +55,6 @@ class AsyncKafkaCli(AbstractResource):
         yield self
 
     async def _start_producer(self):
-        assert aiokafka, install_msg
-        from aiokafka import AIOKafkaProducer, errors
-
         producer = AIOKafkaProducer(
             bootstrap_servers=self._bootstrap_servers, **self._conf.kw
         )
@@ -87,9 +77,6 @@ class AsyncKafkaCli(AbstractResource):
             await self._start_producer()
 
     def consumer(self, topic: str, group_id: str, auto_offset_reset: str = "latest"):
-        assert aiokafka, install_msg
-        from aiokafka import AIOKafkaConsumer
-
         return AIOKafkaConsumer(
             topic,
             group_id=group_id,
@@ -125,9 +112,6 @@ class KafkaBatchConsumer:
         self._should_stop = asyncio.Event()
 
     async def start(self):
-        assert aiokafka, install_msg
-        from aiokafka import AIOKafkaConsumer
-
         consumer: AIOKafkaConsumer = self.kafka_cli.consumer(
             self.topic, self.group_id, auto_offset_reset="earliest"
         )
@@ -147,9 +131,6 @@ class KafkaBatchConsumer:
             await consumer.stop()
 
     async def _process_batch(self, consumer):
-        assert aiokafka, install_msg
-        from aiokafka import TopicPartition
-
         while not self._should_stop.is_set():
             batch = []
             try:
