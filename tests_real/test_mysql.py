@@ -17,38 +17,7 @@ class User(Base):
 
 
 @pytest.fixture
-async def setup_db(tmp_path_factory: pytest.TempPathFactory):
-    config_str = """
-mysql:
-  default:
-    host: 192.168.1.56
-    port: 3306
-    user: root
-    passwd: naobo
-    db: test_db
-    pool_size: 10
-    max_overflow: 5
-    pool_timeout: 30
-    pool_recycle: 3600
-    echo: false
-    echo_pool: false
-    connect_timeout: 10
-    execute_timeout: 10
-project:
-  name: auth
-  id: 0
-  description: test_auth
-  version: 0.0.1
-  key: test_key"""
-    tmp_dir = tmp_path_factory.mktemp("config")
-    config_file = tmp_dir / "test_config.yaml"
-    with open(config_file, "w") as f:
-        f.write(config_str)
-
-    from smartutils.init import init
-
-    await init(str(config_file))
-
+async def setup_db():
     from smartutils.infra import MySQLManager
 
     my_mgr = MySQLManager()
@@ -84,7 +53,9 @@ project:
     config_file = tmp_dir / "test_config.yaml"
     with open(config_file, "w") as f:
         f.write(config_str)
+    from smartutils.init import reset_all
 
+    await reset_all()
     from smartutils.init import init
 
     await init(str(config_file))
@@ -93,6 +64,9 @@ project:
 
 
 async def test_mysql_manager_no_confs():
+    from smartutils.init import reset_all
+
+    await reset_all()
     from smartutils.infra import MySQLManager
 
     with pytest.raises(LibraryUsageError):
