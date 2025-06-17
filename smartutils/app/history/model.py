@@ -1,7 +1,16 @@
-from sqlalchemy import JSON, Column, Integer, String, func
-from sqlalchemy.orm import declarative_base
+from typing import TYPE_CHECKING
 
 from smartutils.data.type import ZhEnumBase
+
+try:
+    from sqlalchemy import JSON, Column, Integer, String, func
+    from sqlalchemy.orm import declarative_base
+except ImportError:
+    pass
+if TYPE_CHECKING:
+    from sqlalchemy import JSON, Column, Integer, String, func
+    from sqlalchemy.orm import declarative_base
+
 
 Base = declarative_base()
 

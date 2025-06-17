@@ -1,12 +1,17 @@
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
-
-from sqlalchemy import asc, desc, func, or_, select
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from smartutils.app.history.model import OpHistory, OpType
 from smartutils.design import singleton
 from smartutils.infra import MySQLManager
+
+try:
+    from sqlalchemy import asc, desc, func, or_, select
+except ImportError:
+    pass
+if TYPE_CHECKING:
+    from sqlalchemy import asc, desc, func, or_, select
 
 db: MySQLManager = MySQLManager()
 
