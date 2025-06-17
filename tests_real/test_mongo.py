@@ -66,13 +66,12 @@ async def test_mongo_client_ping(valid_mongo):
     assert await cli.ping() is True
 
 
-async def test_mongo_crud(valid_mongo, test_coll):
+async def test_mongo_insert(valid_mongo, test_coll):
     from smartutils.infra import MongoManager
 
     mgr = MongoManager()
     doc = {"name": "testdoc", "value": 1024}
 
-    # Insert
     @mgr.use()
     async def insert_one():
         ret = await mgr.curr[test_coll].insert_one(doc)
@@ -80,8 +79,16 @@ async def test_mongo_crud(valid_mongo, test_coll):
         return ret.inserted_id
 
     inserted_id = await insert_one()
+    return inserted_id
 
-    # Find
+
+async def test_mongo_find(valid_mongo, test_coll):
+    from smartutils.infra import MongoManager
+
+    mgr = MongoManager()
+    doc = {"name": "testdoc", "value": 1024}
+    inserted_id = await test_mongo_insert(valid_mongo, test_coll)
+
     @mgr.use
     async def find_one():
         obj = await mgr.curr[test_coll].find_one({"_id": inserted_id})
@@ -90,8 +97,15 @@ async def test_mongo_crud(valid_mongo, test_coll):
         return obj
 
     found = await find_one()
+    return inserted_id, found
 
-    # Update
+
+async def test_mongo_update(valid_mongo, test_coll):
+    from smartutils.infra import MongoManager
+
+    mgr = MongoManager()
+    inserted_id, _ = await test_mongo_find(valid_mongo, test_coll)
+
     @mgr.use
     async def update_one():
         res = await mgr.curr[test_coll].update_one(
@@ -101,15 +115,21 @@ async def test_mongo_crud(valid_mongo, test_coll):
 
     await update_one()
 
-    # Confirm Update
     @mgr.use()
     async def check_upd():
         obj = await mgr.curr[test_coll].find_one({"_id": inserted_id})
-        assert obj["value"] == 2048
+        assert obj["value"] == 2048  # type: ignore
 
     await check_upd()
+    return inserted_id
 
-    # Delete
+
+async def test_mongo_delete(valid_mongo, test_coll):
+    from smartutils.infra import MongoManager
+
+    mgr = MongoManager()
+    inserted_id = await test_mongo_update(valid_mongo, test_coll)
+
     @mgr.use()
     async def delete_one():
         res = await mgr.curr[test_coll].delete_one({"_id": inserted_id})
@@ -117,7 +137,6 @@ async def test_mongo_crud(valid_mongo, test_coll):
 
     await delete_one()
 
-    # Confirm Delete
     @mgr.use()
     async def confirm_del():
         obj = await mgr.curr[test_coll].find_one({"_id": inserted_id})
