@@ -1,7 +1,10 @@
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator, Dict, Optional, Tuple
 
-from motor.motor_asyncio import AsyncIOMotorClientSession, AsyncIOMotorDatabase
+try:
+    from motor.motor_asyncio import AsyncIOMotorClientSession, AsyncIOMotorDatabase
+except ImportError:
+    pass
 
 from smartutils.config.const import ConfKey
 from smartutils.config.schema.mongo import MongoConf
