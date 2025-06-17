@@ -6,39 +6,22 @@ pytestmark = pytest.mark.asyncio
 
 
 @pytest.fixture
-def mongo_config_str():
-    return """
-mongo:
-  default:
-    hosts:
-      - host: 192.168.1.56
-        port: 27017
-    user: root
-    passwd: naobo
-    db: test_db
-    pool_size: 5
-    pool_timeout: 10
-    pool_recycle: 60
-    connect: true
-    connect_timeout: 3
-    execute_timeout: 3
-project:
-  name: test_proj
-  id: 0
-  description: mongo_real_test
-  version: 0.0.1
-  key: test
-"""
+def test_coll():
+    return "test_mongo_coll"
 
 
 @pytest.fixture
-def mongo_config_unreachable_str():
-    # 明显错误IP
-    return """
+def valid_mongo():
+    yield
+
+
+@pytest.fixture
+async def unreachable_mongo(tmp_path_factory):
+    mongo_config_unreachable_str = """
 mongo:
   default:
     hosts:
-      - host: 222.22.22.22
+      - host: 222.222.222.222
         port: 27017
     user: testuser
     passwd: testpass
@@ -53,42 +36,29 @@ project:
   version: 0.0.1
   key: test_key2
 """
-
-
-@pytest.fixture
-def test_coll():
-    return "test_mongo_coll"
-
-
-@pytest.fixture
-def valid_mongo_conf(tmp_path_factory, mongo_config_str):
-    tmp_dir = tmp_path_factory.mktemp("config_mongo")
-    config_file = tmp_dir / "test_config.yaml"
-    with open(config_file, "w") as f:
-        f.write(mongo_config_str)
-    return config_file
-
-
-@pytest.fixture
-def unreachable_mongo_conf(tmp_path_factory, mongo_config_unreachable_str):
     tmp_dir = tmp_path_factory.mktemp("badconf_mongo")
     config_file = tmp_dir / "unreachable_config.yaml"
     with open(config_file, "w") as f:
         f.write(mongo_config_unreachable_str)
-    return config_file
+    from smartutils.init import reset_all
+
+    await reset_all()
+    from smartutils.init import init
+
+    await init(str(config_file))
 
 
 async def test_mongo_manager_no_confs():
+    from smartutils.init import reset_all
+
+    await reset_all()
     from smartutils.infra import MongoManager
 
     with pytest.raises(LibraryUsageError):
         MongoManager()
 
 
-async def test_mongo_client_ping(valid_mongo_conf):
-    from smartutils.init import init
-
-    await init(str(valid_mongo_conf))
+async def test_mongo_client_ping(valid_mongo):
     from smartutils.infra import MongoManager
 
     mgr = MongoManager()
@@ -96,10 +66,7 @@ async def test_mongo_client_ping(valid_mongo_conf):
     assert await cli.ping() is True
 
 
-async def test_mongo_crud(valid_mongo_conf, test_coll):
-    from smartutils.init import init
-
-    await init(str(valid_mongo_conf))
+async def test_mongo_crud(valid_mongo, test_coll):
     from smartutils.infra import MongoManager
 
     mgr = MongoManager()
@@ -108,7 +75,7 @@ async def test_mongo_crud(valid_mongo_conf, test_coll):
     # Insert
     @mgr.use()
     async def insert_one():
-        ret = await mgr.curr.insert_one(test_coll, doc)
+        ret = await mgr.curr[test_coll].insert_one(doc)
         assert ret.inserted_id is not None
         return ret.inserted_id
 
@@ -117,7 +84,7 @@ async def test_mongo_crud(valid_mongo_conf, test_coll):
     # Find
     @mgr.use
     async def find_one():
-        obj = await mgr.curr.find_one(test_coll, {"_id": inserted_id})
+        obj = await mgr.curr[test_coll].find_one({"_id": inserted_id})
         assert obj is not None
         assert obj["name"] == "testdoc"
         return obj
@@ -127,8 +94,8 @@ async def test_mongo_crud(valid_mongo_conf, test_coll):
     # Update
     @mgr.use
     async def update_one():
-        res = await mgr.curr.update_one(
-            test_coll, {"_id": inserted_id}, {"$set": {"value": 2048}}
+        res = await mgr.curr[test_coll].update_one(
+            {"_id": inserted_id}, {"$set": {"value": 2048}}
         )
         assert res.modified_count == 1
 
@@ -137,7 +104,7 @@ async def test_mongo_crud(valid_mongo_conf, test_coll):
     # Confirm Update
     @mgr.use()
     async def check_upd():
-        obj = await mgr.curr.find_one(test_coll, {"_id": inserted_id})
+        obj = await mgr.curr[test_coll].find_one({"_id": inserted_id})
         assert obj["value"] == 2048
 
     await check_upd()
@@ -145,7 +112,7 @@ async def test_mongo_crud(valid_mongo_conf, test_coll):
     # Delete
     @mgr.use()
     async def delete_one():
-        res = await mgr.curr.delete_one(test_coll, {"_id": inserted_id})
+        res = await mgr.curr[test_coll].delete_one({"_id": inserted_id})
         assert res.deleted_count == 1
 
     await delete_one()
@@ -153,26 +120,21 @@ async def test_mongo_crud(valid_mongo_conf, test_coll):
     # Confirm Delete
     @mgr.use()
     async def confirm_del():
-        obj = await mgr.curr.find_one(test_coll, {"_id": inserted_id})
+        obj = await mgr.curr[test_coll].find_one({"_id": inserted_id})
         assert obj is None
 
     await confirm_del()
 
 
-async def test_mongo_ping_fail(unreachable_mongo_conf):
-    from smartutils.init import init
-
-    await init(str(unreachable_mongo_conf))
+async def test_mongo_ping_fail(unreachable_mongo):
     from smartutils.infra import MongoManager
 
     cli = MongoManager().client()
     assert await cli.ping() is False
 
 
-async def test_mongo_manager_use_unreachable(unreachable_mongo_conf, test_coll):
-    from smartutils.init import init
+async def test_mongo_manager_use_unreachable(unreachable_mongo, test_coll):
 
-    await init(str(unreachable_mongo_conf))
     from smartutils.infra import MongoManager
 
     mgr = MongoManager()

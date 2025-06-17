@@ -11,34 +11,6 @@ GROUP_ID = "pytest-group"
 
 @pytest.fixture
 async def setup_kafka(tmp_path_factory):
-    config_str = """
-kafka:
-  default:
-    bootstrap_servers:
-      - host: 192.168.1.56
-        port: 29092
-    client_id: pytest-client-id
-    acks: all
-    compression_type: zstd
-    max_batch_size: 16384
-    linger_ms: 0
-    request_timeout_ms: 1000
-    retry_backoff_ms: 100
-project:
-  name: auth
-  id: 0
-  description: test_auth
-  version: 0.0.1
-  key: test_key"""
-    tmp_dir = tmp_path_factory.mktemp("config")
-    config_file = tmp_dir / "test_config.yaml"
-    with open(config_file, "w") as f:
-        f.write(config_str)
-
-    from smartutils.init import init
-
-    await init(str(config_file))
-
     yield
 
 
@@ -48,7 +20,7 @@ async def setup_unreachable_kafka(tmp_path_factory):
 kafka:
   default:
     bootstrap_servers:
-      - host: 127.0.0.1
+      - host: 222.222.222.222
         port: 9093
     client_id: unmanned
     acks: all
@@ -67,7 +39,9 @@ project:
     config_file = tmp_dir / "test_config.yaml"
     with open(config_file, "w") as f:
         f.write(config_str)
+    from smartutils.init import reset_all
 
+    await reset_all()
     from smartutils.init import init
 
     await init(str(config_file))

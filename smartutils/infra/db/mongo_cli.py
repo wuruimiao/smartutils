@@ -39,8 +39,8 @@ class AsyncMongoCli(AbstractResource):
         Tuple[AsyncIOMotorDatabase, Optional[AsyncIOMotorClientSession]], None
     ]:
         if use_transaction:
-            async with await self._client.start_session() as s:
-                yield self._db, s
+            async with await self._client.start_session() as transaction:
+                yield self._db, transaction
         yield self._db, None
 
     @property
