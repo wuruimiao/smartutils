@@ -1,8 +1,15 @@
-from typing import Any, List, Type
+from typing import TYPE_CHECKING, Any, List, Type
 
-from sqlalchemy import Column, select
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import aliased
+try:
+    from sqlalchemy import Column, select
+    from sqlalchemy.ext.asyncio import AsyncSession
+    from sqlalchemy.orm import aliased
+except ImportError:
+    pass
+if TYPE_CHECKING:
+    from sqlalchemy import Column, select
+    from sqlalchemy.ext.asyncio import AsyncSession
+    from sqlalchemy.orm import aliased
 
 
 async def children_ids(
