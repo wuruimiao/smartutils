@@ -4,7 +4,7 @@ from typing import AsyncGenerator, Dict, Optional, Tuple
 try:
     from motor.motor_asyncio import AsyncIOMotorClientSession, AsyncIOMotorDatabase
 except ImportError:
-    pass
+    AsyncIOMotorClientSession = AsyncIOMotorDatabase = None
 
 from smartutils.config.const import ConfKey
 from smartutils.config.schema.mongo import MongoConf
