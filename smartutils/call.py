@@ -25,10 +25,10 @@ def register_package(package: types.ModuleType):
     for finder, modname, ispkg in pkgutil.walk_packages(
         package.__path__, package.__name__ + "."
     ):
-        try:
-            importlib.import_module(modname)
-        except ImportError as e:
-            logger.debug("register_package fail: {e}", e=e)
+        # try:
+        importlib.import_module(modname)
+        # except ImportError as e:
+        # logger.debug("register_package fail: {e}", e=e)
 
 
 def exit_on_fail():
