@@ -25,6 +25,12 @@ def run():
     parser.add_argument("--port", type=int, default=80, help="Port to bind")
     parser.add_argument("--reload", action="store_true", help="Enable auto-reload")
     parser.add_argument(
+        "--conf",
+        type=str,
+        default="config/config.yaml",
+        help="Path to config yaml file",
+    )
+    parser.add_argument(
         "--app",
         type=str,
         default=AppKey.FASTAPI.value,
@@ -32,6 +38,10 @@ def run():
         help=f"App type, choices: {AppKey.list()}",
     )
     args = parser.parse_args()
+
+    from smartutils.app.const import CONF_ENV_NAME
+
+    os.environ[CONF_ENV_NAME] = args.conf
 
     uvicorn.run(
         f"smartutils.app.main.{args.app}:create_app",

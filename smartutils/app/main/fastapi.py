@@ -1,9 +1,11 @@
+import os
 from contextlib import asynccontextmanager
 from typing import Generic, Optional, TypeVar
 
 from fastapi import FastAPI, Request
 from pydantic import BaseModel
 
+from smartutils.app.const import CONF_ENV_NAME
 from smartutils.error.base import BaseData, BaseError
 
 __all__ = ["create_app", "ResponseModel"]
@@ -74,7 +76,7 @@ def create_app(conf_path: str = "config/config.yaml"):
     key = AppKey.FASTAPI
 
     app = FastAPI(lifespan=lifespan, default_response_class=STJsonResponse)
-    app.state.smartutils_conf_path = conf_path  # noqa
+    app.state.smartutils_conf_path = os.getenv(CONF_ENV_NAME, conf_path)
 
     init_middlewares(app, key)
 

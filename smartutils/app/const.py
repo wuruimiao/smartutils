@@ -1,7 +1,13 @@
 import sys
 from enum import Enum, IntEnum
 
-__all__ = ["HeaderKey", "AppKey", "MiddlewarePluginKey", "MiddlewarePluginOrder"]
+__all__ = [
+    "HeaderKey",
+    "AppKey",
+    "MiddlewarePluginKey",
+    "MiddlewarePluginOrder",
+    "CONF_ENV_NAME",
+]
 
 
 class HeaderKey(str, Enum):
@@ -34,3 +40,6 @@ class MiddlewarePluginOrder(IntEnum):
     EXCEPTION = -sys.maxsize
     HEADER = sys.maxsize
     LOG = 1
+
+
+CONF_ENV_NAME = "smartutils_conf_path"
