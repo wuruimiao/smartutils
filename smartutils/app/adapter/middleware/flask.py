@@ -1,6 +1,16 @@
-import asyncio
+from __future__ import annotations
 
-import flask
+import asyncio
+from typing import TYPE_CHECKING
+
+try:
+    import flask
+except ImportError:
+    pass
+
+if TYPE_CHECKING:
+    import flask
+
 
 from smartutils.app.adapter.middleware.abstract import AbstractMiddleware
 from smartutils.app.adapter.middleware.factory import MiddlewareFactory
