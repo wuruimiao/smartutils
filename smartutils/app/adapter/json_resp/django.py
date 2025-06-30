@@ -1,4 +1,14 @@
-from django.http import JsonResponse
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+try:
+    from django.http import JsonResponse
+except ImportError:
+    pass
+
+if TYPE_CHECKING:
+    from django.http import JsonResponse
 
 from smartutils.app.adapter.json_resp.factory import JsonRespFactory
 from smartutils.app.adapter.resp.abstract import ResponseAdapter

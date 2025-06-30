@@ -1,4 +1,15 @@
-from flask import jsonify
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+try:
+    from flask import jsonify
+except ImportError:
+    pass
+
+if TYPE_CHECKING:
+    from flask import jsonify
+
 
 from smartutils.app.adapter.json_resp.factory import JsonRespFactory
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
