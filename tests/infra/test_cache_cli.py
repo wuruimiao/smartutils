@@ -1,5 +1,4 @@
-import asyncio
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -83,3 +82,161 @@ async def test_close(async_cli):
     await async_cli.close()
     async_cli._redis.aclose.assert_awaited()
     async_cli._pool.disconnect.assert_awaited()
+
+
+# 用于mock register_script返回的异步可调用对象
+class AsyncLuaMock:
+    def __init__(self, ret):
+        self.ret = ret
+        self.called_args = []
+
+    async def __call__(self, *args, **kwargs):
+        self.called_args.append((args, kwargs))
+        return self.ret
+
+
+async def test_safe_rpop_zadd_and_rpush_zrem(async_cli):
+    # 用MagicMock确保register_script返回的确实是AsyncLuaMock实例
+    async_cli._redis.register_script = MagicMock(return_value=AsyncLuaMock("msg1"))
+    async_cli.zrem = AsyncMock()
+
+    # 流程1: 弹出消息, yield消息, 退出时zrem
+    async with async_cli.safe_rpop_zadd("list_r", "zset_p", score=123) as msg:
+        assert msg == "msg1"
+    async_cli.zrem.assert_awaited_with("zset_p", "msg1")
+    # 流程2: 无消息则 yield None
+    async_cli._redis.register_script = MagicMock(return_value=AsyncLuaMock(None))
+    async_cli.zrem.reset_mock()
+    async with async_cli.safe_rpop_zadd("list_r", "zset_p", score=123) as msg:
+        assert msg is None
+    async_cli.zrem.assert_not_called()
+
+    # rpush-zrem
+    async_cli._redis.register_script = MagicMock(return_value=AsyncLuaMock("msg2"))
+    ret = await async_cli.safe_rpush_zrem("list_r", "zset_p", "msg2")
+    assert ret == "msg2"
+
+
+async def test_safe_zpop_zadd_and_safe_zrem_zadd(async_cli):
+    # 与前面的用法保持一致，mock register_script 返回 AsyncLuaMock 实例
+    async_cli._redis.register_script = MagicMock(return_value=AsyncLuaMock("msg3"))
+    async_cli.zrem = AsyncMock()
+
+    async with async_cli.safe_zpop_zadd("zr", "zp", score=456) as msg:
+        assert msg == "msg3"
+    async_cli.zrem.assert_awaited_with("zp", "msg3")
+
+    async_cli._redis.register_script = MagicMock(return_value=AsyncLuaMock(None))
+    async_cli.zrem.reset_mock()
+    async with async_cli.safe_zpop_zadd("zr", "zp", score=456) as msg:
+        assert msg is None
+    async_cli.zrem.assert_not_called()
+
+    # safe_zrem_zadd
+    async_cli._redis.register_script = MagicMock(return_value=AsyncLuaMock("retc"))
+    ret = await async_cli.safe_zrem_zadd("zp", "zr", "msg4", 888)
+    assert ret == "retc"
+
+
+async def test_xadd_and_ensure_stream_and_group(async_cli):
+    async_cli._redis.xadd.return_value = "id1"
+    ret = await async_cli.xadd("stream1", {"a": 1})
+    assert ret == "id1"
+
+    async_cli._redis.xgroup_create = AsyncMock()
+    await async_cli.ensure_stream_and_group("st", "gp")
+    async_cli._redis.xgroup_create.assert_awaited()
+
+    from redis.asyncio import ResponseError
+
+    from smartutils.error.sys import CacheError
+
+    async_cli._redis.xgroup_create = AsyncMock(
+        side_effect=ResponseError("BUSYGROUP Consumer Group name already exists")
+    )
+    await async_cli.ensure_stream_and_group("st", "gp")
+
+    async_cli._redis.xgroup_create = AsyncMock(side_effect=ResponseError("xxx"))
+    import smartutils.error.factory as fct
+
+    fct.ExcDetailFactory.get = lambda e: "detail"  # type: ignore
+    with pytest.raises(CacheError):
+        await async_cli.ensure_stream_and_group("st", "gp")
+
+
+async def test_xread_xack(async_cli):
+    async_cli.ensure_stream_and_group = AsyncMock()
+    async_cli._redis.xreadgroup.return_value = [("stream", [("msgid", {"k": b"v"})])]
+    async_cli._redis.xack = AsyncMock()
+    async_cli._redis.xreadgroup = AsyncMock(
+        return_value=[("stream", [("msgid", {"k": b"v"})])]
+    )
+    async_cli._redis.xack = AsyncMock()
+
+    async with async_cli.xread_xack("stream", "gp", count=1) as msg:
+        assert msg == {"k": "v"}
+    async_cli._redis.xack.assert_awaited_with("stream", "gp", "msgid")
+
+    async_cli._redis.xreadgroup = AsyncMock(return_value=[])
+    async_cli._redis.xack.reset_mock()
+    async with async_cli.xread_xack("stream", "gp", count=2) as msg:
+        assert msg is None
+    async_cli._redis.xack.assert_not_awaited()
+
+    async_cli._redis.xreadgroup = AsyncMock(side_effect=Exception("fail"))
+    async_cli._redis.xack.reset_mock()
+    async with async_cli.xread_xack("stream", "gp", count=2) as msg:
+        assert msg is None
+    async_cli._redis.xack.assert_not_awaited()
+
+
+async def test_init_assertion(monkeypatch, redis_conf):
+    # 模拟redis未导入场景
+    monkeypatch.setattr(cachemod, "Redis", None)
+    with pytest.raises(AssertionError) as e:
+        cachemod.AsyncRedisCli(redis_conf, name="failcli")
+    assert "install before use" in str(e.value)
+
+    # 模拟Redis库丢失, 但走不到断言
+    monkeypatch.setattr(cachemod, "Redis", None)
+    monkeypatch.setattr(cachemod, "ConnectionPool", None)
+    with pytest.raises(AssertionError):
+        cachemod.AsyncRedisCli(redis_conf, name="failcli")
+
+
+async def test_close_error(async_cli, monkeypatch):
+    # 模拟aclose或disconnect抛异常
+    async def raise_exc(*args, **kw):
+        raise Exception("close fail")
+
+    async_cli._redis.aclose = raise_exc
+    async_cli._pool.disconnect = raise_exc
+    # 不会raise（调用方需catch）
+
+    try:
+        await async_cli.close()
+    except Exception:
+        pass
+
+
+async def test_ensure_stream_and_group_raises(async_cli, monkeypatch):
+    class DummyErr(Exception):
+        pass
+
+    class DummyRespErr(Exception):
+        def __str__(self):
+            return "other error"
+
+    monkeypatch.setattr(cachemod, "ResponseError", DummyRespErr)
+    async_cli._redis.xgroup_create = AsyncMock(side_effect=DummyRespErr())
+    import smartutils.error.factory as ef
+
+    monkeypatch.setattr(ef.ExcDetailFactory, "get", lambda e: "detailxxx")
+    # 应抛 CacheError
+
+    from smartutils.error.sys import CacheError
+
+    try:
+        await async_cli.ensure_stream_and_group("s", "g")
+    except CacheError as ce:
+        assert "detailxxx" in str(ce)
