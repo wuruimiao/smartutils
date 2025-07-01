@@ -52,3 +52,26 @@ def test_verify_token_exceptions():
         )  # 期望因过期返回 None
         mock_decode.side_effect = jwt.InvalidTokenError("bad")
     assert token_mod.TokenHelper.verify_token("abc", "secret") is None
+
+
+def test_tokenhelper_missing_jwt(monkeypatch):
+    monkeypatch.setattr(token_mod, "jwt", None)
+    with pytest.raises(AssertionError):
+        token_mod.TokenHelper(conf=None)  # conf内容可以mock，主要测assert分支
+
+
+def test_tokenhelper_expired(monkeypatch):
+    class MockJWT:
+        class ExpiredSignatureError(Exception):
+            pass
+
+        class InvalidTokenError(Exception):
+            pass
+
+        @staticmethod
+        def decode(*a, **k):
+            raise MockJWT.ExpiredSignatureError()
+
+    monkeypatch.setattr(token_mod, "jwt", MockJWT)
+    # 直接调用静态方法，无需实例化
+    assert token_mod.TokenHelper.verify_token("dummy", "secret") is None

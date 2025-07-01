@@ -43,3 +43,17 @@ def test_hash_password_invalid(monkeypatch):
     monkeypatch.setattr(pwmod, "bcrypt", DummyBcrypt())
     with pytest.raises(RuntimeError):
         helper.hash_password("p")
+
+
+def test_assert_bcrypt_not_installed(monkeypatch):
+    """覆盖 PasswordHelper 下 assert bcrypt, msg 的分支"""
+    helper = pwmod.PasswordHelper()
+    monkeypatch.setattr(pwmod, "bcrypt", None)
+    # hash_password 触发 assert
+    with pytest.raises(AssertionError) as e1:
+        helper.hash_password("abc")
+    assert "depend on bcrypt" in str(e1.value)
+    # check_password 触发 assert
+    with pytest.raises(AssertionError) as e2:
+        helper.check_password("abc", "fakehash")
+    assert "depend on bcrypt" in str(e2.value)
