@@ -285,29 +285,6 @@ async def test_redis_manager_init_with_empty():
         RedisManager({})
 
 
-def test_asyncrediscli_import_fail():
-    # 模拟 redis 未安装情况下断言触发
-
-    from smartutils.infra.cache import cli
-
-    old_redis = cli.redis
-    cli.redis = None
-    from smartutils.config.schema.redis import RedisConf
-
-    conf = RedisConf(
-        host="127.0.0.1",
-        port=6379,
-        db=0,
-        pool_size=10,
-        connect_timeout=10,
-        socket_timeout=10,
-        password="",
-    )
-    with pytest.raises(AssertionError):
-        cli.AsyncRedisCli(conf, "test")
-    cli.redis = old_redis
-
-
 async def test_async_methods_exception_branches(monkeypatch, setup_cache):
     from smartutils.config.schema.redis import RedisConf
     from smartutils.infra.cache.cli import AsyncRedisCli

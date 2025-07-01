@@ -1,14 +1,8 @@
-import asyncio
-import types
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
 import smartutils.infra.mq.cli as mqmod
-
-# 兼容aiokafka为None的情况，临时注入types.SimpleNamespace
-if getattr(mqmod, "aiokafka", None) is None:
-    mqmod.aiokafka = types.SimpleNamespace()
 
 
 @pytest.fixture
@@ -34,12 +28,12 @@ def async_kafka_cli(kafka_conf):
 async def test_start_producer_and_ping_success(monkeypatch, async_kafka_cli):
     fake_producer = AsyncMock()
     monkeypatch.setattr(
-        mqmod.aiokafka, "AIOKafkaProducer", MagicMock(return_value=fake_producer)
+        mqmod, "AIOKafkaProducer", MagicMock(return_value=fake_producer)
     )
     monkeypatch.setattr(fake_producer, "start", AsyncMock())
     monkeypatch.setattr(fake_producer, "client", MagicMock())
     fake_producer.client.fetch_all_metadata = AsyncMock(return_value=True)
-    monkeypatch.setattr(mqmod.aiokafka, "errors", MagicMock())
+    monkeypatch.setattr(mqmod, "errors", MagicMock())
     async_kafka_cli._conf.kw = {}
     await async_kafka_cli._start_producer()  # 仅校正常
     async_kafka_cli._producer = fake_producer
@@ -56,13 +50,13 @@ async def test_start_producer_kafka_fail(monkeypatch, async_kafka_cli):
     errors = MagicMock()
     errors.KafkaConnectionError = DummyKafkaConn
     monkeypatch.setattr(
-        mqmod.aiokafka, "AIOKafkaProducer", MagicMock(return_value=fake_producer)
+        mqmod, "AIOKafkaProducer", MagicMock(return_value=fake_producer)
     )
     monkeypatch.setattr(
         fake_producer, "start", AsyncMock(side_effect=DummyKafkaConn("fail"))
     )
     monkeypatch.setattr(fake_producer, "stop", AsyncMock())
-    monkeypatch.setattr(mqmod.aiokafka, "errors", errors)
+    monkeypatch.setattr(mqmod, "errors", errors)
     async_kafka_cli._conf.kw = {}
     with pytest.raises(mqmod.MQError):
         await async_kafka_cli._start_producer()
@@ -89,7 +83,7 @@ async def test_close(async_kafka_cli):
 async def test_consumer(monkeypatch, async_kafka_cli):
     fake_consumer = AsyncMock()
     monkeypatch.setattr(
-        mqmod.aiokafka, "AIOKafkaConsumer", MagicMock(return_value=fake_consumer)
+        mqmod, "AIOKafkaConsumer", MagicMock(return_value=fake_consumer)
     )
     c = async_kafka_cli.consumer("t1", "gid", auto_offset_reset="earliest")
     assert c == fake_consumer
