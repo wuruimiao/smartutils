@@ -1,6 +1,5 @@
-import sys
 from types import SimpleNamespace
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import jwt
 import pytest
@@ -22,36 +21,68 @@ def user():
     return token_mod.User(id=123, name="test")
 
 
-@patch("smartutils.infra.auth.token.jwt")
-@patch("smartutils.infra.auth.token.get_stamp_after")
-def test_generate_and_verify_token(mock_stamp, mock_jwt, user):
-    mock_stamp.return_value = 1234567
-    mock_jwt.encode.return_value = "jwt-token"
-    mock_jwt.decode.return_value = {
-        "userid": user.id,
-        "username": user.name,
-        "exp": 1234567,
-    }
+def test_generate_and_verify_token_and_refresh_token(user):
     conf = make_conf()
-    helper = token_mod.TokenHelper(conf)
-    # 生成token
-    access, refresh = helper.token(user)
-    assert access.token == "jwt-token" and refresh.token == "jwt-token"
-    assert access.exp == 1234567 and refresh.exp == 1234567
-    # 校验token
-    payload = helper.verify_token("jwt-token", conf.access_secret)
-    assert payload
-    assert payload["userid"] == 123 and payload["exp"] == 1234567
+    # 使用一个很大的时间戳
+    fake_now = 9999999999999999
+    expected_access_exp = fake_now + conf.access_exp_min * 60
+    expected_refresh_exp = fake_now + conf.refresh_exp_day * 24 * 60 * 60
+    with patch("smartutils.time.get_now_stamp_float", return_value=fake_now):
+        helper = token_mod.TokenHelper(conf)
+        access, refresh = helper.token(user)
 
+        assert access.exp == expected_access_exp
+        assert refresh.exp == expected_refresh_exp
 
-def test_verify_token_exceptions():
-    with patch("smartutils.infra.auth.token.jwt.decode") as mock_decode:
-        mock_decode.side_effect = jwt.ExpiredSignatureError("expired")
-        assert (
-            token_mod.TokenHelper.verify_token("abc", "secret") is None
-        )  # 期望因过期返回 None
-        mock_decode.side_effect = jwt.InvalidTokenError("bad")
-    assert token_mod.TokenHelper.verify_token("abc", "secret") is None
+        # 检查 token payload
+        decoded_access = token_mod.jwt.decode(
+            access.token, conf.access_secret, algorithms=["HS256"]
+        )
+        assert decoded_access["userid"] == user.id
+        assert decoded_access["username"] == user.name
+        assert decoded_access["exp"] == expected_access_exp
+
+        decoded_refresh = token_mod.jwt.decode(
+            refresh.token, conf.refresh_secret, algorithms=["HS256"]
+        )
+        assert decoded_refresh["userid"] == user.id
+        assert decoded_refresh["username"] == user.name
+        assert decoded_refresh["exp"] == expected_refresh_exp
+
+        decoded_access = token_mod.TokenHelper.verify_token(
+            access.token, conf.access_secret
+        )
+        assert decoded_access
+        assert decoded_access["userid"] == user.id
+        assert decoded_access["username"] == user.name
+        assert decoded_access["exp"] == expected_access_exp
+
+        decoded_refresh = token_mod.TokenHelper.verify_token(
+            refresh.token, conf.refresh_secret
+        )
+        assert decoded_refresh
+        assert decoded_refresh["userid"] == user.id
+        assert decoded_refresh["username"] == user.name
+        assert decoded_refresh["exp"] == expected_refresh_exp
+
+        helper = token_mod.TokenHelper(conf)
+        result = helper.refresh(refresh.token)
+        assert result
+        access, refresh = result
+        decoded_access = token_mod.TokenHelper.verify_token(
+            access.token, conf.access_secret
+        )
+        assert decoded_access
+        assert decoded_access["userid"] == user.id
+        assert decoded_access["username"] == user.name
+        assert decoded_access["exp"] == expected_access_exp
+
+        decoded_refresh = token_mod.TokenHelper.verify_token(
+            refresh.token, conf.refresh_secret
+        )
+        assert decoded_refresh
+        assert decoded_refresh["userid"] == user.id
+        assert decoded_refresh["username"] == user.name
 
 
 def test_tokenhelper_missing_jwt(monkeypatch):
@@ -60,18 +91,29 @@ def test_tokenhelper_missing_jwt(monkeypatch):
         token_mod.TokenHelper(conf=None)  # conf内容可以mock，主要测assert分支
 
 
-def test_tokenhelper_expired(monkeypatch):
-    class MockJWT:
-        class ExpiredSignatureError(Exception):
-            pass
+def test_tokenhelper_expired():
+    conf = make_conf()
+    from smartutils.time import get_now_stamp_float
 
-        class InvalidTokenError(Exception):
-            pass
+    fake_expired_now = get_now_stamp_float() - 3600
+    user = token_mod.User(id=123, name="test2")
+    with patch("smartutils.time.get_now_stamp_float", return_value=fake_expired_now):
+        helper = token_mod.TokenHelper(conf)
+        access, _ = helper.token(user)
+    # 此时token.exp < 当前now
+    result = token_mod.TokenHelper.verify_token(access.token, conf.access_secret)
+    assert result is None
 
-        @staticmethod
-        def decode(*a, **k):
-            raise MockJWT.ExpiredSignatureError()
 
-    monkeypatch.setattr(token_mod, "jwt", MockJWT)
-    # 直接调用静态方法，无需实例化
-    assert token_mod.TokenHelper.verify_token("dummy", "secret") is None
+def test_tokenhelper_verify_token_invalid():
+    conf = make_conf()
+    # 此时token.exp < 当前now
+    result = token_mod.TokenHelper.verify_token("invalid_token", conf.access_secret)
+    assert result is None
+
+
+def test_tokenhelper_refresh_invalid():
+    conf = make_conf()
+    # 此时token.exp < 当前now
+    result = token_mod.TokenHelper(conf).refresh("invalid_token")
+    assert result is None
