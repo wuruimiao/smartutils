@@ -13,3 +13,4 @@ else
 fi
 
 coverage report -m > test_cover_output.log
+coverage html

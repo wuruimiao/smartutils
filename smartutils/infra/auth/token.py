@@ -38,7 +38,7 @@ class TokenHelper:
         self._access_secret: str = conf.access_secret
         self._access_exp_sec: int = conf.access_exp_min * 60
         self._refresh_secret: str = conf.refresh_secret
-        self._refresh_exp_sec: int = conf.refresh_exp_day * 24 * 60
+        self._refresh_exp_sec: int = conf.refresh_exp_day * 24 * 60 * 60
 
     @staticmethod
     def _generate_token(user: User, secret: str, exp_sec: int) -> Token:
@@ -53,7 +53,7 @@ class TokenHelper:
         return Token(token, exp_time)
 
     @staticmethod
-    def verify_token(token: str, secret: str):
+    def verify_token(token: str, secret: str) -> Optional[dict]:
         assert jwt, msg
         try:
             payload = jwt.decode(token, secret, algorithms=["HS256"])
