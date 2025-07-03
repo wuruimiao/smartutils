@@ -126,8 +126,8 @@ def test_tokenhelper_verify_access_token(user):
     # 正常token
     payload = helper.verify_access_token(access_token.token)
     assert payload
-    assert payload["userid"] == user.id
-    assert payload["username"] == user.name
+    assert payload.id == user.id
+    assert payload.name == user.name
 
     # 异常token
     invalid = helper.verify_access_token("invalid_token_for_access")
