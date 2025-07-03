@@ -39,14 +39,15 @@ class TokenHelper:
         self._access_exp_sec: int = conf.access_exp_min * 60
         self._refresh_secret: str = conf.refresh_secret
         self._refresh_exp_sec: int = conf.refresh_exp_day * 24 * 60 * 60
+        self._userid_key = "userid"
+        self._username_key = "username"
 
-    @staticmethod
-    def _generate_token(user: User, secret: str, exp_sec: int) -> Token:
+    def _generate_token(self, user: User, secret: str, exp_sec: int) -> Token:
         assert jwt, msg
         exp_time = int(get_stamp_after(second=exp_sec))
 
         token = jwt.encode(
-            {"userid": user.id, "username": user.name, "exp": exp_time},
+            {self._userid_key: user.id, self._username_key: user.name, "exp": exp_time},
             secret,
             algorithm="HS256",
         )
@@ -70,8 +71,11 @@ class TokenHelper:
         )
         return access_t, refresh_t
 
-    def verify_access_token(self, token: str) -> Optional[dict]:
-        return self._verify_token(token, self._access_secret)
+    def verify_access_token(self, token: str) -> Optional[User]:
+        data = self._verify_token(token, self._access_secret)
+        if not data:
+            return None
+        return User(data[self._userid_key], data[self._username_key])
 
     def refresh(self, refresh_token) -> Optional[Tuple[Token, Token]]:
         payload = self._verify_token(refresh_token, self._refresh_secret)
