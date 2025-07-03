@@ -53,7 +53,7 @@ class TokenHelper:
         return Token(token, exp_time)
 
     @staticmethod
-    def verify_token(token: str, secret: str) -> Optional[dict]:
+    def _verify_token(token: str, secret: str) -> Optional[dict]:
         assert jwt, msg
         try:
             payload = jwt.decode(token, secret, algorithms=["HS256"])
@@ -70,8 +70,11 @@ class TokenHelper:
         )
         return access_t, refresh_t
 
+    def verify_access_token(self, token: str) -> Optional[dict]:
+        return self._verify_token(token, self._access_secret)
+
     def refresh(self, refresh_token) -> Optional[Tuple[Token, Token]]:
-        payload = self.verify_token(refresh_token, self._refresh_secret)
+        payload = self._verify_token(refresh_token, self._refresh_secret)
         if not payload:
             return None
         user = User(payload["userid"], payload["username"])
