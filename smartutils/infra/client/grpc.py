@@ -1,0 +1,116 @@
+from __future__ import annotations
+
+import importlib
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
+from functools import partial
+from typing import TYPE_CHECKING, Callable, Dict, Optional
+
+from smartutils.config.const import ConfKey
+from smartutils.config.schema.grpc_client import GrpcApiConf, GrpcClientConf
+from smartutils.ctx.const import CTXKey
+from smartutils.ctx.manager import CTXVarManager
+from smartutils.design import singleton
+from smartutils.error.sys import GrpcClientError, LibraryUsageError
+from smartutils.infra.factory import InfraFactory
+from smartutils.infra.source_manager.abstract import AbstractResource
+from smartutils.infra.source_manager.manager import CTXResourceManager
+
+try:
+    import grpc.aio
+except ImportError:
+    grpc = None
+
+if TYPE_CHECKING:
+    import grpc.aio
+
+
+msg = "smartutils.infra.client.grpc depend on grpcio，install before use"
+
+
+class GrpcClient(AbstractResource):
+    def __init__(self, conf: GrpcClientConf, name: str):
+        self._conf: GrpcClientConf = conf
+        self._name = name
+        assert grpc, msg
+
+        if conf.tls:
+            self._channel = grpc.aio.secure_channel(
+                conf.endpoint, grpc.ssl_channel_credentials()
+            )
+        else:
+            self._channel = grpc.aio.insecure_channel(conf.endpoint)
+
+        self._make_apis()
+
+    def _make_apis(self):
+        if not self._conf.apis:
+            return
+
+        for api_name, api_conf in self._conf.apis.items():
+            func = self._get_stub_func(api_conf.stub_class, api_conf.method)
+            setattr(
+                self,
+                api_name,
+                partial(self._api_request, func, api_conf),
+            )
+
+    def _get_stub_func(self, stub_class, method: str):
+        if isinstance(stub_class, str):
+            module_path, cls_name = stub_class.rsplit(".", 1)
+            module = importlib.import_module(module_path)
+            stub_class = getattr(module, cls_name)
+
+        stub = stub_class(self._channel)
+        return getattr(stub, method)
+
+    async def _api_request(self, func, api_conf: GrpcApiConf, *args, **kwargs):
+        kwargs["timeout"] = (
+            kwargs.pop("timeout", None) or api_conf.timeout or self._conf.timeout
+        )
+        return await func(*args, **kwargs)
+
+    async def request(self, stub_class, method, *args, **kwargs):
+        func = self._get_stub_func(stub_class, method)
+        kwargs["timeout"] = kwargs.pop("timeout", None) or self._conf.timeout
+        return await func(*args, **kwargs)
+
+    async def close(self):
+        await self._channel.close()
+
+    async def ping(self) -> bool:
+        # 如果服务端实现了健康检查api，可自定义，这里用gRPC channel ready简示
+        try:
+            await self._channel.channel_ready()
+            return True
+        except Exception:
+            return False
+
+    @asynccontextmanager
+    async def db(self, use_transaction: bool) -> AsyncGenerator["GrpcClient", None]:
+        yield self
+
+    def __getattr__(self, name):
+        # ide不报错
+        return getattr(self, name)
+
+
+@singleton
+@CTXVarManager.register(CTXKey.CLIENT_GRPC)
+class GrpcClientManager(CTXResourceManager[GrpcClient]):
+    def __init__(self, confs: Optional[Dict[ConfKey, GrpcClientConf]] = None):
+        if not confs:
+            raise LibraryUsageError("GrpcClientManager must init by infra.")
+        resources = {
+            k: GrpcClient(conf, f"grpc_client{k}") for k, conf in confs.items()
+        }
+        super().__init__(resources, CTXKey.CLIENT_GRPC, error=GrpcClientError)
+
+    @property
+    def curr(self) -> GrpcClient:
+        return super().curr
+
+
+@InfraFactory.register(ConfKey.GRPC_CLIENT)
+def _(conf):
+    return GrpcClientManager(conf)

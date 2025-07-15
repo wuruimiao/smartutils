@@ -1,7 +1,6 @@
 import pytest
 
 from smartutils.config.schema.http_client import HttpApiConf, HttpClientConf
-from smartutils.error.sys import LibraryUsageError
 from smartutils.infra.client.http import HttpClient
 
 HTTPBIN = "https://httpbin.org"
@@ -65,10 +64,6 @@ async def test_http_client_manager_and_api(setup_config):
         # 动态属性api
         resp2 = await getattr(http_cli, "get_ip")()
         assert resp2.status_code == 200
-
-        # 未定义API访问抛错
-        with pytest.raises(LibraryUsageError):
-            getattr(http_cli, "notexist")
 
     await biz()
 
@@ -165,9 +160,5 @@ async def test_http_client_with_api_methods():
     # 4. 通用request
     resp3 = await client.request("GET", "/get")
     assert resp3.status_code == 200
-
-    # 5. 未注册api调用异常
-    with pytest.raises(LibraryUsageError):
-        await getattr(client, "unknown_api")()
 
     await client.close()

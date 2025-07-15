@@ -2,6 +2,7 @@ from smartutils.infra.auth.otp import OtpHelper
 from smartutils.infra.auth.password import PasswordHelper
 from smartutils.infra.auth.token import Token, TokenHelper, User
 from smartutils.infra.cache.redis import RedisManager
+from smartutils.infra.client.grpc import GrpcClientManager
 from smartutils.infra.client.http import HttpClientManager
 from smartutils.infra.db.mongo import MongoManager
 from smartutils.infra.db.mysql import MySQLManager
@@ -24,6 +25,7 @@ __all__ = [
     "KafkaManager",
     "KafkaBatchConsumer",
     "HttpClientManager",
+    "GrpcClientManager",
     "LoggerManager",
     "init",
     "release",

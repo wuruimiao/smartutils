@@ -1,9 +1,20 @@
-from typing import Any, List, Optional
+from typing import Dict, Optional
 
 from pydantic import BaseModel
 
+from smartutils.config.const import ConfKey
+from smartutils.config.factory import ConfFactory
 
+
+class GrpcApiConf(BaseModel):
+    stub_class: str
+    method: str
+    timeout: int = 10
+
+
+@ConfFactory.register(ConfKey.GRPC_CLIENT, multi=True, require=False)
 class GrpcClientConf(BaseModel):
     endpoint: str
-    timeout: Optional[int] = 5
-    options: Optional[List[List[Any]]] = []
+    timeout: int = 10
+    tls: bool = False
+    apis: Optional[Dict[str, GrpcApiConf]] = None
