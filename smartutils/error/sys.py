@@ -105,3 +105,9 @@ class HttpClientError(SysError):
     code = 1017
     msg = "Http Client Error"
     status_code = 500  # Internal Server Error
+
+
+class GrpcClientError(SysError):
+    code = 1018
+    msg = "Grpc Client Error"
+    status_code = 500  # Internal Server

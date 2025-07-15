@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from functools import partial
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING, Callable, Dict, Optional
 
 from smartutils.config.const import ConfKey
 from smartutils.config.schema.http_client import HttpApiConf, HttpClientConf
@@ -35,21 +35,29 @@ class HttpClient(AbstractResource):
             timeout=conf.timeout,
             verify=conf.verify_ssl,
         )
-        if conf.apis:
-            for api_name, api_conf in conf.apis.items():
-                setattr(self, api_name, partial(self._api_request, api_conf))
 
-    async def _api_request(self, api_conf: HttpApiConf, **kwargs) -> Response:
+        self._make_apis()
+
+    def __getattr__(self, name):
+        return getattr(self._client, name)
+
+    def _make_apis(self):
+        if not self._conf.apis:
+            return
+
+        for api_name, api_conf in self._conf.apis.items():
+            setattr(self, api_name, partial(self._api_request, api_conf))
+
+    async def _api_request(self, api_conf: HttpApiConf, *args, **kwargs) -> Response:
+        kwargs["timeout"] = (
+            kwargs.pop("timeout", None) or api_conf.timeout or self._conf.timeout
+        )
         resp = await self._client.request(
             api_conf.method,
             api_conf.path,
-            timeout=api_conf.timeout or self._conf.timeout,
+            *args,
             **kwargs,
         )
-        return resp
-
-    async def request(self, method: str, url: str, **kwargs) -> Response:
-        resp = await self._client.request(method, url, **kwargs)
         return resp
 
     async def close(self):
@@ -66,14 +74,6 @@ class HttpClient(AbstractResource):
     @asynccontextmanager
     async def db(self, use_transaction: bool) -> AsyncGenerator["HttpClient", None]:
         yield self
-
-    def __getattr__(self, item):
-        # 懒加载方式仍然可用（补丁，防止补全失效时兜底）
-        if self._conf.apis and item in self._conf.apis:
-            return partial(self._api_request, self._conf.apis[item])
-        raise LibraryUsageError(
-            f"{type(self).__name__} object has no attribute '{item}'"
-        )
 
 
 @singleton
