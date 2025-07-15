@@ -39,14 +39,14 @@ class DummyClient:
             def __init__(self):
                 self.closed = False
 
-            async def __aenter__(self2):
-                return self2
+            async def __aenter__(self):
+                return self
 
-            async def __aexit__(self2, exc_type, exc, tb):
-                self2.closed = True
+            async def __aexit__(self, exc_type, exc, tb):
+                self.closed = True
 
-            def start_transaction(self2):
-                self2.active = True
+            def start_transaction(self):
+                self.active = True
 
         return DummySession()
 
@@ -64,7 +64,6 @@ class DummyConf:
     db = "test"
 
 
-@pytest.mark.asyncio
 async def test_ping_true_false(monkeypatch):
     monkeypatch.setattr(mongomod, "AsyncIOMotorClient", lambda *a, **k: DummyClient())
     monkeypatch.setattr(mongomod, "AsyncIOMotorDatabase", DummyDB)
@@ -76,7 +75,6 @@ async def test_ping_true_false(monkeypatch):
     assert DummyLogger.last[0].startswith("[{name}] MongoDB ping failed")
 
 
-@pytest.mark.asyncio
 async def test_close(monkeypatch):
     monkeypatch.setattr(mongomod, "AsyncIOMotorClient", lambda *a, **k: DummyClient())
     monkeypatch.setattr(mongomod, "AsyncIOMotorDatabase", DummyDB)
@@ -86,7 +84,6 @@ async def test_close(monkeypatch):
     assert c._client.closed is True
 
 
-@pytest.mark.asyncio
 async def test_db_context_no_transaction(monkeypatch):
     monkeypatch.setattr(mongomod, "AsyncIOMotorClient", lambda *a, **k: DummyClient())
     monkeypatch.setattr(mongomod, "AsyncIOMotorDatabase", DummyDB)
@@ -96,7 +93,6 @@ async def test_db_context_no_transaction(monkeypatch):
         assert isinstance(db, DummyDB)
 
 
-@pytest.mark.asyncio
 async def test_db_context_use_transaction(monkeypatch):
     monkeypatch.setattr(mongomod, "AsyncIOMotorClient", lambda *a, **k: DummyClient())
     monkeypatch.setattr(mongomod, "AsyncIOMotorDatabase", DummyDB)
@@ -106,7 +102,6 @@ async def test_db_context_use_transaction(monkeypatch):
         assert hasattr(session, "start_transaction") and hasattr(session, "closed")
 
 
-@pytest.mark.asyncio
 async def test_assert_motor_not_installed(monkeypatch):
     monkeypatch.setattr(mongomod, "AsyncIOMotorClient", None)
     with pytest.raises(AssertionError) as e:
@@ -114,7 +109,6 @@ async def test_assert_motor_not_installed(monkeypatch):
     assert "depend on motor" in str(e.value)
 
 
-@pytest.mark.asyncio
 async def test_db_commit_and_rollback(monkeypatch):
     class DummySess:
         def __init__(self):
