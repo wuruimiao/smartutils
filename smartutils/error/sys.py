@@ -99,3 +99,9 @@ class FileInvalidError(SysError):
     code = 1016
     msg = "File Invalid Error"
     status_code = 500
+
+
+class HttpClientError(SysError):
+    code = 1017
+    msg = "Http Client Error"
+    status_code = 500  # Internal Server Error

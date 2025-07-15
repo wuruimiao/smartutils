@@ -12,6 +12,8 @@ class CTXKey(str, Enum):
 
     MQ_KAFKA = "mq_kafka"
 
+    CLIENT_HTTP = "client_http"
+
     TRACE_ID = "traceid"
     USERID = "userid"
     USERNAME = "username"

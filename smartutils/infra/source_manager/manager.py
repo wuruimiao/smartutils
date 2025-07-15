@@ -81,8 +81,8 @@ class CTXResourceManager(Generic[T], ABC):
                         raise e
                     except Exception as e:
                         await call_hook(self._fail, session)
-                        logger.exception(f"{key} use fail")
-                        raise self._error(f"{key} use fail: {e}") from None
+                        logger.exception(f"{key} fail")
+                        raise self._error(f"{key} fail: {e}") from None
 
         return wrapper
 

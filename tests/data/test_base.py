@@ -73,3 +73,55 @@ def test_base_edge_cases():
     # make_children无parent
     children = base.make_children([dict(id=1, parent_id=0)], Info)
     assert 1 in children
+
+
+def test_dict_json_and_is_num():
+    d = {"b": 2, "a": 1}
+    assert base.dict_json(d) in ('{"b": 2, "a": 1}', '{"a": 1, "b": 2}')
+    assert base.dict_json(d, sort=True) == '{"a": 1, "b": 2}'
+    # is_num 负数和小数点情况
+    assert not base.is_num("-123")
+    assert not base.is_num("1..23")
+    # float 类型直接 True
+    assert base.is_num(1.23)
+    # str 多个点、其他特殊字符
+    assert not base.is_num("12.3.4")
+
+
+def test_merge_dict_edge():
+    import smartutils.data.base as base
+
+    # 嵌套 dict + 非 dict 冲突
+    a = {"a": {"b": 1}, "c": 2}
+    b = {"a": 3, "d": 4}
+    merged = base.merge_dict(a.copy(), b)
+    assert merged["a"] == 3
+    assert merged["d"] == 4  # 原错误assert为5（应为4）
+    # 纯嵌套 dict 合并
+    a = {"a": {"b": 1}}
+    b = {"a": {"c": 2}}
+    merged = base.merge_dict(a.copy(), b)
+    assert merged["a"]["b"] == 1 and merged["a"]["c"] == 2
+
+
+def test_detect_cycle_real_cycle():
+    # 构造一个有环的 id_to_parent
+    id_to_parent = {1: 2, 2: 3, 3: 1}
+    has_cycle, clean_map = base.detect_cycle(id_to_parent)
+    assert has_cycle is True
+    assert any(v == 0 for v in clean_map.values())
+
+    # make_parent/make_children 自动剔环
+    class Info:
+        def __init__(self, id, parent_id=0):
+            self.id = id
+            self.parent_id = parent_id
+            self.children = []
+
+    data = [dict(id=1, parent_id=2), dict(id=2, parent_id=3), dict(id=3, parent_id=1)]
+    tree = base.make_parent(data, Info)
+    assert any(x in tree for x in [1, 2, 3])
+    children = base.make_children(data, Info)
+    assert set(children.keys()) == {1, 2, 3}
+    for v in children.values():
+        assert len(v) >= 1
