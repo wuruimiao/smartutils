@@ -111,3 +111,9 @@ class GrpcClientError(SysError):
     code = 1018
     msg = "Grpc Client Error"
     status_code = 500  # Internal Server
+
+
+class BreakerOpenError(SysError):
+    code = 1019
+    msg = "Breaker Open Error"
+    status_code = 500

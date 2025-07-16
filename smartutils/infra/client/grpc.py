@@ -12,20 +12,33 @@ from smartutils.ctx.const import CTXKey
 from smartutils.ctx.manager import CTXVarManager
 from smartutils.design import singleton
 from smartutils.error.sys import GrpcClientError, LibraryUsageError
+from smartutils.infra.client.breaker import Breaker
 from smartutils.infra.factory import InfraFactory
 from smartutils.infra.source_manager.abstract import AbstractResource
 from smartutils.infra.source_manager.manager import CTXResourceManager
 
 try:
+    import grpc
     import grpc.aio
 except ImportError:
-    grpc = None
+    pass
 
 if TYPE_CHECKING:
     import grpc.aio
 
 
 msg = "smartutils.infra.client.grpc depend on grpcio，install before use"
+
+
+def only_grpc_unavailable_or_timeout(exc):
+    # 只计入“服务不可用”和“超时”
+    if isinstance(exc, grpc.aio.AioRpcError):
+        code = exc.code()
+        return code not in (
+            grpc.StatusCode.UNAVAILABLE,
+            grpc.StatusCode.DEADLINE_EXCEEDED,
+        )
+    return True
 
 
 class GrpcClient(AbstractResource):
@@ -45,6 +58,8 @@ class GrpcClient(AbstractResource):
         else:
             self._channel = grpc.aio.insecure_channel(conf.endpoint)
 
+        self._breaker = Breaker(name, conf, only_grpc_unavailable_or_timeout)
+
         self._make_apis()
 
     def _make_apis(self):
@@ -56,7 +71,7 @@ class GrpcClient(AbstractResource):
             setattr(
                 self,
                 api_name,
-                partial(self._api_request, func, api_conf),
+                partial(self._api_request, func, api_conf.timeout),
             )
 
     def _get_stub_func(self, stub_class, method: str):
@@ -68,16 +83,18 @@ class GrpcClient(AbstractResource):
         stub = stub_class(self._channel)
         return getattr(stub, method)
 
-    async def _api_request(self, func, api_conf: GrpcApiConf, *args, **kwargs):
-        kwargs["timeout"] = (
-            kwargs.pop("timeout", None) or api_conf.timeout or self._conf.timeout
-        )
-        return await func(*args, **kwargs)
+    async def _api_request(self, func, api_timeout: Optional[int], *args, **kwargs):
+        async def _do_request():
+            kwargs["timeout"] = (
+                kwargs.pop("timeout", None) or api_timeout or self._conf.timeout
+            )
+            return await func(*args, **kwargs)
+
+        return await self._breaker.with_breaker(_do_request)
 
     async def request(self, stub_class, method, *args, **kwargs):
         func = self._get_stub_func(stub_class, method)
-        kwargs["timeout"] = kwargs.pop("timeout", None) or self._conf.timeout
-        return await func(*args, **kwargs)
+        return await self._api_request(func, None, *args, **kwargs)
 
     async def close(self):
         await self._channel.close()

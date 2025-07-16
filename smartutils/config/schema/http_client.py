@@ -4,17 +4,18 @@ from pydantic import BaseModel
 
 from smartutils.config.const import ConfKey
 from smartutils.config.factory import ConfFactory
+from smartutils.config.schema.breaker import BreakerConf
 
 
 class HttpApiConf(BaseModel):
     path: str
     method: str = "GET"
-    timeout: int = 10
+    timeout: Optional[int | float] = None
 
 
 @ConfFactory.register(ConfKey.HTTP_CLIENT, multi=True, require=False)
-class HttpClientConf(BaseModel):
+class HttpClientConf(BreakerConf):
     endpoint: str
-    timeout: int = 10
+    timeout: int | float = 10
     verify_tls: bool = True
     apis: Optional[Dict[str, HttpApiConf]] = None
