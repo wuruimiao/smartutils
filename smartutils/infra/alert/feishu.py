@@ -32,7 +32,7 @@ class AlertFeishu(AbstractResource):
                 apis={"send_alert": HttpApiConf(path="", method="POST", timeout=5)},
             )
             self._clients.append(
-                HttpClient(http_conf, name=f"feishu_{id(webhook_url)}")
+                HttpClient(http_conf, name=f"alert_feishu_{webhook_url}")
             )
 
     async def alert(self, title: str, content: str):
