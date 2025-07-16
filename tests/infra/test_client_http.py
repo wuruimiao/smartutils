@@ -1,7 +1,7 @@
 import pytest
 
 from smartutils.config.schema.http_client import HttpApiConf, HttpClientConf
-from smartutils.error.sys import BreakerOpenError
+from smartutils.error.sys import BreakerOpenError, HttpClientError
 from smartutils.infra.client.http import HttpClient
 
 HTTPBIN = "https://httpbin.org"
@@ -42,6 +42,14 @@ http_client:
       anything_post:
         method: POST
         path: /anything
+  fail:
+    endpoint: https://httpbin.org
+    timeout: 1
+    verify_tls: true
+    apis:
+      delay:
+        method: GET
+        path: /delay/100
   breaker-fail:
     endpoint: https://httpbin.org
     timeout: 1
@@ -101,6 +109,23 @@ async def test_http_client_manager_breaker_fail(setup_config):
         assert "origin" in resp.json()
 
     with pytest.raises(BreakerOpenError):
+        await biz()
+
+
+async def test_http_client_manager_fail(setup_config):
+    from smartutils.infra import HttpClientManager
+
+    http_mgr = HttpClientManager()
+
+    @http_mgr.use("fail")
+    async def biz():
+        http_cli = http_mgr.curr
+        resp = await http_cli.delay()
+        assert resp.status_code == 200
+        assert resp.raise_for_status()
+        assert "origin" in resp.json()
+
+    with pytest.raises(HttpClientError):
         await biz()
 
 
