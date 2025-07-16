@@ -14,7 +14,7 @@ class GrpcApiConf(BaseModel):
 
 
 @ConfFactory.register(ConfKey.CLIENT_GRPC, multi=True, require=False)
-class GrpcClientConf(BreakerConf):
+class ClientGrpcConf(BreakerConf):
     endpoint: str
     timeout: int | float = 10
     tls: bool = False

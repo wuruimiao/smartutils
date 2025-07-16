@@ -7,7 +7,7 @@ from functools import partial
 from typing import TYPE_CHECKING, Dict, Optional
 
 from smartutils.config.const import ConfKey
-from smartutils.config.schema.client_grpc import GrpcClientConf
+from smartutils.config.schema.client_grpc import ClientGrpcConf
 from smartutils.ctx.const import CTXKey
 from smartutils.ctx.manager import CTXVarManager
 from smartutils.design import singleton
@@ -42,8 +42,8 @@ def only_grpc_unavailable_or_timeout(exc):
 
 
 class GrpcClient(AbstractResource):
-    def __init__(self, conf: GrpcClientConf, name: str):
-        self._conf: GrpcClientConf = conf
+    def __init__(self, conf: ClientGrpcConf, name: str):
+        self._conf: ClientGrpcConf = conf
         self._name = name
         assert grpc, msg
 
@@ -119,7 +119,7 @@ class GrpcClient(AbstractResource):
 @singleton
 @CTXVarManager.register(CTXKey.CLIENT_GRPC)
 class GrpcClientManager(CTXResourceManager[GrpcClient]):
-    def __init__(self, confs: Optional[Dict[ConfKey, GrpcClientConf]] = None):
+    def __init__(self, confs: Optional[Dict[ConfKey, ClientGrpcConf]] = None):
         if not confs:
             raise LibraryUsageError("GrpcClientManager must init by infra.")
         resources = {

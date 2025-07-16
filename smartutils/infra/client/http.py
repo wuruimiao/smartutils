@@ -6,7 +6,7 @@ from functools import partial
 from typing import TYPE_CHECKING, Awaitable, Callable, Dict, Optional
 
 from smartutils.config.const import ConfKey
-from smartutils.config.schema.client_http import HttpApiConf, HttpClientConf
+from smartutils.config.schema.client_http import ClientHttpConf, HttpApiConf
 from smartutils.ctx.const import CTXKey
 from smartutils.ctx.manager import CTXVarManager
 from smartutils.design import singleton
@@ -33,7 +33,7 @@ def only_connection_failures(exc):
 
 
 class HttpClient(AbstractResource):
-    def __init__(self, conf: HttpClientConf, name: str):
+    def __init__(self, conf: ClientHttpConf, name: str):
         self._conf = conf
         self._name = name
         assert AsyncClient, msg
@@ -107,7 +107,7 @@ class HttpClient(AbstractResource):
 @singleton
 @CTXVarManager.register(CTXKey.CLIENT_HTTP)
 class HttpClientManager(CTXResourceManager[HttpClient]):
-    def __init__(self, confs: Optional[Dict[ConfKey, HttpClientConf]] = None):
+    def __init__(self, confs: Optional[Dict[ConfKey, ClientHttpConf]] = None):
         if not confs:
             raise LibraryUsageError("HttpClientManager must init by infra.")
         resources = {

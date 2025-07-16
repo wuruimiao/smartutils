@@ -1,6 +1,6 @@
 import pytest
 
-from smartutils.config.schema.client_http import HttpApiConf, HttpClientConf
+from smartutils.config.schema.client_http import ClientHttpConf, HttpApiConf
 from smartutils.error.sys import BreakerOpenError, HttpClientError
 from smartutils.infra.client.http import HttpClient
 
@@ -269,10 +269,10 @@ async def test_ping_success(setup_config):
 
 async def test_ping_fail():
     # 错误endpoint，ping应返回False
-    from smartutils.config.schema.client_http import HttpClientConf
+    from smartutils.config.schema.client_http import ClientHttpConf
     from smartutils.infra.client.http import HttpClient
 
-    conf = HttpClientConf(endpoint="http://not.exist.local", timeout=2, verify_tls=True)
+    conf = ClientHttpConf(endpoint="http://not.exist.local", timeout=2, verify_tls=True)
     cli = HttpClient(conf, "fail")
     ret = await cli.ping()
     assert ret is False
@@ -283,7 +283,7 @@ async def test_CLIENT_HTTP_with_api_methods():
         "get_ip": HttpApiConf(path="/ip", method="GET"),
         "post_echo": HttpApiConf(path="/post", method="POST"),
     }
-    conf = HttpClientConf(
+    conf = ClientHttpConf(
         endpoint=HTTPBIN,
         timeout=10,
         apis=apis,
