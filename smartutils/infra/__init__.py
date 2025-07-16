@@ -1,3 +1,4 @@
+from smartutils.infra.alert.feishu import AlertFeishuManager
 from smartutils.infra.auth.otp import OtpHelper
 from smartutils.infra.auth.password import PasswordHelper
 from smartutils.infra.auth.token import Token, TokenHelper, User
@@ -27,6 +28,7 @@ __all__ = [
     "HttpClientManager",
     "GrpcClientManager",
     "LoggerManager",
+    "AlertFeishuManager",
     "init",
     "release",
 ]
