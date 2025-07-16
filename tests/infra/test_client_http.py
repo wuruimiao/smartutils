@@ -79,7 +79,7 @@ project:
 
 
 @pytest.mark.parametrize("key", ["ok", "breaker"])
-async def test_CLIENT_HTTP_manager_ip(setup_config, key):
+async def test_client_http_manager_ip(setup_config, key):
     from smartutils.infra import HttpClientManager
 
     http_mgr = HttpClientManager()
@@ -95,7 +95,7 @@ async def test_CLIENT_HTTP_manager_ip(setup_config, key):
     await biz()
 
 
-async def test_CLIENT_HTTP_manager_breaker_fail(setup_config):
+async def test_client_http_manager_breaker_fail(setup_config):
     from smartutils.infra import HttpClientManager
 
     http_mgr = HttpClientManager()
@@ -112,7 +112,7 @@ async def test_CLIENT_HTTP_manager_breaker_fail(setup_config):
         await biz()
 
 
-async def test_CLIENT_HTTP_manager_fail(setup_config):
+async def test_client_http_manager_fail(setup_config):
     from smartutils.infra import HttpClientManager
 
     http_mgr = HttpClientManager()
@@ -129,7 +129,7 @@ async def test_CLIENT_HTTP_manager_fail(setup_config):
         await biz()
 
 
-async def test_CLIENT_HTTP_manager_breaker_fail_get(setup_config):
+async def test_client_http_manager_breaker_fail_get(setup_config):
     from smartutils.infra import HttpClientManager
 
     http_mgr = HttpClientManager()
@@ -147,7 +147,7 @@ async def test_CLIENT_HTTP_manager_breaker_fail_get(setup_config):
 
 
 @pytest.mark.parametrize("key", ["ok", "breaker"])
-async def test_CLIENT_HTTP_manager_get(setup_config, key):
+async def test_client_http_manager_get(setup_config, key):
     from smartutils.infra import HttpClientManager
 
     http_mgr = HttpClientManager()
@@ -164,7 +164,7 @@ async def test_CLIENT_HTTP_manager_get(setup_config, key):
 
 
 @pytest.mark.parametrize("key", ["ok", "breaker"])
-async def test_CLIENT_HTTP_manager_anything_post(setup_config, key):
+async def test_client_http_manager_anything_post(setup_config, key):
     from smartutils.infra import HttpClientManager
 
     http_mgr = HttpClientManager()
@@ -182,7 +182,7 @@ async def test_CLIENT_HTTP_manager_anything_post(setup_config, key):
 
 
 @pytest.mark.parametrize("key", ["ok", "breaker"])
-async def test_CLIENT_HTTP_manager_status_500(setup_config, key):
+async def test_client_http_manager_status_500(setup_config, key):
     from smartutils.infra import HttpClientManager
 
     http_mgr = HttpClientManager()
@@ -197,7 +197,7 @@ async def test_CLIENT_HTTP_manager_status_500(setup_config, key):
 
 
 @pytest.mark.parametrize("key", ["ok", "breaker"])
-async def test_CLIENT_HTTP_manager_request(setup_config, key):
+async def test_client_http_manager_request(setup_config, key):
     from smartutils.infra import HttpClientManager
 
     http_mgr = HttpClientManager()
@@ -214,7 +214,7 @@ async def test_CLIENT_HTTP_manager_request(setup_config, key):
 
 
 @pytest.mark.parametrize("key", ["ok", "breaker"])
-async def test_CLIENT_HTTP_manager_post(setup_config, key):
+async def test_client_http_manager_post(setup_config, key):
     from smartutils.infra import HttpClientManager
 
     http_mgr = HttpClientManager()
@@ -278,7 +278,7 @@ async def test_ping_fail():
     assert ret is False
 
 
-async def test_CLIENT_HTTP_with_api_methods():
+async def test_client_http_with_api_methods():
     apis = {
         "get_ip": HttpApiConf(path="/ip", method="GET"),
         "post_echo": HttpApiConf(path="/post", method="POST"),
