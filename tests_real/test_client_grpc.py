@@ -13,64 +13,64 @@ from hello_pb2 import HelloRequest, HelloResponse
 
 @pytest.fixture(scope="function")
 async def setup_config(tmp_path_factory):
-    """
-    动态写入CLIENT_GRPC配置，并由infra统一初始化
-    """
-    config_str = """
-client_grpc:
-  default:
-    endpoint: grpcb.in:9000
-    apis:
-      SayHello:
-        stub_class: tests.infra.grpcbin.stub.hello_pb2_grpc.HelloServiceStub
-        method: SayHello
-  sslbin:
-    endpoint: grpcb.in:9001
-    tls: true
-    apis:
-      SayHello:
-        stub_class: tests.infra.grpcbin.stub.hello_pb2_grpc.HelloServiceStub
-        method: SayHello
-  fail:
-    endpoint: grpcb.in:9000
-    timeout: 0.1
-    apis:
-      SayHello:
-        stub_class: tests.infra.grpcbin.stub.hello_pb2_grpc.HelloServiceStub
-        method: SayHello
-  breaker:
-    endpoint: grpcb.in:9000
-    breaker_enabled: true
-    breaker_fail_max: 1
-    breaker_reset_timeout: 3
-    apis:
-      SayHello:
-        stub_class: tests.infra.grpcbin.stub.hello_pb2_grpc.HelloServiceStub
-        method: SayHello
-  breaker-fail:
-    endpoint: grpcb.in:9000
-    timeout: 0.1
-    breaker_enabled: true
-    breaker_fail_max: 1
-    breaker_reset_timeout: 3
-    apis:
-      SayHello:
-        stub_class: tests.infra.grpcbin.stub.hello_pb2_grpc.HelloServiceStub
-        method: SayHello
-project:
-  name: testproj
-  id: 2
-  description: grpc test
-  version: 1.0.0
-  key: test_key
-"""
-    tmp_dir = tmp_path_factory.mktemp("config")
-    config_file = tmp_dir / "test_config.yaml"
-    with open(config_file, "w") as f:
-        f.write(config_str)
-    from smartutils.init import init
+    #     """
+    #     动态写入CLIENT_GRPC配置，并由infra统一初始化
+    #     """
+    #     config_str = """
+    # client_grpc:
+    #   default:
+    #     endpoint: grpcb.in:9000
+    #     apis:
+    #       SayHello:
+    #         stub_class: tests_real.infra.grpcbin.stub.hello_pb2_grpc.HelloServiceStub
+    #         method: SayHello
+    #   sslbin:
+    #     endpoint: grpcb.in:9001
+    #     tls: true
+    #     apis:
+    #       SayHello:
+    #         stub_class: tests_real.infra.grpcbin.stub.hello_pb2_grpc.HelloServiceStub
+    #         method: SayHello
+    #   fail:
+    #     endpoint: grpcb.in:9000
+    #     timeout: 0.1
+    #     apis:
+    #       SayHello:
+    #         stub_class: tests_real.infra.grpcbin.stub.hello_pb2_grpc.HelloServiceStub
+    #         method: SayHello
+    #   breaker:
+    #     endpoint: grpcb.in:9000
+    #     breaker_enabled: true
+    #     breaker_fail_max: 1
+    #     breaker_reset_timeout: 3
+    #     apis:
+    #       SayHello:
+    #         stub_class: tests_real.infra.grpcbin.stub.hello_pb2_grpc.HelloServiceStub
+    #         method: SayHello
+    #   breaker-fail:
+    #     endpoint: grpcb.in:9000
+    #     timeout: 0.1
+    #     breaker_enabled: true
+    #     breaker_fail_max: 1
+    #     breaker_reset_timeout: 3
+    #     apis:
+    #       SayHello:
+    #         stub_class: tests_real.infra.grpcbin.stub.hello_pb2_grpc.HelloServiceStub
+    #         method: SayHello
+    # project:
+    #   name: testproj
+    #   id: 2
+    #   description: grpc test
+    #   version: 1.0.0
+    #   key: test_key
+    # """
+    #     tmp_dir = tmp_path_factory.mktemp("config")
+    #     config_file = tmp_dir / "test_config.yaml"
+    #     with open(config_file, "w") as f:
+    #         f.write(config_str)
+    #     from smartutils.init import init
 
-    await init(str(config_file))
+    #     await init(str(config_file))
     yield
 
 
@@ -134,7 +134,9 @@ async def test_request_grpc_hello_with_manager(setup_config, key):
         req = HelloRequest(greeting="grpcb.in")
 
         resp = await cli.request(
-            "tests.infra.grpcbin.stub.hello_pb2_grpc.HelloServiceStub", "SayHello", req
+            "tests_real.grpcbin.stub.hello_pb2_grpc.HelloServiceStub",
+            "SayHello",
+            req,
         )
         assert resp.reply == "hello grpcb.in"
 

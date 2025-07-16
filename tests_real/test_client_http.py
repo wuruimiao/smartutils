@@ -9,72 +9,72 @@ HTTPBIN = "https://httpbin.org"
 
 @pytest.fixture(scope="function")
 async def setup_config(tmp_path_factory):
-    config_str = """
-client_http:
-  ok:
-    endpoint: https://httpbin.org
-    timeout: 10
-    verify_tls: true
-    apis:
-      get_ip:
-        method: GET
-        path: /ip
-      status_500:
-        method: GET
-        path: /status/500
-      anything_post:
-        method: POST
-        path: /anything
-  breaker:
-    endpoint: https://httpbin.org
-    timeout: 10
-    verify_tls: true
-    breaker_enabled: true
-    breaker_fail_max: 1
-    breaker_reset_timeout: 3
-    apis:
-      get_ip:
-        method: GET
-        path: /ip
-      status_500:
-        method: GET
-        path: /status/500
-      anything_post:
-        method: POST
-        path: /anything
-  fail:
-    endpoint: https://httpbin.org
-    timeout: 1
-    verify_tls: true
-    apis:
-      delay:
-        method: GET
-        path: /delay/100
-  breaker-fail:
-    endpoint: https://httpbin.org
-    timeout: 1
-    verify_tls: true
-    breaker_enabled: true
-    breaker_fail_max: 1
-    breaker_reset_timeout: 3
-    apis:
-      delay:
-        method: GET
-        path: /delay/100
-project:
-  name: testproj
-  id: 1
-  description: http test
-  version: 1.0.0
-  key: test_key
-"""
-    tmp_dir = tmp_path_factory.mktemp("config")
-    config_file = tmp_dir / "test_config.yaml"
-    with open(config_file, "w") as f:
-        f.write(config_str)
-    from smartutils.init import init
+    #     config_str = """
+    # client_http:
+    #   ok:
+    #     endpoint: https://httpbin.org
+    #     timeout: 10
+    #     verify_tls: true
+    #     apis:
+    #       get_ip:
+    #         method: GET
+    #         path: /ip
+    #       status_500:
+    #         method: GET
+    #         path: /status/500
+    #       anything_post:
+    #         method: POST
+    #         path: /anything
+    #   breaker:
+    #     endpoint: https://httpbin.org
+    #     timeout: 10
+    #     verify_tls: true
+    #     breaker_enabled: true
+    #     breaker_fail_max: 1
+    #     breaker_reset_timeout: 3
+    #     apis:
+    #       get_ip:
+    #         method: GET
+    #         path: /ip
+    #       status_500:
+    #         method: GET
+    #         path: /status/500
+    #       anything_post:
+    #         method: POST
+    #         path: /anything
+    #   fail:
+    #     endpoint: https://httpbin.org
+    #     timeout: 1
+    #     verify_tls: true
+    #     apis:
+    #       delay:
+    #         method: GET
+    #         path: /delay/100
+    #   breaker-fail:
+    #     endpoint: https://httpbin.org
+    #     timeout: 1
+    #     verify_tls: true
+    #     breaker_enabled: true
+    #     breaker_fail_max: 1
+    #     breaker_reset_timeout: 3
+    #     apis:
+    #       delay:
+    #         method: GET
+    #         path: /delay/100
+    # project:
+    #   name: testproj
+    #   id: 1
+    #   description: http test
+    #   version: 1.0.0
+    #   key: test_key
+    # """
+    #     tmp_dir = tmp_path_factory.mktemp("config")
+    #     config_file = tmp_dir / "test_config.yaml"
+    #     with open(config_file, "w") as f:
+    #         f.write(config_str)
+    #     from smartutils.init import init
 
-    await init(str(config_file))
+    #     await init(str(config_file))
     yield
 
 
