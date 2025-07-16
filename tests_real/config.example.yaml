@@ -51,7 +51,7 @@ redis:
     connect_timeout: 10
     socket_timeout: 10
 
-feishu:
+alert_feishu:
   enable: true
   webhooks:
     - https://open.feishu.cn/open-apis/bot/v2/hook/****
