@@ -13,7 +13,7 @@ class HttpApiConf(BaseModel):
     timeout: Optional[int | float] = None
 
 
-@ConfFactory.register(ConfKey.HTTP_CLIENT, multi=True, require=False)
+@ConfFactory.register(ConfKey.CLIENT_HTTP, multi=True, require=False)
 class HttpClientConf(BreakerConf):
     endpoint: str
     timeout: int | float = 10

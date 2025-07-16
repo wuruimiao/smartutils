@@ -14,10 +14,10 @@ from hello_pb2 import HelloRequest, HelloResponse
 @pytest.fixture(scope="function")
 async def setup_config(tmp_path_factory):
     """
-    动态写入grpc_client配置，并由infra统一初始化
+    动态写入CLIENT_GRPC配置，并由infra统一初始化
     """
     config_str = """
-grpc_client:
+client_grpc:
   default:
     endpoint: grpcb.in:9000
     apis:

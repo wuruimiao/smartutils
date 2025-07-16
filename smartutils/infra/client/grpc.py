@@ -7,7 +7,7 @@ from functools import partial
 from typing import TYPE_CHECKING, Dict, Optional
 
 from smartutils.config.const import ConfKey
-from smartutils.config.schema.grpc_client import GrpcApiConf, GrpcClientConf
+from smartutils.config.schema.client_grpc import GrpcClientConf
 from smartutils.ctx.const import CTXKey
 from smartutils.ctx.manager import CTXVarManager
 from smartutils.design import singleton
@@ -123,7 +123,7 @@ class GrpcClientManager(CTXResourceManager[GrpcClient]):
         if not confs:
             raise LibraryUsageError("GrpcClientManager must init by infra.")
         resources = {
-            k: GrpcClient(conf, f"grpc_client{k}") for k, conf in confs.items()
+            k: GrpcClient(conf, f"CLIENT_GRPC{k}") for k, conf in confs.items()
         }
         super().__init__(resources, CTXKey.CLIENT_GRPC, error=GrpcClientError)
 
@@ -132,6 +132,6 @@ class GrpcClientManager(CTXResourceManager[GrpcClient]):
         return super().curr
 
 
-@InfraFactory.register(ConfKey.GRPC_CLIENT)
+@InfraFactory.register(ConfKey.CLIENT_GRPC)
 def _(conf):
     return GrpcClientManager(conf)
