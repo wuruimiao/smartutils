@@ -4,7 +4,7 @@ import importlib
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from functools import partial
-from typing import TYPE_CHECKING, Callable, Dict, Optional
+from typing import TYPE_CHECKING, Dict, Optional
 
 from smartutils.config.const import ConfKey
 from smartutils.config.schema.grpc_client import GrpcApiConf, GrpcClientConf
@@ -35,9 +35,13 @@ class GrpcClient(AbstractResource):
         assert grpc, msg
 
         if conf.tls:
-            self._channel = grpc.aio.secure_channel(
-                conf.endpoint, grpc.ssl_channel_credentials()
-            )
+            if not conf.verify_tls:
+                # TODO：不验证证书
+                creds = grpc.ssl_channel_credentials()
+            else:
+                creds = grpc.ssl_channel_credentials()
+
+            self._channel = grpc.aio.secure_channel(conf.endpoint, creds)
         else:
             self._channel = grpc.aio.insecure_channel(conf.endpoint)
 

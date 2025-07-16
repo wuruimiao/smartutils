@@ -13,7 +13,7 @@ http_client:
   default:
     endpoint: https://httpbin.org
     timeout: 10
-    verify_ssl: true
+    verify_tls: true
     apis:
       get_ip:
         method: GET
@@ -124,7 +124,7 @@ async def test_ping_fail():
     from smartutils.config.schema.http_client import HttpClientConf
     from smartutils.infra.client.http import HttpClient
 
-    conf = HttpClientConf(endpoint="http://not.exist.local", timeout=2, verify_ssl=True)
+    conf = HttpClientConf(endpoint="http://not.exist.local", timeout=2, verify_tls=True)
     cli = HttpClient(conf, "fail")
     ret = await cli.ping()
     assert ret is False

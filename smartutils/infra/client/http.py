@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from functools import partial
-from typing import TYPE_CHECKING, Callable, Dict, Optional
+from typing import TYPE_CHECKING, Dict, Optional
 
 from smartutils.config.const import ConfKey
 from smartutils.config.schema.http_client import HttpApiConf, HttpClientConf
@@ -33,7 +33,7 @@ class HttpClient(AbstractResource):
         self._client = AsyncClient(
             base_url=conf.endpoint,
             timeout=conf.timeout,
-            verify=conf.verify_ssl,
+            verify=conf.verify_tls,
         )
 
         self._make_apis()

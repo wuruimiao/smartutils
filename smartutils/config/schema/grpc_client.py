@@ -17,4 +17,5 @@ class GrpcClientConf(BaseModel):
     endpoint: str
     timeout: int = 10
     tls: bool = False
+    verify_tls: bool = True
     apis: Optional[Dict[str, GrpcApiConf]] = None

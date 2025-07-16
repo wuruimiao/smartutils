@@ -16,5 +16,5 @@ class HttpApiConf(BaseModel):
 class HttpClientConf(BaseModel):
     endpoint: str
     timeout: int = 10
-    verify_ssl: bool = True
+    verify_tls: bool = True
     apis: Optional[Dict[str, HttpApiConf]] = None
