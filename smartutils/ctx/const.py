@@ -15,6 +15,8 @@ class CTXKey(str, Enum):
     CLIENT_HTTP = "client_http"
     CLIENT_GRPC = "client_grpc"
 
+    ALERT_FEISHU = "alert_feishu"
+
     TRACE_ID = "traceid"
     USERID = "userid"
     USERNAME = "username"

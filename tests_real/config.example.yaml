@@ -51,6 +51,11 @@ redis:
     connect_timeout: 10
     socket_timeout: 10
 
+feishu:
+  enable: true
+  webhooks:
+    - https://open.feishu.cn/open-apis/bot/v2/hook/****
+
 project:
   name: pytest
   id: 0

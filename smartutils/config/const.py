@@ -33,6 +33,8 @@ class ConfKey(str, Enum):
     CLIENT_HTTP = "client_http"
     CLIENT_GRPC = "client_grpc"
 
+    ALERT_FEISHU = "alert_feishu"
+
     # 允许注册自定义Key供测试和灵活扩展
     TEST = "__test__"
     TEST2 = "__test2__"
