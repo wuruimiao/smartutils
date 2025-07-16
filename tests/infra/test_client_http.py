@@ -1,6 +1,7 @@
 import pytest
 
 from smartutils.config.schema.http_client import HttpApiConf, HttpClientConf
+from smartutils.error.sys import BreakerOpenError
 from smartutils.infra.client.http import HttpClient
 
 HTTPBIN = "https://httpbin.org"
@@ -18,15 +19,40 @@ http_client:
       get_ip:
         method: GET
         path: /ip
-      post_echo:
-        method: POST
-        path: /post
       status_500:
         method: GET
         path: /status/500
       anything_post:
         method: POST
         path: /anything
+  breaker:
+    endpoint: https://httpbin.org
+    timeout: 10
+    verify_tls: true
+    breaker_enabled: true
+    breaker_fail_max: 1
+    breaker_reset_timeout: 3
+    apis:
+      get_ip:
+        method: GET
+        path: /ip
+      status_500:
+        method: GET
+        path: /status/500
+      anything_post:
+        method: POST
+        path: /anything
+  breaker-fail:
+    endpoint: https://httpbin.org
+    timeout: 1
+    verify_tls: true
+    breaker_enabled: true
+    breaker_fail_max: 1
+    breaker_reset_timeout: 3
+    apis:
+      delay:
+        method: GET
+        path: /delay/100
 project:
   name: testproj
   id: 1
@@ -44,36 +70,148 @@ project:
     yield
 
 
-async def test_http_client_manager_and_api(setup_config):
+@pytest.mark.parametrize("key", ["default", "breaker"])
+async def test_http_client_manager_ip(setup_config, key):
     from smartutils.infra import HttpClientManager
 
     http_mgr = HttpClientManager()
 
-    @http_mgr.use()
+    @http_mgr.use(key)
     async def biz():
         http_cli = http_mgr.curr
-        # 配置文件
         resp = await http_cli.get_ip()
         assert resp.status_code == 200
-
-        # 通过 request 自行指定
-        echo = await http_cli.request("POST", "/post", json={"foo": "bar"})
-        assert echo.status_code == 200
-        assert echo.json()["json"]["foo"] == "bar"
-
-        # 动态属性api
-        resp2 = await getattr(http_cli, "get_ip")()
-        assert resp2.status_code == 200
+        assert resp.raise_for_status()
+        assert "origin" in resp.json()
 
     await biz()
 
 
-async def test_anything_post_with_header_body_query(setup_config):
+async def test_http_client_manager_breaker_fail(setup_config):
     from smartutils.infra import HttpClientManager
 
     http_mgr = HttpClientManager()
 
-    @http_mgr.use
+    @http_mgr.use("breaker-fail")
+    async def biz():
+        http_cli = http_mgr.curr
+        resp = await http_cli.delay()
+        assert resp.status_code == 200
+        assert resp.raise_for_status()
+        assert "origin" in resp.json()
+
+    with pytest.raises(BreakerOpenError):
+        await biz()
+
+
+async def test_http_client_manager_breaker_fail_get(setup_config):
+    from smartutils.infra import HttpClientManager
+
+    http_mgr = HttpClientManager()
+
+    @http_mgr.use("breaker-fail")
+    async def biz():
+        http_cli = http_mgr.curr
+        resp = await http_cli.get("/delay/1000")
+        assert resp.status_code == 200
+        assert resp.raise_for_status()
+        assert "origin" in resp.json()
+
+    with pytest.raises(BreakerOpenError):
+        await biz()
+
+
+@pytest.mark.parametrize("key", ["default", "breaker"])
+async def test_http_client_manager_get(setup_config, key):
+    from smartutils.infra import HttpClientManager
+
+    http_mgr = HttpClientManager()
+
+    @http_mgr.use(key)
+    async def biz():
+        http_cli = http_mgr.curr
+        resp = await http_cli.get("/ip")
+        assert resp.status_code == 200
+        assert resp.raise_for_status()
+        assert "origin" in resp.json()
+
+    await biz()
+
+
+@pytest.mark.parametrize("key", ["default", "breaker"])
+async def test_http_client_manager_anything_post(setup_config, key):
+    from smartutils.infra import HttpClientManager
+
+    http_mgr = HttpClientManager()
+
+    @http_mgr.use(key)
+    async def biz():
+        http_cli = http_mgr.curr
+        resp = await http_cli.anything_post(json={"hello": "world"})
+        assert resp.status_code == 200
+        assert resp.raise_for_status()
+        print(resp.json())
+        assert resp.json()["json"]["hello"] == "world"
+
+    await biz()
+
+
+@pytest.mark.parametrize("key", ["default", "breaker"])
+async def test_http_client_manager_status_500(setup_config, key):
+    from smartutils.infra import HttpClientManager
+
+    http_mgr = HttpClientManager()
+
+    @http_mgr.use(key)
+    async def biz():
+        http_cli = http_mgr.curr
+        resp = await http_cli.status_500()
+        assert resp.status_code == 500
+
+    await biz()
+
+
+@pytest.mark.parametrize("key", ["default", "breaker"])
+async def test_http_client_manager_request(setup_config, key):
+    from smartutils.infra import HttpClientManager
+
+    http_mgr = HttpClientManager()
+
+    @http_mgr.use(key)
+    async def biz():
+        http_cli = http_mgr.curr
+        resp = await http_cli.request("POST", "/anything", json={"foo": "bar"})
+        assert resp.status_code == 200
+        assert resp.raise_for_status()
+        assert resp.json()["json"]["foo"] == "bar"
+
+    await biz()
+
+
+@pytest.mark.parametrize("key", ["default", "breaker"])
+async def test_http_client_manager_post(setup_config, key):
+    from smartutils.infra import HttpClientManager
+
+    http_mgr = HttpClientManager()
+
+    @http_mgr.use(key)
+    async def biz():
+        http_cli = http_mgr.curr
+        resp = await http_cli.post("/anything", json={"foo": "bar"})
+        assert resp.status_code == 200
+        assert resp.raise_for_status()
+        assert resp.json()["json"]["foo"] == "bar"
+
+    await biz()
+
+
+@pytest.mark.parametrize("key", ["default", "breaker"])
+async def test_anything_post_with_header_body_query(setup_config, key):
+    from smartutils.infra import HttpClientManager
+
+    http_mgr = HttpClientManager()
+
+    @http_mgr.use(key)
     async def biz():
         cli = http_mgr.curr
         # 构造请求参数
@@ -87,21 +225,6 @@ async def test_anything_post_with_header_body_query(setup_config):
         assert ret["json"] == body
         assert ret["headers"]["X-Test-Header"] == "test-header-value"
         assert ret["args"]["q"] == "value"
-
-    await biz()
-
-
-async def test_http_client_manager_status_500(setup_config):
-    from smartutils.infra import HttpClientManager
-
-    http_mgr = HttpClientManager()
-
-    @http_mgr.use()
-    async def biz():
-        http_cli = http_mgr.curr
-        # 配置文件
-        resp = await http_cli.status_500()
-        assert resp.status_code == 500
 
     await biz()
 
