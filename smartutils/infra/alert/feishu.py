@@ -13,6 +13,7 @@ from smartutils.infra.client.http import HttpClient
 from smartutils.infra.factory import InfraFactory
 from smartutils.infra.source_manager.abstract import AbstractResource
 from smartutils.infra.source_manager.manager import CTXResourceManager
+from smartutils.time import get_now_str
 
 
 class AlertFeishu(AbstractResource):
@@ -37,7 +38,27 @@ class AlertFeishu(AbstractResource):
         if not self._conf.enable or not self._clients:
             return []
 
-        payload = {"msg_type": "text", "content": {"text": f"{title}\n{content}"}}
+        now = get_now_str()
+        payload = {
+            "msg_type": "post",
+            "content": {
+                "post": {
+                    "zh_cn": {
+                        "title": f"🚨告警: {title}",
+                        "content": [
+                            [
+                                {"tag": "text", "text": "内容："},
+                                {"tag": "text", "text": content},
+                            ],
+                            [
+                                {"tag": "text", "text": "时间："},
+                                {"tag": "text", "text": now},
+                            ],
+                        ],
+                    }
+                }
+            },
+        }
 
         async def send_one(client):
             try:
