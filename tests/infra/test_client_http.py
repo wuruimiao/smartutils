@@ -1,6 +1,6 @@
 import pytest
 
-from smartutils.config.schema.http_client import HttpApiConf, HttpClientConf
+from smartutils.config.schema.client_http import HttpApiConf, HttpClientConf
 from smartutils.error.sys import BreakerOpenError, HttpClientError
 from smartutils.infra.client.http import HttpClient
 
@@ -10,7 +10,7 @@ HTTPBIN = "https://httpbin.org"
 @pytest.fixture(scope="function")
 async def setup_config(tmp_path_factory):
     config_str = """
-http_client:
+client_http:
   default:
     endpoint: https://httpbin.org
     timeout: 10
@@ -79,7 +79,7 @@ project:
 
 
 @pytest.mark.parametrize("key", ["default", "breaker"])
-async def test_http_client_manager_ip(setup_config, key):
+async def test_CLIENT_HTTP_manager_ip(setup_config, key):
     from smartutils.infra import HttpClientManager
 
     http_mgr = HttpClientManager()
@@ -95,7 +95,7 @@ async def test_http_client_manager_ip(setup_config, key):
     await biz()
 
 
-async def test_http_client_manager_breaker_fail(setup_config):
+async def test_CLIENT_HTTP_manager_breaker_fail(setup_config):
     from smartutils.infra import HttpClientManager
 
     http_mgr = HttpClientManager()
@@ -112,7 +112,7 @@ async def test_http_client_manager_breaker_fail(setup_config):
         await biz()
 
 
-async def test_http_client_manager_fail(setup_config):
+async def test_CLIENT_HTTP_manager_fail(setup_config):
     from smartutils.infra import HttpClientManager
 
     http_mgr = HttpClientManager()
@@ -129,7 +129,7 @@ async def test_http_client_manager_fail(setup_config):
         await biz()
 
 
-async def test_http_client_manager_breaker_fail_get(setup_config):
+async def test_CLIENT_HTTP_manager_breaker_fail_get(setup_config):
     from smartutils.infra import HttpClientManager
 
     http_mgr = HttpClientManager()
@@ -147,7 +147,7 @@ async def test_http_client_manager_breaker_fail_get(setup_config):
 
 
 @pytest.mark.parametrize("key", ["default", "breaker"])
-async def test_http_client_manager_get(setup_config, key):
+async def test_CLIENT_HTTP_manager_get(setup_config, key):
     from smartutils.infra import HttpClientManager
 
     http_mgr = HttpClientManager()
@@ -164,7 +164,7 @@ async def test_http_client_manager_get(setup_config, key):
 
 
 @pytest.mark.parametrize("key", ["default", "breaker"])
-async def test_http_client_manager_anything_post(setup_config, key):
+async def test_CLIENT_HTTP_manager_anything_post(setup_config, key):
     from smartutils.infra import HttpClientManager
 
     http_mgr = HttpClientManager()
@@ -182,7 +182,7 @@ async def test_http_client_manager_anything_post(setup_config, key):
 
 
 @pytest.mark.parametrize("key", ["default", "breaker"])
-async def test_http_client_manager_status_500(setup_config, key):
+async def test_CLIENT_HTTP_manager_status_500(setup_config, key):
     from smartutils.infra import HttpClientManager
 
     http_mgr = HttpClientManager()
@@ -197,7 +197,7 @@ async def test_http_client_manager_status_500(setup_config, key):
 
 
 @pytest.mark.parametrize("key", ["default", "breaker"])
-async def test_http_client_manager_request(setup_config, key):
+async def test_CLIENT_HTTP_manager_request(setup_config, key):
     from smartutils.infra import HttpClientManager
 
     http_mgr = HttpClientManager()
@@ -214,7 +214,7 @@ async def test_http_client_manager_request(setup_config, key):
 
 
 @pytest.mark.parametrize("key", ["default", "breaker"])
-async def test_http_client_manager_post(setup_config, key):
+async def test_CLIENT_HTTP_manager_post(setup_config, key):
     from smartutils.infra import HttpClientManager
 
     http_mgr = HttpClientManager()
@@ -269,7 +269,7 @@ async def test_ping_success(setup_config):
 
 async def test_ping_fail():
     # 错误endpoint，ping应返回False
-    from smartutils.config.schema.http_client import HttpClientConf
+    from smartutils.config.schema.client_http import HttpClientConf
     from smartutils.infra.client.http import HttpClient
 
     conf = HttpClientConf(endpoint="http://not.exist.local", timeout=2, verify_tls=True)
@@ -278,7 +278,7 @@ async def test_ping_fail():
     assert ret is False
 
 
-async def test_http_client_with_api_methods():
+async def test_CLIENT_HTTP_with_api_methods():
     apis = {
         "get_ip": HttpApiConf(path="/ip", method="GET"),
         "post_echo": HttpApiConf(path="/post", method="POST"),

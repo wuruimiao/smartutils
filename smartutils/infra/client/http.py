@@ -6,7 +6,7 @@ from functools import partial
 from typing import TYPE_CHECKING, Awaitable, Callable, Dict, Optional
 
 from smartutils.config.const import ConfKey
-from smartutils.config.schema.http_client import HttpApiConf, HttpClientConf
+from smartutils.config.schema.client_http import HttpApiConf, HttpClientConf
 from smartutils.ctx.const import CTXKey
 from smartutils.ctx.manager import CTXVarManager
 from smartutils.design import singleton
@@ -111,7 +111,7 @@ class HttpClientManager(CTXResourceManager[HttpClient]):
         if not confs:
             raise LibraryUsageError("HttpClientManager must init by infra.")
         resources = {
-            k: HttpClient(conf, f"http_client{k}") for k, conf in confs.items()
+            k: HttpClient(conf, f"CLIENT_HTTP{k}") for k, conf in confs.items()
         }
         super().__init__(resources, CTXKey.CLIENT_HTTP, error=HttpClientError)
 
@@ -120,6 +120,6 @@ class HttpClientManager(CTXResourceManager[HttpClient]):
         return super().curr
 
 
-@InfraFactory.register(ConfKey.HTTP_CLIENT)
+@InfraFactory.register(ConfKey.CLIENT_HTTP)
 def _(conf):
     return HttpClientManager(conf)

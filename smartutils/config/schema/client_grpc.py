@@ -13,7 +13,7 @@ class GrpcApiConf(BaseModel):
     timeout: Optional[int | float] = None
 
 
-@ConfFactory.register(ConfKey.GRPC_CLIENT, multi=True, require=False)
+@ConfFactory.register(ConfKey.CLIENT_GRPC, multi=True, require=False)
 class GrpcClientConf(BreakerConf):
     endpoint: str
     timeout: int | float = 10

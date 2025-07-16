@@ -30,8 +30,8 @@ class ConfKey(str, Enum):
 
     GROUP_DEFAULT = "default"
 
-    HTTP_CLIENT = "http_client"
-    GRPC_CLIENT = "grpc_client"
+    CLIENT_HTTP = "client_http"
+    CLIENT_GRPC = "client_grpc"
 
     # 允许注册自定义Key供测试和灵活扩展
     TEST = "__test__"
