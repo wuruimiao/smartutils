@@ -56,6 +56,99 @@ feishu:
   webhooks:
     - https://open.feishu.cn/open-apis/bot/v2/hook/****
 
+client_grpc:
+  default:
+    endpoint: grpcb.in:9000
+    apis:
+      SayHello:
+        stub_class: tests_real.grpcbin.stub.hello_pb2_grpc.HelloServiceStub
+        method: SayHello
+  sslbin:
+    endpoint: grpcb.in:9001
+    tls: true
+    apis:
+      SayHello:
+        stub_class: tests_real.grpcbin.stub.hello_pb2_grpc.HelloServiceStub
+        method: SayHello
+  fail:
+    endpoint: grpcb.in:9000
+    timeout: 0.1
+    apis:
+      SayHello:
+        stub_class: tests_real.grpcbin.stub.hello_pb2_grpc.HelloServiceStub
+        method: SayHello
+  breaker:
+    endpoint: grpcb.in:9000
+    breaker_enabled: true
+    breaker_fail_max: 1
+    breaker_reset_timeout: 3
+    apis:
+      SayHello:
+        stub_class: tests_real.grpcbin.stub.hello_pb2_grpc.HelloServiceStub
+        method: SayHello
+  breaker-fail:
+    endpoint: grpcb.in:9000
+    timeout: 0.1
+    breaker_enabled: true
+    breaker_fail_max: 1
+    breaker_reset_timeout: 3
+    apis:
+      SayHello:
+        stub_class: tests_real.grpcbin.stub.hello_pb2_grpc.HelloServiceStub
+        method: SayHello
+
+client_http:
+  ok:
+    endpoint: https://httpbin.org
+    timeout: 10
+    verify_tls: true
+    apis:
+      get_ip:
+        method: GET
+        path: /ip
+      status_500:
+        method: GET
+        path: /status/500
+      anything_post:
+        method: POST
+        path: /anything
+  breaker:
+    endpoint: https://httpbin.org
+    timeout: 10
+    verify_tls: true
+    breaker_enabled: true
+    breaker_fail_max: 1
+    breaker_reset_timeout: 3
+    apis:
+      get_ip:
+        method: GET
+        path: /ip
+      status_500:
+        method: GET
+        path: /status/500
+      anything_post:
+        method: POST
+        path: /anything
+  fail:
+    endpoint: https://httpbin.org
+    timeout: 1
+    verify_tls: true
+    apis:
+      delay:
+        method: GET
+        path: /delay/100
+  breaker-fail:
+    endpoint: https://httpbin.org
+    timeout: 1
+    verify_tls: true
+    breaker_enabled: true
+    breaker_fail_max: 1
+    breaker_reset_timeout: 3
+    apis:
+      delay:
+        method: GET
+        path: /delay/100
+
 project:
   name: pytest
   id: 0
