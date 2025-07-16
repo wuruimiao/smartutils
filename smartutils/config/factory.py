@@ -47,10 +47,10 @@ class ConfFactory(BaseFactory[ConfKey, Tuple[Type, bool, bool]]):
         logger.info("ConfFactory {name} created.", name=name)
 
         if multi:
-            if ConfKey.GROUP_DEFAULT not in conf:
-                raise ConfigError(
-                    f"ConfFactory no {ConfKey.GROUP_DEFAULT} below {name}"
-                )
+            # if ConfKey.GROUP_DEFAULT not in conf:
+            #     raise ConfigError(
+            #         f"ConfFactory no {ConfKey.GROUP_DEFAULT} below {name}"
+            #     )
 
             return {
                 key: cls._init_conf_cls(name, key, conf_cls, _conf)
