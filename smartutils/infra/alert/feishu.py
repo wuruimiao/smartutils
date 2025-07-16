@@ -13,6 +13,7 @@ from smartutils.infra.client.http import HttpClient
 from smartutils.infra.factory import InfraFactory
 from smartutils.infra.source_manager.abstract import AbstractResource
 from smartutils.infra.source_manager.manager import CTXResourceManager
+from smartutils.log import logger
 from smartutils.time import get_now_str
 
 
@@ -36,6 +37,7 @@ class AlertFeishu(AbstractResource):
 
     async def alert(self, title: str, content: str):
         if not self._conf.enable or not self._clients:
+            logger.info("AlertFeishu is disabled or no clients")
             return []
 
         now = get_now_str()

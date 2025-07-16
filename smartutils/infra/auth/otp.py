@@ -2,9 +2,7 @@ import base64
 from io import BytesIO
 from typing import TYPE_CHECKING, Tuple
 
-from smartutils.config import ConfKey
 from smartutils.design import singleton
-from smartutils.infra.factory import InfraFactory
 
 try:
     import pyotp

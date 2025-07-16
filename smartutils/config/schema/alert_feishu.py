@@ -8,5 +8,5 @@ from smartutils.config.factory import ConfFactory
 
 @ConfFactory.register(ConfKey.ALERT_FEISHU, multi=False, require=False)
 class AlertFeishuConf(BaseModel):
-    enable: bool = False
+    enable: bool = True
     webhooks: List[str]
