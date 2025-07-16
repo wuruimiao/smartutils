@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-import smartutils.infra.cache.cli as cachemod
+import smartutils.infra.cache.redis as cachemod
 
 
 @pytest.fixture

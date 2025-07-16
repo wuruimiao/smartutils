@@ -287,7 +287,7 @@ async def test_redis_manager_init_with_empty():
 
 async def test_async_methods_exception_branches(monkeypatch, setup_cache):
     from smartutils.config.schema.redis import RedisConf
-    from smartutils.infra.cache.cli import AsyncRedisCli
+    from smartutils.infra.cache.redis import AsyncRedisCli
 
     conf = RedisConf(
         host="192.168.1.56",
@@ -326,7 +326,7 @@ async def test_async_methods_exception_branches(monkeypatch, setup_cache):
 
 async def test_safe_context_none_branches(setup_cache):
     from smartutils.config.schema.redis import RedisConf
-    from smartutils.infra.cache.cli import AsyncRedisCli
+    from smartutils.infra.cache.redis import AsyncRedisCli
 
     conf = RedisConf(
         host="192.168.1.56",
