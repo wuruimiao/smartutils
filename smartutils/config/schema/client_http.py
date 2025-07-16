@@ -14,7 +14,7 @@ class HttpApiConf(BaseModel):
 
 
 @ConfFactory.register(ConfKey.CLIENT_HTTP, multi=True, require=False)
-class HttpClientConf(BreakerConf):
+class ClientHttpConf(BreakerConf):
     endpoint: str
     timeout: int | float = 10
     verify_tls: bool = True
