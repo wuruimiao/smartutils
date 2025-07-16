@@ -11,7 +11,7 @@ HTTPBIN = "https://httpbin.org"
 async def setup_config(tmp_path_factory):
     config_str = """
 client_http:
-  default:
+  ok:
     endpoint: https://httpbin.org
     timeout: 10
     verify_tls: true
@@ -78,7 +78,7 @@ project:
     yield
 
 
-@pytest.mark.parametrize("key", ["default", "breaker"])
+@pytest.mark.parametrize("key", ["ok", "breaker"])
 async def test_CLIENT_HTTP_manager_ip(setup_config, key):
     from smartutils.infra import HttpClientManager
 
@@ -146,7 +146,7 @@ async def test_CLIENT_HTTP_manager_breaker_fail_get(setup_config):
         await biz()
 
 
-@pytest.mark.parametrize("key", ["default", "breaker"])
+@pytest.mark.parametrize("key", ["ok", "breaker"])
 async def test_CLIENT_HTTP_manager_get(setup_config, key):
     from smartutils.infra import HttpClientManager
 
@@ -163,7 +163,7 @@ async def test_CLIENT_HTTP_manager_get(setup_config, key):
     await biz()
 
 
-@pytest.mark.parametrize("key", ["default", "breaker"])
+@pytest.mark.parametrize("key", ["ok", "breaker"])
 async def test_CLIENT_HTTP_manager_anything_post(setup_config, key):
     from smartutils.infra import HttpClientManager
 
@@ -181,7 +181,7 @@ async def test_CLIENT_HTTP_manager_anything_post(setup_config, key):
     await biz()
 
 
-@pytest.mark.parametrize("key", ["default", "breaker"])
+@pytest.mark.parametrize("key", ["ok", "breaker"])
 async def test_CLIENT_HTTP_manager_status_500(setup_config, key):
     from smartutils.infra import HttpClientManager
 
@@ -196,7 +196,7 @@ async def test_CLIENT_HTTP_manager_status_500(setup_config, key):
     await biz()
 
 
-@pytest.mark.parametrize("key", ["default", "breaker"])
+@pytest.mark.parametrize("key", ["ok", "breaker"])
 async def test_CLIENT_HTTP_manager_request(setup_config, key):
     from smartutils.infra import HttpClientManager
 
@@ -213,7 +213,7 @@ async def test_CLIENT_HTTP_manager_request(setup_config, key):
     await biz()
 
 
-@pytest.mark.parametrize("key", ["default", "breaker"])
+@pytest.mark.parametrize("key", ["ok", "breaker"])
 async def test_CLIENT_HTTP_manager_post(setup_config, key):
     from smartutils.infra import HttpClientManager
 
@@ -230,7 +230,7 @@ async def test_CLIENT_HTTP_manager_post(setup_config, key):
     await biz()
 
 
-@pytest.mark.parametrize("key", ["default", "breaker"])
+@pytest.mark.parametrize("key", ["ok", "breaker"])
 async def test_anything_post_with_header_body_query(setup_config, key):
     from smartutils.infra import HttpClientManager
 
