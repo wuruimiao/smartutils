@@ -52,10 +52,11 @@ redis:
     socket_timeout: 10
 
 middleware:
-  - log
-  - exception
-  - header
-  - auth
+  enable:
+    - log
+    - exception
+    - header
+    - auth
 
 alert_feishu:
   enable: true
@@ -63,6 +64,22 @@ alert_feishu:
     - https://open.feishu.cn/open-apis/bot/v2/hook/****
 
 client:
+  auth:
+    type: http
+    endpoint: https://httpbin.org
+    timeout: 10
+    verify_tls: true
+    breaker_enabled: true
+    breaker_fail_max: 1
+    breaker_reset_timeout: 3
+    apis:
+      me:
+        method: GET
+        path: /me
+      permission:
+        method: GET
+        path: /permission
+
   grpcbin-ok:
     type: grpc
     endpoint: grpcb.in:9000

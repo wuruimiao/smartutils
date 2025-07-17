@@ -30,12 +30,6 @@ class AppKey(Enum):
         return [e.value for e in cls]
 
 
-class MiddlewarePluginKey(Enum):
-    EXCEPTION = "exception"
-    HEADER = "header"
-    LOG = "log"
-
-
 class MiddlewarePluginOrder(IntEnum):
     # header <-> log <-> exception
     EXCEPTION = -sys.maxsize
