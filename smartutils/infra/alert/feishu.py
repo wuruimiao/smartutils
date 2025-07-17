@@ -4,7 +4,7 @@ from typing import Optional
 
 from smartutils.config.const import ConfKey
 from smartutils.config.schema.alert_feishu import AlertFeishuConf
-from smartutils.config.schema.client_http import ClientHttpConf, HttpApiConf
+from smartutils.config.schema.client import ApiConf, ClientConf, ClientType
 from smartutils.ctx.const import CTXKey
 from smartutils.ctx.manager import CTXVarManager
 from smartutils.design import singleton
@@ -25,11 +25,12 @@ class AlertFeishu(AbstractResource):
             return
 
         for webhook_url in conf.webhooks:
-            http_conf = ClientHttpConf(
+            http_conf = ClientConf(
+                type=ClientType.HTTP,
                 endpoint=webhook_url,
                 timeout=5,
                 verify_tls=True,
-                apis={"send_alert": HttpApiConf(path="", method="POST", timeout=5)},
+                apis={"send_alert": ApiConf(path="", method="POST", timeout=5)},
             )
             self._clients.append(
                 HttpClient(http_conf, name=f"alert_feishu_{webhook_url}")
@@ -92,7 +93,7 @@ class AlertFeishuManager(CTXResourceManager[AlertFeishu]):
         if not conf:
             raise LibraryUsageError("AlertFeishuManager must init by infra.")
         resources = {ConfKey.GROUP_DEFAULT: AlertFeishu(conf)}
-        super().__init__(resources, CTXKey.CLIENT_HTTP)
+        super().__init__(resources, CTXKey.ALERT_FEISHU)
 
     @property
     def curr(self) -> AlertFeishu:

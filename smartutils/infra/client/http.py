@@ -3,18 +3,11 @@ from __future__ import annotations
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from functools import partial
-from typing import TYPE_CHECKING, Awaitable, Callable, Dict, Optional
+from typing import TYPE_CHECKING, Awaitable, Callable
 
-from smartutils.config.const import ConfKey
-from smartutils.config.schema.client_http import ClientHttpConf, HttpApiConf
-from smartutils.ctx.const import CTXKey
-from smartutils.ctx.manager import CTXVarManager
-from smartutils.design import singleton
-from smartutils.error.sys import HttpClientError, LibraryUsageError
+from smartutils.config.schema.client import ApiConf, ClientConf
 from smartutils.infra.client.breaker import Breaker
-from smartutils.infra.factory import InfraFactory
 from smartutils.infra.source_manager.abstract import AbstractResource
-from smartutils.infra.source_manager.manager import CTXResourceManager
 
 try:
     from httpx import AsyncClient, ConnectError, Response, TimeoutException
@@ -33,8 +26,8 @@ def only_connection_failures(exc):
 
 
 class HttpClient(AbstractResource):
-    def __init__(self, conf: ClientHttpConf, name: str):
-        self._conf = conf
+    def __init__(self, conf: ClientConf, name: str):
+        self._conf: ClientConf = conf
         self._name = name
         assert AsyncClient, msg
         self._client = AsyncClient(
@@ -73,7 +66,7 @@ class HttpClient(AbstractResource):
         for api_name, api_conf in self._conf.apis.items():
             setattr(self, api_name, partial(self._api_request, api_conf))
 
-    async def _api_request(self, api_conf: HttpApiConf, *args, **kwargs) -> Response:
+    async def _api_request(self, api_conf: ApiConf, *args, **kwargs) -> Response:
         async def _do_request():
             kwargs["timeout"] = (
                 kwargs.pop("timeout", None) or api_conf.timeout or self._conf.timeout
@@ -102,24 +95,3 @@ class HttpClient(AbstractResource):
     @asynccontextmanager
     async def db(self, use_transaction: bool) -> AsyncGenerator["HttpClient", None]:
         yield self
-
-
-@singleton
-@CTXVarManager.register(CTXKey.CLIENT_HTTP)
-class HttpClientManager(CTXResourceManager[HttpClient]):
-    def __init__(self, confs: Optional[Dict[ConfKey, ClientHttpConf]] = None):
-        if not confs:
-            raise LibraryUsageError("HttpClientManager must init by infra.")
-        resources = {
-            k: HttpClient(conf, f"CLIENT_HTTP{k}") for k, conf in confs.items()
-        }
-        super().__init__(resources, CTXKey.CLIENT_HTTP, error=HttpClientError)
-
-    @property
-    def curr(self) -> HttpClient:
-        return super().curr
-
-
-@InfraFactory.register(ConfKey.CLIENT_HTTP)
-def _(conf):
-    return HttpClientManager(conf)

@@ -37,6 +37,7 @@ class BaseFactory(Generic[K, V]):
             else:
                 idx = len(items)
             items.insert(idx, (key, (order, func_or_obj)))
+            # 保持按照Order从小到大有序
             cls._registry = OrderedDict(items)
             return func_or_obj
 

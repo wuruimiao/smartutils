@@ -30,8 +30,9 @@ class ConfKey(str, Enum):
 
     GROUP_DEFAULT = "default"
 
-    CLIENT_HTTP = "client_http"
-    CLIENT_GRPC = "client_grpc"
+    CLIENT = "client"
+
+    AUTH_HTTP = "auth_http"
 
     ALERT_FEISHU = "alert_feishu"
 

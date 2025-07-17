@@ -101,19 +101,13 @@ class FileInvalidError(SysError):
     status_code = 500
 
 
-class HttpClientError(SysError):
+class ClientError(SysError):
     code = 1017
-    msg = "Http Client Error"
+    msg = "Client Error"
     status_code = 500  # Internal Server Error
 
 
-class GrpcClientError(SysError):
-    code = 1018
-    msg = "Grpc Client Error"
-    status_code = 500  # Internal Server
-
-
 class BreakerOpenError(SysError):
-    code = 1019
+    code = 1018
     msg = "Breaker Open Error"
     status_code = 500

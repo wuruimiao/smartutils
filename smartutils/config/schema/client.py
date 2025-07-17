@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Dict, Optional
 
 from pydantic import BaseModel
@@ -7,16 +8,22 @@ from smartutils.config.factory import ConfFactory
 from smartutils.config.schema.breaker import BreakerConf
 
 
-class GrpcApiConf(BaseModel):
-    stub_class: str
+class ClientType(str, Enum):
+    HTTP = "http"
+    GRPC = "grpc"
+
+
+class ApiConf(BaseModel):
+    path: str
     method: str
     timeout: Optional[int | float] = None
 
 
-@ConfFactory.register(ConfKey.CLIENT_GRPC, multi=True, require=False)
-class ClientGrpcConf(BreakerConf):
+@ConfFactory.register(ConfKey.CLIENT, multi=True, require=False)
+class ClientConf(BreakerConf):
+    type: ClientType
     endpoint: str
     timeout: int | float = 10
     tls: bool = False
     verify_tls: bool = True
-    apis: Optional[Dict[str, GrpcApiConf]] = None
+    apis: Optional[Dict[str, ApiConf]] = None
