@@ -20,6 +20,10 @@ class StarletteRequestAdapter(RequestAdapter):
         self.request.state._custom_headers[key] = value
 
     @property
+    def headers(self) -> dict:
+        return self.request.headers
+
+    @property
     def query_params(self) -> dict:
         return dict(self.request.query_params)
 
