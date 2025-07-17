@@ -1,3 +1,8 @@
+loguru:
+  level: INFO
+  logdir: ""
+  stream: true
+
 kafka:
   default:
     bootstrap_servers:
