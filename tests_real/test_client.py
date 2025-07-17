@@ -1,88 +1,119 @@
+import sys
+from pathlib import Path
+
 import pytest
 
-from smartutils.config.schema.client_http import ClientHttpConf, HttpApiConf
-from smartutils.error.sys import BreakerOpenError, HttpClientError
-from smartutils.infra.client.http import HttpClient
+from smartutils.error.sys import (
+    BreakerOpenError,
+    ClientError,
+)
 
-HTTPBIN = "https://httpbin.org"
+# 确保能找到 hello_pb2, hello_pb2_grpc
+sys.path.insert(0, str(Path(__file__).parent / "grpcbin" / "stub"))
+
+from hello_pb2 import HelloRequest, HelloResponse
 
 
 @pytest.fixture(scope="function")
 async def setup_config(tmp_path_factory):
-    #     config_str = """
-    # client_http:
-    #   ok:
-    #     endpoint: https://httpbin.org
-    #     timeout: 10
-    #     verify_tls: true
-    #     apis:
-    #       get_ip:
-    #         method: GET
-    #         path: /ip
-    #       status_500:
-    #         method: GET
-    #         path: /status/500
-    #       anything_post:
-    #         method: POST
-    #         path: /anything
-    #   breaker:
-    #     endpoint: https://httpbin.org
-    #     timeout: 10
-    #     verify_tls: true
-    #     breaker_enabled: true
-    #     breaker_fail_max: 1
-    #     breaker_reset_timeout: 3
-    #     apis:
-    #       get_ip:
-    #         method: GET
-    #         path: /ip
-    #       status_500:
-    #         method: GET
-    #         path: /status/500
-    #       anything_post:
-    #         method: POST
-    #         path: /anything
-    #   fail:
-    #     endpoint: https://httpbin.org
-    #     timeout: 1
-    #     verify_tls: true
-    #     apis:
-    #       delay:
-    #         method: GET
-    #         path: /delay/100
-    #   breaker-fail:
-    #     endpoint: https://httpbin.org
-    #     timeout: 1
-    #     verify_tls: true
-    #     breaker_enabled: true
-    #     breaker_fail_max: 1
-    #     breaker_reset_timeout: 3
-    #     apis:
-    #       delay:
-    #         method: GET
-    #         path: /delay/100
-    # project:
-    #   name: testproj
-    #   id: 1
-    #   description: http test
-    #   version: 1.0.0
-    #   key: test_key
-    # """
-    #     tmp_dir = tmp_path_factory.mktemp("config")
-    #     config_file = tmp_dir / "test_config.yaml"
-    #     with open(config_file, "w") as f:
-    #         f.write(config_str)
-    #     from smartutils.init import init
-
-    #     await init(str(config_file))
     yield
 
 
-@pytest.mark.parametrize("key", ["ok", "breaker"])
-async def test_client_http_manager_ip(setup_config, key):
-    from smartutils.infra import HttpClientManager
+@pytest.mark.parametrize("key", ["grpcbin-ok", "grpcbin-ssl-ok", "grpcbin-breaker"])
+async def test_grpc_hello_with_manager(setup_config, key):
+    from smartutils.infra import ClientManager
 
-    http_mgr = HttpClientManager()
+    mgr = ClientManager()
+
+    @mgr.use(key)
+    async def biz():
+        cli = mgr.curr
+        req = HelloRequest(greeting="grpcb.in")
+        resp = await cli.SayHello(req)
+        assert resp.reply == "hello grpcb.in"
+
+    await biz()
+
+
+async def test_grpc_hello_with_fail(setup_config):
+    from smartutils.infra import ClientManager
+
+    mgr = ClientManager()
+
+    @mgr.use("grpcbin-fail")
+    async def biz():
+        cli = mgr.curr
+        req = HelloRequest(greeting="grpcb.in")
+        resp = await cli.SayHello(req)
+        assert resp.reply == "hello grpcb.in"
+
+    with pytest.raises(ClientError):
+        await biz()
+
+
+async def test_grpc_hello_with_break_fail(setup_config):
+    from smartutils.infra import ClientManager
+
+    mgr = ClientManager()
+
+    @mgr.use("grpcbin-breaker-fail")
+    async def biz():
+        cli = mgr.curr
+        req = HelloRequest(greeting="grpcb.in")
+        resp = await cli.SayHello(req)
+        assert resp.reply == "hello grpcb.in"
+
+    with pytest.raises(BreakerOpenError):
+        await biz()
+
+
+@pytest.mark.parametrize("key", ["grpcbin-ok", "grpcbin-ssl-ok", "grpcbin-breaker"])
+async def test_request_grpc_hello_with_manager(setup_config, key):
+    from smartutils.infra import ClientManager
+
+    mgr = ClientManager()
+
+    @mgr.use(key)
+    async def biz():
+        cli = mgr.curr
+        req = HelloRequest(greeting="grpcb.in")
+
+        resp = await cli.request(
+            "tests_real.grpcbin.stub.hello_pb2_grpc.HelloServiceStub",
+            "SayHello",
+            req,
+        )
+        assert resp.reply == "hello grpcb.in"
+
+        from hello_pb2_grpc import HelloServiceStub
+
+        resp = await cli.request(HelloServiceStub, "SayHello", req)
+        assert resp.reply == "hello grpcb.in"
+
+    await biz()
+
+
+async def test_grpc_ping(setup_config):
+    from smartutils.infra import ClientManager
+
+    mgr = ClientManager()
+
+    @mgr.use("grpcbin-ok")
+    async def biz():
+        cli = mgr.curr
+        assert await cli.ping() is True
+
+    await biz()
+
+
+HTTPBIN = "https://httpbin.org"
+
+
+@pytest.mark.parametrize("key", ["httpbin-ok", "httpbin-breaker"])
+async def test_client_http_manager_ip(setup_config, key):
+    from smartutils.infra import ClientManager
+
+    http_mgr = ClientManager()
 
     @http_mgr.use(key)
     async def biz():
@@ -96,11 +127,11 @@ async def test_client_http_manager_ip(setup_config, key):
 
 
 async def test_client_http_manager_breaker_fail(setup_config):
-    from smartutils.infra import HttpClientManager
+    from smartutils.infra import ClientManager
 
-    http_mgr = HttpClientManager()
+    http_mgr = ClientManager()
 
-    @http_mgr.use("breaker-fail")
+    @http_mgr.use("httpbin-breaker-fail")
     async def biz():
         http_cli = http_mgr.curr
         resp = await http_cli.delay()
@@ -113,11 +144,11 @@ async def test_client_http_manager_breaker_fail(setup_config):
 
 
 async def test_client_http_manager_fail(setup_config):
-    from smartutils.infra import HttpClientManager
+    from smartutils.infra import ClientManager
 
-    http_mgr = HttpClientManager()
+    http_mgr = ClientManager()
 
-    @http_mgr.use("fail")
+    @http_mgr.use("httpbin-fail")
     async def biz():
         http_cli = http_mgr.curr
         resp = await http_cli.delay()
@@ -125,16 +156,16 @@ async def test_client_http_manager_fail(setup_config):
         assert resp.raise_for_status()
         assert "origin" in resp.json()
 
-    with pytest.raises(HttpClientError):
+    with pytest.raises(ClientError):
         await biz()
 
 
 async def test_client_http_manager_breaker_fail_get(setup_config):
-    from smartutils.infra import HttpClientManager
+    from smartutils.infra import ClientManager
 
-    http_mgr = HttpClientManager()
+    http_mgr = ClientManager()
 
-    @http_mgr.use("breaker-fail")
+    @http_mgr.use("httpbin-breaker-fail")
     async def biz():
         http_cli = http_mgr.curr
         resp = await http_cli.get("/delay/1000")
@@ -146,11 +177,11 @@ async def test_client_http_manager_breaker_fail_get(setup_config):
         await biz()
 
 
-@pytest.mark.parametrize("key", ["ok", "breaker"])
+@pytest.mark.parametrize("key", ["httpbin-ok", "httpbin-breaker"])
 async def test_client_http_manager_get(setup_config, key):
-    from smartutils.infra import HttpClientManager
+    from smartutils.infra import ClientManager
 
-    http_mgr = HttpClientManager()
+    http_mgr = ClientManager()
 
     @http_mgr.use(key)
     async def biz():
@@ -163,11 +194,11 @@ async def test_client_http_manager_get(setup_config, key):
     await biz()
 
 
-@pytest.mark.parametrize("key", ["ok", "breaker"])
+@pytest.mark.parametrize("key", ["httpbin-ok", "httpbin-breaker"])
 async def test_client_http_manager_anything_post(setup_config, key):
-    from smartutils.infra import HttpClientManager
+    from smartutils.infra import ClientManager
 
-    http_mgr = HttpClientManager()
+    http_mgr = ClientManager()
 
     @http_mgr.use(key)
     async def biz():
@@ -181,11 +212,11 @@ async def test_client_http_manager_anything_post(setup_config, key):
     await biz()
 
 
-@pytest.mark.parametrize("key", ["ok", "breaker"])
+@pytest.mark.parametrize("key", ["httpbin-ok", "httpbin-breaker"])
 async def test_client_http_manager_status_500(setup_config, key):
-    from smartutils.infra import HttpClientManager
+    from smartutils.infra import ClientManager
 
-    http_mgr = HttpClientManager()
+    http_mgr = ClientManager()
 
     @http_mgr.use(key)
     async def biz():
@@ -196,11 +227,11 @@ async def test_client_http_manager_status_500(setup_config, key):
     await biz()
 
 
-@pytest.mark.parametrize("key", ["ok", "breaker"])
+@pytest.mark.parametrize("key", ["httpbin-ok", "httpbin-breaker"])
 async def test_client_http_manager_request(setup_config, key):
-    from smartutils.infra import HttpClientManager
+    from smartutils.infra import ClientManager
 
-    http_mgr = HttpClientManager()
+    http_mgr = ClientManager()
 
     @http_mgr.use(key)
     async def biz():
@@ -213,11 +244,11 @@ async def test_client_http_manager_request(setup_config, key):
     await biz()
 
 
-@pytest.mark.parametrize("key", ["ok", "breaker"])
+@pytest.mark.parametrize("key", ["httpbin-ok", "httpbin-breaker"])
 async def test_client_http_manager_post(setup_config, key):
-    from smartutils.infra import HttpClientManager
+    from smartutils.infra import ClientManager
 
-    http_mgr = HttpClientManager()
+    http_mgr = ClientManager()
 
     @http_mgr.use(key)
     async def biz():
@@ -230,11 +261,11 @@ async def test_client_http_manager_post(setup_config, key):
     await biz()
 
 
-@pytest.mark.parametrize("key", ["ok", "breaker"])
+@pytest.mark.parametrize("key", ["httpbin-ok", "httpbin-breaker"])
 async def test_anything_post_with_header_body_query(setup_config, key):
-    from smartutils.infra import HttpClientManager
+    from smartutils.infra import ClientManager
 
-    http_mgr = HttpClientManager()
+    http_mgr = ClientManager()
 
     @http_mgr.use(key)
     async def biz():
@@ -255,39 +286,48 @@ async def test_anything_post_with_header_body_query(setup_config, key):
 
 
 async def test_ping_success(setup_config):
-    from smartutils.infra import HttpClientManager
+    from smartutils.infra import ClientManager
 
-    http_mgr = HttpClientManager()
+    http_mgr = ClientManager()
 
-    @http_mgr.use()
+    @http_mgr.use("httpbin-ok")
     async def biz():
         http_cli = http_mgr.curr
         # httpbin 首页应为200
         ret = await http_cli.ping()
         assert ret is True
 
+    await biz()
+
 
 async def test_ping_fail():
     # 错误endpoint，ping应返回False
-    from smartutils.config.schema.client_http import ClientHttpConf
+    from smartutils.config.schema.client import ClientConf
     from smartutils.infra.client.http import HttpClient
 
-    conf = ClientHttpConf(endpoint="http://not.exist.local", timeout=2, verify_tls=True)
+    conf = ClientConf(
+        endpoint="http://not.exist.local", timeout=2, verify_tls=True, type="http"
+    )
     cli = HttpClient(conf, "fail")
     ret = await cli.ping()
     assert ret is False
 
 
 async def test_client_http_with_api_methods():
+    from smartutils.config.schema.client import ApiConf, ClientConf
+
     apis = {
-        "get_ip": HttpApiConf(path="/ip", method="GET"),
-        "post_echo": HttpApiConf(path="/post", method="POST"),
+        "get_ip": ApiConf(path="/ip", method="GET"),
+        "post_echo": ApiConf(path="/post", method="POST"),
     }
-    conf = ClientHttpConf(
+    conf = ClientConf(
+        type="http",
         endpoint=HTTPBIN,
         timeout=10,
         apis=apis,
     )
+    from smartutils.infra.client.http import HttpClient
+
     client = HttpClient(conf, "test_default")
     # 1. 测试 GET
     resp = await client.get_ip()

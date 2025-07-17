@@ -12,8 +12,7 @@ class CTXKey(str, Enum):
 
     MQ_KAFKA = "mq_kafka"
 
-    CLIENT_HTTP = "client_http"
-    CLIENT_GRPC = "client_grpc"
+    CLIENT = "client"
 
     ALERT_FEISHU = "alert_feishu"
 

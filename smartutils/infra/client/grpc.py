@@ -4,27 +4,23 @@ import importlib
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from functools import partial
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING, Awaitable, Callable, Optional
 
-from smartutils.config.const import ConfKey
-from smartutils.config.schema.client_grpc import ClientGrpcConf
-from smartutils.ctx.const import CTXKey
-from smartutils.ctx.manager import CTXVarManager
-from smartutils.design import singleton
-from smartutils.error.sys import GrpcClientError, LibraryUsageError
+from smartutils.config.schema.client import ClientConf
+from smartutils.infra.client.abstract import Client
 from smartutils.infra.client.breaker import Breaker
-from smartutils.infra.factory import InfraFactory
-from smartutils.infra.source_manager.abstract import AbstractResource
-from smartutils.infra.source_manager.manager import CTXResourceManager
 
 try:
     import grpc
     import grpc.aio
+    from google.protobuf.message import Message
 except ImportError:
     pass
 
 if TYPE_CHECKING:
+    import grpc
     import grpc.aio
+    from google.protobuf.message import Message
 
 
 msg = "smartutils.infra.client.grpc depend on grpcio，install before use"
@@ -41,9 +37,9 @@ def only_grpc_unavailable_or_timeout(exc):
     return True
 
 
-class GrpcClient(AbstractResource):
-    def __init__(self, conf: ClientGrpcConf, name: str):
-        self._conf: ClientGrpcConf = conf
+class GrpcClient(Client):
+    def __init__(self, conf: ClientConf, name: str):
+        self._conf: ClientConf = conf
         self._name = name
         assert grpc, msg
 
@@ -67,20 +63,20 @@ class GrpcClient(AbstractResource):
             return
 
         for api_name, api_conf in self._conf.apis.items():
-            func = self._get_stub_func(api_conf.stub_class, api_conf.method)
+            func = self._get_stub_func(api_conf.path, api_conf.method)
             setattr(
                 self,
                 api_name,
                 partial(self._api_request, func, api_conf.timeout),
             )
 
-    def _get_stub_func(self, stub_class, method: str):
-        if isinstance(stub_class, str):
-            module_path, cls_name = stub_class.rsplit(".", 1)
+    def _get_stub_func(self, path, method: str):
+        if isinstance(path, str):
+            module_path, cls_name = path.rsplit(".", 1)
             module = importlib.import_module(module_path)
-            stub_class = getattr(module, cls_name)
+            path = getattr(module, cls_name)
 
-        stub = stub_class(self._channel)
+        stub = path(self._channel)
         return getattr(stub, method)
 
     async def _api_request(self, func, api_timeout: Optional[int], *args, **kwargs):
@@ -92,8 +88,8 @@ class GrpcClient(AbstractResource):
 
         return await self._breaker.with_breaker(_do_request)
 
-    async def request(self, stub_class, method, *args, **kwargs):
-        func = self._get_stub_func(stub_class, method)
+    async def request(self, path, method, *args, **kwargs):
+        func = self._get_stub_func(path, method)
         return await self._api_request(func, None, *args, **kwargs)
 
     async def close(self):
@@ -111,27 +107,6 @@ class GrpcClient(AbstractResource):
     async def db(self, use_transaction: bool) -> AsyncGenerator["GrpcClient", None]:
         yield self
 
-    def __getattr__(self, name):
+    def __getattr__(self, name) -> Callable[..., Awaitable[Message]]:
         # ide不报错
         return getattr(self, name)
-
-
-@singleton
-@CTXVarManager.register(CTXKey.CLIENT_GRPC)
-class GrpcClientManager(CTXResourceManager[GrpcClient]):
-    def __init__(self, confs: Optional[Dict[ConfKey, ClientGrpcConf]] = None):
-        if not confs:
-            raise LibraryUsageError("GrpcClientManager must init by infra.")
-        resources = {
-            k: GrpcClient(conf, f"CLIENT_GRPC{k}") for k, conf in confs.items()
-        }
-        super().__init__(resources, CTXKey.CLIENT_GRPC, error=GrpcClientError)
-
-    @property
-    def curr(self) -> GrpcClient:
-        return super().curr
-
-
-@InfraFactory.register(ConfKey.CLIENT_GRPC)
-def _(conf):
-    return GrpcClientManager(conf)

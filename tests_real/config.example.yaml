@@ -51,42 +51,53 @@ redis:
     connect_timeout: 10
     socket_timeout: 10
 
+middleware:
+  - log
+  - exception
+  - header
+  - auth
+
 alert_feishu:
   enable: true
   webhooks:
     - https://open.feishu.cn/open-apis/bot/v2/hook/****
 
-client_grpc:
-  default:
+client:
+  grpcbin-ok:
+    type: grpc
     endpoint: grpcb.in:9000
     apis:
       SayHello:
-        stub_class: tests_real.grpcbin.stub.hello_pb2_grpc.HelloServiceStub
+        path: tests_real.grpcbin.stub.hello_pb2_grpc.HelloServiceStub
         method: SayHello
-  sslbin:
+  grpcbin-ssl-ok:
+    type: grpc
     endpoint: grpcb.in:9001
     tls: true
     apis:
       SayHello:
-        stub_class: tests_real.grpcbin.stub.hello_pb2_grpc.HelloServiceStub
+        path: tests_real.grpcbin.stub.hello_pb2_grpc.HelloServiceStub
         method: SayHello
-  fail:
+  grpcbin-fail:
+    type: grpc
     endpoint: grpcb.in:9000
     timeout: 0.1
     apis:
       SayHello:
-        stub_class: tests_real.grpcbin.stub.hello_pb2_grpc.HelloServiceStub
+        path: tests_real.grpcbin.stub.hello_pb2_grpc.HelloServiceStub
         method: SayHello
-  breaker:
+  grpcbin-breaker:
+    type: grpc
     endpoint: grpcb.in:9000
     breaker_enabled: true
     breaker_fail_max: 1
     breaker_reset_timeout: 3
     apis:
       SayHello:
-        stub_class: tests_real.grpcbin.stub.hello_pb2_grpc.HelloServiceStub
+        path: tests_real.grpcbin.stub.hello_pb2_grpc.HelloServiceStub
         method: SayHello
-  breaker-fail:
+  grpcbin-breaker-fail:
+    type: grpc
     endpoint: grpcb.in:9000
     timeout: 0.1
     breaker_enabled: true
@@ -94,11 +105,10 @@ client_grpc:
     breaker_reset_timeout: 3
     apis:
       SayHello:
-        stub_class: tests_real.grpcbin.stub.hello_pb2_grpc.HelloServiceStub
+        path: tests_real.grpcbin.stub.hello_pb2_grpc.HelloServiceStub
         method: SayHello
-
-client_http:
-  ok:
+  httpbin-ok:
+    type: http
     endpoint: https://httpbin.org
     timeout: 10
     verify_tls: true
@@ -112,7 +122,8 @@ client_http:
       anything_post:
         method: POST
         path: /anything
-  breaker:
+  httpbin-breaker:
+    type: http
     endpoint: https://httpbin.org
     timeout: 10
     verify_tls: true
@@ -129,7 +140,8 @@ client_http:
       anything_post:
         method: POST
         path: /anything
-  fail:
+  httpbin-fail:
+    type: http
     endpoint: https://httpbin.org
     timeout: 1
     verify_tls: true
@@ -137,7 +149,8 @@ client_http:
       delay:
         method: GET
         path: /delay/100
-  breaker-fail:
+  httpbin-breaker-fail:
+    type: http
     endpoint: https://httpbin.org
     timeout: 1
     verify_tls: true
