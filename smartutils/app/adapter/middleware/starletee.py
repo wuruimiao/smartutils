@@ -2,12 +2,12 @@ from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from smartutils.app.adapter.middleware.abstract import (
-    AbstractMiddlewarePlugin,
     AbstractMiddleware,
+    AbstractMiddlewarePlugin,
 )
 from smartutils.app.adapter.middleware.factory import (
-    MiddlewareFactory,
     AddMiddlewareFactory,
+    MiddlewareFactory,
 )
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
@@ -27,6 +27,7 @@ class StarletteMiddleware(AbstractMiddleware, BaseHTTPMiddleware):
         AbstractMiddleware.__init__(self, plugin)
 
     async def dispatch(self, request: Request, call_next):
+        # 这里拿到的，必然是Request，如果不是，框架会自动封装成Request
         req: RequestAdapter = self.req_adapter(request)
 
         async def next_adapter():
