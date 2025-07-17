@@ -15,6 +15,9 @@ class TornadoRequestAdapter(RequestAdapter):
         # Tornado request.headers 是 HTTPHeaders（dict-like）
         return self.request.headers
 
+    def set_header(self, key: HeaderKey, value: str):
+        self.request.set_header(key, value)
+
     @property
     def query_params(self) -> dict:
         # Tornado request.arguments 是 dict，值为 list

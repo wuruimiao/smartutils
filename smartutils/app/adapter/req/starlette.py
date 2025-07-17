@@ -10,6 +10,9 @@ class StarletteRequestAdapter(RequestAdapter):
     def get_header(self, key: HeaderKey):
         return self.request.headers.get(key)
 
+    def set_header(self, key: HeaderKey, value: str):
+        self.request.headers[key] = value
+
     @property
     def query_params(self) -> dict:
         return dict(self.request.query_params)

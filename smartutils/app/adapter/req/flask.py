@@ -10,6 +10,9 @@ class FlaskRequestAdapter(RequestAdapter):
     def get_header(self, key: HeaderKey) -> str:
         return self.request.headers.get(key)
 
+    def set_header(self, key: HeaderKey, value: str):
+        self.request.headers[key] = value
+
     @property
     def headers(self):
         return self.request.headers
