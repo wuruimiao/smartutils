@@ -1,12 +1,12 @@
 import base64
-from typing import Callable, Awaitable, List, Optional
+from typing import Awaitable, Callable, List, Optional
 
 from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
-from smartutils.app.const import HeaderKey
-from smartutils.app.const import MiddlewarePluginKey, MiddlewarePluginOrder
+from smartutils.app.const import HeaderKey, MiddlewarePluginOrder
 from smartutils.app.plugin.factory import MiddlewarePluginFactory
+from smartutils.config.schema.middleware import MiddlewarePluginKey
 from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.log import logger
 
