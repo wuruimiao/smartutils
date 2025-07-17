@@ -1,18 +1,19 @@
 from abc import ABC, abstractmethod
-from typing import Callable, Awaitable
+from typing import Awaitable, Callable
 
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.req.factory import RequestAdapterFactory
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.adapter.resp.factory import ResponseAdapterFactory
+from smartutils.app.const import AppKey
 from smartutils.error.sys import LibraryError
 
 __all__ = ["AbstractMiddlewarePlugin", "AbstractMiddleware"]
 
 
 class AbstractMiddlewarePlugin(ABC):
-    def __init__(self, app_key):
-        self.app_key = app_key
+    def __init__(self, app_key: AppKey):
+        self.app_key: AppKey = app_key
 
     @abstractmethod
     async def dispatch(

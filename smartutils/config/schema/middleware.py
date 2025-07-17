@@ -7,7 +7,9 @@ from smartutils.config.const import ConfKey
 from smartutils.config.factory import ConfFactory
 
 
-class MiddlewarePluginKey(Enum):
+class MiddlewarePluginKey(str, Enum):
+    AUTH = "auth"
+    PERMISSION = "permission"
     EXCEPTION = "exception"
     HEADER = "header"
     LOG = "log"

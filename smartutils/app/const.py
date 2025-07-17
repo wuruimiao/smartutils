@@ -33,7 +33,9 @@ class MiddlewarePluginOrder(IntEnum):
     # header <-> log <-> exception
     EXCEPTION = -sys.maxsize
     LOG = 1
-    HEADER = sys.maxsize
+    HEADER = sys.maxsize - 2
+    PERMISSION = sys.maxsize - 1
+    AUTH = sys.maxsize
 
 
 CONF_ENV_NAME = "smartutils_conf_path"
