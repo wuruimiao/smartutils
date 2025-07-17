@@ -10,6 +10,9 @@ class SanicRequestAdapter(RequestAdapter):
     def get_header(self, key: HeaderKey) -> str:
         return self.request.headers.get(key)
 
+    def set_header(self, key: HeaderKey, value: str):
+        self.request.headers[key] = value
+
     @property
     def headers(self) -> dict:
         # Sanic request.headers 是 CIMultiDict，支持 dict 行为

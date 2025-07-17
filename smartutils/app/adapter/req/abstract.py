@@ -14,6 +14,15 @@ class RequestAdapter(ABC):
     def get_header(self, key: HeaderKey) -> str:
         pass
 
+    @abstractmethod
+    def set_header(self, key: HeaderKey, value: str):
+        pass
+
+    @property
+    @abstractmethod
+    def headers(self) -> dict:
+        pass
+
     @property
     @abstractmethod
     def query_params(self) -> dict:
