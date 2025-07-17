@@ -1,5 +1,4 @@
 from smartutils.app.adapter.middleware.abstract import AbstractMiddleware
-from smartutils.app.adapter.middleware.factory import MiddlewareFactory
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.const import AppKey
@@ -9,7 +8,6 @@ __all__ = []
 key = AppKey.DJANGO
 
 
-@MiddlewareFactory.register(key)
 class DjangoMiddleware(AbstractMiddleware):
     _key = key
 

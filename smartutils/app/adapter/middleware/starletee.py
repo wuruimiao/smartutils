@@ -7,7 +7,6 @@ from smartutils.app.adapter.middleware.abstract import (
 )
 from smartutils.app.adapter.middleware.factory import (
     AddMiddlewareFactory,
-    MiddlewareFactory,
 )
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
@@ -18,7 +17,6 @@ __all__ = []
 key = AppKey.FASTAPI
 
 
-@MiddlewareFactory.register(key)
 class StarletteMiddleware(AbstractMiddleware, BaseHTTPMiddleware):
     _key = key
 
@@ -40,4 +38,4 @@ class StarletteMiddleware(AbstractMiddleware, BaseHTTPMiddleware):
 
 @AddMiddlewareFactory.register(key)
 def _(app, plugin: AbstractMiddlewarePlugin):
-    app.add_middleware(MiddlewareFactory.get(key), plugin=plugin)
+    app.add_middleware(StarletteMiddleware, plugin=plugin)
