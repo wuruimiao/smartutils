@@ -36,3 +36,6 @@ class SanicRequestAdapter(RequestAdapter):
     def url(self) -> str:
         # Sanic 没有完整 url 属性，可拼接
         return str(self.request.url)
+
+    def get_cookie(self, key: str) -> str:
+        return self.request.cookies.get(key)

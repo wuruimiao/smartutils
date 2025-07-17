@@ -33,3 +33,6 @@ class AIOHTTPRequestAdapter(RequestAdapter):
     @property
     def url(self):
         return str(self.request.url)
+
+    def get_cookie(self, key: str) -> str:
+        return self.request.cookies.get(key)

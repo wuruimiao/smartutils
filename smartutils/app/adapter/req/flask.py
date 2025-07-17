@@ -32,3 +32,6 @@ class FlaskRequestAdapter(RequestAdapter):
     @property
     def url(self):
         return self.request.url
+
+    def get_cookie(self, key: str) -> str:
+        return self.request.cookies.get(key)
