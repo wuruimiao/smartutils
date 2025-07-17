@@ -10,6 +10,6 @@ __all__ = ["AddMiddlewareFactory"]
 
 
 class AddMiddlewareFactory(
-    BaseFactory[AppKey, Callable[[object, AbstractMiddlewarePlugin], None]]
+    BaseFactory[AppKey, Callable[[object, AbstractMiddlewarePlugin, str], None]]
 ):
     pass

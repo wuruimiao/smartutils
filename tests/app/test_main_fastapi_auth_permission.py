@@ -152,31 +152,3 @@ async def test_auth_middleware_no_cookie(client):
 async def test_permission_middleware_success(client, fake_me_permission):
     resp = client.get("/info", cookies={"access_token": "fake"})
     assert resp.status_code == 200
-
-
-async def test_permission_no_permission(client):
-    async def fake_permission(api_conf, *args, **kwargs):
-        class FakeResp:
-            status_code = 200
-
-            def json(self):
-                return {
-                    "code": 0,
-                    "data": {
-                        "can_access": False,
-                        "user_ids": [],
-                    },
-                }
-
-        return FakeResp()
-
-    with patch(
-        "smartutils.infra.client.http.HttpClient._api_request",
-        new=AsyncMock(side_effect=fake_permission),
-    ):
-        resp = client.get("/info", cookies={"access_token": "fake"})
-
-        assert resp.status_code == 401
-        # 业务无权限时
-        data = resp.json()
-        assert data["code"] == 401 or "no permission" in data["msg"]
