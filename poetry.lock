@@ -7,7 +7,7 @@ description = "Python implementation of the Circuit Breaker pattern."
 optional = true
 python-versions = ">=3.6"
 groups = ["main"]
-markers = "extra == \"client-http\" or extra == \"all\""
+markers = "extra == \"client-http\" or extra == \"client-grpc\" or extra == \"all\""
 files = [
     {file = "aiobreaker-1.2.0-py3-none-any.whl", hash = "sha256:f275decad78bdd161715afeee67e5dde7967de54c836648b44f4eea1b5e41d60"},
     {file = "aiobreaker-1.2.0.tar.gz", hash = "sha256:217a9cfa12e520bb2dd1934bace281d1d7deb8d7630dd183a6295fd22e323ce7"},
@@ -2211,14 +2211,14 @@ reference = "tsinghua"
 
 [[package]]
 name = "locust"
-version = "2.37.13"
+version = "2.37.14"
 description = "Developer-friendly load testing framework"
 optional = false
 python-versions = ">=3.10"
 groups = ["dev"]
 files = [
-    {file = "locust-2.37.13-py3-none-any.whl", hash = "sha256:1d551efcf5ec11de740cf40466314f535e8cb0ec34258bde0e48b5c52a0465b1"},
-    {file = "locust-2.37.13.tar.gz", hash = "sha256:82ba0a694963c9a34b868757ac9c8a5e3f6e9c7832a2fb7a6be807c3b601880b"},
+    {file = "locust-2.37.14-py3-none-any.whl", hash = "sha256:f3cc7a32673b54b3b1b9aa2214a665b3c6a0b0c90c2cc75b0f3bf49d27e07abf"},
+    {file = "locust-2.37.14.tar.gz", hash = "sha256:1d6d9e49d335216d456c3be77c04cc79674581c0f8860c910cd3152d0b9bb26b"},
 ]
 
 [package.dependencies]
@@ -2228,7 +2228,7 @@ flask-cors = ">=3.0.10"
 flask-login = ">=0.6.3"
 gevent = ">=24.10.1,<26.0.0"
 geventhttpclient = ">=2.3.1"
-locust-cloud = ">=1.26.0"
+locust-cloud = ">=1.26.3"
 msgpack = ">=1.0.0"
 psutil = ">=5.9.1"
 pywin32 = {version = "*", markers = "sys_platform == \"win32\""}
@@ -4978,7 +4978,7 @@ reference = "tsinghua"
 [extras]
 all = ["PyJWT", "aiobreaker", "aiokafka", "asyncmy", "asyncpg", "bcrypt", "beanie", "django", "fastapi", "filetype", "flask", "grpcio", "httpx", "motor", "opentelemetry-exporter-otlp", "opentelemetry-instrumentation-fastapi", "opentelemetry-instrumentation-requests", "opentelemetry-sdk", "pillow", "pydantic", "pyotp", "python-snappy", "qrcode", "redis", "sqlalchemy", "starlette", "uhashring", "uvicorn", "zstandard"]
 auth = ["PyJWT", "bcrypt", "pillow", "pyotp", "qrcode"]
-client-grpc = ["grpcio"]
+client-grpc = ["aiobreaker", "grpcio"]
 client-http = ["aiobreaker", "httpx"]
 django = ["django"]
 fastapi = ["fastapi", "pydantic", "starlette", "uvicorn"]
@@ -4993,4 +4993,4 @@ redis = ["redis"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "1bbe7669b228c81edc454245adfe5bb30554476d6219f7b5518762ea8ea59f2d"
+content-hash = "88dc64c51d57e1bcb2f24bcb9e9deb251723062f67a9c3093996dbd71dd0ca30"
