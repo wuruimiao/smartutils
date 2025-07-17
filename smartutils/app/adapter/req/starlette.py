@@ -8,10 +8,16 @@ __all__ = ["StarletteRequestAdapter"]
 @RequestAdapterFactory.register(AppKey.FASTAPI)
 class StarletteRequestAdapter(RequestAdapter):
     def get_header(self, key: HeaderKey):
-        return self.request.headers.get(key)
+        # 优先查 state（如果 set_header 设置过），否则查 headers
+        custom_headers = getattr(self.request.state, "_custom_headers", {})
+        return custom_headers.get(key) or self.request.headers.get(key)
 
     def set_header(self, key: HeaderKey, value: str):
-        self.request.headers[key] = value
+        # 只读不可修改
+        # self.request.headers[key] = value
+        if not hasattr(self.request.state, "_custom_headers"):
+            self.request.state._custom_headers = {}
+        self.request.state._custom_headers[key] = value
 
     @property
     def query_params(self) -> dict:
