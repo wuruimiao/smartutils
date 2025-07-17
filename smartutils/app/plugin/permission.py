@@ -26,23 +26,28 @@ from smartutils.infra.client.manager import ClientManager
 )
 class PermissionPlugin(AbstractMiddlewarePlugin):
     def __init__(self, app_key: AppKey):
+        self._client: HttpClient
+        self._resp_fn = JsonRespFactory.get(app_key)
+
+        super().__init__(app_key)
+
+    def _init_client(self):
+        if hasattr(self, "_client"):
+            return
         try:
-            self._client: HttpClient = cast(
-                HttpClient, ClientManager().client(ConfKey.AUTH)
-            )
+            self._client = cast(HttpClient, ClientManager().client(ConfKey.AUTH))
         except LibraryError:
             raise LibraryUsageError(
                 "PermissionPlugin depend on 'auth' below client in config.yaml."
             )
-        self._resp_fn = JsonRespFactory.get(app_key)
-
-        super().__init__(app_key)
 
     async def dispatch(
         self,
         req: RequestAdapter,
         next_adapter: Callable[[], Awaitable[ResponseAdapter]],
     ) -> ResponseAdapter:
+        self._init_client()
+
         cookies = get_auth_cookies(req)
         if not cookies:
             return self._resp_fn(
