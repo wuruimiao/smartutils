@@ -22,9 +22,9 @@ from smartutils.infra.client.manager import ClientManager
 
 
 @MiddlewarePluginFactory.register(
-    MiddlewarePluginKey.AUTH, order=MiddlewarePluginOrder.AUTH
+    MiddlewarePluginKey.PERMISSION, order=MiddlewarePluginOrder.PERMISSION
 )
-class AuthPlugin(AbstractMiddlewarePlugin):
+class PermissionPlugin(AbstractMiddlewarePlugin):
     def __init__(self, app_key: AppKey):
         try:
             self._client: HttpClient = cast(
@@ -32,7 +32,7 @@ class AuthPlugin(AbstractMiddlewarePlugin):
             )
         except LibraryError:
             raise LibraryUsageError(
-                "AuthPlugin depend on 'auth' below client in config.yaml."
+                "PermissionPlugin depend on 'auth' below client in config.yaml."
             )
         self._resp_fn = JsonRespFactory.get(app_key)
 
@@ -43,25 +43,26 @@ class AuthPlugin(AbstractMiddlewarePlugin):
         req: RequestAdapter,
         next_adapter: Callable[[], Awaitable[ResponseAdapter]],
     ) -> ResponseAdapter:
-        # TODO：支持grpc服务
         cookies = get_auth_cookies(req)
         if not cookies:
             return self._resp_fn(
-                UnauthorizedError("AuthPlugin request no cookies").as_dict
+                UnauthorizedError("PermissionPlugin request no cookies").as_dict
             )
 
-        me_resp: Response = await self._client.me(cookies=cookies)
-        if me_resp.status_code != 200:
+        p_resp: Response = await self._client.permission(cookies=cookies)
+        if p_resp.status_code != 200:
             return self._resp_fn(
-                SysError(f"AuthPlugin auth me, return {me_resp.status_code}").as_dict
+                SysError(
+                    f"PermissionPlugin auth permission, return {p_resp.status_code}"
+                ).as_dict
             )
 
         try:
-            data = me_resp.json()
+            data = p_resp.json()
         except ValueError:
             return self._resp_fn(
                 SysError(
-                    f"AuthPlugin auth me, return data not json. {me_resp.text}"
+                    f"PermissionPlugin auth permission, return data not json. {p_resp.text}"
                 ).as_dict
             )
 
@@ -69,8 +70,10 @@ class AuthPlugin(AbstractMiddlewarePlugin):
             return self._resp_fn(UnauthorizedError(data["msg"]).as_dict)
 
         data = data["data"]
-        CustomHeader.userid(req, data["userid"])
-        CustomHeader.username(req, data["username"])
+        if not data["can_access"]:
+            return self._resp_fn(UnauthorizedError(data["no permission"]).as_dict)
+
+        CustomHeader.permission_user_ids(req, data["user_ids"])
 
         resp: ResponseAdapter = await next_adapter()
         return resp

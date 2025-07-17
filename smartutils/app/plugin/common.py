@@ -1,5 +1,5 @@
 import base64
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.const import HeaderKey
@@ -55,3 +55,13 @@ class CustomHeader:
             )
             return None
         return [int(s) for s in ids.split(",")]
+
+
+def get_auth_cookies(req: RequestAdapter) -> Dict:
+    # TODO: access_token配置化
+    access_token = "access_token"
+    value = req.get_cookie(access_token)
+    if not value:
+        logger.error(f"get_auth_cookies request no {access_token}")
+        return {}
+    return {access_token: value}
