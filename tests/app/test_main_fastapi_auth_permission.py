@@ -146,9 +146,6 @@ async def test_auth_middleware_no_cookie(client):
     )
 
 
-# 用于测试 smartutils/app/plugin/permission.py
-
-
 async def test_permission_middleware_success(client, fake_me_permission):
     resp = client.get("/info", cookies={"access_token": "fake"})
     assert resp.status_code == 200
