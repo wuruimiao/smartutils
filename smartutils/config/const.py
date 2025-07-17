@@ -32,7 +32,7 @@ class ConfKey(str, Enum):
 
     CLIENT = "client"
 
-    AUTH_HTTP = "auth_http"
+    AUTH = "auth"
 
     ALERT_FEISHU = "alert_feishu"
 

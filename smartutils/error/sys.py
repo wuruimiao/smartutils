@@ -111,3 +111,9 @@ class BreakerOpenError(SysError):
     code = 1018
     msg = "Breaker Open Error"
     status_code = 500
+
+
+class UnauthorizedError(SysError):
+    code = 1019
+    msg = "Unauthorized Error"
+    status_code = 401

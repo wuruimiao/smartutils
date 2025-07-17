@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 from smartutils.config.const import ConfKey
 from smartutils.config.schema.client import ClientConf, ClientType
@@ -14,10 +14,12 @@ from smartutils.infra.factory import InfraFactory
 from smartutils.infra.source_manager.manager import CTXResourceManager
 from smartutils.log import logger
 
+# TODO: 封装返回数据，外部统一操作
+
 
 @singleton
 @CTXVarManager.register(CTXKey.CLIENT)
-class ClientManager(CTXResourceManager[HttpClient | GrpcClient]):
+class ClientManager(CTXResourceManager[Union[HttpClient, GrpcClient]]):
     def __init__(self, confs: Optional[Dict[ConfKey, ClientConf]] = None):
         if not confs:
             raise LibraryUsageError("ClientManager must init by infra.")
@@ -34,7 +36,7 @@ class ClientManager(CTXResourceManager[HttpClient | GrpcClient]):
         super().__init__(resources, CTXKey.CLIENT, error=ClientError)
 
     @property
-    def curr(self) -> HttpClient | GrpcClient:
+    def curr(self) -> Union[HttpClient, GrpcClient]:
         return super().curr
 
 
