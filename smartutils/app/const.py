@@ -4,7 +4,6 @@ from enum import Enum, IntEnum
 __all__ = [
     "HeaderKey",
     "AppKey",
-    "MiddlewarePluginKey",
     "MiddlewarePluginOrder",
     "CONF_ENV_NAME",
 ]

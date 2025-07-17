@@ -1,15 +1,18 @@
 import pytest
 from fastapi.testclient import TestClient
-from smartutils.app.const import HeaderKey
+
 from smartutils.app import AppHook
-
-import pytest
-from httpx import AsyncClient
+from smartutils.app.const import HeaderKey
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 async def client(tmp_path_factory):
     config_str = """
+middleware:
+  enable:
+    - log
+    - exception
+    - header
 project:
   name: auth
   id: 0"""
@@ -35,8 +38,8 @@ project:
 
     app = create_app(str(config_file))
 
-    from smartutils.app.main.fastapi import ResponseModel
     from smartutils.app import ReqCTX
+    from smartutils.app.main.fastapi import ResponseModel
 
     with TestClient(app) as c:
         yield c

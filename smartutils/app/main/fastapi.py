@@ -72,12 +72,15 @@ def create_app(conf_path: str = "config/config.yaml"):
     from smartutils.app.const import AppKey
     from smartutils.app.factory import ExcJsonResp
     from smartutils.app.main.init_middleware import init_middlewares
+    from smartutils.config.init import init
 
     key = AppKey.FASTAPI
 
     app = FastAPI(lifespan=lifespan, default_response_class=STJsonResponse)
     app.state.smartutils_conf_path = os.getenv(CONF_ENV_NAME, conf_path)
 
+    # TODO: 配置初始化一次，这里是为了middleware初始化能读取配置
+    init(conf_path)
     init_middlewares(app, key)
 
     @app.exception_handler(RequestValidationError)
