@@ -43,5 +43,9 @@ class RequestAdapter(ABC):
     def url(self) -> str:
         pass
 
+    @abstractmethod
+    def get_cookie(self, key: str) -> str:
+        pass
+
     def gen_trace_id(self) -> str:
         return str(IDGen())

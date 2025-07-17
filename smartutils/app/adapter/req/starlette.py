@@ -28,3 +28,6 @@ class StarletteRequestAdapter(RequestAdapter):
     @property
     def url(self) -> str:
         return str(self.request.url)
+
+    def get_cookie(self, key: str) -> str:
+        return self.request.cookies.get(key)

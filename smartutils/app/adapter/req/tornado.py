@@ -40,3 +40,6 @@ class TornadoRequestAdapter(RequestAdapter):
     @property
     def url(self) -> str:
         return self.request.full_url()
+
+    def get_cookie(self, key: str) -> str:
+        return self.request.cookies.get(key)

@@ -37,3 +37,6 @@ class DjangoRequestAdapter(RequestAdapter):
     @property
     def url(self):
         return self.request.build_absolute_uri()
+
+    def get_cookie(self, key: str) -> str:
+        return self.request.COOKIES.get(key)
