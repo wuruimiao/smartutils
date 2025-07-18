@@ -8,9 +8,8 @@ async def init():
 
     config = get_config()
 
+    from smartutils.init.factory import InfraFactory
     from smartutils.log import logger
-
-    from smartutils.infra.factory import InfraFactory
 
     for comp_key, info in InfraFactory.all():
         init_func, need_conf = info

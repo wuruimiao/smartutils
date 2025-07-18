@@ -8,8 +8,8 @@ from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.design import singleton
 from smartutils.error.sys import DatabaseError, LibraryUsageError
 from smartutils.infra.db.sqlalchemy_cli import AsyncDBCli, db_commit, db_rollback, msg
-from smartutils.infra.factory import InfraFactory
 from smartutils.infra.source_manager.manager import CTXResourceManager
+from smartutils.init.factory import InfraFactory
 
 try:
     from sqlalchemy.ext.asyncio import AsyncSession
