@@ -1,6 +1,6 @@
 import pytest
 
-import smartutils.infra.auth.password as pwmod
+import smartutils.app.auth.password as pwmod
 
 
 @pytest.mark.skipif(pwmod.bcrypt is None, reason="bcrypt not installed")
