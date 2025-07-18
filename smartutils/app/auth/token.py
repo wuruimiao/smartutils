@@ -90,4 +90,4 @@ class TokenHelper:
 
 @InitByConfFactory.register(ConfKey.TOKEN)
 def _(conf):
-    return TokenHelper(conf)
+    TokenHelper(conf)

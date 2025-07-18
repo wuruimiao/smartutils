@@ -59,4 +59,4 @@ class MongoManager(CTXResourceManager[AsyncMongoCli]):
 
 @InitByConfFactory.register(ConfKey.MONGO)
 def _(conf):
-    return MongoManager(conf)
+    MongoManager(conf)
