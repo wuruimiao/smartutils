@@ -12,7 +12,9 @@ if TYPE_CHECKING:
 
 __all__ = ["PasswordHelper"]
 
-msg = "smartutils.infra.auth.password.PasswordHelper depend on bcrypt, install before use."
+msg = (
+    "smartutils.app.auth.password.PasswordHelper depend on bcrypt, install before use."
+)
 
 
 @singleton

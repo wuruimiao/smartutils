@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 __all__ = ["User", "Token", "TokenHelper"]
 
-msg = "smartutils.infra.auth.token.TokenHelper depend on jwt, install first."
+msg = "smartutils.app.auth.token.TokenHelper depend on jwt, install first."
 
 
 @dataclass
