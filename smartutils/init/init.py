@@ -1,7 +1,5 @@
 import traceback
 
-__all__ = ["init"]
-
 
 async def init(conf_path: str = "config/config.yaml"):
     try:
