@@ -12,7 +12,7 @@ from smartutils.error.factory import ExcDetailFactory
 from smartutils.error.sys import CacheError, LibraryUsageError
 from smartutils.infra.source_manager.abstract import AbstractResource
 from smartutils.infra.source_manager.manager import CTXResourceManager
-from smartutils.init.factory import InfraFactory
+from smartutils.init.factory import InitByConfFactory
 from smartutils.log import logger
 from smartutils.time import get_now_stamp
 
@@ -341,6 +341,6 @@ class RedisManager(CTXResourceManager[AsyncRedisCli]):
         return super().curr
 
 
-@InfraFactory.register(ConfKey.REDIS)
+@InitByConfFactory.register(ConfKey.REDIS)
 def _(conf):
     return RedisManager(conf)

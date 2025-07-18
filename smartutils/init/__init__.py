@@ -1,3 +1,3 @@
-from smartutils.init.init import init, reset_all  # noqa: F401
+from smartutils.init.init import init, release, reset_all  # noqa: F401
 
-__all__ = ["init"]
+__all__ = ["init", "release"]

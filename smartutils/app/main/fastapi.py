@@ -55,7 +55,7 @@ async def lifespan(app: FastAPI):
     yield
 
     logger.info("shutdown start close")
-    from smartutils.infra import release
+    from smartutils.init import release
 
     await release()
 

@@ -8,7 +8,7 @@ from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.design import singleton
 from smartutils.infra.source_manager.abstract import AbstractResource
 from smartutils.infra.source_manager.manager import CTXResourceManager
-from smartutils.init.factory import InfraFactory
+from smartutils.init.factory import InitByConfFactory
 from smartutils.log import logger
 
 __all__ = ["LoggerManager"]
@@ -98,6 +98,6 @@ class LoggerManager(CTXResourceManager[LoggerCli]):
         super().__init__(resources, CTXKey.LOGGER_LOGURU)
 
 
-@InfraFactory.register(ConfKey.LOGURU)
+@InitByConfFactory.register(ConfKey.LOGURU)
 def _(conf: LoguruConfig):
     return LoggerManager(conf)

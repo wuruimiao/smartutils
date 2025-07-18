@@ -7,7 +7,6 @@ from smartutils.infra.client.manager import ClientManager
 from smartutils.infra.db.mongo import MongoManager
 from smartutils.infra.db.mysql import MySQLManager
 from smartutils.infra.db.postgresql import PostgresqlManager
-from smartutils.infra.init import init, release
 from smartutils.infra.log.loguru import LoggerManager
 from smartutils.infra.mq.cli import KafkaBatchConsumer
 from smartutils.infra.mq.kafka import KafkaManager
@@ -27,6 +26,4 @@ __all__ = [
     "ClientManager",
     "LoggerManager",
     "AlertFeishuManager",
-    "init",
-    "release",
 ]

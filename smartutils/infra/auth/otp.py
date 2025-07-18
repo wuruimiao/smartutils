@@ -44,6 +44,6 @@ class OtpHelper:
         return totp.verify(user_totp)
 
 
-# @InfraFactory.register(ConfKey.OTP, need_conf=False)
+# @InitByConfFactory.register(ConfKey.OTP, need_conf=False)
 # def _(conf):
 #     return OtpHelper()

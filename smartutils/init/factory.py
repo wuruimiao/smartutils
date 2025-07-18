@@ -1,16 +1,36 @@
 from typing import Any, Callable, Tuple
 
+from smartutils.call import call_hook
 from smartutils.config.const import ConfKey
+from smartutils.config.init import Config
 from smartutils.design import BaseFactory
+from smartutils.log import logger
 
-__all__ = ["InfraFactory"]
+__all__ = ["InitByConfFactory"]
 
 
-class InfraFactory(BaseFactory[ConfKey, Tuple[Callable[[Any], Any], bool]]):
+class InitByConfFactory(BaseFactory[ConfKey, Tuple[Callable[[Any], Any], bool]]):
     @classmethod
     def register(cls, key: ConfKey, need_conf: bool = True, **kwargs):  # type: ignore
         def decorator(func: Callable[[Any], Any]):
-            super(InfraFactory, cls).register(key, **kwargs)((func, need_conf))
+            super(InitByConfFactory, cls).register(key, **kwargs)((func, need_conf))
             return func
 
         return decorator
+
+    @classmethod
+    async def init(cls, config: Config):
+        for comp_key, info in cls.all():
+            init_func, need_conf = info
+            conf = config.get(comp_key)
+            if need_conf and not conf:
+                logger.debug(
+                    "infra init config no {comp_key}, ignore.", comp_key=comp_key
+                )
+                continue
+
+            logger.debug("infra initializing {comp_key} ...", comp_key=comp_key)
+
+            await call_hook(init_func, conf)
+
+            logger.info("infra {comp_key} inited.", comp_key=comp_key)

@@ -10,7 +10,7 @@ from smartutils.design import singleton
 from smartutils.error.sys import DatabaseError, LibraryUsageError
 from smartutils.infra.db.mongo_cli import AsyncMongoCli, db_commit, db_rollback, msg
 from smartutils.infra.source_manager.manager import CTXResourceManager
-from smartutils.init.factory import InfraFactory
+from smartutils.init.factory import InitByConfFactory
 
 try:
     from motor.motor_asyncio import AsyncIOMotorClientSession, AsyncIOMotorDatabase
@@ -57,6 +57,6 @@ class MongoManager(CTXResourceManager[AsyncMongoCli]):
             yield session
 
 
-@InfraFactory.register(ConfKey.MONGO)
+@InitByConfFactory.register(ConfKey.MONGO)
 def _(conf):
     return MongoManager(conf)

@@ -17,6 +17,6 @@ async def ensure_smartutils_init():
 
     await init(test_conf_path)
     yield
-    from smartutils.infra.init import release
+    from smartutils.init import release
 
     await release()

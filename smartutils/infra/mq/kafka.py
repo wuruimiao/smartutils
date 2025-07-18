@@ -9,7 +9,7 @@ from smartutils.design import singleton
 from smartutils.error.sys import LibraryUsageError, MQError
 from smartutils.infra.mq.cli import AsyncKafkaCli
 from smartutils.infra.source_manager.manager import CTXResourceManager
-from smartutils.init.factory import InfraFactory
+from smartutils.init.factory import InitByConfFactory
 
 __all__ = ["KafkaManager"]
 
@@ -29,6 +29,6 @@ class KafkaManager(CTXResourceManager[AsyncKafkaCli]):
         return super().curr
 
 
-@InfraFactory.register(ConfKey.KAFKA)
+@InitByConfFactory.register(ConfKey.KAFKA)
 def _(conf):
     return KafkaManager(conf)
