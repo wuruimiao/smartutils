@@ -57,11 +57,26 @@ redis:
     socket_timeout: 10
 
 middleware:
-  enable:
+  app:
     - log
     - exception
     - header
     - me
+  routes:
+    me-permission:
+      - log
+      - exception
+      - header
+      - me
+  config:
+    log:
+      level: INFO
+    exception:
+      show_detail: false
+    header:
+      default_user: "system"
+    me:
+      key: auth
 
 alert_feishu:
   enable: true
