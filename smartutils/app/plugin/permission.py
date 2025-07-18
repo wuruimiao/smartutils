@@ -28,7 +28,10 @@ class PermissionPlugin(AbstractMiddlewarePlugin):
         if hasattr(self, "_client"):
             return
         try:
-            self._client = cast(HttpClient, ClientManager().client(ConfKey.AUTH))
+            self._client = cast(
+                HttpClient,
+                ClientManager().client(ConfKey(self._conf.permission.client_key)),
+            )
         except LibraryError:
             raise LibraryUsageError(
                 "PermissionPlugin depend on 'auth' below client in config.yaml."
@@ -41,7 +44,7 @@ class PermissionPlugin(AbstractMiddlewarePlugin):
     ) -> ResponseAdapter:
         self._init_client()
 
-        cookies = get_auth_cookies(req)
+        cookies = get_auth_cookies(req, self._conf.permission.access_name)
         if not cookies:
             return self._resp_fn(
                 UnauthorizedError("PermissionPlugin request no cookies").as_dict

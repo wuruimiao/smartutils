@@ -57,11 +57,9 @@ class CustomHeader:
         return [int(s) for s in ids.split(",")]
 
 
-def get_auth_cookies(req: RequestAdapter) -> Dict:
-    # TODO: access_token配置化
-    access_token = "access_token"
-    value = req.get_cookie(access_token)
+def get_auth_cookies(req: RequestAdapter, access_name: str) -> Dict:
+    value = req.get_cookie(access_name)
     if not value:
-        logger.error(f"get_auth_cookies request no {access_token}")
+        logger.error(f"get_auth_cookies request no {access_name}")
         return {}
-    return {access_token: value}
+    return {access_name: value}

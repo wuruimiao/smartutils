@@ -16,16 +16,22 @@ class MiddlewarePluginKey(str, Enum):
 
 
 class PluginMeConf(BaseModel):
-    access_token_name: str = Field(..., description="访问令牌name")
+    access_name: str = "access_token"  # 访问令牌name
+    client_key: str = "auth"  # 使用配置中client.指向的Client
 
 
 class PluginPermissionConf(BaseModel):
-    access_token_name: str = Field(..., description="访问令牌name")
+    access_name: str = "access_token"  # 访问令牌name
+    client_key: str = "auth"  # 使用配置中client.指向的Client
 
 
-class _MiddlewareConfig(BaseModel):
-    me: PluginMeConf = Field(..., description="me插件配置")
-    persmission: PluginPermissionConf = Field(..., description="permission插件配置")
+class MiddlewarePluginSetting(BaseModel):
+    me: PluginMeConf = Field(
+        default_factory=lambda: PluginMeConf(), description="me插件配置"
+    )
+    permission: PluginPermissionConf = Field(
+        default_factory=lambda: PluginPermissionConf(), description="permission插件配置"
+    )
 
 
 @ConfFactory.register(ConfKey.MIDDLEWARE, multi=False, require=False)
@@ -36,4 +42,8 @@ class MiddlewareConf(BaseModel):
     routes: Optional[Dict[str, List[MiddlewarePluginKey]]] = Field(
         None, description="启用的路由级别的中间件"
     )
-    config: Optional[_MiddlewareConfig] = Field(None, description="中间件配置")
+    setting: Optional[MiddlewarePluginSetting] = Field(None, description="中间件配置")
+
+    @property
+    def safe_setting(self) -> MiddlewarePluginSetting:
+        return self.setting or MiddlewarePluginSetting()

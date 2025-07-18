@@ -29,7 +29,9 @@ class MePlugin(AbstractMiddlewarePlugin):
             return
 
         try:
-            self._client = cast(HttpClient, ClientManager().client(ConfKey.AUTH))
+            self._client = cast(
+                HttpClient, ClientManager().client(ConfKey(self._conf.me.client_key))
+            )
         except LibraryError:
             raise LibraryUsageError(
                 "AuthPlugin depend on 'auth' below client in config.yaml."
@@ -43,7 +45,7 @@ class MePlugin(AbstractMiddlewarePlugin):
         # TODO：支持grpc服务
         self._init_client()
 
-        cookies = get_auth_cookies(req)
+        cookies = get_auth_cookies(req, self._conf.me.access_name)
         if not cookies:
             return self._resp_fn(
                 UnauthorizedError("AuthPlugin request no cookies").as_dict
