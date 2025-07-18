@@ -8,7 +8,7 @@ from smartutils.config.factory import ConfFactory
 
 
 class MiddlewarePluginKey(str, Enum):
-    AUTH = "auth"
+    ME = "me"
     PERMISSION = "permission"
     EXCEPTION = "exception"
     HEADER = "header"

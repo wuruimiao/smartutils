@@ -22,9 +22,9 @@ from smartutils.infra.client.manager import ClientManager
 
 
 @MiddlewarePluginFactory.register(
-    MiddlewarePluginKey.AUTH, order=MiddlewarePluginOrder.AUTH
+    MiddlewarePluginKey.ME, order=MiddlewarePluginOrder.ME
 )
-class AuthPlugin(AbstractMiddlewarePlugin):
+class MePlugin(AbstractMiddlewarePlugin):
     def __init__(self, app_key: AppKey):
         self._client: HttpClient
         self._resp_fn = JsonRespFactory.get(app_key)
@@ -59,16 +59,14 @@ class AuthPlugin(AbstractMiddlewarePlugin):
         me_resp: Response = await self._client.me(cookies=cookies)
         if me_resp.status_code != 200:
             return self._resp_fn(
-                SysError(f"AuthPlugin auth me, return {me_resp.status_code}").as_dict
+                SysError(f"AuthPlugin me, return {me_resp.status_code}").as_dict
             )
 
         try:
             data = me_resp.json()
         except ValueError:
             return self._resp_fn(
-                SysError(
-                    f"AuthPlugin auth me, return data not json. {me_resp.text}"
-                ).as_dict
+                SysError(f"AuthPlugin me, return data not json. {me_resp.text}").as_dict
             )
 
         if data["code"] != 0:
