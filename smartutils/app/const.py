@@ -30,12 +30,12 @@ class AppKey(Enum):
 
 
 class MiddlewarePluginOrder(IntEnum):
-    # header <-> log <-> exception
-    EXCEPTION = -sys.maxsize
-    LOG = 1
-    HEADER = sys.maxsize - 2
-    PERMISSION = sys.maxsize - 1
-    AUTH = sys.maxsize
+    # 按值顺序，从小到大，依次处理请求
+    AUTH = -sys.maxsize
+    PERMISSION = -sys.maxsize + 1
+    HEADER = -sys.maxsize + 2
+    LOG = 10
+    EXCEPTION = sys.maxsize
 
 
 CONF_ENV_NAME = "smartutils_conf_path"

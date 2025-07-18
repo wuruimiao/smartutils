@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import Callable, Generic, Iterator, Tuple, TypeVar, final
+from typing import Callable, Generic, List, Tuple, TypeVar, final
 
 from smartutils.error.sys import LibraryError, LibraryUsageError
 
@@ -51,8 +51,8 @@ class BaseFactory(Generic[K, V]):
 
     @classmethod
     @final
-    def all(cls) -> Iterator[Tuple[K, V]]:
-        return ((k, v) for k, (order, v) in cls._registry.items())
+    def all(cls) -> List[Tuple[K, V]]:
+        return [(k, v) for k, (order, v) in cls._registry.items()]
 
     @classmethod
     @final

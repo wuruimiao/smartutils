@@ -9,7 +9,7 @@ from smartutils.config.schema.middleware import MiddlewareConf
 from smartutils.log import logger
 
 
-def init_middlewares(app, key: AppKey):
+def init_middlewares(app, key: AppKey, reverse: bool = True):
     middleware_conf: Optional[MiddlewareConf] = get_config().get(ConfKey.MIDDLEWARE)
 
     if not middleware_conf:
@@ -17,7 +17,10 @@ def init_middlewares(app, key: AppKey):
         return
 
     enables = middleware_conf.enable
-    for plugin_name, plugin_cls in MiddlewarePluginFactory.all():
+    plugins = MiddlewarePluginFactory.all()
+    if reverse:
+        plugins.reverse()
+    for plugin_name, plugin_cls in plugins:
         if plugin_name not in enables:
             logger.debug(f"Middleware app {plugin_name} ignored.")
         else:
