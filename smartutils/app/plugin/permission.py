@@ -2,11 +2,10 @@ from typing import Awaitable, Callable, cast
 
 from httpx import Response
 
-from smartutils.app.adapter.json_resp.factory import JsonRespFactory
 from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
-from smartutils.app.const import AppKey, MiddlewarePluginOrder
+from smartutils.app.const import MiddlewarePluginOrder
 from smartutils.app.plugin.common import CustomHeader, get_auth_cookies
 from smartutils.app.plugin.factory import MiddlewarePluginFactory
 from smartutils.config.const import ConfKey
