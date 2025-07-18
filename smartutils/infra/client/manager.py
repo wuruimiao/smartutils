@@ -42,4 +42,4 @@ class ClientManager(CTXResourceManager[Union[HttpClient, GrpcClient]]):
 
 @InitByConfFactory.register(ConfKey.CLIENT)
 def _(conf):
-    return ClientManager(conf)
+    ClientManager(conf)

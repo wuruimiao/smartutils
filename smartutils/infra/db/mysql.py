@@ -54,4 +54,4 @@ class MySQLManager(CTXResourceManager[AsyncDBCli]):
 
 @InitByConfFactory.register(ConfKey.MYSQL)
 def _(conf):
-    return MySQLManager(conf)
+    MySQLManager(conf)

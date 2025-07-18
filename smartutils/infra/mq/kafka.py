@@ -31,4 +31,4 @@ class KafkaManager(CTXResourceManager[AsyncKafkaCli]):
 
 @InitByConfFactory.register(ConfKey.KAFKA)
 def _(conf):
-    return KafkaManager(conf)
+    KafkaManager(conf)

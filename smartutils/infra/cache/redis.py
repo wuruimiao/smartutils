@@ -343,4 +343,4 @@ class RedisManager(CTXResourceManager[AsyncRedisCli]):
 
 @InitByConfFactory.register(ConfKey.REDIS)
 def _(conf):
-    return RedisManager(conf)
+    RedisManager(conf)

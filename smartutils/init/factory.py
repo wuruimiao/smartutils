@@ -8,7 +8,7 @@ from smartutils.log import logger
 __all__ = ["InitByConfFactory"]
 
 
-class InitByConfFactory(BaseFactory[ConfKey, Tuple[Callable[[Any], Any], bool]]):
+class InitByConfFactory(BaseFactory[ConfKey, Callable[[Any], Any]]):
     # @classmethod
     # def register(cls, key: ConfKey, need_conf: bool = True, **kwargs):  # type: ignore
     #     def decorator(func: Callable[[Any], Any]):

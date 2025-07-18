@@ -102,4 +102,4 @@ class AlertFeishuManager(CTXResourceManager[AlertFeishu]):
 
 @InitByConfFactory.register(ConfKey.ALERT_FEISHU)
 def _(conf):
-    return AlertFeishuManager(conf)
+    AlertFeishuManager(conf)
