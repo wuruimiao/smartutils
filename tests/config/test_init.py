@@ -1,6 +1,6 @@
 import pytest
 
-from smartutils.config.init import Config
+from smartutils.config._config import Config
 from smartutils.config.schema.project import ProjectConf
 from smartutils.error.sys import ConfigError, LibraryUsageError
 

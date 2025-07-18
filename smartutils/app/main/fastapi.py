@@ -72,7 +72,7 @@ def create_app(conf_path: str = "config/config.yaml"):
     from smartutils.app.const import AppKey
     from smartutils.app.factory import ExcJsonResp
     from smartutils.app.main.init_middleware import init_middlewares
-    from smartutils.config.init import Config
+    from smartutils.config import Config
 
     key = AppKey.FASTAPI
 

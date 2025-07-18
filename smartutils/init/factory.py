@@ -1,8 +1,7 @@
 from typing import Any, Callable, Tuple
 
 from smartutils.call import call_hook
-from smartutils.config.const import ConfKey
-from smartutils.config.init import Config
+from smartutils.config import Config, ConfKey
 from smartutils.design import BaseFactory
 from smartutils.log import logger
 
