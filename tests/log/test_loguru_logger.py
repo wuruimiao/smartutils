@@ -41,7 +41,7 @@ project:
         content = f.read()
     assert "hello test loguru logger" in content
 
-    from smartutils.design.singleton import reset_all
+    from smartutils.design._singleton import reset_all
 
     reset_all()
 
@@ -94,7 +94,7 @@ project:
     assert "this is printed and should be in the log file" in content
     assert "logger debug also in log file" in content
 
-    from smartutils.design.singleton import reset_all
+    from smartutils.design._singleton import reset_all
 
     reset_all()
 
@@ -151,7 +151,7 @@ project:
     captured = capsys.readouterr()
     assert "this should NOT be in the log file, only in stdout" in captured.out
 
-    from smartutils.design.singleton import reset_all
+    from smartutils.design._singleton import reset_all
 
     reset_all()
 
@@ -168,6 +168,6 @@ async def test_loguru_logger_no_config():
 
     logger.debug("logger debug in log file")
 
-    from smartutils.design.singleton import reset_all
+    from smartutils.design._singleton import reset_all
 
     reset_all()

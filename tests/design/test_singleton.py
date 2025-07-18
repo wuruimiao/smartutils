@@ -96,7 +96,7 @@ def test_decorator_singleton_reset():
 
 async def test_decorator_singleton_reset_all():
     a = DecoratorSingleton(10)
-    from smartutils.design.singleton import reset_all
+    from smartutils.design._singleton import reset_all
 
     reset_all()
     b = DecoratorSingleton(20)
