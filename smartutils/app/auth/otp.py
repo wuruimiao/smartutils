@@ -16,9 +16,7 @@ if TYPE_CHECKING:
 __all__ = ["OtpHelper"]
 
 
-msg = (
-    "smartutils.infra.auth.otp.OtpHelper depend on pyotp & qrcode, install before use."
-)
+msg = "smartutils.app.auth.otp.OtpHelper depend on pyotp & qrcode, install before use."
 
 
 @singleton
