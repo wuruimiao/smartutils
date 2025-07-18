@@ -9,20 +9,22 @@ __all__ = ["InitByConfFactory"]
 
 
 class InitByConfFactory(BaseFactory[ConfKey, Tuple[Callable[[Any], Any], bool]]):
-    @classmethod
-    def register(cls, key: ConfKey, need_conf: bool = True, **kwargs):  # type: ignore
-        def decorator(func: Callable[[Any], Any]):
-            super(InitByConfFactory, cls).register(key, **kwargs)((func, need_conf))
-            return func
+    # @classmethod
+    # def register(cls, key: ConfKey, need_conf: bool = True, **kwargs):  # type: ignore
+    #     def decorator(func: Callable[[Any], Any]):
+    #         super(InitByConfFactory, cls).register(key, **kwargs)((func, need_conf))
+    #         return func
 
-        return decorator
+    #     return decorator
 
     @classmethod
     async def init(cls, config: Config):
-        for comp_key, info in cls.all():
-            init_func, need_conf = info
+        # for comp_key, info in cls.all():
+        #     init_func, need_conf = info
+        for comp_key, init_func in cls.all():
             conf = config.get(comp_key)
-            if need_conf and not conf:
+            # if need_conf and not conf:
+            if not conf:
                 logger.debug(
                     "infra init config no {comp_key}, ignore.", comp_key=comp_key
                 )

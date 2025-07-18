@@ -40,8 +40,3 @@ class OtpHelper:
         assert pyotp and qrcode, msg
         totp = pyotp.TOTP(otp_secret)
         return totp.verify(user_totp)
-
-
-# @InitByConfFactory.register(ConfKey.OTP, need_conf=False)
-# def _(conf):
-#     return OtpHelper()
