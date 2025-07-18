@@ -31,11 +31,11 @@ async def lifespan(app: FastAPI):
 
     await init(app.state.smartutils_conf_path)  # noqa
 
-    from smartutils.config import get_config
+    from smartutils.config import Config
     from smartutils.error.base import BaseError
     from smartutils.log import logger
 
-    conf = get_config()
+    conf = Config.get_config()
 
     app.title = conf.project.name
     app.version = conf.project.version
@@ -72,7 +72,7 @@ def create_app(conf_path: str = "config/config.yaml"):
     from smartutils.app.const import AppKey
     from smartutils.app.factory import ExcJsonResp
     from smartutils.app.main.init_middleware import init_middlewares
-    from smartutils.config.init import init
+    from smartutils.config.init import Config
 
     key = AppKey.FASTAPI
 
@@ -80,7 +80,7 @@ def create_app(conf_path: str = "config/config.yaml"):
     app.state.smartutils_conf_path = os.getenv(CONF_ENV_NAME, conf_path)
 
     # TODO: 配置初始化一次，这里是为了middleware初始化能读取配置
-    init(conf_path)
+    Config.init(conf_path)
     init_middlewares(app, key)
 
     @app.exception_handler(RequestValidationError)

@@ -155,13 +155,11 @@ async def setup_conf_empty(tmp_path_factory):
 
 
 def test_config_loads_all(setup_config: str):
-    from smartutils.config import init
+    from smartutils.config import Config
 
-    assert init(setup_config)
+    assert Config.init(setup_config)
 
-    from smartutils.config import get_config
-
-    config = get_config()
+    config = Config.get_config()
     assert config is not None
     assert (
         config.get("mysql")["default"].url  # type: ignore
@@ -180,50 +178,49 @@ def test_config_loads_all(setup_config: str):
 
 
 def test_config_empty(setup_conf_empty: str):
-    from smartutils.config import init
+    from smartutils.config import Config
     from smartutils.error.sys import ConfigError
 
     with pytest.raises(ConfigError):
-        init(setup_conf_empty)
+        Config.init(setup_conf_empty)
 
 
 def test_config_no_conf_class(setup_no_conf_class_config: str):
-    from smartutils.config import init
+    from smartutils.config import Config
 
-    init(setup_no_conf_class_config)
+    Config.init(setup_no_conf_class_config)
 
 
 def test_config_no_default(setup_no_conf_default_config: str):
-    from smartutils.config import init
+    from smartutils.config import Config
     from smartutils.error.sys import ConfigError
 
     # with pytest.raises(ConfigError):
-    init(setup_no_conf_default_config)
+    Config.init(setup_no_conf_default_config)
 
 
 def test_config_no_config_file(setup_config):
-    from smartutils.config import init
+    from smartutils.config import Config
 
-    init()
+    Config.init()
 
 
 def test_config_no_config(setup_config):
-    from smartutils.config import get_config
-    from smartutils.config.init import reset
+    from smartutils.config import Config
     from smartutils.error.sys import LibraryUsageError
 
-    reset()
+    Config.reset()
     with pytest.raises(LibraryUsageError):
-        get_config()
+        Config.get_config()
 
 
 def test_project_conf_inherit(setup_config: str):
-    from smartutils.config import ConfFactory, ConfKey, ProjectConf, get_config, init
+    from smartutils.config import ConfFactory, Config, ConfKey, ProjectConf, init
 
     @ConfFactory.register(ConfKey.PROJECT)
     class MyProjectConf(ProjectConf):
         key: str
 
-    init(setup_config)
-    conf = get_config()
+    Config.init(setup_config)
+    conf = Config.get_config()
     assert conf.project.key == "test_key"

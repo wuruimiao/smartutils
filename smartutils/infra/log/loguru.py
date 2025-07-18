@@ -51,9 +51,9 @@ class LoggerCli(AbstractResource):
         logger.remove()
         logger.configure(patcher=self._inject)
 
-        from smartutils.config import get_config
+        from smartutils.config import Config
 
-        _conf = get_config()
+        _conf = Config.get_config()
 
         if not self._conf:
             logger.debug("LoggerCli init, config no loguru key, ignore.")
