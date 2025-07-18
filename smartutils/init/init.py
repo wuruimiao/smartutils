@@ -38,7 +38,7 @@ async def reset_all():
         2. @singleton，reset后，再次init时会创建，没问题
         3. @InitByConfFactory.register，reset后不会再触发，导致init时即使有配置也不会初始化，隐形错误
     """
-    from smartutils.design.singleton import reset_all
+    from smartutils.design._singleton import reset_all
 
     reset_all()
 
