@@ -25,12 +25,6 @@ from smartutils.infra.client.manager import ClientManager
     MiddlewarePluginKey.PERMISSION, order=MiddlewarePluginOrder.PERMISSION
 )
 class PermissionPlugin(AbstractMiddlewarePlugin):
-    def __init__(self, app_key: AppKey):
-        self._client: HttpClient
-        self._resp_fn = JsonRespFactory.get(app_key)
-
-        super().__init__(app_key)
-
     def _init_client(self):
         if hasattr(self, "_client"):
             return
