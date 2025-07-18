@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, List, Tuple
 
 from smartutils.app.adapter.middleware.abstract import (
     AbstractMiddlewarePlugin,
@@ -10,6 +10,8 @@ __all__ = ["AddMiddlewareFactory"]
 
 
 class AddMiddlewareFactory(
-    BaseFactory[AppKey, Callable[[object, AbstractMiddlewarePlugin, str], None]]
+    BaseFactory[
+        AppKey, Callable[[object, List[Tuple[str, AbstractMiddlewarePlugin]]], None]
+    ]
 ):
     pass
