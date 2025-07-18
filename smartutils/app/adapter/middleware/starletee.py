@@ -1,3 +1,5 @@
+from typing import List, Tuple
+
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 
@@ -41,5 +43,6 @@ class StarletteMiddleware(AbstractMiddleware, BaseHTTPMiddleware):
 
 
 @AddMiddlewareFactory.register(key)
-def _(app, plugin: AbstractMiddlewarePlugin, name: str):
-    app.add_middleware(StarletteMiddleware, plugin, name)
+def _(app, plugins: List[Tuple[str, AbstractMiddlewarePlugin]]):
+    for name, plugin in plugins:
+        app.add_middleware(StarletteMiddleware, plugin, name)
