@@ -4,8 +4,8 @@ from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin
 from smartutils.app.adapter.middleware.factory import AddMiddlewareFactory
 from smartutils.app.const import AppKey
 from smartutils.app.plugin.factory import MiddlewarePluginFactory
+from smartutils.config import Config
 from smartutils.config.const import ConfKey
-from smartutils.config.init import Config
 from smartutils.config.schema.middleware import MiddlewareConf
 from smartutils.log import logger
 
