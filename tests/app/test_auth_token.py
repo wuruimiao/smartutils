@@ -4,7 +4,7 @@ from unittest.mock import patch
 import jwt
 import pytest
 
-import smartutils.infra.auth.token as token_mod
+import smartutils.app.auth.token as token_mod
 
 
 def make_conf():

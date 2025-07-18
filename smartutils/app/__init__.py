@@ -1,5 +1,8 @@
 from smartutils.app import adapter as _adapter
 from smartutils.app import plugin as _plugin
+from smartutils.app.auth.otp import OtpHelper
+from smartutils.app.auth.password import PasswordHelper
+from smartutils.app.auth.token import Token, TokenHelper, User
 from smartutils.app.hook import AppHook
 from smartutils.app.main.fastapi import ResponseModel
 from smartutils.app.req_ctx import ReqCTX
@@ -20,4 +23,9 @@ __all__ = [
     "run",
     "AppHook",
     "ResponseModel",
+    "OtpHelper",
+    "PasswordHelper",
+    "TokenHelper",
+    "User",
+    "Token",
 ]

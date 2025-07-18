@@ -2,7 +2,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-import smartutils.infra.auth.otp as otpmodule
+import smartutils.app.auth.otp as otpmodule
 
 
 @pytest.mark.skipif(
