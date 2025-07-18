@@ -1,4 +1,4 @@
-from typing import Any, Callable, Tuple
+from typing import Any, Callable
 
 from smartutils.call import call_hook
 from smartutils.config import Config, ConfKey
