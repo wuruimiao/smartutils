@@ -7,15 +7,17 @@ from smartutils.app.adapter.req.factory import RequestAdapterFactory
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.adapter.resp.factory import ResponseAdapterFactory
 from smartutils.app.const import AppKey
+from smartutils.config.schema.middleware import MiddlewarePluginSetting
 from smartutils.error.sys import LibraryError
 
 __all__ = ["AbstractMiddlewarePlugin", "AbstractMiddleware"]
 
 
 class AbstractMiddlewarePlugin(ABC):
-    def __init__(self, app_key: AppKey):
+    def __init__(self, app_key: AppKey, conf: MiddlewarePluginSetting):
         self.app_key: AppKey = app_key
         self._resp_fn = JsonRespFactory.get(app_key)
+        self._conf: MiddlewarePluginSetting = conf
 
     @abstractmethod
     async def dispatch(

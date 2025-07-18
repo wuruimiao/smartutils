@@ -68,7 +68,7 @@ middleware:
       - exception
       - header
       - me
-  config:
+  setting:
     log:
       level: INFO
     exception:

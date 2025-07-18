@@ -24,5 +24,7 @@ def init_middlewares(app, key: AppKey, reverse: bool = True):
         if plugin_name not in enables:
             logger.debug(f"Middleware app {plugin_name} ignored.")
         else:
-            AddMiddlewareFactory.get(key)(app, plugin_cls(key), plugin_name)
+            AddMiddlewareFactory.get(key)(
+                app, plugin_cls(key, middleware_conf.safe_setting), plugin_name
+            )
             logger.info(f"Middleware app {plugin_name} inited.")
