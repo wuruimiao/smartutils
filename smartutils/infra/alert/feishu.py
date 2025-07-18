@@ -10,9 +10,9 @@ from smartutils.ctx.manager import CTXVarManager
 from smartutils.design import singleton
 from smartutils.error.sys import LibraryUsageError
 from smartutils.infra.client.http import HttpClient
-from smartutils.infra.factory import InfraFactory
 from smartutils.infra.source_manager.abstract import AbstractResource
 from smartutils.infra.source_manager.manager import CTXResourceManager
+from smartutils.init.factory import InfraFactory
 from smartutils.log import logger
 from smartutils.time import get_now_str
 

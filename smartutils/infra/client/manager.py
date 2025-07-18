@@ -10,8 +10,8 @@ from smartutils.design import singleton
 from smartutils.error.sys import ClientError, LibraryUsageError
 from smartutils.infra.client.grpc import GrpcClient
 from smartutils.infra.client.http import HttpClient
-from smartutils.infra.factory import InfraFactory
 from smartutils.infra.source_manager.manager import CTXResourceManager
+from smartutils.init.factory import InfraFactory
 from smartutils.log import logger
 
 # TODO: 封装返回数据，外部统一操作

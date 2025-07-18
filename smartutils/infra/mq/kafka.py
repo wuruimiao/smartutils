@@ -7,9 +7,9 @@ from smartutils.config.schema.kafka import KafkaConf
 from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.design import singleton
 from smartutils.error.sys import LibraryUsageError, MQError
-from smartutils.infra.factory import InfraFactory
 from smartutils.infra.mq.cli import AsyncKafkaCli
 from smartutils.infra.source_manager.manager import CTXResourceManager
+from smartutils.init.factory import InfraFactory
 
 __all__ = ["KafkaManager"]
 

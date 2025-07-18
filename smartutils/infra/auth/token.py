@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Optional, Tuple
 from smartutils.config import ConfKey
 from smartutils.config.schema.token import TokenConf
 from smartutils.design import singleton
-from smartutils.infra.factory import InfraFactory
+from smartutils.init.factory import InfraFactory
 from smartutils.time import get_stamp_after
 
 try:
