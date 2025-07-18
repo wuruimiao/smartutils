@@ -1,6 +1,6 @@
 import pytest
 
-from smartutils.config.init import Config, get_config, init, reset
+from smartutils.config.init import Config
 from smartutils.config.schema.project import ProjectConf
 from smartutils.error.sys import ConfigError, LibraryUsageError
 
@@ -48,11 +48,11 @@ def test_config_project_property(tmp_path):
 def test_init_and_reset(tmp_path):
     yaml_path = tmp_path / "test_config.yaml"
     yaml_path.write_text(project_yaml())
-    c = init(str(yaml_path))
-    assert get_config() is c
-    reset()
+    c = Config.init(str(yaml_path))
+    assert Config.get_config() is c
+    Config.reset()
     with pytest.raises(LibraryUsageError):
-        get_config()
+        Config.get_config()
 
 
 @pytest.fixture

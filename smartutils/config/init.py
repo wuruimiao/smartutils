@@ -1,22 +1,24 @@
+from __future__ import annotations
+
 from pathlib import Path
 from typing import Dict, Generic, Optional, TypeVar, Union
 
 from smartutils.config.const import BaseModelT, ConfKey
 from smartutils.config.factory import ConfFactory
 from smartutils.config.schema.project import ProjectConf
-from smartutils.design import singleton
+from smartutils.design import SingletonMeta
 from smartutils.error.sys import ConfigError, LibraryUsageError
 from smartutils.file import load_yaml
 from smartutils.log import logger
 
-__all__ = ["Config", "init", "reset", "get_config"]
+__all__ = ["Config"]
 
 
 PT = TypeVar("PT", bound=ProjectConf)
+_config: Optional[Config] = None
 
 
-@singleton
-class Config(Generic[BaseModelT]):
+class Config(Generic[BaseModelT], metaclass=SingletonMeta):
     def __init__(self, conf_path: str):
         self._instances: Union[
             Dict[str, BaseModelT], Dict[str, Dict[str, BaseModelT]]
@@ -50,22 +52,19 @@ class Config(Generic[BaseModelT]):
             raise LibraryUsageError("project must in config.yaml")
         return conf  # type: ignore
 
+    @classmethod
+    def init(cls, conf_path: str = "config/config.yaml") -> Config:
+        global _config
+        _config = Config(conf_path)
+        return _config
 
-_config: Optional[Config] = None
+    @classmethod
+    def reset(cls):
+        global _config
+        _config = None
 
-
-def init(conf_path: str = "config/config.yaml") -> Config:
-    global _config
-    _config = Config(conf_path)
-    return _config
-
-
-def reset():
-    global _config
-    _config = None
-
-
-def get_config() -> Config:
-    if _config is None:
-        raise LibraryUsageError("Config not initialized")
-    return _config
+    @classmethod
+    def get_config(cls) -> Config:
+        if _config is None:
+            raise LibraryUsageError("Config not initialized")
+        return _config
