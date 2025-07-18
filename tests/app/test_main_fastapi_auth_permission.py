@@ -12,7 +12,7 @@ from smartutils.app.const import HeaderKey
 async def client(tmp_path_factory):
     config_str = """
 middleware:
-  enable:
+  app:
     - log
     - exception
     - header

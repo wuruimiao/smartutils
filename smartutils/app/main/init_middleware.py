@@ -16,7 +16,7 @@ def init_middlewares(app, key: AppKey, reverse: bool = True):
         logger.info("Middleware app init nothing for no conf.")
         return
 
-    enables = middleware_conf.enable
+    enables = middleware_conf.app
     plugins = MiddlewarePluginFactory.all()
     if reverse:
         plugins.reverse()
