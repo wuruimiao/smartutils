@@ -61,7 +61,7 @@ middleware:
     - log
     - exception
     - header
-    - auth
+    - me
 
 alert_feishu:
   enable: true

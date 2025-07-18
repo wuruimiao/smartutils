@@ -16,7 +16,7 @@ middleware:
     - log
     - exception
     - header
-    - auth
+    - me
     - permission
 
 client:
