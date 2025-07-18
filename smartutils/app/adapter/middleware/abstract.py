@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Awaitable, Callable
 
+from smartutils.app.adapter.json_resp.factory import JsonRespFactory
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.req.factory import RequestAdapterFactory
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
@@ -14,6 +15,7 @@ __all__ = ["AbstractMiddlewarePlugin", "AbstractMiddleware"]
 class AbstractMiddlewarePlugin(ABC):
     def __init__(self, app_key: AppKey):
         self.app_key: AppKey = app_key
+        self._resp_fn = JsonRespFactory.get(app_key)
 
     @abstractmethod
     async def dispatch(
