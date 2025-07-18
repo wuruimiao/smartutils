@@ -10,7 +10,7 @@ from smartutils.design import singleton
 from smartutils.error.sys import DatabaseError, LibraryUsageError
 from smartutils.infra.db.sqlalchemy_cli import AsyncDBCli, db_commit, db_rollback, msg
 from smartutils.infra.source_manager.manager import CTXResourceManager
-from smartutils.init.factory import InfraFactory
+from smartutils.init.factory import InitByConfFactory
 
 try:
     from sqlalchemy.ext.asyncio import AsyncSession, AsyncSessionTransaction
@@ -52,6 +52,6 @@ class MySQLManager(CTXResourceManager[AsyncDBCli]):
             yield session
 
 
-@InfraFactory.register(ConfKey.MYSQL)
+@InitByConfFactory.register(ConfKey.MYSQL)
 def _(conf):
     return MySQLManager(conf)

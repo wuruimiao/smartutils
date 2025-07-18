@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Optional, Tuple
 from smartutils.config import ConfKey
 from smartutils.config.schema.token import TokenConf
 from smartutils.design import singleton
-from smartutils.init.factory import InfraFactory
+from smartutils.init.factory import InitByConfFactory
 from smartutils.time import get_stamp_after
 
 try:
@@ -88,6 +88,6 @@ class TokenHelper:
         return access_t, Token(refresh_token, payload["exp"])
 
 
-@InfraFactory.register(ConfKey.TOKEN)
+@InitByConfFactory.register(ConfKey.TOKEN)
 def _(conf):
     return TokenHelper(conf)

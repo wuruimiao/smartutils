@@ -7,6 +7,6 @@ async def ensure_smartutils_init():
 
     await reset_all()
     yield
-    from smartutils.infra.init import release
+    from smartutils.init import release
 
     await release()

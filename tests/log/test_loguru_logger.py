@@ -25,13 +25,9 @@ project:
     with open(config_file, "w") as f:
         f.write(config_str)
 
-    from smartutils.config import init
+    from smartutils.init import init
 
-    init(str(config_file))
-
-    from smartutils.infra import init
-
-    await init()
+    await init(str(config_file))
 
     from smartutils.infra.log.loguru import logger
 
@@ -76,11 +72,9 @@ project:
     with open(config_file, "w") as f:
         f.write(config_str)
 
-    from smartutils.config import init
+    from smartutils.init import init
 
-    init(str(config_file))
-
-    from smartutils.infra import init
+    await init(str(config_file))
 
     await init()
 
@@ -132,13 +126,9 @@ project:
     with open(config_file, "w") as f:
         f.write(config_str)
 
-    from smartutils.config import init
+    from smartutils.init import init
 
-    init(str(config_file))
-
-    from smartutils.infra import init
-
-    await init()
+    await init(str(config_file))
 
     # 打印一条消息
     print("this should NOT be in the log file, only in stdout")
@@ -170,12 +160,7 @@ async def test_loguru_logger_no_config():
     """
     stream: true 时，print 只会输出到控制台，不进日志文件
     """
-
-    from smartutils.config import init
-
-    init()
-
-    from smartutils.infra import init
+    from smartutils.init import init
 
     await init()
 

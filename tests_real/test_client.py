@@ -11,7 +11,7 @@ from smartutils.error.sys import (
 # 确保能找到 hello_pb2, hello_pb2_grpc
 sys.path.insert(0, str(Path(__file__).parent / "grpcbin" / "stub"))
 
-from hello_pb2 import HelloRequest, HelloResponse
+from hello_pb2 import HelloRequest, HelloResponse  # type: ignore
 
 
 @pytest.fixture(scope="function")
