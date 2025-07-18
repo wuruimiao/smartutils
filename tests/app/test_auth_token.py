@@ -1,7 +1,6 @@
 from types import SimpleNamespace
 from unittest.mock import patch
 
-import jwt
 import pytest
 
 import smartutils.app.auth.token as token_mod
