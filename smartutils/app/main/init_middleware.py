@@ -7,7 +7,18 @@ from smartutils.app.plugin.factory import MiddlewarePluginFactory
 from smartutils.config import Config
 from smartutils.config.const import ConfKey
 from smartutils.config.schema.middleware import MiddlewareConf
+from smartutils.init.factory import InitByConfFactory
 from smartutils.log import logger
+
+
+class MiddlewareManager:
+    def __init__(self, conf: MiddlewareConf) -> None:
+        pass
+
+
+@InitByConfFactory.register(ConfKey.MIDDLEWARE)
+def _(conf: MiddlewareConf) -> None:
+    MiddlewareManager(conf)
 
 
 # TODO: 其他框架的中间件执行顺序和添加顺序
@@ -35,3 +46,7 @@ def init_middlewares(app, key: AppKey, reverse: bool = True):
             logger.info(f"Middleware app {plugin_name} inited.")
 
     AddMiddlewareFactory.get(key)(app, app_enable_plugins)
+
+
+def init_route_middleware_manager(key: AppKey):
+    pass

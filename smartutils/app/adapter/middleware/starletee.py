@@ -1,6 +1,7 @@
-from typing import List, Tuple
+from typing import List, Tuple, Type
 
 from fastapi import Request, Response
+from fastapi.routing import APIRoute
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from smartutils.app.adapter.middleware.abstract import (
@@ -9,6 +10,7 @@ from smartutils.app.adapter.middleware.abstract import (
 )
 from smartutils.app.adapter.middleware.factory import (
     AddMiddlewareFactory,
+    RouteMiddlewareFactory,
 )
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
@@ -46,3 +48,33 @@ class StarletteMiddleware(AbstractMiddleware, BaseHTTPMiddleware):
 def _(app, plugins: List[Tuple[str, AbstractMiddlewarePlugin]]):
     for name, plugin in plugins:
         app.add_middleware(StarletteMiddleware, plugin, name)
+
+
+@RouteMiddlewareFactory.register(key)
+def _(plugins: List[Tuple[str, AbstractMiddlewarePlugin]]) -> Type[APIRoute]:
+    class PluginsAPIRoute(APIRoute):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+        def get_route_handler(self):
+            original_route_handler = super().get_route_handler()
+
+            async def make_next_adapter(i, request):
+                if i >= len(plugins):
+                    return await original_route_handler(request)
+                plugin = plugins[i]
+                req_adapter = plugin.req_adapter(request)
+
+                async def next_call():
+                    return await make_next_adapter(i + 1, request)
+
+                resp_adapter = await plugin.dispatch(req_adapter, next_call)
+                return resp_adapter.response
+
+            async def custom_route_handler(request: Request):
+                return await make_next_adapter(0, request)
+
+            return custom_route_handler
+
+    return PluginsAPIRoute
+    # return APIRouter(route_class=ThisRoute)
