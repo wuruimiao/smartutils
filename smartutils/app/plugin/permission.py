@@ -19,11 +19,13 @@ from smartutils.error.sys import (
 from smartutils.infra.client.http import HttpClient
 from smartutils.infra.client.manager import ClientManager
 
+key = MiddlewarePluginKey.PERMISSION
 
-@MiddlewarePluginFactory.register(
-    MiddlewarePluginKey.PERMISSION, order=MiddlewarePluginOrder.PERMISSION
-)
+
+@MiddlewarePluginFactory.register(key, order=MiddlewarePluginOrder.PERMISSION)
 class PermissionPlugin(AbstractMiddlewarePlugin):
+    _key = key
+
     def _init_client(self):
         if hasattr(self, "_client"):
             return

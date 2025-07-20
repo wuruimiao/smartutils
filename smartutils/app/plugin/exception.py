@@ -9,11 +9,13 @@ from smartutils.config.schema.middleware import MiddlewarePluginKey
 
 __all__ = ["ExceptionPlugin"]
 
+key = MiddlewarePluginKey.EXCEPTION
 
-@MiddlewarePluginFactory.register(
-    MiddlewarePluginKey.EXCEPTION, order=MiddlewarePluginOrder.EXCEPTION
-)
+
+@MiddlewarePluginFactory.register(key, order=MiddlewarePluginOrder.EXCEPTION)
 class ExceptionPlugin(AbstractMiddlewarePlugin):
+    _key = key
+
     async def dispatch(
         self,
         req: RequestAdapter,

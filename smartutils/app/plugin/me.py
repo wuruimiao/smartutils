@@ -19,11 +19,13 @@ from smartutils.error.sys import (
 from smartutils.infra.client.http import HttpClient
 from smartutils.infra.client.manager import ClientManager
 
+key = MiddlewarePluginKey.ME
 
-@MiddlewarePluginFactory.register(
-    MiddlewarePluginKey.ME, order=MiddlewarePluginOrder.ME
-)
+
+@MiddlewarePluginFactory.register(key, order=MiddlewarePluginOrder.ME)
 class MePlugin(AbstractMiddlewarePlugin):
+    _key = key
+
     def _init_client(self):
         if hasattr(self, "_client"):
             return
