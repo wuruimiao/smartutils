@@ -57,12 +57,12 @@ redis:
     socket_timeout: 10
 
 middleware:
-  app:
-    - log
-    - exception
-    - header
-    - me
   routes:
+    app:
+      - log
+      - exception
+      - header
+      - me
     me-permission:
       - log
       - exception

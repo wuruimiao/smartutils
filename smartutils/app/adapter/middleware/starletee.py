@@ -1,6 +1,7 @@
-from typing import List, Tuple
+from typing import List, Tuple, Type
 
 from fastapi import Request, Response
+from fastapi.routing import APIRoute
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from smartutils.app.adapter.middleware.abstract import (
@@ -9,6 +10,7 @@ from smartutils.app.adapter.middleware.abstract import (
 )
 from smartutils.app.adapter.middleware.factory import (
     AddMiddlewareFactory,
+    RouteMiddlewareFactory,
 )
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
@@ -23,10 +25,10 @@ key = AppKey.FASTAPI
 class StarletteMiddleware(AbstractMiddleware, BaseHTTPMiddleware):
     _key = key
 
-    def __init__(self, app, plugin: AbstractMiddlewarePlugin, name: str):
+    def __init__(self, app, plugin: AbstractMiddlewarePlugin):
         BaseHTTPMiddleware.__init__(self, app)
         AbstractMiddleware.__init__(self, plugin)
-        self._name = name
+        self._name = plugin.key
 
     async def dispatch(self, request: Request, call_next):
         logger.debug(f"{self._name} middleware dispatching request")
@@ -43,6 +45,37 @@ class StarletteMiddleware(AbstractMiddleware, BaseHTTPMiddleware):
 
 
 @AddMiddlewareFactory.register(key)
-def _(app, plugins: List[Tuple[str, AbstractMiddlewarePlugin]]):
-    for name, plugin in plugins:
-        app.add_middleware(StarletteMiddleware, plugin, name)
+def _(app, plugins: List[AbstractMiddlewarePlugin]):
+    # fastapi调用顺序和add顺序相反
+    for plugin in plugins[::-1]:
+        app.add_middleware(StarletteMiddleware, plugin)
+
+
+@RouteMiddlewareFactory.register(key)
+def _(plugins: List[AbstractMiddlewarePlugin]) -> Type[APIRoute]:
+    class PluginsAPIRoute(APIRoute):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+        def get_route_handler(self):
+            original_route_handler = super().get_route_handler()
+
+            async def make_next_adapter(i, request):
+                if i >= len(plugins):
+                    return await original_route_handler(request)
+                plugin = plugins[i]
+                req_adapter = plugin.req_adapter(request)
+
+                async def next_call():
+                    return await make_next_adapter(i + 1, request)
+
+                resp_adapter = await plugin.dispatch(req_adapter, next_call)
+                return resp_adapter.response
+
+            async def custom_route_handler(request: Request):
+                return await make_next_adapter(0, request)
+
+            return custom_route_handler
+
+    return PluginsAPIRoute
+    # return APIRouter(route_class=ThisRoute)

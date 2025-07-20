@@ -25,13 +25,11 @@ class InitByConfFactory(BaseFactory[ConfKey, Callable[[Any], Any]]):
             conf = config.get(comp_key)
             # if need_conf and not conf:
             if not conf:
-                logger.debug(
-                    "infra init config no {comp_key}, ignore.", comp_key=comp_key
-                )
+                logger.debug("init by conf no {comp_key}, ignore.", comp_key=comp_key)
                 continue
 
-            logger.debug("infra initializing {comp_key} ...", comp_key=comp_key)
+            logger.debug("init by conf initializing {comp_key} ...", comp_key=comp_key)
 
             await call_hook(init_func, conf)
 
-            logger.info("infra {comp_key} inited.", comp_key=comp_key)
+            logger.info("init by conf {comp_key} inited.", comp_key=comp_key)
