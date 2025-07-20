@@ -41,7 +41,7 @@ class MiddlewarePluginSetting(BaseModel):
     permission: PluginPermissionConf = Field(
         default_factory=lambda: PluginPermissionConf(), description="permission插件配置"
     )
-    api_key: PluginApiKeyConf = Field(
+    apikey: PluginApiKeyConf = Field(
         default_factory=lambda: PluginApiKeyConf(), description="api_key插件配置"
     )
 
