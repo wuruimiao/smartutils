@@ -33,13 +33,16 @@ class CTXVarManager(BaseFactory[CTXKey, contextvars.ContextVar]):
             yield
 
     @classmethod
-    def get(cls, key: CTXKey, default: Any = None) -> Any:
+    def get(cls, key: CTXKey, default: Any = None, return_none: bool = False) -> Any:
         try:
             var = super(CTXVarManager, cls).get(key)
             return var.get()
         except (LookupError, LibraryUsageError):
             if default is not None:
                 return default
+
+            if return_none:
+                return None
 
             raise LibraryUsageError(
                 f"Must call CTXVarManager.use({key}) first."

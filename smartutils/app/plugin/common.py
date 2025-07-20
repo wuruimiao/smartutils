@@ -33,7 +33,7 @@ class CustomHeader:
         return base64.b64decode(username).decode("utf-8")
 
     @classmethod
-    def traceid(cls, adapter: RequestAdapter):
+    def traceid(cls, adapter: RequestAdapter) -> str:
         return adapter.get_header(HeaderKey.X_TRACE_ID)
 
     @classmethod
