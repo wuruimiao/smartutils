@@ -5,7 +5,6 @@ import pytest
 from fastapi.testclient import TestClient
 
 from smartutils.app import AppHook
-from smartutils.app.const import HeaderKey
 
 
 @pytest.fixture
@@ -81,7 +80,7 @@ async def fake_me_permission():
     async def fake_request(method, url, *args, **kwargs):
         if url.endswith("/me"):
 
-            class FakeResp:
+            class FakeResp:  # type: ignore
                 status_code = 200
 
                 def json(self):
