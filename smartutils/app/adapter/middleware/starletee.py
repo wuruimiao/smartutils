@@ -1,4 +1,4 @@
-from typing import List, Tuple, Type
+from typing import List, Type
 
 from fastapi import Request, Response
 from fastapi.routing import APIRoute
@@ -13,7 +13,9 @@ from smartutils.app.adapter.middleware.factory import (
     RouteMiddlewareFactory,
 )
 from smartutils.app.adapter.req.abstract import RequestAdapter
+from smartutils.app.adapter.req.factory import RequestAdapterFactory
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
+from smartutils.app.adapter.resp.factory import ResponseAdapterFactory
 from smartutils.app.const import AppKey
 from smartutils.log import logger
 
@@ -53,6 +55,9 @@ def _(app, plugins: List[AbstractMiddlewarePlugin]):
 
 @RouteMiddlewareFactory.register(key)
 def _(plugins: List[AbstractMiddlewarePlugin]) -> Type[APIRoute]:
+    _req_adapter = RequestAdapterFactory.get(key)
+    _res_adapter = ResponseAdapterFactory.get(key)
+
     class PluginsAPIRoute(APIRoute):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
@@ -64,12 +69,15 @@ def _(plugins: List[AbstractMiddlewarePlugin]) -> Type[APIRoute]:
                 if i >= len(plugins):
                     return await original_route_handler(request)
                 plugin = plugins[i]
-                req_adapter = plugin.req_adapter(request)
+                req_adapter: RequestAdapter = _req_adapter(request)
 
                 async def next_call():
-                    return await make_next_adapter(i + 1, request)
+                    response: Response = await make_next_adapter(i + 1, request)
+                    return _res_adapter(response)
 
-                resp_adapter = await plugin.dispatch(req_adapter, next_call)
+                resp_adapter: ResponseAdapter = await plugin.dispatch(
+                    req_adapter, next_call
+                )
                 return resp_adapter.response
 
             async def custom_route_handler(request: Request):

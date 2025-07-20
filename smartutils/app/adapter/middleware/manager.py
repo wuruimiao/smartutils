@@ -23,6 +23,7 @@ class MiddlewareManager(metaclass=SingletonMeta):
         if conf is None:
             raise LibraryUsageError("MiddlewareManager must init by infra.")
 
+        self._app_key: AppKey
         self._conf: MiddlewareConf = conf
         self._enable_plugins: Dict[str, List[Type[AbstractMiddlewarePlugin]]] = (
             defaultdict(list)
@@ -46,16 +47,22 @@ class MiddlewareManager(metaclass=SingletonMeta):
         return plugins
 
     # TODO: 其他框架的中间件执行顺序和添加顺序
-    def init_app_middlewares(self, app, key: AppKey):
+    def init_app_middlewares(self, app, app_key: AppKey):
+        if hasattr(self, "_app_key"):
+            raise LibraryUsageError(
+                "Cannot init middleware for app key {app_key} twice."
+            )
+        self._app_key = app_key
+
         logger.info("Middleware inited in app.")
-        AddMiddlewareFactory.get(key)(
-            app, self._get_route_enable_plugins(_ROUTE_APP_KEY, key)
+        AddMiddlewareFactory.get(app_key)(
+            app, self._get_route_enable_plugins(_ROUTE_APP_KEY, app_key)
         )
 
-    def init_route_middleware(self, route_key, key: AppKey):
+    def init_route_middleware(self, route_key: str):
         logger.info(f"Middleware inited in route {route_key}.")
-        return RouteMiddlewareFactory.get(key)(
-            self._get_route_enable_plugins(route_key, key)
+        return RouteMiddlewareFactory.get(self._app_key)(
+            self._get_route_enable_plugins(route_key, self._app_key)
         )
 
 

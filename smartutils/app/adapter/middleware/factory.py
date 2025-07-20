@@ -1,4 +1,4 @@
-from typing import Any, Callable, List, Tuple
+from typing import Any, Callable, List
 
 from smartutils.app.adapter.middleware.abstract import (
     AbstractMiddlewarePlugin,

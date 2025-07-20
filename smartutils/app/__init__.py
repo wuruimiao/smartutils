@@ -1,5 +1,6 @@
 from smartutils.app import adapter as _adapter
 from smartutils.app import plugin as _plugin
+from smartutils.app.adapter.middleware.manager import MiddlewareManager
 from smartutils.app.auth.otp import OtpHelper
 from smartutils.app.auth.password import PasswordHelper
 from smartutils.app.auth.token import Token, TokenHelper, User
@@ -28,4 +29,5 @@ __all__ = [
     "TokenHelper",
     "User",
     "Token",
+    "MiddlewareManager",
 ]
