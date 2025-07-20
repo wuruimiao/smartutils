@@ -42,6 +42,10 @@ async def reset_all():
 
     reset_all()
 
+    from smartutils.app import AppHook
+
+    AppHook.reset()
+
     # from smartutils.ctx import CTXVarManager
 
     # CTXVarManager.reset()

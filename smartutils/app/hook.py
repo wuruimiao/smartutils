@@ -1,4 +1,4 @@
-from typing import List, Callable, Awaitable
+from typing import Awaitable, Callable, List
 
 __all__ = ["AppHook"]
 
@@ -37,3 +37,8 @@ class AppHook:
     async def call_shutdown(cls, *args, **kwargs):
         for hook in cls._shutdown_hooks:
             await hook(*args, **kwargs)
+
+    @classmethod
+    def reset(cls):
+        cls._startup_hooks = []
+        cls._shutdown_hooks = []
