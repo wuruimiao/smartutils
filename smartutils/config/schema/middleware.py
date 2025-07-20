@@ -13,6 +13,7 @@ class MiddlewarePluginKey(str, Enum):
     EXCEPTION = "exception"
     HEADER = "header"
     LOG = "log"
+    APIKEY = "apikey"
 
 
 class PluginMeConf(BaseModel):
@@ -25,12 +26,23 @@ class PluginPermissionConf(BaseModel):
     client_key: str = "auth"  # 使用配置中client.指向的Client
 
 
+class PluginApiKeyConf(BaseModel):
+    keys: List[str] = []  # 允许访问的key
+    header_key: str = "X-API-Key"  # header获取key
+    secret: str = ""  # 密钥, 不为空则开启签名模式验证
+    header_signature: str = "X-API-Signature"  # header获取签名
+    header_timestamp: str = "X-API-Timestamp"  # header获取时间戳
+
+
 class MiddlewarePluginSetting(BaseModel):
     me: PluginMeConf = Field(
         default_factory=lambda: PluginMeConf(), description="me插件配置"
     )
     permission: PluginPermissionConf = Field(
         default_factory=lambda: PluginPermissionConf(), description="permission插件配置"
+    )
+    api_key: PluginApiKeyConf = Field(
+        default_factory=lambda: PluginApiKeyConf(), description="api_key插件配置"
     )
 
 
