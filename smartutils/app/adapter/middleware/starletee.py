@@ -58,6 +58,7 @@ def _(plugins: List[AbstractMiddlewarePlugin]) -> Type[APIRoute]:
     _req_adapter = RequestAdapterFactory.get(key)
     _res_adapter = ResponseAdapterFactory.get(key)
 
+    # TODO: 优化，这里可以考虑使用一个函数来处理, 和上面的类似，可以考虑使用一个函数来处理
     class PluginsAPIRoute(APIRoute):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
@@ -65,23 +66,22 @@ def _(plugins: List[AbstractMiddlewarePlugin]) -> Type[APIRoute]:
         def get_route_handler(self):
             original_route_handler = super().get_route_handler()
 
-            async def make_next_adapter(i, request):
+            async def next_plugin(i, request):
                 if i >= len(plugins):
                     return await original_route_handler(request)
+
                 plugin = plugins[i]
-                req_adapter: RequestAdapter = _req_adapter(request)
+                req: RequestAdapter = _req_adapter(request)
 
                 async def next_call():
-                    response: Response = await make_next_adapter(i + 1, request)
+                    response: Response = await next_plugin(i + 1, request)
                     return _res_adapter(response)
 
-                resp_adapter: ResponseAdapter = await plugin.dispatch(
-                    req_adapter, next_call
-                )
-                return resp_adapter.response
+                resp: ResponseAdapter = await plugin.dispatch(req, next_call)
+                return resp.response
 
             async def custom_route_handler(request: Request):
-                return await make_next_adapter(0, request)
+                return await next_plugin(0, request)
 
             return custom_route_handler
 
