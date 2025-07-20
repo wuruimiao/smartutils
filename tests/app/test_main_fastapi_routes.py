@@ -1,4 +1,3 @@
-import json
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -6,7 +5,6 @@ from fastapi import APIRouter
 from fastapi.testclient import TestClient
 
 from smartutils.app import AppHook
-from smartutils.app.const import AppKey
 
 
 @pytest.fixture
