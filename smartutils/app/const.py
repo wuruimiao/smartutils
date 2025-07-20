@@ -32,9 +32,10 @@ class AppKey(Enum):
 class MiddlewarePluginOrder(IntEnum):
     # 按值顺序，从小到大，依次处理请求
     ME = -sys.maxsize
-    PERMISSION = -sys.maxsize + 1
-    HEADER = -sys.maxsize + 2
-    LOG = 10
+    APIKEY = -sys.maxsize + 1
+    PERMISSION = -sys.maxsize + 2
+    HEADER = -100
+    LOG = 100
     EXCEPTION = sys.maxsize
 
 
