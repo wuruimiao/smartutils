@@ -12,10 +12,13 @@ from smartutils.ctx import CTXKey, CTXVarManager
 __all__ = ["HeaderPlugin"]
 
 
-@MiddlewarePluginFactory.register(
-    MiddlewarePluginKey.HEADER, order=MiddlewarePluginOrder.HEADER
-)
+key = MiddlewarePluginKey.HEADER
+
+
+@MiddlewarePluginFactory.register(key, order=MiddlewarePluginOrder.HEADER)
 class HeaderPlugin(AbstractMiddlewarePlugin):
+    _key = key
+
     async def dispatch(
         self,
         req: RequestAdapter,
