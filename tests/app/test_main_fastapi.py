@@ -9,10 +9,11 @@ from smartutils.app.const import HeaderKey
 async def client(tmp_path_factory):
     config_str = """
 middleware:
-  app:
-    - log
-    - exception
-    - header
+  routes:
+    app:
+      - log
+      - exception
+      - header
 project:
   name: auth
   id: 0"""
@@ -36,7 +37,7 @@ project:
 
     from smartutils.app.main.fastapi import create_app
 
-    app = create_app(str(config_file))
+    app = await create_app(str(config_file))
 
     from smartutils.app import ReqCTX
     from smartutils.app.main.fastapi import ResponseModel
