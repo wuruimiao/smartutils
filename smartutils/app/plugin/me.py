@@ -12,7 +12,7 @@ from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.auth.token import TokenHelper
 from smartutils.app.const import MiddlewarePluginOrder
-from smartutils.app.plugin.common import CustomHeader, get_auth_cookies
+from smartutils.app.plugin.common import CustomHeader
 from smartutils.app.plugin.factory import MiddlewarePluginFactory
 from smartutils.config.const import ConfKey
 from smartutils.config.schema.middleware import MiddlewarePluginKey
@@ -37,6 +37,9 @@ class MePlugin(AbstractMiddlewarePlugin):
     _key = key
 
     def _init_client(self):
+        assert (
+            Response
+        ), "smartutils.app.plugin.me.MePlugin depend on httpx, install before use"
         if hasattr(self, "_client"):
             return
 
@@ -52,9 +55,6 @@ class MePlugin(AbstractMiddlewarePlugin):
     async def _get_user_by_client(
         self, access_token: str
     ) -> Tuple[Dict, Optional[ResponseAdapter]]:
-        assert (
-            Response
-        ), "smartutils.app.plugin.me.MePlugin depend on httpx, install before use"
         # TODO：支持grpc服务
         self._init_client()
 
