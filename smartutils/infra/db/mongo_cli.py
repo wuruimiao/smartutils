@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, AsyncGenerator, Optional, Tuple
 
 from smartutils.config.schema.mongo import MongoConf
 from smartutils.infra.source_manager.abstract import AbstractResource
+from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
 
 try:
@@ -22,14 +23,14 @@ if TYPE_CHECKING:
         AsyncIOMotorDatabase,
     )
 
-__all__ = ["AsyncMongoCli", "msg"]
-
-msg = "smartutils.infra.db.mongo depend on motor, install before use."
+__all__ = ["AsyncMongoCli"]
 
 
-class AsyncMongoCli(AbstractResource):
+class AsyncMongoCli(LibraryCheckMixin, AbstractResource):
+    required_libs = {"motor": AsyncIOMotorClient}
+
     def __init__(self, conf: MongoConf, name: str):
-        assert AsyncIOMotorClient, msg
+        super().__init__(conf=conf)
         self._name = name
         self.conf = conf
         self._client: AsyncIOMotorClient = AsyncIOMotorClient(conf.url, **conf.kw)

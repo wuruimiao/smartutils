@@ -10,6 +10,7 @@ from smartutils.config.schema.kafka import KafkaConf
 from smartutils.error.factory import ExcDetailFactory
 from smartutils.error.sys import MQError
 from smartutils.infra.source_manager.abstract import AbstractResource
+from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
 
 try:
@@ -22,12 +23,11 @@ if TYPE_CHECKING:
 __all__ = ["AsyncKafkaCli", "KafkaBatchConsumer"]
 
 
-msg = "smartutils.infra.mq.cli depend on aiokafka, install before use"
+class AsyncKafkaCli(LibraryCheckMixin, AbstractResource):
+    required_libs = {"aiokafka": AIOKafkaConsumer}
 
-
-class AsyncKafkaCli(AbstractResource):
     def __init__(self, conf: KafkaConf, name: str):
-        assert AIOKafkaProducer, msg
+        super().__init__(conf=conf)
 
         self._conf = conf
         self._name = name

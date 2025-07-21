@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Optional, Tuple, Union
 from smartutils.config.schema.mysql import MySQLConf
 from smartutils.config.schema.postgresql import PostgreSQLConf
 from smartutils.infra.source_manager.abstract import AbstractResource
+from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
 
 try:
@@ -31,9 +32,8 @@ if TYPE_CHECKING:
     )
     from sqlalchemy.sql import text
 
-__all__ = ["AsyncDBCli", "db_commit", "db_rollback", "msg"]
+__all__ = ["AsyncDBCli", "db_commit", "db_rollback"]
 
-msg = "smartutils.infra.db.mysql/postgresql depend on motor, install before use."
 
 # _FLUSHED = "smartutils_flushed"
 
@@ -45,9 +45,11 @@ msg = "smartutils.infra.db.mysql/postgresql depend on motor, install before use.
 #         return result
 
 
-class AsyncDBCli(AbstractResource):
+class AsyncDBCli(LibraryCheckMixin, AbstractResource):
+    required_libs = {"sqlalchemy": AsyncEngine}
+
     def __init__(self, conf: Union[MySQLConf, PostgreSQLConf], name: str):
-        assert AsyncEngine, msg
+        super().__init__(conf=conf)
         self._name = name
         kw = conf.kw
         kw["pool_reset_on_return"] = "rollback"

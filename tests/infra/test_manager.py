@@ -45,7 +45,7 @@ def dummy_manager():
         "custom_key": DummyResource("custom"),
     }
     # 用一个新的 context key 防止和用户上下文冲突
-    return DummyManager(resources, context_var_name="_test_ctx_")  # type: ignore
+    return DummyManager(resources=resources, context_var_name="_test_ctx_")  # type: ignore
 
 
 def test_registry_register_and_get_all(dummy_manager):

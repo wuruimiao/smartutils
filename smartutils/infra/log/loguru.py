@@ -9,6 +9,7 @@ from smartutils.design import singleton
 from smartutils.infra.source_manager.abstract import AbstractResource
 from smartutils.infra.source_manager.manager import CTXResourceManager
 from smartutils.init.factory import InitByConfFactory
+from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
 
 __all__ = ["LoggerManager"]
@@ -92,10 +93,12 @@ class LoggerCli(AbstractResource):
 
 @singleton
 @CTXVarManager.register(CTXKey.LOGGER_LOGURU)
-class LoggerManager(CTXResourceManager[LoggerCli]):
+class LoggerManager(LibraryCheckMixin, CTXResourceManager[LoggerCli]):
     def __init__(self, conf):
         resources = {ConfKey.GROUP_DEFAULT: LoggerCli(conf, "logger_loguru")}
-        super().__init__(resources, CTXKey.LOGGER_LOGURU)
+        super().__init__(
+            conf=conf, resources=resources, context_var_name=CTXKey.LOGGER_LOGURU
+        )
 
 
 @InitByConfFactory.register(ConfKey.LOGURU)

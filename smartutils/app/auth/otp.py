@@ -2,7 +2,8 @@ import base64
 from io import BytesIO
 from typing import TYPE_CHECKING, Tuple
 
-from smartutils.design import singleton
+from smartutils.design import SingletonMeta
+from smartutils.init.mixin import LibraryCheckMixin
 
 try:
     import pyotp
@@ -16,14 +17,12 @@ if TYPE_CHECKING:
 __all__ = ["OtpHelper"]
 
 
-msg = "smartutils.app.auth.otp.OtpHelper depend on pyotp & qrcode, install before use."
+class OtpHelper(LibraryCheckMixin, metaclass=SingletonMeta):
+    require_conf = False
+    required_libs = {"pyotp": pyotp, "qrcode": qrcode}
 
-
-@singleton
-class OtpHelper:
     @staticmethod
     def generate_qr(username: str) -> Tuple[str, str]:
-        assert pyotp and qrcode, msg
         otp_secret = pyotp.random_base32()
         totp = pyotp.TOTP(otp_secret)
 
@@ -37,6 +36,5 @@ class OtpHelper:
 
     @staticmethod
     def verify_totp(otp_secret: str, user_totp: str) -> bool:
-        assert pyotp and qrcode, msg
         totp = pyotp.TOTP(otp_secret)
         return totp.verify(user_totp)

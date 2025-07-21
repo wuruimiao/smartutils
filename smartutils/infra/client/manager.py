@@ -7,11 +7,12 @@ from smartutils.config.schema.client import ClientConf, ClientType
 from smartutils.ctx.const import CTXKey
 from smartutils.ctx.manager import CTXVarManager
 from smartutils.design import singleton
-from smartutils.error.sys import ClientError, LibraryUsageError
+from smartutils.error.sys import ClientError
 from smartutils.infra.client.grpc import GrpcClient
 from smartutils.infra.client.http import HttpClient
 from smartutils.infra.source_manager.manager import CTXResourceManager
 from smartutils.init.factory import InitByConfFactory
+from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
 
 # TODO: 封装返回数据，外部统一操作
@@ -19,13 +20,12 @@ from smartutils.log import logger
 
 @singleton
 @CTXVarManager.register(CTXKey.CLIENT)
-class ClientManager(CTXResourceManager[Union[HttpClient, GrpcClient]]):
+class ClientManager(
+    LibraryCheckMixin, CTXResourceManager[Union[HttpClient, GrpcClient]]
+):
     def __init__(self, confs: Optional[Dict[ConfKey, ClientConf]] = None):
-        if not confs:
-            raise LibraryUsageError("ClientManager must init by infra.")
-
         resources = {}
-        for k, conf in confs.items():
+        for k, conf in confs.items():  # type: ignore
             if conf.type == ClientType.HTTP:
                 resources[k] = HttpClient(conf, f"client_http_{k}")
             elif conf.type == ClientType.GRPC:
@@ -33,7 +33,12 @@ class ClientManager(CTXResourceManager[Union[HttpClient, GrpcClient]]):
             else:
                 logger.error(f"ClientManager get unexcepted key {k} in config, ignore.")
 
-        super().__init__(resources, CTXKey.CLIENT, error=ClientError)
+        super().__init__(
+            conf=confs,
+            resources=resources,
+            context_var_name=CTXKey.CLIENT,
+            error=ClientError,
+        )
 
     @property
     def curr(self) -> Union[HttpClient, GrpcClient]:

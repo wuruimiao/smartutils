@@ -7,10 +7,11 @@ from smartutils.config.const import ConfKey
 from smartutils.config.schema.mongo import MongoConf
 from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.design import singleton
-from smartutils.error.sys import DatabaseError, LibraryUsageError
-from smartutils.infra.db.mongo_cli import AsyncMongoCli, db_commit, db_rollback, msg
+from smartutils.error.sys import DatabaseError
+from smartutils.infra.db.mongo_cli import AsyncMongoCli, db_commit, db_rollback
 from smartutils.infra.source_manager.manager import CTXResourceManager
 from smartutils.init.factory import InitByConfFactory
+from smartutils.init.mixin import LibraryCheckMixin
 
 try:
     from motor.motor_asyncio import AsyncIOMotorClientSession, AsyncIOMotorDatabase
@@ -25,15 +26,13 @@ __all__ = ["MongoManager"]
 
 @singleton
 @CTXVarManager.register(CTXKey.DB_MONGO)
-class MongoManager(CTXResourceManager[AsyncMongoCli]):
+class MongoManager(LibraryCheckMixin, CTXResourceManager[AsyncMongoCli]):
     def __init__(self, confs: Optional[Dict[ConfKey, MongoConf]] = None):
-        if confs is None:
-            raise LibraryUsageError("MongoManager must init by infra.")
-        assert AsyncIOMotorDatabase, msg
-        resources = {k: AsyncMongoCli(conf, f"mongo_{k}") for k, conf in confs.items()}
+        resources = {k: AsyncMongoCli(conf, f"mongo_{k}") for k, conf in confs.items()}  # type: ignore
         super().__init__(
-            resources,
-            CTXKey.DB_MONGO,
+            conf=confs,
+            resources=resources,
+            context_var_name=CTXKey.DB_MONGO,
             success=db_commit,
             fail=db_rollback,
             error=DatabaseError,

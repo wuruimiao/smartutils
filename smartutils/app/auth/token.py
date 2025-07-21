@@ -3,9 +3,9 @@ from typing import TYPE_CHECKING, Optional, Tuple
 
 from smartutils.config import ConfKey
 from smartutils.config.schema.token import TokenConf
-from smartutils.design import singleton
-from smartutils.error.sys import LibraryUsageError
+from smartutils.design import SingletonMeta
 from smartutils.init.factory import InitByConfFactory
+from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.time import get_stamp_after
 
 try:
@@ -16,8 +16,6 @@ if TYPE_CHECKING:
     import jwt
 
 __all__ = ["User", "Token", "TokenHelper"]
-
-msg = "smartutils.app.auth.token.TokenHelper depend on jwt, install first."
 
 
 @dataclass
@@ -32,12 +30,12 @@ class Token:
     exp: int
 
 
-@singleton
-class TokenHelper:
+class TokenHelper(LibraryCheckMixin, metaclass=SingletonMeta):
+    required_libs = {"jwt": jwt}
+
     def __init__(self, conf: Optional[TokenConf] = None):
-        assert jwt, msg
-        if not conf:
-            raise LibraryUsageError("TokenHelper must init by infra.")
+        super().__init__(conf=conf)
+        assert conf
         self._access_secret: str = conf.access_secret
         self._access_exp_sec: int = conf.access_exp_min * 60
         self._refresh_secret: str = conf.refresh_secret
@@ -46,7 +44,6 @@ class TokenHelper:
         self._username_key = "username"
 
     def _generate_token(self, user: User, secret: str, exp_sec: int) -> Token:
-        assert jwt, msg
         exp_time = int(get_stamp_after(second=exp_sec))
 
         token = jwt.encode(
@@ -58,7 +55,6 @@ class TokenHelper:
 
     @staticmethod
     def verify_token(token: str, secret: str) -> Optional[dict]:
-        assert jwt, msg
         try:
             payload = jwt.decode(token, secret, algorithms=["HS256"])
             return payload

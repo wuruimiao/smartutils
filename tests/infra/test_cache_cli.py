@@ -3,6 +3,7 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 import smartutils.infra.cache.redis as cachemod
+from smartutils.error.sys import LibraryUsageError
 
 
 @pytest.fixture
@@ -192,16 +193,10 @@ async def test_xread_xack(async_cli):
 
 async def test_init_assertion(monkeypatch, redis_conf):
     # 模拟redis未导入场景
-    monkeypatch.setattr(cachemod, "Redis", None)
-    with pytest.raises(AssertionError) as e:
+    monkeypatch.setattr(cachemod.AsyncRedisCli, "required_libs", {"redis": None})
+    with pytest.raises(LibraryUsageError) as e:
         cachemod.AsyncRedisCli(redis_conf, name="failcli")
-    assert "install before use" in str(e.value)
-
-    # 模拟Redis库丢失, 但走不到断言
-    monkeypatch.setattr(cachemod, "Redis", None)
-    monkeypatch.setattr(cachemod, "ConnectionPool", None)
-    with pytest.raises(AssertionError):
-        cachemod.AsyncRedisCli(redis_conf, name="failcli")
+    assert str(e.value) == "AsyncRedisCli depend on redis, install first!"
 
 
 async def test_close_error(async_cli, monkeypatch):

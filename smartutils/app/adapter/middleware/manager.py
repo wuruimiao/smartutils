@@ -14,15 +14,15 @@ from smartutils.config.schema.middleware import MiddlewareConf
 from smartutils.design import SingletonMeta
 from smartutils.error.sys import LibraryUsageError
 from smartutils.init.factory import InitByConfFactory
+from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
 
 _ROUTE_APP_KEY = "app"
 
 
-class MiddlewareManager(metaclass=SingletonMeta):
+class MiddlewareManager(LibraryCheckMixin, metaclass=SingletonMeta):
     def __init__(self, conf: Optional[MiddlewareConf] = None):
-        if conf is None:
-            raise LibraryUsageError("MiddlewareManager must init by infra.")
+        super().__init__(conf=conf)
 
         self._app_key: AppKey
         self._conf: MiddlewareConf = conf

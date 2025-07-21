@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Any, Callable
 
 from smartutils.config.schema.breaker import BreakerConf
 from smartutils.error.sys import BreakerOpenError
+from smartutils.init.mixin import LibraryCheckMixin
 
 try:
     from aiobreaker import CircuitBreaker, CircuitBreakerError
@@ -13,10 +14,14 @@ if TYPE_CHECKING:
     from aiobreaker import CircuitBreaker, CircuitBreakerError
 
 
-class Breaker:
+class Breaker(LibraryCheckMixin):
+    required_libs = {"aiobreaker": CircuitBreaker}
+
     def __init__(
         self, name: str, conf: BreakerConf, exclude_exc: Callable[[Exception], bool]
     ):
+        super().__init__(conf=conf)
+
         self._breaker = None
         self._name = f"client_breaker_{name}"
         if conf.breaker_enabled:

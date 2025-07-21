@@ -7,10 +7,11 @@ from smartutils.config.const import ConfKey
 from smartutils.config.schema.mysql import MySQLConf
 from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.design import singleton
-from smartutils.error.sys import DatabaseError, LibraryUsageError
-from smartutils.infra.db.sqlalchemy_cli import AsyncDBCli, db_commit, db_rollback, msg
+from smartutils.error.sys import DatabaseError
+from smartutils.infra.db.sqlalchemy_cli import AsyncDBCli, db_commit, db_rollback
 from smartutils.infra.source_manager.manager import CTXResourceManager
 from smartutils.init.factory import InitByConfFactory
+from smartutils.init.mixin import LibraryCheckMixin
 
 try:
     from sqlalchemy.ext.asyncio import AsyncSession, AsyncSessionTransaction
@@ -25,16 +26,13 @@ __all__ = ["MySQLManager"]
 
 @singleton
 @CTXVarManager.register(CTXKey.DB_MYSQL)
-class MySQLManager(CTXResourceManager[AsyncDBCli]):
+class MySQLManager(LibraryCheckMixin, CTXResourceManager[AsyncDBCli]):
     def __init__(self, confs: Optional[Dict[ConfKey, MySQLConf]] = None):
-        if confs is None:
-            raise LibraryUsageError("MySQLManager must init by infra.")
-        assert AsyncSession, msg
-
-        resources = {k: AsyncDBCli(conf, f"mysql_{k}") for k, conf in confs.items()}
+        resources = {k: AsyncDBCli(conf, f"mysql_{k}") for k, conf in confs.items()}  # type: ignore
         super().__init__(
-            resources,
-            CTXKey.DB_MYSQL,
+            conf=confs,
+            resources=resources,
+            context_var_name=CTXKey.DB_MYSQL,
             success=db_commit,
             fail=db_rollback,
             error=DatabaseError,

@@ -8,11 +8,11 @@ from smartutils.config.schema.client import ApiConf, ClientConf, ClientType
 from smartutils.ctx.const import CTXKey
 from smartutils.ctx.manager import CTXVarManager
 from smartutils.design import singleton
-from smartutils.error.sys import LibraryUsageError
 from smartutils.infra.client.http import HttpClient
 from smartutils.infra.source_manager.abstract import AbstractResource
 from smartutils.infra.source_manager.manager import CTXResourceManager
 from smartutils.init.factory import InitByConfFactory
+from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
 from smartutils.time import get_now_str
 
@@ -88,12 +88,12 @@ class AlertFeishu(AbstractResource):
 
 @singleton
 @CTXVarManager.register(CTXKey.ALERT_FEISHU)
-class AlertFeishuManager(CTXResourceManager[AlertFeishu]):
+class AlertFeishuManager(LibraryCheckMixin, CTXResourceManager[AlertFeishu]):
     def __init__(self, conf: Optional[AlertFeishuConf] = None):
-        if not conf:
-            raise LibraryUsageError("AlertFeishuManager must init by infra.")
         resources = {ConfKey.GROUP_DEFAULT: AlertFeishu(conf)}
-        super().__init__(resources, CTXKey.ALERT_FEISHU)
+        super().__init__(
+            conf=conf, resources=resources, context_var_name=CTXKey.ALERT_FEISHU
+        )
 
     @property
     def curr(self) -> AlertFeishu:

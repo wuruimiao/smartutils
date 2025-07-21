@@ -4,6 +4,7 @@ from unittest.mock import patch
 import pytest
 
 import smartutils.app.auth.token as token_mod
+from smartutils.error.sys import LibraryUsageError
 
 
 def make_conf():
@@ -20,7 +21,7 @@ def user():
     return token_mod.User(id=123, name="test")
 
 
-def test_generate_and_verify_token_and_refresh_token(user):
+async def test_generate_and_verify_token_and_refresh_token(user):
     conf = make_conf()
     # 使用一个很大的时间戳
     fake_now = 9999999999999999
@@ -84,10 +85,17 @@ def test_generate_and_verify_token_and_refresh_token(user):
         assert decoded_refresh["username"] == user.name
 
 
+def test_tokenhelper_missing_conf():
+    with pytest.raises(LibraryUsageError) as exc:
+        token_mod.TokenHelper(conf=None)
+    assert str(exc.value) == "TokenHelper must init by infra."
+
+
 def test_tokenhelper_missing_jwt(monkeypatch):
-    monkeypatch.setattr(token_mod, "jwt", None)
-    with pytest.raises(AssertionError):
-        token_mod.TokenHelper(conf=None)  # conf内容可以mock，主要测assert分支
+    monkeypatch.setattr(token_mod.TokenHelper, "required_libs", {"jwt": None})
+    with pytest.raises(LibraryUsageError) as exc:
+        token_mod.TokenHelper(conf={"a": 1})
+    assert str(exc.value) == "TokenHelper depend on jwt, install first!"
 
 
 def test_tokenhelper_expired():

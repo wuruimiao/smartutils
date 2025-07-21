@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Awaitable, Callable
 from smartutils.config.schema.client import ApiConf, ClientConf
 from smartutils.infra.client.breaker import Breaker
 from smartutils.infra.source_manager.abstract import AbstractResource
+from smartutils.init.mixin import LibraryCheckMixin
 
 try:
     from httpx import AsyncClient, ConnectError, Response, TimeoutException
@@ -17,19 +18,20 @@ except ImportError:
 if TYPE_CHECKING:
     from httpx import AsyncClient, ConnectError, Response, TimeoutException
 
-msg = "smartutils.infra.client.http depend on httpx, install before use"
-
 
 def only_connection_failures(exc):
     # 仅统计超时和连接故障
     return not isinstance(exc, (TimeoutException, ConnectError))
 
 
-class HttpClient(AbstractResource):
+class HttpClient(LibraryCheckMixin, AbstractResource):
+    required_libs = {"httpx": AsyncClient}
+
     def __init__(self, conf: ClientConf, name: str):
+        super().__init__(conf=conf)
+
         self._conf: ClientConf = conf
         self._name = name
-        assert AsyncClient, msg
         self._client = AsyncClient(
             base_url=conf.endpoint,
             timeout=conf.timeout,

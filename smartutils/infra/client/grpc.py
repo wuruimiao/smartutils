@@ -7,8 +7,9 @@ from functools import partial
 from typing import TYPE_CHECKING, Awaitable, Callable, Optional
 
 from smartutils.config.schema.client import ClientConf
-from smartutils.infra.client.abstract import Client
 from smartutils.infra.client.breaker import Breaker
+from smartutils.infra.source_manager.abstract import AbstractResource
+from smartutils.init.mixin import LibraryCheckMixin
 
 try:
     import grpc
@@ -23,9 +24,6 @@ if TYPE_CHECKING:
     from google.protobuf.message import Message
 
 
-msg = "smartutils.infra.client.grpc depend on grpcio，install before use"
-
-
 def only_grpc_unavailable_or_timeout(exc):
     # 只计入“服务不可用”和“超时”
     if isinstance(exc, grpc.aio.AioRpcError):
@@ -37,11 +35,14 @@ def only_grpc_unavailable_or_timeout(exc):
     return True
 
 
-class GrpcClient(Client):
+class GrpcClient(LibraryCheckMixin, AbstractResource):
+    required_libs = {"grpc": grpc}
+
     def __init__(self, conf: ClientConf, name: str):
+        super().__init__(conf=conf)
+
         self._conf: ClientConf = conf
         self._name = name
-        assert grpc, msg
 
         if conf.tls:
             if not conf.verify_tls:
