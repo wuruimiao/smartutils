@@ -55,6 +55,9 @@ def _(app, plugins: List[AbstractMiddlewarePlugin]):
 
 @RouteMiddlewareFactory.register(key)
 def _(plugins: List[AbstractMiddlewarePlugin]) -> Type[APIRoute]:
+    if not plugins:
+        return APIRoute
+
     _req_adapter = RequestAdapterFactory.get(key)
     _res_adapter = ResponseAdapterFactory.get(key)
 
