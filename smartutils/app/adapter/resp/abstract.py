@@ -1,13 +1,16 @@
 from abc import ABC, abstractmethod
+from typing import Generic, TypeVar
 
 from smartutils.app.const import HeaderKey
 
 __all__ = ["ResponseAdapter"]
 
+T = TypeVar("T")
 
-class ResponseAdapter(ABC):
-    def __init__(self, response):
-        self._response = response
+
+class ResponseAdapter(ABC, Generic[T]):
+    def __init__(self, response: T):
+        self._response: T = response
 
     @abstractmethod
     def set_header(self, key: HeaderKey, value: str):

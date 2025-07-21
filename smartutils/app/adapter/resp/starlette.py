@@ -1,12 +1,25 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.adapter.resp.factory import ResponseAdapterFactory
-from smartutils.app.const import HeaderKey, AppKey
+from smartutils.app.const import AppKey, HeaderKey
+
+try:
+    from fastapi import Response
+except ImportError:
+    pass
+
+if TYPE_CHECKING:
+    from fastapi import Response
+
 
 __all__ = ["StarletteResponseAdapter"]
 
 
 @ResponseAdapterFactory.register(AppKey.FASTAPI)
-class StarletteResponseAdapter(ResponseAdapter):
+class StarletteResponseAdapter(ResponseAdapter[Response]):
     def set_header(self, key: HeaderKey, value: str):
         self._response.headers[key] = value
 
