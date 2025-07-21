@@ -52,7 +52,7 @@ project:
 
     from smartutils.app.main.fastapi import create_app
 
-    app = await create_app(str(config_file))
+    app = create_app(str(config_file))
 
     from smartutils.app.main.fastapi import ResponseModel
 
@@ -108,7 +108,7 @@ project:
 
     from smartutils.app.main.fastapi import create_app
 
-    app = await create_app(str(config_file))
+    app = create_app(str(config_file))
 
     from smartutils.app.main.fastapi import ResponseModel
 

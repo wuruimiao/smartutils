@@ -41,7 +41,7 @@ poetry install
 from smartutils.init import init
 
 # 初始化 smartutils，加载配置
-await init("config/config.yaml")
+await init("config.yaml")
 
 # 使用时间工具
 from smartutils import time

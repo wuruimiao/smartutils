@@ -27,7 +27,7 @@ project:
 
     from smartutils.init import init
 
-    await init(str(config_file))
+    init(str(config_file))
 
     from smartutils.infra.log.loguru import logger
 
@@ -74,9 +74,7 @@ project:
 
     from smartutils.init import init
 
-    await init(str(config_file))
-
-    await init()
+    init(str(config_file))
 
     # PrintToLogger生效，print被记录
     print("this is printed and should be in the log file")
@@ -128,7 +126,7 @@ project:
 
     from smartutils.init import init
 
-    await init(str(config_file))
+    init(str(config_file))
 
     # 打印一条消息
     print("this should NOT be in the log file, only in stdout")
@@ -162,7 +160,7 @@ async def test_loguru_logger_no_config():
     """
     from smartutils.init import init
 
-    await init()
+    init()
 
     from smartutils.log import logger
 

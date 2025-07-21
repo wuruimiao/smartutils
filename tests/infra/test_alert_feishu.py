@@ -26,7 +26,7 @@ project:
         f.write(config_str)
     from smartutils.init import init
 
-    await init(str(config_file))
+    init(str(config_file))
     yield
 
 

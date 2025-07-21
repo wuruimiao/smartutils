@@ -53,7 +53,7 @@ class Config(Generic[BaseModelT], metaclass=SingletonMeta):
         return conf  # type: ignore
 
     @classmethod
-    def init(cls, conf_path: str = "config/config.yaml") -> Config:
+    def init(cls, conf_path: str) -> Config:
         global _config
         _config = Config(conf_path)
         return _config

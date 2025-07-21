@@ -202,7 +202,7 @@ def test_config_no_default(setup_no_conf_default_config: str):
 def test_config_no_config_file(setup_config):
     from smartutils.config import Config
 
-    Config.init()
+    Config.init("no_config")
 
 
 def test_config_no_config(setup_config):

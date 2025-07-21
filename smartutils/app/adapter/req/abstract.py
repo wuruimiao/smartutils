@@ -1,14 +1,17 @@
 from abc import ABC, abstractmethod
+from typing import Generic, Mapping, TypeVar
 
 from smartutils.app.const import HeaderKey
 from smartutils.ID import IDGen
 
 __all__ = ["RequestAdapter"]
 
+T = TypeVar("T")
 
-class RequestAdapter(ABC):
-    def __init__(self, request):
-        self.request = request
+
+class RequestAdapter(ABC, Generic[T]):
+    def __init__(self, request: T):
+        self.request: T = request
 
     @abstractmethod
     def get_header(self, key: HeaderKey) -> str:
@@ -20,7 +23,7 @@ class RequestAdapter(ABC):
 
     @property
     @abstractmethod
-    def headers(self) -> dict:
+    def headers(self) -> Mapping[str, str]:
         pass
 
     @property
