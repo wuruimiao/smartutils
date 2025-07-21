@@ -48,7 +48,7 @@ def test_generate_and_verify_token_and_refresh_token(user):
         assert decoded_refresh["username"] == user.name
         assert decoded_refresh["exp"] == expected_refresh_exp
 
-        decoded_access = token_mod.TokenHelper._verify_token(
+        decoded_access = token_mod.TokenHelper.verify_token(
             access.token, conf.access_secret
         )
         assert decoded_access
@@ -56,7 +56,7 @@ def test_generate_and_verify_token_and_refresh_token(user):
         assert decoded_access["username"] == user.name
         assert decoded_access["exp"] == expected_access_exp
 
-        decoded_refresh = token_mod.TokenHelper._verify_token(
+        decoded_refresh = token_mod.TokenHelper.verify_token(
             refresh.token, conf.refresh_secret
         )
         assert decoded_refresh
@@ -68,7 +68,7 @@ def test_generate_and_verify_token_and_refresh_token(user):
         result = helper.refresh(refresh.token)
         assert result
         access, refresh = result
-        decoded_access = token_mod.TokenHelper._verify_token(
+        decoded_access = token_mod.TokenHelper.verify_token(
             access.token, conf.access_secret
         )
         assert decoded_access
@@ -76,7 +76,7 @@ def test_generate_and_verify_token_and_refresh_token(user):
         assert decoded_access["username"] == user.name
         assert decoded_access["exp"] == expected_access_exp
 
-        decoded_refresh = token_mod.TokenHelper._verify_token(
+        decoded_refresh = token_mod.TokenHelper.verify_token(
             refresh.token, conf.refresh_secret
         )
         assert decoded_refresh
@@ -100,14 +100,14 @@ def test_tokenhelper_expired():
         helper = token_mod.TokenHelper(conf)
         access, _ = helper.token(user)
     # 此时token.exp < 当前now
-    result = token_mod.TokenHelper._verify_token(access.token, conf.access_secret)
+    result = token_mod.TokenHelper.verify_token(access.token, conf.access_secret)
     assert result is None
 
 
 def test_tokenhelper_verify_token_invalid():
     conf = make_conf()
     # 此时token.exp < 当前now
-    result = token_mod.TokenHelper._verify_token("invalid_token", conf.access_secret)
+    result = token_mod.TokenHelper.verify_token("invalid_token", conf.access_secret)
     assert result is None
 
 
