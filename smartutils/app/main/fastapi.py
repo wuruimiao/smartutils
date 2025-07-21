@@ -2,11 +2,12 @@ import os
 from contextlib import asynccontextmanager
 from typing import Generic, Optional, TypeVar
 
-from fastapi import FastAPI, Request
+from fastapi import APIRouter, FastAPI, Request
 from pydantic import BaseModel
 
 from smartutils.app.const import CONF_ENV_NAME
 from smartutils.error.base import BaseData, BaseError
+from smartutils.error.sys import LibraryError
 
 __all__ = ["create_app", "ResponseModel"]
 
@@ -29,7 +30,7 @@ class ResponseModel(BaseModel, BaseData, Generic[T]):
 async def lifespan(app: FastAPI):
     from smartutils.init import init
 
-    await init(app.state.smartutils_conf_path)  # noqa
+    init(app.state.smartutils_conf_path)
 
     from smartutils.config import Config
     from smartutils.error.base import BaseError
@@ -64,7 +65,7 @@ async def lifespan(app: FastAPI):
     logger.info("shutdown all closed")
 
 
-async def create_app(conf_path: str = "config/config.yaml"):
+def create_app():
     from fastapi.exceptions import RequestValidationError
     from starlette.exceptions import HTTPException
 
@@ -77,10 +78,14 @@ async def create_app(conf_path: str = "config/config.yaml"):
     key = AppKey.FASTAPI
 
     app = FastAPI(lifespan=lifespan, default_response_class=STJsonResponse)
-    app.state.smartutils_conf_path = os.getenv(CONF_ENV_NAME, conf_path)
+
+    conf_path = os.getenv(CONF_ENV_NAME, None)
+    if not conf_path:
+        raise LibraryError(f"env {CONF_ENV_NAME} is not set")
+    app.state.smartutils_conf_path = conf_path
 
     # TODO: 初始化一次，这里是为了middleware初始化能读取配置
-    await init(conf_path)
+    init(conf_path)
     MiddlewareManager().init_app_middlewares(app, key)
 
     @app.exception_handler(RequestValidationError)
@@ -91,12 +96,16 @@ async def create_app(conf_path: str = "config/config.yaml"):
     async def _(request: Request, exc: HTTPException):
         return ExcJsonResp(key).handle(exc).response
 
-    @app.get("/")
+    router = APIRouter(route_class=MiddlewareManager().init_default_route_middleware())
+
+    @router.get("/")
     def root() -> ResponseModel:
         return ResponseModel()
 
-    @app.get("/healthy")
+    @router.get("/healthy")
     def healthy() -> ResponseModel:
         return ResponseModel()
+
+    app.include_router(router)
 
     return app

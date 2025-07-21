@@ -1,7 +1,7 @@
 import traceback
 
 
-async def init(conf_path: str = "config/config.yaml"):
+def init(conf_path: str = "config/config.yaml"):
     try:
         from smartutils.config import Config, ConfKey
 
@@ -9,7 +9,7 @@ async def init(conf_path: str = "config/config.yaml"):
 
         from smartutils.init.factory import InitByConfFactory
 
-        await InitByConfFactory.init(Config.get_config())
+        InitByConfFactory.init(Config.get_config())
 
         from smartutils.ID import IDGen
 
