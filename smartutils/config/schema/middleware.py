@@ -18,11 +18,13 @@ class MiddlewarePluginKey(str, Enum):
 
 class PluginMeConf(BaseModel):
     access_name: str = "access_token"  # 访问令牌name
+    access_secret: str = ""  # 访问令牌secret
     client_key: str = "auth"  # 使用配置中client.指向的Client
 
 
 class PluginPermissionConf(BaseModel):
     access_name: str = "access_token"  # 访问令牌name
+    access_secret: str = ""  # 访问令牌secret
     client_key: str = "auth"  # 使用配置中client.指向的Client
 
 

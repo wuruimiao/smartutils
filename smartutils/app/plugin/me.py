@@ -1,10 +1,11 @@
-from typing import Awaitable, Callable, cast
+from typing import Awaitable, Callable, Dict, Optional, Tuple, cast
 
 from httpx import Response
 
 from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
+from smartutils.app.auth.token import TokenHelper
 from smartutils.app.const import MiddlewarePluginOrder
 from smartutils.app.plugin.common import CustomHeader, get_auth_cookies
 from smartutils.app.plugin.factory import MiddlewarePluginFactory
@@ -39,37 +40,56 @@ class MePlugin(AbstractMiddlewarePlugin):
                 "AuthPlugin depend on 'auth' below client in config.yaml."
             )
 
-    async def dispatch(
-        self,
-        req: RequestAdapter,
-        next_adapter: Callable[[], Awaitable[ResponseAdapter]],
-    ) -> ResponseAdapter:
+    async def _get_user_by_client(
+        self, access_token: str
+    ) -> Tuple[Dict, Optional[ResponseAdapter]]:
         # TODO：支持grpc服务
         self._init_client()
 
-        cookies = get_auth_cookies(req, self._conf.me.access_name)
-        if not cookies:
-            return self._resp_fn(
-                UnauthorizedError("AuthPlugin request no cookies").as_dict
-            )
-
-        me_resp: Response = await self._client.me(cookies=cookies)
+        me_resp: Response = await self._client.me(
+            cookies={self._conf.me.access_name: access_token}
+        )
         if me_resp.status_code != 200:
-            return self._resp_fn(
+            return {}, self._resp_fn(
                 SysError(f"AuthPlugin me, return {me_resp.status_code}").as_dict
             )
 
         try:
             data = me_resp.json()
         except ValueError:
-            return self._resp_fn(
+            return {}, self._resp_fn(
                 SysError(f"AuthPlugin me, return data not json. {me_resp.text}").as_dict
             )
 
         if data["code"] != 0:
-            return self._resp_fn(UnauthorizedError(data["msg"]).as_dict)
+            return {}, self._resp_fn(UnauthorizedError(data["msg"]).as_dict)
 
         data = data["data"]
+        return data, None
+
+    async def dispatch(
+        self,
+        req: RequestAdapter,
+        next_adapter: Callable[[], Awaitable[ResponseAdapter]],
+    ) -> ResponseAdapter:
+        access_token = req.get_cookie(self._conf.me.access_name)
+        if not access_token:
+            return self._resp_fn(
+                UnauthorizedError("AuthPlugin request no cookies").as_dict
+            )
+
+        if self._conf.me.access_secret:
+            token_helper = TokenHelper()
+            data = token_helper.verify_token(access_token, self._conf.me.access_secret)
+            if not data:
+                return self._resp_fn(
+                    UnauthorizedError("AuthPlugin request token verify failed").as_dict
+                )
+        else:
+            data, resp_ok = await self._get_user_by_client(access_token)
+            if resp_ok:
+                return resp_ok
+
         CustomHeader.userid(req, data["userid"])
         CustomHeader.username(req, data["username"])
 
