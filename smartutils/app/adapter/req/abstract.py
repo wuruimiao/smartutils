@@ -11,7 +11,11 @@ T = TypeVar("T")
 
 class RequestAdapter(ABC, Generic[T]):
     def __init__(self, request: T):
-        self.request: T = request
+        self._request: T = request
+
+    @property
+    def request(self) -> T:
+        return self._request
 
     @abstractmethod
     def get_header(self, key: HeaderKey) -> str:

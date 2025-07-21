@@ -12,6 +12,10 @@ class ResponseAdapter(ABC, Generic[T]):
     def __init__(self, response: T):
         self._response: T = response
 
+    @property
+    def response(self) -> T:
+        return self._response
+
     @abstractmethod
     def set_header(self, key: HeaderKey, value: str):
         """设置响应header"""
@@ -27,7 +31,3 @@ class ResponseAdapter(ABC, Generic[T]):
     @abstractmethod
     def status_code(self, value: int):
         pass
-
-    @property
-    def response(self):
-        return self._response
