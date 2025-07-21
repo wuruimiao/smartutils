@@ -1,4 +1,4 @@
-from typing import Any, Awaitable, Callable, Coroutine, List, Type
+from typing import Any, Callable, Coroutine, List, Type
 
 from fastapi import Request, Response
 from fastapi.routing import APIRoute
