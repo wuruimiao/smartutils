@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Optional, Tuple
 from smartutils.config import ConfKey
 from smartutils.config.schema.token import TokenConf
 from smartutils.design import singleton
+from smartutils.error.sys import LibraryUsageError
 from smartutils.init.factory import InitByConfFactory
 from smartutils.time import get_stamp_after
 
@@ -33,8 +34,10 @@ class Token:
 
 @singleton
 class TokenHelper:
-    def __init__(self, conf: TokenConf):
+    def __init__(self, conf: Optional[TokenConf] = None):
         assert jwt, msg
+        if not conf:
+            raise LibraryUsageError("TokenHelper must init by infra.")
         self._access_secret: str = conf.access_secret
         self._access_exp_sec: int = conf.access_exp_min * 60
         self._refresh_secret: str = conf.refresh_secret
