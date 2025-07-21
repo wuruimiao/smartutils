@@ -1,3 +1,5 @@
+from fastapi import Request
+
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.req.factory import RequestAdapterFactory
 from smartutils.app.const import AppKey, HeaderKey
@@ -38,6 +40,10 @@ class StarletteRequestAdapter(RequestAdapter):
     @property
     def url(self) -> str:
         return str(self.request.url)
+
+    @property
+    def path(self) -> str:
+        return self.request.url.path
 
     def get_cookie(self, key: str) -> str:
         return self.request.cookies.get(key)

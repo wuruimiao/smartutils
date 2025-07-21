@@ -43,6 +43,11 @@ class RequestAdapter(ABC):
     def url(self) -> str:
         pass
 
+    @property
+    @abstractmethod
+    def path(self) -> str:
+        pass
+
     @abstractmethod
     def get_cookie(self, key: str) -> str:
         pass

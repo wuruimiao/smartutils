@@ -61,7 +61,9 @@ class PermissionPlugin(AbstractMiddlewarePlugin):
                 UnauthorizedError("PermissionPlugin request no cookies").as_dict
             )
 
-        p_resp: Response = await self._client.permission(cookies=cookies)
+        p_resp: Response = await self._client.permission(
+            cookies=cookies, params={"api": req.path}
+        )
         if p_resp.status_code != 200:
             return self._resp_fn(
                 SysError(
