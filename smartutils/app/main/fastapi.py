@@ -7,7 +7,6 @@ from pydantic import BaseModel
 
 from smartutils.app.const import CONF_ENV_NAME
 from smartutils.error.base import BaseData, BaseError
-from smartutils.error.sys import LibraryError
 
 __all__ = ["create_app", "ResponseModel"]
 
