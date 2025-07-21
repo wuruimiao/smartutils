@@ -1,4 +1,4 @@
-from typing import List, Type
+from typing import Any, Awaitable, Callable, Coroutine, List, Type
 
 from fastapi import Request, Response
 from fastapi.routing import APIRoute
@@ -66,10 +66,12 @@ def _(plugins: List[AbstractMiddlewarePlugin]) -> Type[APIRoute]:
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
 
-        def get_route_handler(self):
+        def get_route_handler(
+            self,
+        ) -> Callable[[Request], Coroutine[Any, Any, Response]]:
             original_route_handler = super().get_route_handler()
 
-            async def next_plugin(i, request):
+            async def next_plugin(i, request) -> Response:
                 if i >= len(plugins):
                     return await original_route_handler(request)
 
