@@ -1,6 +1,9 @@
-from typing import Awaitable, Callable, cast
+from typing import TYPE_CHECKING, Awaitable, Callable, cast
 
-from httpx import Response
+try:
+    from httpx import Response
+except ImportError:
+    pass
 
 from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin
 from smartutils.app.adapter.req.abstract import RequestAdapter
@@ -19,6 +22,9 @@ from smartutils.error.sys import (
 from smartutils.infra.client.http import HttpClient
 from smartutils.infra.client.manager import ClientManager
 
+if TYPE_CHECKING:
+    from httpx import Response
+
 key = MiddlewarePluginKey.PERMISSION
 
 
@@ -27,6 +33,9 @@ class PermissionPlugin(AbstractMiddlewarePlugin):
     _key = key
 
     def _init_client(self):
+        assert (
+            Response
+        ), "smartutils.app.plugin.permission.PermissionPlugin depend on httpx, install before use"
         if hasattr(self, "_client"):
             return
         try:
