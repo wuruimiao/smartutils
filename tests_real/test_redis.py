@@ -35,7 +35,7 @@ project:
     await reset_all()
     from smartutils.init import init
 
-    await init(str(config_file))
+    init(str(config_file))
 
     yield
 

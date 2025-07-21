@@ -44,7 +44,7 @@ project:
         assert isinstance(mysql.AsyncDBCli, MagicMock)
         from smartutils.init import init
 
-        await init(str(config_file))
+        init(str(config_file))
         yield {
             "fake_session": fake_session,
             "MockDBCli": MockDBCli,

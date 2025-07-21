@@ -65,7 +65,7 @@ async def lifespan(app: FastAPI):
     logger.info("shutdown all closed")
 
 
-def create_app():
+def create_app(_conf_path="config.yaml"):
     from fastapi.exceptions import RequestValidationError
     from starlette.exceptions import HTTPException
 
@@ -79,9 +79,7 @@ def create_app():
 
     app = FastAPI(lifespan=lifespan, default_response_class=STJsonResponse)
 
-    conf_path = os.getenv(CONF_ENV_NAME, None)
-    if not conf_path:
-        raise LibraryError(f"env {CONF_ENV_NAME} is not set")
+    conf_path = os.getenv(CONF_ENV_NAME, _conf_path)
     app.state.smartutils_conf_path = conf_path
 
     # TODO: 初始化一次，这里是为了middleware初始化能读取配置

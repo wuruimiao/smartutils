@@ -1,7 +1,7 @@
 import traceback
 
 
-def init(conf_path: str = "config/config.yaml"):
+def init(conf_path: str = "config.yaml"):
     try:
         from smartutils.config import Config, ConfKey
 
