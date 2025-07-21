@@ -24,8 +24,11 @@ class ClientManager(
     LibraryCheckMixin, CTXResourceManager[Union[HttpClient, GrpcClient]]
 ):
     def __init__(self, confs: Optional[Dict[ConfKey, ClientConf]] = None):
+        self.check(confs)
+        assert confs
+
         resources = {}
-        for k, conf in confs.items():  # type: ignore
+        for k, conf in confs.items():
             if conf.type == ClientType.HTTP:
                 resources[k] = HttpClient(conf, f"client_http_{k}")
             elif conf.type == ClientType.GRPC:
@@ -33,12 +36,7 @@ class ClientManager(
             else:
                 logger.error(f"ClientManager get unexcepted key {k} in config, ignore.")
 
-        super().__init__(
-            conf=confs,
-            resources=resources,
-            context_var_name=CTXKey.CLIENT,
-            error=ClientError,
-        )
+        super().__init__(resources=resources, ctx_key=CTXKey.CLIENT, error=ClientError)
 
     @property
     def curr(self) -> Union[HttpClient, GrpcClient]:

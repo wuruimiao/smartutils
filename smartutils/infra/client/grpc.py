@@ -39,7 +39,7 @@ class GrpcClient(LibraryCheckMixin, AbstractResource):
     required_libs = {"grpc": grpc}
 
     def __init__(self, conf: ClientConf, name: str):
-        super().__init__(conf=conf)
+        self.check(conf)
 
         self._conf: ClientConf = conf
         self._name = name

@@ -49,21 +49,21 @@ class ResourceManagerRegistry:
 class CTXResourceManager(Generic[T], ABC):
     def __init__(
         self,
-        *args,
+        *,
         resources: Dict[ConfKey, T],
-        context_var_name: CTXKey,
+        ctx_key: CTXKey,
         success: Optional[Callable[..., Any]] = None,
         fail: Optional[Callable[..., Any]] = None,
         error: Optional[Type[SysError]] = None,
         **kwargs,
     ):
-        self._ctx_key: CTXKey = context_var_name
+        self._ctx_key: CTXKey = ctx_key
         self._resources = resources
         self._success = success
         self._fail = fail
         self._error = error if error else SysError
         ResourceManagerRegistry.register(self)
-        super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
 
     def __str__(self) -> str:
         return f"mgr_{self._ctx_key}"

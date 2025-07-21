@@ -90,10 +90,10 @@ class AlertFeishu(AbstractResource):
 @CTXVarManager.register(CTXKey.ALERT_FEISHU)
 class AlertFeishuManager(LibraryCheckMixin, CTXResourceManager[AlertFeishu]):
     def __init__(self, conf: Optional[AlertFeishuConf] = None):
+        self.check(conf)
+
         resources = {ConfKey.GROUP_DEFAULT: AlertFeishu(conf)}
-        super().__init__(
-            conf=conf, resources=resources, context_var_name=CTXKey.ALERT_FEISHU
-        )
+        super().__init__(resources=resources, ctx_key=CTXKey.ALERT_FEISHU)
 
     @property
     def curr(self) -> AlertFeishu:

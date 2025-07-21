@@ -18,6 +18,10 @@ class PasswordHelper(LibraryCheckMixin, metaclass=SingletonMeta):
     require_conf = False
     required_libs = {"bcrypt": bcrypt}
 
+    def __init__(self):
+        self.check()
+        super().__init__()
+
     @staticmethod
     def hash_password(plain_password: str) -> Tuple[str, str]:
         salt = bcrypt.gensalt()

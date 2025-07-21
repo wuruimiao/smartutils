@@ -19,13 +19,11 @@ __all__ = ["KafkaManager"]
 @CTXVarManager.register(CTXKey.MQ_KAFKA)
 class KafkaManager(LibraryCheckMixin, CTXResourceManager[AsyncKafkaCli]):
     def __init__(self, confs: Optional[Dict[ConfKey, KafkaConf]] = None):
-        resources = {k: AsyncKafkaCli(conf, f"kafka_{k}") for k, conf in confs.items()}  # type: ignore
-        super().__init__(
-            conf=confs,
-            resources=resources,
-            context_var_name=CTXKey.MQ_KAFKA,
-            error=MQError,
-        )
+        self.check(confs)
+        assert confs
+
+        resources = {k: AsyncKafkaCli(conf, f"kafka_{k}") for k, conf in confs.items()}
+        super().__init__(resources=resources, ctx_key=CTXKey.MQ_KAFKA, error=MQError)
 
     @property
     def curr(self) -> AsyncKafkaCli:

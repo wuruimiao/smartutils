@@ -20,7 +20,7 @@ class Breaker(LibraryCheckMixin):
     def __init__(
         self, name: str, conf: BreakerConf, exclude_exc: Callable[[Exception], bool]
     ):
-        super().__init__(conf=conf)
+        self.check(conf)
 
         self._breaker = None
         self._name = f"client_breaker_{name}"

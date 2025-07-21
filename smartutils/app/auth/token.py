@@ -34,8 +34,9 @@ class TokenHelper(LibraryCheckMixin, metaclass=SingletonMeta):
     required_libs = {"jwt": jwt}
 
     def __init__(self, conf: Optional[TokenConf] = None):
-        super().__init__(conf=conf)
+        self.check(conf)
         assert conf
+
         self._access_secret: str = conf.access_secret
         self._access_exp_sec: int = conf.access_exp_min * 60
         self._refresh_secret: str = conf.refresh_secret

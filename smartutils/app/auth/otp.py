@@ -21,6 +21,10 @@ class OtpHelper(LibraryCheckMixin, metaclass=SingletonMeta):
     require_conf = False
     required_libs = {"pyotp": pyotp, "qrcode": qrcode}
 
+    def __init__(self):
+        self.check()
+        super().__init__()
+
     @staticmethod
     def generate_qr(username: str) -> Tuple[str, str]:
         otp_secret = pyotp.random_base32()

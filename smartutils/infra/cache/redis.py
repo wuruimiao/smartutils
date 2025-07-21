@@ -9,7 +9,7 @@ from smartutils.config.schema.redis import RedisConf
 from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.design import singleton
 from smartutils.error.factory import ExcDetailFactory
-from smartutils.error.sys import CacheError, LibraryUsageError
+from smartutils.error.sys import CacheError
 from smartutils.infra.source_manager.abstract import AbstractResource
 from smartutils.infra.source_manager.manager import CTXResourceManager
 from smartutils.init.factory import InitByConfFactory
@@ -26,14 +26,17 @@ if TYPE_CHECKING:
 
 __all__ = ["AsyncRedisCli", "RedisManager"]
 
+required_libs = {"redis": Redis}
+
 
 class AsyncRedisCli(LibraryCheckMixin, AbstractResource):
     """异步 Redis 客户端封装，线程安全、协程安全。"""
 
-    required_libs = {"redis": Redis}
+    required_libs = required_libs
 
     def __init__(self, conf: RedisConf, name: str):
-        super().__init__(conf=conf)
+        self.check(conf)
+
         self._name = name
 
         kw = conf.kw
@@ -330,14 +333,16 @@ class RedisManager(LibraryCheckMixin, CTXResourceManager[AsyncRedisCli]):
     如需新的命令类型、内容总结，请查阅redis文档或相关测试用例。
     """
 
-    required_libs = {"Redis": Redis}
+    required_libs = required_libs
 
     def __init__(self, confs: Optional[Dict[ConfKey, RedisConf]] = None):
-        resources = {k: AsyncRedisCli(conf, f"redis_{k}") for k, conf in confs.items()}  # type: ignore
+        self.check(confs)
+        assert confs
+
+        resources = {k: AsyncRedisCli(conf, f"redis_{k}") for k, conf in confs.items()}
         super().__init__(
-            conf=confs,
             resources=resources,
-            context_var_name=CTXKey.CACHE_REDIS,
+            ctx_key=CTXKey.CACHE_REDIS,
             error=CacheError,
         )
 

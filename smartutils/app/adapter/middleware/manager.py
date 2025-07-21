@@ -22,7 +22,7 @@ _ROUTE_APP_KEY = "app"
 
 class MiddlewareManager(LibraryCheckMixin, metaclass=SingletonMeta):
     def __init__(self, conf: Optional[MiddlewareConf] = None):
-        super().__init__(conf=conf)
+        self.check(conf)
 
         self._app_key: AppKey
         self._conf: MiddlewareConf = conf

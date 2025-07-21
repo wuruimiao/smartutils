@@ -28,7 +28,7 @@ class HttpClient(LibraryCheckMixin, AbstractResource):
     required_libs = {"httpx": AsyncClient}
 
     def __init__(self, conf: ClientConf, name: str):
-        super().__init__(conf=conf)
+        self.check(conf)
 
         self._conf: ClientConf = conf
         self._name = name

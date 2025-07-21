@@ -26,13 +26,15 @@ __all__ = ["PostgresqlManager"]
 @CTXVarManager.register(CTXKey.DB_POSTGRESQL)
 class PostgresqlManager(LibraryCheckMixin, CTXResourceManager[AsyncDBCli]):
     def __init__(self, confs: Optional[Dict[ConfKey, PostgreSQLConf]] = None):
+        self.check(confs)
+        assert confs
+
         resources = {
-            k: AsyncDBCli(conf, f"postgresql_{k}") for k, conf in confs.items()  # type: ignore
+            k: AsyncDBCli(conf, f"postgresql_{k}") for k, conf in confs.items()
         }
         super().__init__(
-            conf=confs,
             resources=resources,
-            context_var_name=CTXKey.DB_POSTGRESQL,
+            ctx_key=CTXKey.DB_POSTGRESQL,
             success=db_commit,
             fail=db_rollback,
             error=DatabaseError,

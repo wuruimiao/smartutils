@@ -49,7 +49,8 @@ class AsyncDBCli(LibraryCheckMixin, AbstractResource):
     required_libs = {"sqlalchemy": AsyncEngine}
 
     def __init__(self, conf: Union[MySQLConf, PostgreSQLConf], name: str):
-        super().__init__(conf=conf)
+        self.check(conf)
+
         self._name = name
         kw = conf.kw
         kw["pool_reset_on_return"] = "rollback"

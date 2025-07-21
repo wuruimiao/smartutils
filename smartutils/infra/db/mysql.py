@@ -28,11 +28,13 @@ __all__ = ["MySQLManager"]
 @CTXVarManager.register(CTXKey.DB_MYSQL)
 class MySQLManager(LibraryCheckMixin, CTXResourceManager[AsyncDBCli]):
     def __init__(self, confs: Optional[Dict[ConfKey, MySQLConf]] = None):
-        resources = {k: AsyncDBCli(conf, f"mysql_{k}") for k, conf in confs.items()}  # type: ignore
+        self.check(confs)
+        assert confs
+
+        resources = {k: AsyncDBCli(conf, f"mysql_{k}") for k, conf in confs.items()}
         super().__init__(
-            conf=confs,
             resources=resources,
-            context_var_name=CTXKey.DB_MYSQL,
+            ctx_key=CTXKey.DB_MYSQL,
             success=db_commit,
             fail=db_rollback,
             error=DatabaseError,
