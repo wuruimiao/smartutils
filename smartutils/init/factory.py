@@ -18,7 +18,7 @@ class InitByConfFactory(BaseFactory[ConfKey, Callable[[Any], Any]]):
     #     return decorator
 
     @classmethod
-    async def init(cls, config: Config):
+    def init(cls, config: Config):
         # for comp_key, info in cls.all():
         #     init_func, need_conf = info
         for comp_key, init_func in cls.all():
@@ -30,6 +30,6 @@ class InitByConfFactory(BaseFactory[ConfKey, Callable[[Any], Any]]):
 
             logger.debug("init by conf initializing {comp_key} ...", comp_key=comp_key)
 
-            await call_hook(init_func, conf)
+            init_func(conf)
 
             logger.info("init by conf {comp_key} inited.", comp_key=comp_key)

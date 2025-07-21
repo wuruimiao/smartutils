@@ -8,6 +8,7 @@ from smartutils.app.adapter.middleware.factory import (
 )
 from smartutils.app.const import AppKey
 from smartutils.app.plugin.factory import MiddlewarePluginFactory
+from smartutils.app.plugin.log import LogPlugin
 from smartutils.config.const import ConfKey
 from smartutils.config.schema.middleware import MiddlewareConf
 from smartutils.design import SingletonMeta
@@ -63,6 +64,12 @@ class MiddlewareManager(metaclass=SingletonMeta):
         logger.info(f"Middleware inited in route {route_key}.")
         return RouteMiddlewareFactory.get(self._app_key)(
             self._get_route_enable_plugins(route_key, self._app_key)
+        )
+
+    def init_default_route_middleware(self):
+        logger.info("Middleware init default route.")
+        return RouteMiddlewareFactory.get(self._app_key)(
+            [LogPlugin(self._app_key, self._conf.safe_setting)]
         )
 
 

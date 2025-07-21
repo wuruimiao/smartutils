@@ -1,10 +1,9 @@
+import asyncio
 import importlib
 import inspect
 import os
 import pkgutil
 import types
-
-from smartutils.log import logger
 
 __all__ = ["call_hook", "register_package", "exit_on_fail"]
 
@@ -16,6 +15,11 @@ async def call_hook(hook, *args, **kwargs):
     result = hook(*args, **kwargs)
     if inspect.isawaitable(result):
         await result
+
+
+def call_async(func):
+    loop = asyncio.get_event_loop()
+    return loop.run_until_complete(func)
 
 
 def register_package(package: types.ModuleType):
