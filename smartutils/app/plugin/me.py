@@ -1,6 +1,11 @@
-from typing import Awaitable, Callable, Dict, Optional, Tuple, cast
+from __future__ import annotations
 
-from httpx import Response
+from typing import TYPE_CHECKING, Awaitable, Callable, Dict, Optional, Tuple, cast
+
+try:
+    from httpx import Response
+except ImportError:
+    pass
 
 from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin
 from smartutils.app.adapter.req.abstract import RequestAdapter
@@ -19,6 +24,10 @@ from smartutils.error.sys import (
 )
 from smartutils.infra.client.http import HttpClient
 from smartutils.infra.client.manager import ClientManager
+
+if TYPE_CHECKING:
+    from httpx import Response
+
 
 key = MiddlewarePluginKey.ME
 
@@ -43,6 +52,9 @@ class MePlugin(AbstractMiddlewarePlugin):
     async def _get_user_by_client(
         self, access_token: str
     ) -> Tuple[Dict, Optional[ResponseAdapter]]:
+        assert (
+            Response
+        ), "smartutils.app.plugin.me.MePlugin depend on httpx, install before use"
         # TODO：支持grpc服务
         self._init_client()
 
