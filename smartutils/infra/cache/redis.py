@@ -329,7 +329,7 @@ class RedisManager(LibraryCheckMixin, CTXResourceManager[AsyncRedisCli]):
     如需新的命令类型、内容总结，请查阅redis文档或相关测试用例。
     """
 
-    def __init__(self, confs: Optional[Dict[ConfKey, RedisConf]] = None):
+    def __init__(self, confs: Optional[Dict[str, RedisConf]] = None):
         self.check(conf=confs)
         assert confs
 

@@ -50,7 +50,7 @@ class CTXResourceManager(Generic[T], ABC):
     def __init__(
         self,
         *,
-        resources: Dict[ConfKey, T],
+        resources: Dict[str, T],
         ctx_key: CTXKey,
         success: Optional[Callable[..., Any]] = None,
         fail: Optional[Callable[..., Any]] = None,
@@ -136,7 +136,7 @@ class CTXResourceManager(Generic[T], ABC):
         except LibraryUsageError:
             raise LibraryUsageError("Must call xxxManager.use(...) first.") from None
 
-    def client(self, key: ConfKey = ConfKey.GROUP_DEFAULT) -> T:
+    def client(self, key: str = ConfKey.GROUP_DEFAULT) -> T:
         if key not in self._resources:
             raise LibraryError(f"No resource found for key: {key}")
         return self._resources[key]

@@ -22,8 +22,6 @@ class ConfKey(str, Enum):
 
     INSTANCE = "instance"
 
-    OTP = "otp"
-    PASSWORD = "password"
     TOKEN = "token"
 
     OPEN_TELEMETRY = "open_telemetry"
@@ -31,8 +29,6 @@ class ConfKey(str, Enum):
     GROUP_DEFAULT = "default"
 
     CLIENT = "client"
-
-    AUTH = "auth"
 
     ALERT_FEISHU = "alert_feishu"
 

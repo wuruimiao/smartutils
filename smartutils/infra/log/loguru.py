@@ -97,7 +97,7 @@ class LoggerManager(LibraryCheckMixin, CTXResourceManager[LoggerCli]):
     def __init__(self, conf):
         self.check(conf=conf)
 
-        resources = {ConfKey.GROUP_DEFAULT: LoggerCli(conf, "logger_loguru")}
+        resources = {ConfKey.GROUP_DEFAULT.value: LoggerCli(conf, "logger_loguru")}
         super().__init__(resources=resources, ctx_key=CTXKey.LOGGER_LOGURU)
 
 

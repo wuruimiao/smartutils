@@ -39,7 +39,7 @@ class PermissionPlugin(AbstractMiddlewarePlugin):
         try:
             self._client = cast(
                 HttpClient,
-                ClientManager().client(ConfKey(self._conf.permission.client_key)),
+                ClientManager().client(self._conf.permission.client_key),
             )
         except LibraryError:
             raise LibraryUsageError(

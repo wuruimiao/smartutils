@@ -1,14 +1,6 @@
-from unittest.mock import MagicMock
-
-import pytest
-
 import smartutils.app.auth.otp as otpmodule
 
 
-@pytest.mark.skipif(
-    otpmodule.pyotp is None or otpmodule.qrcode is None,
-    reason="pyotp or qrcode not installed",
-)
 def test_generate_qr_and_verify_totp():
     helper = otpmodule.OtpHelper()
     username = "userA"
@@ -22,21 +14,21 @@ def test_generate_qr_and_verify_totp():
     assert helper.verify_totp(secret, "000000") is False
 
 
-def test_qr_b64_pic(monkeypatch):
-    # 强控二维码生成内容，更易断言
-    monkeypatch.setattr(otpmodule, "pyotp", MagicMock())
-    monkeypatch.setattr(otpmodule, "qrcode", MagicMock())
+def test_qr_b64_pic(mocker):
+    # mock pyotp 和 qrcode
+    mocker.patch.object(otpmodule, "pyotp")
+    mocker.patch.object(otpmodule, "qrcode")
     fake_img_bytes = b"testimgdata"
 
     class DummyImg:
         def save(self, buf, format=None):
             buf.write(fake_img_bytes)
 
-    otpmodule.pyotp.random_base32 = MagicMock(return_value="SECRET12")
-    totp = MagicMock()
+    otpmodule.pyotp.random_base32 = mocker.Mock(return_value="SECRET12")
+    totp = mocker.Mock()
     totp.provisioning_uri.return_value = "otpauth://auth"
-    otpmodule.pyotp.TOTP = MagicMock(return_value=totp)
-    otpmodule.qrcode.make = MagicMock(return_value=DummyImg())
+    otpmodule.pyotp.TOTP = mocker.Mock(return_value=totp)
+    otpmodule.qrcode.make = mocker.Mock(return_value=DummyImg())
     # 断言base64流程
     secret, img_b64 = otpmodule.OtpHelper.generate_qr("userB")
     assert secret == "SECRET12"
@@ -45,12 +37,11 @@ def test_qr_b64_pic(monkeypatch):
     assert img_b64 == base64.b64encode(fake_img_bytes).decode("utf-8")
 
 
-def test_verify_totp_mock(monkeypatch):
-    # TOTP返回True/False流程
-    monkeypatch.setattr(otpmodule, "pyotp", MagicMock())
-    totp = MagicMock()
+def test_verify_totp_mock(mocker):
+    mocker.patch.object(otpmodule, "pyotp")
+    totp = mocker.Mock()
     totp.verify.return_value = True
-    otpmodule.pyotp.TOTP = MagicMock(return_value=totp)
+    otpmodule.pyotp.TOTP = mocker.Mock(return_value=totp)
     assert otpmodule.OtpHelper.verify_totp("sec", "111222") is True
     totp.verify.return_value = False
     assert otpmodule.OtpHelper.verify_totp("sec", "333333") is False

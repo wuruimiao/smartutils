@@ -42,7 +42,7 @@ class MePlugin(AbstractMiddlewarePlugin):
 
         try:
             self._client = cast(
-                HttpClient, ClientManager().client(ConfKey(self._conf.me.client_key))
+                HttpClient, ClientManager().client(self._conf.me.client_key)
             )
         except LibraryError:
             raise LibraryUsageError(

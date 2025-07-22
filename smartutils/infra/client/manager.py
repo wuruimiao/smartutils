@@ -23,7 +23,7 @@ from smartutils.log import logger
 class ClientManager(
     LibraryCheckMixin, CTXResourceManager[Union[HttpClient, GrpcClient]]
 ):
-    def __init__(self, confs: Optional[Dict[ConfKey, ClientConf]] = None):
+    def __init__(self, confs: Optional[Dict[str, ClientConf]] = None):
         self.check(conf=confs)
         assert confs
 

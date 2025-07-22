@@ -18,7 +18,7 @@ __all__ = ["KafkaManager"]
 @singleton
 @CTXVarManager.register(CTXKey.MQ_KAFKA)
 class KafkaManager(LibraryCheckMixin, CTXResourceManager[AsyncKafkaCli]):
-    def __init__(self, confs: Optional[Dict[ConfKey, KafkaConf]] = None):
+    def __init__(self, confs: Optional[Dict[str, KafkaConf]] = None):
         self.check(conf=confs)
         assert confs
 
