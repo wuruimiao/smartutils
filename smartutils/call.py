@@ -4,6 +4,7 @@ import importlib.util
 import inspect
 import os
 import pkgutil
+import sys
 import types
 
 __all__ = [
@@ -11,6 +12,7 @@ __all__ = [
     "register_package",
     "exit_on_fail",
     "installed",
+    "mock_module_absent",
 ]
 
 
@@ -43,6 +45,11 @@ def register_package(package: types.ModuleType):
 
 def installed(module_name: str) -> bool:
     return importlib.util.find_spec(module_name) is not None
+
+
+def mock_module_absent(monkeypatch, module_name: str):
+    """临时移除sys.modules中的某个模块（模拟未安装场景）"""
+    monkeypatch.setitem(sys.modules, module_name, None)
 
 
 def exit_on_fail():
