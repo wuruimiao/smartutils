@@ -33,14 +33,11 @@ class AbstractMiddlewarePlugin(ABC):
 
 
 class AbstractMiddleware(ABC):
-
-    def __init__(self, plugin: AbstractMiddlewarePlugin):
+    def __init__(self, *, plugin: AbstractMiddlewarePlugin, key: AppKey, **kwargs):
         self._plugin = plugin
-        key = getattr(self.__class__, "_key", None)
-        if not key:
-            raise LibraryError(f"{self.__class__.__name__} need _key attr")
         self._req_adapter = RequestAdapterFactory.get(key)
         self._resp_adapter = ResponseAdapterFactory.get(key)
+        super().__init__(**kwargs)
 
     def req_adapter(self, request):
         return self._req_adapter(request)

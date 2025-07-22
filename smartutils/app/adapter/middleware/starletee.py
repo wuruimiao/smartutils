@@ -25,15 +25,12 @@ key = AppKey.FASTAPI
 
 
 class StarletteMiddleware(AbstractMiddleware, BaseHTTPMiddleware):
-    _key = key
-
     def __init__(self, app, plugin: AbstractMiddlewarePlugin):
-        BaseHTTPMiddleware.__init__(self, app)
-        AbstractMiddleware.__init__(self, plugin)
-        self._name = plugin.key
+        super().__init__(app=app, plugin=plugin, key=AppKey.FASTAPI)
+        self.name = plugin.key
 
     async def dispatch(self, request: Request, call_next):
-        logger.debug(f"{self._name} middleware dispatching request")
+        logger.debug(f"{self.name} middleware dispatching request")
 
         # 这里拿到的，必然是Request，如果不是，框架会自动封装成Request
         req: RequestAdapter = self.req_adapter(request)
