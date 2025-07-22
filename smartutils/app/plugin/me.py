@@ -29,13 +29,10 @@ if TYPE_CHECKING:
     from httpx import Response
 
 
-key = MiddlewarePluginKey.ME
-
-
-@MiddlewarePluginFactory.register(key, order=MiddlewarePluginOrder.ME)
+@MiddlewarePluginFactory.register(
+    MiddlewarePluginKey.ME, order=MiddlewarePluginOrder.ME
+)
 class MePlugin(AbstractMiddlewarePlugin):
-    _key = key
-
     def _init_client(self):
         assert (
             Response

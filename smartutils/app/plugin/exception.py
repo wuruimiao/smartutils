@@ -9,13 +9,11 @@ from smartutils.config.schema.middleware import MiddlewarePluginKey
 
 __all__ = ["ExceptionPlugin"]
 
-key = MiddlewarePluginKey.EXCEPTION
 
-
-@MiddlewarePluginFactory.register(key, order=MiddlewarePluginOrder.EXCEPTION)
+@MiddlewarePluginFactory.register(
+    MiddlewarePluginKey.EXCEPTION, order=MiddlewarePluginOrder.EXCEPTION
+)
 class ExceptionPlugin(AbstractMiddlewarePlugin):
-    _key = key
-
     async def dispatch(
         self,
         req: RequestAdapter,
@@ -27,4 +25,4 @@ class ExceptionPlugin(AbstractMiddlewarePlugin):
         except Exception as exc:
             from smartutils.app.factory import ExcJsonResp
 
-            return ExcJsonResp(self.app_key).handle(exc)
+            return ExcJsonResp(self._app_key).handle(exc)

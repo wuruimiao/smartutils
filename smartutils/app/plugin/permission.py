@@ -25,13 +25,11 @@ from smartutils.infra.client.manager import ClientManager
 if TYPE_CHECKING:
     from httpx import Response
 
-key = MiddlewarePluginKey.PERMISSION
 
-
-@MiddlewarePluginFactory.register(key, order=MiddlewarePluginOrder.PERMISSION)
+@MiddlewarePluginFactory.register(
+    MiddlewarePluginKey.PERMISSION, order=MiddlewarePluginOrder.PERMISSION
+)
 class PermissionPlugin(AbstractMiddlewarePlugin):
-    _key = key
-
     def _init_client(self):
         assert (
             Response

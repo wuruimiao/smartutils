@@ -11,12 +11,11 @@ from smartutils.log import logger
 
 __all__ = ["LogPlugin"]
 
-key = MiddlewarePluginKey.LOG
 
-
-@MiddlewarePluginFactory.register(key, order=MiddlewarePluginOrder.LOG)
+@MiddlewarePluginFactory.register(
+    MiddlewarePluginKey.LOG, order=MiddlewarePluginOrder.LOG
+)
 class LogPlugin(AbstractMiddlewarePlugin):
-    _key = key
 
     async def dispatch(
         self,

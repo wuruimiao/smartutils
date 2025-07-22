@@ -11,18 +11,16 @@ from smartutils.error.sys import UnauthorizedError
 
 __all__ = ["ApiKeyPlugin"]
 
-key = MiddlewarePluginKey.APIKEY
-
 
 def calc_signature(key: str, timestamp: str, secret: str):
     plain = f"key={key}&timestamp={timestamp}&secret={secret}"
     return hashlib.sha256(plain.encode()).hexdigest()
 
 
-@MiddlewarePluginFactory.register(key, order=MiddlewarePluginOrder.APIKEY)
+@MiddlewarePluginFactory.register(
+    MiddlewarePluginKey.APIKEY, order=MiddlewarePluginOrder.APIKEY
+)
 class ApiKeyPlugin(AbstractMiddlewarePlugin):
-    _key = key
-
     async def dispatch(
         self,
         req: RequestAdapter,
