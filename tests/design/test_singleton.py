@@ -1,5 +1,4 @@
 import threading
-from unittest.mock import patch
 
 from smartutils.design import SingletonBase, SingletonMeta, singleton
 

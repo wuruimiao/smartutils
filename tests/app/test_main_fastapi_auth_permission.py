@@ -1,5 +1,4 @@
 import json
-from unittest.mock import AsyncMock, patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -75,7 +74,7 @@ project:
 
 
 @pytest.fixture
-async def fake_me_permission():
+async def fake_me_permission(mocker):
     # patch HttpClient._client.request
     async def fake_request(method, url, *args, **kwargs):
         if url.endswith("/me"):
@@ -124,8 +123,8 @@ async def fake_me_permission():
 
     from smartutils.infra.client.http import AsyncClient
 
-    with patch.object(AsyncClient, "request", new=AsyncMock(side_effect=fake_request)):
-        yield
+    mocker.patch.object(AsyncClient, "request", side_effect=fake_request)
+    yield
 
 
 async def test_auth_middleware_success(client, fake_me_permission):
@@ -171,7 +170,7 @@ class FakeAsyncResponse:
 
 
 @pytest.fixture
-def patch_async_client(monkeypatch):
+def patch_async_client(mocker):
     from smartutils.infra.client.http import AsyncClient
 
     sends = {}
@@ -189,7 +188,7 @@ def patch_async_client(monkeypatch):
             return sends["permission"]
         raise RuntimeError("not expect: " + url)
 
-    monkeypatch.setattr(AsyncClient, "request", AsyncMock(side_effect=fake_request))
+    mocker.patch.object(AsyncClient, "request", side_effect=fake_request)
     return set_me, set_permission
 
 

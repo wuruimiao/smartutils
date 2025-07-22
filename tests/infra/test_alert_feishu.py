@@ -1,5 +1,3 @@
-from unittest.mock import AsyncMock
-
 import pytest
 
 from smartutils.config.schema.alert_feishu import AlertFeishuConf
@@ -30,12 +28,12 @@ project:
     yield
 
 
-async def test_alert_feishu_manager(setup_config):
+async def test_alert_feishu_manager(setup_config, mocker):
     from smartutils.infra.alert.feishu import AlertFeishuManager
 
     mgr = AlertFeishuManager()
     for client in mgr.client()._clients:
-        client.send_alert = AsyncMock(
+        client.send_alert = mocker.AsyncMock(
             return_value=type("Resp", (), {"status_code": 200})()
         )
 
@@ -43,13 +41,13 @@ async def test_alert_feishu_manager(setup_config):
     assert results == [True]
 
 
-async def test_alert_feishu_alert_success():
+async def test_alert_feishu_alert_success(mocker):
     conf = AlertFeishuConf(enable=True, webhooks=["https://foo.com/abc123"])
     alert = AlertFeishu(conf)
 
     # mock所有client
     for client in alert._clients:
-        client.send_alert = AsyncMock(
+        client.send_alert = mocker.AsyncMock(
             return_value=type("Resp", (), {"status_code": 200})()
         )
 
@@ -57,13 +55,13 @@ async def test_alert_feishu_alert_success():
     assert results == [True]
 
 
-async def test_alert_feishu_alert_failure():
+async def test_alert_feishu_alert_failure(mocker):
     conf = AlertFeishuConf(enable=True, webhooks=["https://foo.com/abc123"])
     alert = AlertFeishu(conf)
 
     # mock失败
     for client in alert._clients:
-        client.send_alert = AsyncMock(
+        client.send_alert = mocker.AsyncMock(
             return_value=type("Resp", (), {"status_code": 400})()
         )
 
@@ -71,11 +69,11 @@ async def test_alert_feishu_alert_failure():
     assert results == [False]
 
 
-async def test_alert_feishu_close_calls_clients():
+async def test_alert_feishu_close_calls_clients(mocker):
     conf = AlertFeishuConf(enable=True, webhooks=["https://foo.com/abc123"])
     alert = AlertFeishu(conf)
     for client in alert._clients:
-        client.close = AsyncMock()
+        client.close = mocker.AsyncMock()
 
     await alert.close()
     for client in alert._clients:

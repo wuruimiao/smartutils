@@ -1,5 +1,4 @@
 from datetime import datetime
-from unittest.mock import patch
 
 import pytest
 from ulid import ULID as LibULID
@@ -40,14 +39,14 @@ def test_ulid_invalid_type():
         ULID(123)
 
 
-def test_ulid_generator_next_and_repr():
-    with patch("smartutils.ID.gens.ulid.ulid.new") as mock_new:
-        mock_ulid = make_ulid(777, 999)
-        mock_new.return_value = mock_ulid
-        gen = ULIDGenerator()
-        next_ulid = next(gen)
-        # 26字符
-        assert isinstance(next_ulid, str) and len(next_ulid) == 26
-        v2 = gen.next_ulid()  # type: ignore
-        assert isinstance(v2, LibULID)
-        assert gen.__repr__() == "<ULIDGenerator()>"
+def test_ulid_generator_next_and_repr(mocker):
+    mock_ulid = make_ulid(777, 999)
+    mock_new = mocker.patch("smartutils.ID.gens.ulid.ulid.new", return_value=mock_ulid)
+    mock_new.return_value = mock_ulid
+    gen = ULIDGenerator()
+    next_ulid = next(gen)
+    # 26字符
+    assert isinstance(next_ulid, str) and len(next_ulid) == 26
+    v2 = gen.next_ulid()  # type: ignore
+    assert isinstance(v2, LibULID)
+    assert gen.__repr__() == "<ULIDGenerator()>"

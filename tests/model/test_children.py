@@ -1,7 +1,3 @@
-import asyncio
-from unittest.mock import AsyncMock, MagicMock
-
-import pytest
 from sqlalchemy import Column, Integer
 from sqlalchemy.orm import declarative_base
 
@@ -16,7 +12,7 @@ class DummyModel(Base):
     parent_id = Column(Integer)
 
 
-async def test_children_ids_basic():
+async def test_children_ids_basic(mocker):
     # 构造模拟数据: id, parent_id
     data = [
         {"id": 1, "parent_id": None},
@@ -29,11 +25,11 @@ async def test_children_ids_basic():
     # 查找1的全部子（不含1），应为[2,3,4,5]（无序，但递归全查找）
 
     # mock session.execute 的返回
-    scalars_mock = MagicMock()
+    scalars_mock = mocker.MagicMock()
     scalars_mock.all.return_value = [2, 3, 4, 5]
-    result_mock = MagicMock()
+    result_mock = mocker.MagicMock()
     result_mock.scalars.return_value = scalars_mock
-    session_mock = AsyncMock()
+    session_mock = mocker.AsyncMock()
     session_mock.execute.return_value = result_mock
 
     ids = await children_mod.children_ids(
@@ -42,13 +38,13 @@ async def test_children_ids_basic():
     assert set(ids) == {2, 3, 4, 5}
 
 
-async def test_children_ids_leaf():
+async def test_children_ids_leaf(mocker):
     # 根节点无子
-    scalars_mock = MagicMock()
+    scalars_mock = mocker.MagicMock()
     scalars_mock.all.return_value = []
-    result_mock = MagicMock()
+    result_mock = mocker.MagicMock()
     result_mock.scalars.return_value = scalars_mock
-    session_mock = AsyncMock()
+    session_mock = mocker.AsyncMock()
     session_mock.execute.return_value = result_mock
 
     ids = await children_mod.children_ids(
@@ -57,13 +53,13 @@ async def test_children_ids_leaf():
     assert ids == []
 
 
-async def test_children_ids_invalid():
+async def test_children_ids_invalid(mocker):
     # root_id 不存在
-    scalars_mock = MagicMock()
+    scalars_mock = mocker.MagicMock()
     scalars_mock.all.return_value = []
-    result_mock = MagicMock()
+    result_mock = mocker.MagicMock()
     result_mock.scalars.return_value = scalars_mock
-    session_mock = AsyncMock()
+    session_mock = mocker.AsyncMock()
     session_mock.execute.return_value = result_mock
 
     ids = await children_mod.children_ids(

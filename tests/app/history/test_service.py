@@ -1,10 +1,10 @@
-from unittest.mock import AsyncMock, MagicMock, patch
-
 import pytest
+
+from smartutils.call import mock_dbcli
 
 
 @pytest.fixture(scope="function", autouse=True)
-async def setup_config(tmp_path_factory):
+async def setup_config(tmp_path_factory, mocker):
     config_str = """
 mysql:
   default:
@@ -32,16 +32,14 @@ project:
     with open(config_file, "w") as f:
         f.write(config_str)
 
-    from smartutils.patch import patched_manager_with_mocked_dbcli
-
-    with patched_manager_with_mocked_dbcli("smartutils.infra.db.mysql.AsyncDBCli") as (
+    with mock_dbcli(mocker, "smartutils.infra.db.mysql.AsyncDBCli") as (
         MockDBCli,
         fake_session,
         instance,
     ):
         from smartutils.infra.db import mysql
 
-        assert isinstance(mysql.AsyncDBCli, MagicMock)
+        assert isinstance(mysql.AsyncDBCli, mocker.MagicMock)
         from smartutils.init import init
 
         init(str(config_file))
@@ -53,92 +51,97 @@ project:
 
 
 @pytest.fixture(autouse=True)
-def patch_db(monkeypatch):
+def patch_db(mocker):
     import smartutils.app.history.service as mod
 
-    fake_db = MagicMock()
-    fake_db.curr = MagicMock()
-    monkeypatch.setattr(mod, "db", fake_db)
+    fake_db = mocker.MagicMock()
+    fake_db.curr = mocker.MagicMock()
+    mocker.patch.object(mod, "db", fake_db)
 
 
-class _OpType:
-    ADD = MagicMock(value=1)
-    UPDATE = MagicMock(value=3)
+# class mod.OpType:
+#     ADD = object()
+#     UPDATE = object()
 
 
 @pytest.fixture
-def fake_OpType(monkeypatch):
+def fake_OpType(mocker):
+    pass
+    # import smartutils.app.history.service as mod
+
+    # mocker.patch.object(mod, "OpType", mod.OpType)
+
+
+@pytest.mark.asyncio
+async def test_record_history(fake_OpType, mocker):
     import smartutils.app.history.service as mod
 
-    monkeypatch.setattr(mod, "OpType", _OpType)
-
-
-async def test_record_history(fake_OpType):
-    import smartutils.app.history.service as mod
-
-    mod.db.curr.add = MagicMock()
+    mod.db.curr.add = mocker.MagicMock()
     await mod.op_history_controller.record_history(
-        "A", 1, _OpType.ADD, 99, {"a": 1}, {"b": 2}
+        "A", 1, mod.OpType.ADD, 99, {"a": 1}, {"b": 2}
     )
     mod.db.curr.add.assert_called()
 
 
-async def test_get_op_id_by_order_basic(monkeypatch, fake_OpType):
+@pytest.mark.asyncio
+async def test_get_op_id_by_order_basic(mocker, fake_OpType):
     import smartutils.app.history.service as mod
 
-    mod.db.curr.execute = AsyncMock()
-    fake_row = MagicMock()
+    mod.db.curr.execute = mocker.AsyncMock()
+    fake_row = mocker.MagicMock()
     fake_row.fetchall.return_value = [(2, 10), (3, 20)]
     mod.db.curr.execute.return_value = fake_row
     ids = await mod.op_history_controller.get_op_id_by_order(
-        "A", [2, 3], "asc", _OpType.ADD
+        "A", [2, 3], "asc", mod.OpType.ADD
     )
     assert ids == {2: 10, 3: 20}
     ids = await mod.op_history_controller.get_op_id_by_order("A", [], "asc")
     assert ids == {}
 
 
-async def test_get_op_id_by_order_desc(monkeypatch, fake_OpType):
+@pytest.mark.asyncio
+async def test_get_op_id_by_order_desc(mocker, fake_OpType):
     import smartutils.app.history.service as mod
 
-    mod.db.curr.execute = AsyncMock()
-    fake_row = MagicMock()
+    mod.db.curr.execute = mocker.AsyncMock()
+    fake_row = mocker.MagicMock()
     fake_row.fetchall.return_value = [(4, 30)]
     mod.db.curr.execute.return_value = fake_row
     ids = await mod.op_history_controller.get_op_id_by_order(
-        "A", [4], "desc", _OpType.UPDATE
+        "A", [4], "desc", mod.OpType.UPDATE
     )
     assert ids == {4: 30}
 
 
-async def test_get_creator_id_and_last_updator_id(fake_OpType, monkeypatch):
+@pytest.mark.asyncio
+async def test_get_creator_id_and_last_updator_id(fake_OpType, mocker):
     import smartutils.app.history.service as mod
 
-    # MagicMock而不是AsyncMock
-    fake_row = MagicMock()
-    fake_row.fetchall = MagicMock(return_value=[(8, 33)])
-    mod.db.curr.execute = AsyncMock(return_value=fake_row)
+    fake_row = mocker.MagicMock()
+    fake_row.fetchall = mocker.MagicMock(return_value=[(8, 33)])
+    mod.db.curr.execute = mocker.AsyncMock(return_value=fake_row)
     called = {}
 
     async def fake_op_order(*a, **kw):
         called["order"] = (a, kw)
         return {8: 33}
 
-    monkeypatch.setattr(mod.op_history_controller, "get_op_id_by_order", fake_op_order)
+    mocker.patch.object(mod.op_history_controller, "get_op_id_by_order", fake_op_order)
     ret1 = await mod.op_history_controller.get_creator_id("T", [8])
     assert ret1 == {8: 33}
     ret2 = await mod.op_history_controller.get_last_updator_id("T", [8])
     assert ret2 == {8: 33}
 
 
-async def test_get_creator_and_last_updator_id_normal(monkeypatch, fake_OpType):
+@pytest.mark.asyncio
+async def test_get_creator_and_last_updator_id_normal(mocker, fake_OpType):
     import smartutils.app.history.service as mod
 
-    mod.db.curr.execute = AsyncMock()
-    fake_row = MagicMock()
+    mod.db.curr.execute = mocker.AsyncMock()
+    fake_row = mocker.MagicMock()
     fake_row.fetchall.return_value = [
-        (101, 1001, 1, 1, None),  # creator
-        (101, 2002, 3, None, 1),  # updator
+        (101, 1001, 1, 1, None),
+        (101, 2002, 3, None, 1),
     ]
     mod.db.curr.execute.return_value = fake_row
     res = await mod.op_history_controller.get_creator_and_last_updator_id("TT", [101])
@@ -147,11 +150,12 @@ async def test_get_creator_and_last_updator_id_normal(monkeypatch, fake_OpType):
     assert emp == {}
 
 
-async def test_get_op_ids(monkeypatch):
+@pytest.mark.asyncio
+async def test_get_op_ids(mocker):
     import smartutils.app.history.service as mod
 
-    mod.db.curr.execute = AsyncMock()
-    fake_row = MagicMock()
+    mod.db.curr.execute = mocker.AsyncMock()
+    fake_row = mocker.MagicMock()
     fake_row.fetchall.return_value = [(9, 111), (9, 112), (10, 120)]
     mod.db.curr.execute.return_value = fake_row
     ret = await mod.op_history_controller.get_op_ids("BT", [9, 10])
@@ -160,12 +164,13 @@ async def test_get_op_ids(monkeypatch):
     assert dict(emp) == {}
 
 
-async def test_BizOpInfo_all(monkeypatch, fake_OpType):
+@pytest.mark.asyncio
+async def test_BizOpInfo_all(mocker, fake_OpType):
     import smartutils.app.history.service as mod
 
-    handler = AsyncMock()
+    handler = mocker.AsyncMock()
 
-    class User:
+    class User:  # noqa
         def __init__(self, name):
             self.real_name = name
 
@@ -175,17 +180,15 @@ async def test_BizOpInfo_all(monkeypatch, fake_OpType):
     async def fake_creator_last(*a, **kw):
         return {99: mod.OpUser(creator_id=1, updator_id=2)}
 
-    monkeypatch.setattr(
+    mocker.patch.object(
         mod.op_history_controller, "get_creator_and_last_updator_id", fake_creator_last
     )
     boi = mod.BizOpInfo("B", [99], handler)
     await boi.init()
     s = str(boi)
-    # 仅断言结构存在
     assert "biz=B" in s and "ops={99: OpUser(creator_id=1, updator_id=2)}" in s
     assert boi.biz_creator_attr(99) == "zh"
     assert boi.biz_updator_attr(99) == "xi"
-    # biz_id/用户缺失分支
     assert boi.biz_creator_attr(88) == ""
     boi._user_infos.pop(1)
     assert boi.biz_creator_attr(99) == ""

@@ -1,12 +1,10 @@
-from unittest.mock import MagicMock
-
 import pytest
 
 from smartutils.error.sys import DatabaseError, LibraryUsageError
 
 
 @pytest.fixture(scope="function")
-async def setup_config(tmp_path_factory):
+async def setup_config(tmp_path_factory, mocker):
     config_str = """
 postgresql:
   default:
@@ -34,18 +32,16 @@ project:
     with open(config_file, "w") as f:
         f.write(config_str)
 
-    from smartutils.patch import patched_manager_with_mocked_dbcli
+    from smartutils.call import mock_dbcli
 
-    with patched_manager_with_mocked_dbcli(
-        "smartutils.infra.db.postgresql.AsyncDBCli"
-    ) as (
+    with mock_dbcli(mocker, "smartutils.infra.db.postgresql.AsyncDBCli") as (
         MockDBCli,
         fake_session,
         instance,
     ):
         from smartutils.infra.db import postgresql
 
-        assert isinstance(postgresql.AsyncDBCli, MagicMock)
+        assert isinstance(postgresql.AsyncDBCli, mocker.MagicMock)
 
         from smartutils.init import init
 

@@ -1,8 +1,7 @@
-import sys
-
 import pytest
 
 import smartutils.infra.db.mongo_cli as mongomod
+from smartutils.call import mock_module_absent
 from smartutils.error.sys import LibraryUsageError
 
 
@@ -106,13 +105,13 @@ async def test_db_context_use_transaction(monkeypatch):
 
 
 async def test_assert_motor_not_installed(monkeypatch):
-    monkeypatch.setitem(sys.modules, "motor", None)
+    mock_module_absent(monkeypatch, "motor")
     with pytest.raises(LibraryUsageError) as e:
         mongomod.AsyncMongoCli(DummyConf(), "abc")
     assert "depend on motor" in str(e.value)
 
 
-async def test_db_commit_and_rollback(monkeypatch):
+async def test_mongo_db_commit_and_rollback():
     class DummySess:
         def __init__(self):
             self.committed = False

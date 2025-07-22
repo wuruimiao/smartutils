@@ -1,5 +1,3 @@
-from unittest.mock import AsyncMock, MagicMock, patch
-
 import pytest
 
 from smartutils.config.const import ConfKey
@@ -44,12 +42,10 @@ def dummy_manager():
         ConfKey.GROUP_DEFAULT: DummyResource("default"),
         "custom_key": DummyResource("custom"),
     }
-    # 用一个新的 context key 防止和用户上下文冲突
     return DummyManager(resources=resources, ctx_key="_test_ctx_")  # type: ignore
 
 
 def test_registry_register_and_get_all(dummy_manager):
-    # Manager 实例应已被注册
     assert dummy_manager in ResourceManagerRegistry.get_all()
 
 
@@ -94,39 +90,32 @@ async def test_use_decorator_function(dummy_manager):
 
 
 def test_curr_should_raise_without_use(dummy_manager):
-    # 直接访问 curr 应抛出 LibraryUsageError
     with pytest.raises(LibraryUsageError):
         _ = dummy_manager.curr
 
 
 def test_client_ok_and_no_resource(dummy_manager):
-    # 能正常拿到默认 client
     cli = dummy_manager.client()
     assert cli.name == "default"
-
-    # 不存在的 key 应抛出 LibraryError
     with pytest.raises(LibraryError):
         dummy_manager.client("no-such-key")
 
 
 async def test_close_should_set_closed(dummy_manager):
-    # close 后所有资源应被标记 closed
     await dummy_manager.close()
     for r in dummy_manager._resources.values():
         assert r.closed
 
 
-async def test_close_should_handle_exception(dummy_manager):
-    # 模拟 close 抛异常，不影响流程
-    dummy_manager._resources["err"] = MagicMock(
-        close=AsyncMock(side_effect=RuntimeError("fail"))
+async def test_close_should_handle_exception(mocker, dummy_manager):
+    dummy_manager._resources["err"] = mocker.MagicMock(
+        close=mocker.AsyncMock(side_effect=RuntimeError("fail"))
     )
-    # logger.exception 应被调用
-    with patch(
+    logger_exc = mocker.patch(
         "smartutils.infra.source_manager.manager.logger.exception"
-    ) as logger_exc:
-        await dummy_manager.close()
-        assert logger_exc.call_count >= 1
+    )
+    await dummy_manager.close()
+    assert logger_exc.call_count >= 1
 
 
 async def test_health_check_all_ok(dummy_manager):

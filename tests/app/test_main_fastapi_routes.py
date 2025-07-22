@@ -1,5 +1,3 @@
-from unittest.mock import AsyncMock, patch
-
 import pytest
 from fastapi import APIRouter
 from fastapi.testclient import TestClient
@@ -115,7 +113,7 @@ project:
 
 
 @pytest.fixture
-async def fake_me_permission():
+async def fake_me_permission(mocker):
     # patch HttpClient._client.request
     async def fake_request(method, url, *args, **kwargs):
         if url.endswith("/me"):
@@ -164,8 +162,8 @@ async def fake_me_permission():
 
     from smartutils.infra.client.http import AsyncClient
 
-    with patch.object(AsyncClient, "request", new=AsyncMock(side_effect=fake_request)):
-        yield
+    mocker.patch.object(AsyncClient, "request", side_effect=fake_request)
+    yield
 
 
 async def test_routes_no_plugin_success(client):

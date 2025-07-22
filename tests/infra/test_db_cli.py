@@ -1,5 +1,3 @@
-from unittest.mock import AsyncMock, MagicMock
-
 import pytest
 
 import smartutils.infra.db.sqlalchemy_cli as dbmod
@@ -15,32 +13,32 @@ def dummy_conf():
 
 
 @pytest.fixture
-def dbcli(dummy_conf):
+def dbcli(dummy_conf, mocker):
     # 避免实际构造engine，直接new并mock必要属性
     cli = dbmod.AsyncDBCli.__new__(dbmod.AsyncDBCli)
     cli._name = "test"
-    cli._engine = AsyncMock()
-    cli._session = MagicMock()
+    cli._engine = mocker.AsyncMock()
+    cli._session = mocker.MagicMock()
     return cli
 
 
-async def test_ping_ok(dbcli):
-    conn = AsyncMock()
-    conn.execute = AsyncMock(return_value=True)
-    mgr = MagicMock()
-    mgr.__aenter__ = AsyncMock(return_value=conn)
-    mgr.__aexit__ = AsyncMock(return_value=None)
-    dbcli._engine.connect = MagicMock(return_value=mgr)
+async def test_ping_ok(dbcli, mocker):
+    conn = mocker.AsyncMock()
+    conn.execute = mocker.AsyncMock(return_value=True)
+    mgr = mocker.MagicMock()
+    mgr.__aenter__ = mocker.AsyncMock(return_value=conn)
+    mgr.__aexit__ = mocker.AsyncMock(return_value=None)
+    dbcli._engine.connect = mocker.MagicMock(return_value=mgr)
     assert await dbcli.ping() is True
 
 
-async def test_ping_fail(dbcli, monkeypatch):
-    conn = AsyncMock()
-    conn.execute = AsyncMock(return_value=True)
-    mgr = MagicMock()
+async def test_ping_fail(dbcli, mocker):
+    conn = mocker.AsyncMock()
+    conn.execute = mocker.AsyncMock(return_value=True)
+    mgr = mocker.MagicMock()
     mgr.__aenter__.side_effect = Exception("fail")
-    mgr.__aexit__ = AsyncMock(return_value=None)
-    dbcli._engine.connect = MagicMock(return_value=mgr)
+    mgr.__aexit__ = mocker.AsyncMock(return_value=None)
+    dbcli._engine.connect = mocker.MagicMock(return_value=mgr)
     assert await dbcli.ping() is False
 
 
@@ -49,9 +47,9 @@ async def test_close(dbcli):
     dbcli._engine.dispose.assert_awaited()
 
 
-async def test_session_ctx(dbcli):
-    sess = AsyncMock()
-    mgr = AsyncMock()
+async def test_session_ctx(dbcli, mocker):
+    sess = mocker.AsyncMock()
+    mgr = mocker.AsyncMock()
     mgr.__aenter__.return_value = sess
     mgr.__aexit__.return_value = None
     dbcli._session.return_value = mgr
@@ -63,8 +61,8 @@ def test_engine_property(dbcli):
     assert dbcli.engine == dbcli._engine
 
 
-# async def test_write_in_session(monkeypatch):
-#     sess = MagicMock()
+# async def test_write_in_session(mocker):
+#     sess = mocker.MagicMock()
 #     sess.new = {1}
 #     sess.dirty = set()
 #     sess.deleted = set()
@@ -72,18 +70,18 @@ def test_engine_property(dbcli):
 
 #     # in_transaction 为 False
 #     sess.in_transaction = lambda: False
-#     monkeypatch.setattr(dbmod, "logger", MagicMock())
+#     monkeypatch.setattr(dbmod, "logger", mocker.MagicMock())
 #     assert dbmod._write_in_session(sess) is True
 
 
-async def test_db_commit_and_rollback(monkeypatch):
-    sess = AsyncMock()
-    transaction = MagicMock()
-    transaction.commit = AsyncMock()
-    transaction.rollback = AsyncMock()
+async def test_sqlalchemy_db_commit_and_rollback(mocker):
+    sess = mocker.AsyncMock()
+    transaction = mocker.MagicMock()
+    transaction.commit = mocker.AsyncMock()
+    transaction.rollback = mocker.AsyncMock()
 
     session_tuple = (sess, transaction)
-    monkeypatch.setattr(dbmod, "logger", MagicMock())
+    mocker.patch.object(dbmod, "logger", mocker.MagicMock())
 
     await dbmod.db_commit(session_tuple)
     transaction.commit.assert_awaited_once()

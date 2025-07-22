@@ -1,5 +1,3 @@
-from unittest.mock import MagicMock
-
 import pytest
 
 from smartutils.error.sys import DatabaseError, LibraryUsageError
@@ -9,7 +7,7 @@ from smartutils.error.sys import DatabaseError, LibraryUsageError
 
 
 @pytest.fixture(scope="function")
-async def setup_config(tmp_path_factory):
+async def setup_config(tmp_path_factory, mocker):
     config_str = """
 mysql:
   default:
@@ -37,16 +35,16 @@ project:
     with open(config_file, "w") as f:
         f.write(config_str)
 
-    from smartutils.patch import patched_manager_with_mocked_dbcli
+    from smartutils.call import mock_dbcli
 
-    with patched_manager_with_mocked_dbcli("smartutils.infra.db.mysql.AsyncDBCli") as (
+    with mock_dbcli(mocker, "smartutils.infra.db.mysql.AsyncDBCli") as (
         MockDBCli,
         fake_session,
         instance,
     ):
         from smartutils.infra.db import mysql
 
-        assert isinstance(mysql.AsyncDBCli, MagicMock)
+        assert isinstance(mysql.AsyncDBCli, mocker.MagicMock)
         from smartutils.init import init
 
         init(str(config_file))

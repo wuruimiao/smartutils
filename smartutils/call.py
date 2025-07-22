@@ -6,6 +6,7 @@ import os
 import pkgutil
 import sys
 import types
+from contextlib import contextmanager
 
 __all__ = [
     "call_hook",
@@ -55,3 +56,28 @@ def mock_module_absent(monkeypatch, module_name: str):
 def exit_on_fail():
     # 非0，k8s判定启动失败；应用在 lifespan 阶段（即启动/关闭事件）报错，uvicorn 退出码是 3
     os._exit(1)  # noqa
+
+
+@contextmanager
+def mock_dbcli(mocker, patch_target):
+    """
+    通用patch Manager依赖db client的上下文管理器。
+    用法：
+        with mock_dbcli(mocker, ...) as (MockDBCli, fake_session, instance):
+            # ...测试体...
+    """
+    MockDBCli = mocker.patch(patch_target)
+    fake_session = mocker.AsyncMock()
+    fake_session.commit = mocker.AsyncMock()
+    fake_session.rollback = mocker.AsyncMock()
+    fake_session.in_transaction = mocker.MagicMock(return_value=True)
+
+    async_context_mgr = mocker.AsyncMock()
+    async_context_mgr.__aenter__.return_value = (fake_session, None)
+    async_context_mgr.__aexit__.return_value = None
+
+    instance = MockDBCli.return_value
+    instance.db.return_value = async_context_mgr
+    instance.close = mocker.AsyncMock()
+
+    yield MockDBCli, fake_session, instance
