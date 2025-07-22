@@ -12,7 +12,10 @@ if TYPE_CHECKING:
     import flask
 
 
-from smartutils.app.adapter.middleware.abstract import AbstractMiddleware
+from smartutils.app.adapter.middleware.abstract import (
+    AbstractMiddleware,
+    AbstractMiddlewarePlugin,
+)
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.const import AppKey
@@ -20,11 +23,10 @@ from smartutils.error.sys import LibraryError
 
 __all__ = []
 
-key = AppKey.FLASK
-
 
 class FlaskMiddleware(AbstractMiddleware):
-    _key = key
+    def __init__(self, plugin: AbstractMiddlewarePlugin):
+        super().__init__(plugin=plugin, app_key=AppKey.FLASK)
 
     def __call__(self, app):
         # 装饰 Flask 应用，注册 before_request 和 after_request 钩子

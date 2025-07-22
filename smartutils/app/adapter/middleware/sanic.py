@@ -1,4 +1,7 @@
-from smartutils.app.adapter.middleware.abstract import AbstractMiddleware
+from smartutils.app.adapter.middleware.abstract import (
+    AbstractMiddleware,
+    AbstractMiddlewarePlugin,
+)
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.const import AppKey
@@ -8,7 +11,8 @@ __all__ = []
 
 
 class SanicMiddleware(AbstractMiddleware):
-    _key = AppKey.SANIC
+    def __init__(self, plugin: AbstractMiddlewarePlugin):
+        super().__init__(plugin=plugin, app_key=AppKey.SANIC)
 
     def __call__(self, app):
         # Sanic 的中间件是 async def(request) or async def(request, response)
