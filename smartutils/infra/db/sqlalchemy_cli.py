@@ -46,10 +46,8 @@ __all__ = ["AsyncDBCli", "db_commit", "db_rollback"]
 
 
 class AsyncDBCli(LibraryCheckMixin, AbstractResource):
-    required_libs = {"sqlalchemy": AsyncEngine}
-
     def __init__(self, conf: Union[MySQLConf, PostgreSQLConf], name: str):
-        self.check(conf)
+        self.check(conf=conf, libs=["sqlalchemy"])
 
         self._name = name
         kw = conf.kw

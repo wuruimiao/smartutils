@@ -27,10 +27,8 @@ __all__ = ["AsyncMongoCli"]
 
 
 class AsyncMongoCli(LibraryCheckMixin, AbstractResource):
-    required_libs = {"motor": AsyncIOMotorClient}
-
     def __init__(self, conf: MongoConf, name: str):
-        self.check(conf)
+        self.check(conf=conf, libs=["motor"])
 
         self._name = name
         self.conf = conf

@@ -15,12 +15,10 @@ if TYPE_CHECKING:
 
 
 class Breaker(LibraryCheckMixin):
-    required_libs = {"aiobreaker": CircuitBreaker}
-
     def __init__(
         self, name: str, conf: BreakerConf, exclude_exc: Callable[[Exception], bool]
     ):
-        self.check(conf)
+        self.check(libs=["aiobreaker"], conf=conf)
 
         self._breaker = None
         self._name = f"client_breaker_{name}"

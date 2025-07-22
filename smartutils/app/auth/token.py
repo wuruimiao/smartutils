@@ -12,6 +12,7 @@ try:
     import jwt
 except ImportError:
     pass
+
 if TYPE_CHECKING:
     import jwt
 
@@ -31,10 +32,8 @@ class Token:
 
 
 class TokenHelper(LibraryCheckMixin, metaclass=SingletonMeta):
-    required_libs = {"jwt": jwt}
-
     def __init__(self, conf: Optional[TokenConf] = None):
-        self.check(conf)
+        self.check(conf=conf, libs=["jwt"])
         assert conf
 
         self._access_secret: str = conf.access_secret

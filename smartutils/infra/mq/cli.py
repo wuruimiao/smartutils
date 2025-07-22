@@ -24,10 +24,8 @@ __all__ = ["AsyncKafkaCli", "KafkaBatchConsumer"]
 
 
 class AsyncKafkaCli(LibraryCheckMixin, AbstractResource):
-    required_libs = {"aiokafka": AIOKafkaConsumer}
-
     def __init__(self, conf: KafkaConf, name: str):
-        self.check(conf)
+        self.check(conf=conf, libs=["aiokafka"])
 
         self._conf = conf
         self._name = name

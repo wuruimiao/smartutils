@@ -1,3 +1,5 @@
+import sys
+
 import pytest
 
 import smartutils.infra.db.mongo_cli as mongomod
@@ -104,7 +106,7 @@ async def test_db_context_use_transaction(monkeypatch):
 
 
 async def test_assert_motor_not_installed(monkeypatch):
-    monkeypatch.setattr(mongomod.AsyncMongoCli, "required_libs", {"motor": None})
+    monkeypatch.setitem(sys.modules, "motor", None)
     with pytest.raises(LibraryUsageError) as e:
         mongomod.AsyncMongoCli(DummyConf(), "abc")
     assert "depend on motor" in str(e.value)

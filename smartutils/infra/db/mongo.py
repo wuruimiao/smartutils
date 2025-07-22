@@ -28,7 +28,7 @@ __all__ = ["MongoManager"]
 @CTXVarManager.register(CTXKey.DB_MONGO)
 class MongoManager(LibraryCheckMixin, CTXResourceManager[AsyncMongoCli]):
     def __init__(self, confs: Optional[Dict[ConfKey, MongoConf]] = None):
-        self.check(confs)
+        self.check(conf=confs)
         assert confs
 
         resources = {k: AsyncMongoCli(conf, f"mongo_{k}") for k, conf in confs.items()}

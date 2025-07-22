@@ -25,10 +25,8 @@ def only_connection_failures(exc):
 
 
 class HttpClient(LibraryCheckMixin, AbstractResource):
-    required_libs = {"httpx": AsyncClient}
-
     def __init__(self, conf: ClientConf, name: str):
-        self.check(conf)
+        self.check(conf=conf, libs=["httpx"])
 
         self._conf: ClientConf = conf
         self._name = name

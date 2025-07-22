@@ -18,11 +18,8 @@ __all__ = ["OtpHelper"]
 
 
 class OtpHelper(LibraryCheckMixin, metaclass=SingletonMeta):
-    require_conf = False
-    required_libs = {"pyotp": pyotp, "qrcode": qrcode}
-
     def __init__(self):
-        self.check()
+        self.check(require_conf=False, libs=["pyotp", "qrcode"])
         super().__init__()
 
     @staticmethod

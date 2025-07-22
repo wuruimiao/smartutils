@@ -1,3 +1,4 @@
+import sys
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -92,7 +93,7 @@ def test_tokenhelper_missing_conf():
 
 
 def test_tokenhelper_missing_jwt(monkeypatch):
-    monkeypatch.setattr(token_mod.TokenHelper, "required_libs", {"jwt": None})
+    monkeypatch.setitem(sys.modules, "jwt", None)
     with pytest.raises(LibraryUsageError) as exc:
         token_mod.TokenHelper(conf={"a": 1})
     assert str(exc.value) == "TokenHelper depend on jwt, install first!"

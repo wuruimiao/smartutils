@@ -36,10 +36,8 @@ def only_grpc_unavailable_or_timeout(exc):
 
 
 class GrpcClient(LibraryCheckMixin, AbstractResource):
-    required_libs = {"grpc": grpc}
-
     def __init__(self, conf: ClientConf, name: str):
-        self.check(conf)
+        self.check(conf=conf, libs=["grpc"])
 
         self._conf: ClientConf = conf
         self._name = name

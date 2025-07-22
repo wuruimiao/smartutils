@@ -26,7 +26,7 @@ __all__ = ["PostgresqlManager"]
 @CTXVarManager.register(CTXKey.DB_POSTGRESQL)
 class PostgresqlManager(LibraryCheckMixin, CTXResourceManager[AsyncDBCli]):
     def __init__(self, confs: Optional[Dict[ConfKey, PostgreSQLConf]] = None):
-        self.check(confs)
+        self.check(conf=confs)
         assert confs
 
         resources = {

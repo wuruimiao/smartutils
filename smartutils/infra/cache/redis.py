@@ -26,16 +26,12 @@ if TYPE_CHECKING:
 
 __all__ = ["AsyncRedisCli", "RedisManager"]
 
-required_libs = {"redis": Redis}
-
 
 class AsyncRedisCli(LibraryCheckMixin, AbstractResource):
     """异步 Redis 客户端封装，线程安全、协程安全。"""
 
-    required_libs = required_libs
-
     def __init__(self, conf: RedisConf, name: str):
-        self.check(conf)
+        self.check(conf=conf, libs=["redis"])
 
         self._name = name
 
@@ -333,10 +329,8 @@ class RedisManager(LibraryCheckMixin, CTXResourceManager[AsyncRedisCli]):
     如需新的命令类型、内容总结，请查阅redis文档或相关测试用例。
     """
 
-    required_libs = required_libs
-
     def __init__(self, confs: Optional[Dict[ConfKey, RedisConf]] = None):
-        self.check(confs)
+        self.check(conf=confs)
         assert confs
 
         resources = {k: AsyncRedisCli(conf, f"redis_{k}") for k, conf in confs.items()}

@@ -24,7 +24,7 @@ class ClientManager(
     LibraryCheckMixin, CTXResourceManager[Union[HttpClient, GrpcClient]]
 ):
     def __init__(self, confs: Optional[Dict[ConfKey, ClientConf]] = None):
-        self.check(confs)
+        self.check(conf=confs)
         assert confs
 
         resources = {}

@@ -15,11 +15,8 @@ __all__ = ["PasswordHelper"]
 
 
 class PasswordHelper(LibraryCheckMixin, metaclass=SingletonMeta):
-    require_conf = False
-    required_libs = {"bcrypt": bcrypt}
-
     def __init__(self):
-        self.check()
+        self.check(require_conf=False, libs=["bcrypt"])
         super().__init__()
 
     @staticmethod
