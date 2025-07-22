@@ -16,6 +16,7 @@ class ClientType(str, Enum):
 class ApiConf(BaseModel):
     path: str
     method: str
+    mock: Optional[Dict] = None
     timeout: Optional[int | float] = None
 
 

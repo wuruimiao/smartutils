@@ -3,12 +3,15 @@ from __future__ import annotations
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from functools import partial
-from typing import TYPE_CHECKING, Awaitable, Callable
+from typing import TYPE_CHECKING, Awaitable, Callable, Dict
+
+import orjson
 
 from smartutils.config.schema.client import ApiConf, ClientConf
 from smartutils.infra.client.breaker import Breaker
 from smartutils.infra.source_manager.abstract import AbstractResource
 from smartutils.init.mixin import LibraryCheckMixin
+from smartutils.log import logger
 
 try:
     from httpx import AsyncClient, ConnectError, Response, TimeoutException
@@ -22,6 +25,17 @@ if TYPE_CHECKING:
 def only_connection_failures(exc):
     # 仅统计超时和连接故障
     return not isinstance(exc, (TimeoutException, ConnectError))
+
+
+async def mock_response(api_conf: ApiConf, *args, **kwargs) -> Response:
+    logger.info(
+        f"Mocking response for API: {api_conf.method} {api_conf.path} return {api_conf.mock}"
+    )
+    return Response(
+        status_code=200,
+        content=orjson.dumps(api_conf.mock),
+        headers={"Content-Type": "application/json"},
+    )
 
 
 class HttpClient(LibraryCheckMixin, AbstractResource):
@@ -63,7 +77,13 @@ class HttpClient(LibraryCheckMixin, AbstractResource):
         if not self._conf.apis:
             return
 
-        for api_name, api_conf in self._conf.apis.items():
+        apis: Dict[str, ApiConf] = self._conf.apis
+
+        for api_name, api_conf in apis.items():
+            if api_conf.mock:
+                setattr(self, api_name, partial(mock_response, api_conf))
+                continue
+
             setattr(self, api_name, partial(self._api_request, api_conf))
 
     async def _api_request(self, api_conf: ApiConf, *args, **kwargs) -> Response:
@@ -89,7 +109,8 @@ class HttpClient(LibraryCheckMixin, AbstractResource):
             resp = await self._client.get("/")
             resp.raise_for_status()
             return True
-        except Exception:
+        except Exception as e:
+            logger.error(f"HttpClient Ping failed {e}")
             return False
 
     @asynccontextmanager
