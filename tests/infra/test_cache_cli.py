@@ -198,9 +198,9 @@ async def test_xread_xack(async_cli, mocker):
     async_cli._redis.xack.assert_not_awaited()
 
 
-async def test_init_assertion(monkeypatch, redis_conf):
+async def test_init_assertion(mocker, redis_conf):
     # 模拟redis未导入场景
-    mock_module_absent(monkeypatch, "redis")
+    mock_module_absent(mocker, "redis")
     with pytest.raises(LibraryUsageError) as e:
         cachemod.AsyncRedisCli(redis_conf, name="failcli")
     assert str(e.value) == "AsyncRedisCli depend on redis, install first!"

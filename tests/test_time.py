@@ -224,34 +224,34 @@ def test_get_timestamp():
     assert isinstance(ts, float)
 
 
-def test_get_now_str_mock(monkeypatch):
+def test_get_now_str_mock(mocker):
     from datetime import datetime
     from zoneinfo import ZoneInfo
 
     dt = datetime(2024, 5, 2, 12, 34, 56, tzinfo=ZoneInfo("Asia/Shanghai"))
-    monkeypatch.setattr(mytime, "get_now", lambda tz=None: dt)
+    mocker.patch.object(mytime, "get_now", lambda tz=None: dt)
     assert mytime.get_now_str(ZoneInfo("Asia/Shanghai")) == "2024-05-02 12:34:56"
 
 
-def test_get_now_stamp_mock(monkeypatch):
-    monkeypatch.setattr(mytime, "get_now_stamp_float", lambda: 1714627200.999)
+def test_get_now_stamp_mock(mocker):
+    mocker.patch.object(mytime, "get_now_stamp_float", return_value=1714627200.999)
     assert mytime.get_now_stamp() == 1714627200
 
 
-def test_get_now_stamp_str_mock(monkeypatch):
+def test_get_now_stamp_str_mock(mocker):
     from smartutils import time as mytime
 
     mock_value = 1714627200.123456
-    monkeypatch.setattr(mytime, "get_now_stamp_float", lambda: mock_value)
+    mocker.patch.object(mytime, "get_now_stamp_float", return_value=mock_value)
     result = mytime.get_now_stamp_str()
     assert isinstance(result, str)
     assert result == str(mock_value)
 
 
-def test_week_day_none(monkeypatch):
+def test_week_day_none(mocker):
     # mock get_now 返回固定日期
     dt = datetime(2024, 5, 3, 12, 0, 0, tzinfo=ZoneInfo("Asia/Shanghai"))  # Friday
-    monkeypatch.setattr(mytime, "get_now", lambda tz=None: dt)
+    mocker.patch.object(mytime, "get_now", return_value=dt)
     assert mytime.week_day() == 4  # 0=Monday, 4=Friday
 
 
@@ -290,9 +290,9 @@ def test_week_day_edge_cases():
     assert mytime.week_day(dt, tz=ZoneInfo("UTC")) == 6
 
 
-def test_week_day_str_none(monkeypatch):
+def test_week_day_str_none(mocker):
     dt = datetime(2024, 5, 3, 12, 0, 0, tzinfo=ZoneInfo("Asia/Shanghai"))  # Friday
-    monkeypatch.setattr(mytime, "get_now", lambda tz=None: dt)
+    mocker.patch.object(mytime, "get_now", return_value=dt)
     assert mytime.week_day_str() == "Friday"
 
 
@@ -327,18 +327,18 @@ def test_week_day_str_edge_cases():
     assert mytime.week_day_str(dt, tz=ZoneInfo("UTC")) == "Sunday"
 
 
-def test_get_stamp_after_not_stamp(monkeypatch):
+def test_get_stamp_after_not_stamp(mocker):
     from smartutils import time as mytime
 
-    monkeypatch.setattr(mytime, "get_now_stamp_float", lambda: 1000.0)
+    mocker.patch.object(mytime, "get_now_stamp_float", return_value=1000.0)
     after = mytime.get_stamp_after(day=1, hour=1, minute=1, second=1)
     expected = 1000.0 + 86400 + 3600 + 60 + 1
     assert after == expected
 
 
-def test_get_stamp_before_not_stamp(monkeypatch):
+def test_get_stamp_before_not_stamp(mocker):
     from smartutils import time as mytime
 
-    monkeypatch.setattr(mytime, "get_now_stamp_float", lambda: 2000.0)
+    mocker.patch.object(mytime, "get_now_stamp_float", return_value=2000.0)
     before = mytime.get_stamp_before(day=1, hour=1, minute=1, second=1)
     assert before == 2000.0 - (-82859)

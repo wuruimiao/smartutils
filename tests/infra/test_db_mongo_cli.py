@@ -104,8 +104,8 @@ async def test_db_context_use_transaction(monkeypatch):
         assert hasattr(session, "start_transaction") and hasattr(session, "closed")
 
 
-async def test_assert_motor_not_installed(monkeypatch):
-    mock_module_absent(monkeypatch, "motor")
+async def test_assert_motor_not_installed(mocker):
+    mock_module_absent(mocker, "motor")
     with pytest.raises(LibraryUsageError) as e:
         mongomod.AsyncMongoCli(DummyConf(), "abc")
     assert "depend on motor" in str(e.value)

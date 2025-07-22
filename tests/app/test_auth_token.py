@@ -92,8 +92,8 @@ def test_tokenhelper_missing_conf():
     assert str(exc.value) == "TokenHelper must init by infra."
 
 
-def test_tokenhelper_missing_jwt(monkeypatch):
-    mock_module_absent(monkeypatch, "jwt")
+def test_tokenhelper_missing_jwt(mocker):
+    mock_module_absent(mocker, "jwt")
     with pytest.raises(LibraryUsageError) as exc:
         token_mod.TokenHelper(conf={"a": 1})
     assert str(exc.value) == "TokenHelper depend on jwt, install first!"

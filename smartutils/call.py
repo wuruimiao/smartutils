@@ -48,9 +48,9 @@ def installed(module_name: str) -> bool:
     return importlib.util.find_spec(module_name) is not None
 
 
-def mock_module_absent(monkeypatch, module_name: str):
+def mock_module_absent(mocker, module_name: str):
     """临时移除sys.modules中的某个模块（模拟未安装场景）"""
-    monkeypatch.setitem(sys.modules, module_name, None)
+    mocker.patch.dict(sys.modules, {module_name: None})
 
 
 def exit_on_fail():

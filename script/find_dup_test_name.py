@@ -28,6 +28,7 @@ def scan_test_functions(root_dir):
 if __name__ == "__main__":
     root = "."  # 项目根目录
     funcs = scan_test_functions(root)
+    print("扫描重复结果：==============================")
     for name, locations in funcs.items():
         if len(locations) > 1:
             print(f"重复的测试函数名: {name}")
