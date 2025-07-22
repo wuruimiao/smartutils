@@ -12,5 +12,13 @@ else
     pytest --cov=smartutils --cov-report=xml tests --maxfail=1 -v > test_output.log
 fi
 
+status=$?
+if [ $status -ne 0 ]; then
+    echo "❌ pytest 执行失败，退出。"
+    exit $status
+else
+    echo "✅ pytest 执行成功。"
+fi
+
 coverage report -m > test_cover_output.log
 coverage html
