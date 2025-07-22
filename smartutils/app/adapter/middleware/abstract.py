@@ -11,7 +11,6 @@ from smartutils.config.schema.middleware import (
     MiddlewarePluginKey,
     MiddlewarePluginSetting,
 )
-from smartutils.error.sys import LibraryError
 
 __all__ = ["AbstractMiddlewarePlugin", "AbstractMiddleware"]
 
@@ -33,10 +32,10 @@ class AbstractMiddlewarePlugin(ABC):
 
 
 class AbstractMiddleware(ABC):
-    def __init__(self, *, plugin: AbstractMiddlewarePlugin, key: AppKey, **kwargs):
+    def __init__(self, *, plugin: AbstractMiddlewarePlugin, app_key: AppKey, **kwargs):
         self._plugin = plugin
-        self._req_adapter = RequestAdapterFactory.get(key)
-        self._resp_adapter = ResponseAdapterFactory.get(key)
+        self._req_adapter = RequestAdapterFactory.get(app_key)
+        self._resp_adapter = ResponseAdapterFactory.get(app_key)
         super().__init__(**kwargs)
 
     def req_adapter(self, request):

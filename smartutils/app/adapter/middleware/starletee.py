@@ -26,7 +26,7 @@ key = AppKey.FASTAPI
 
 class StarletteMiddleware(AbstractMiddleware, BaseHTTPMiddleware):
     def __init__(self, app, plugin: AbstractMiddlewarePlugin):
-        super().__init__(app=app, plugin=plugin, key=AppKey.FASTAPI)
+        super().__init__(app=app, plugin=plugin, app_key=AppKey.FASTAPI)
         self.name = plugin.key
 
     async def dispatch(self, request: Request, call_next):
