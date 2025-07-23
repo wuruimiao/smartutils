@@ -2,7 +2,7 @@ import pytest
 
 from smartutils.config.const import ConfKey
 from smartutils.ctx import CTXVarManager
-from smartutils.error.sys import LibraryError, LibraryUsageError
+from smartutils.error.sys import LibraryUsageError
 from smartutils.infra.source_manager.abstract import AbstractResource
 from smartutils.infra.source_manager.manager import (
     CTXResourceManager,
