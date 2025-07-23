@@ -11,7 +11,6 @@ from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.const import MiddlewarePluginOrder
 from smartutils.app.plugin.common import CustomHeader, get_auth_cookies
 from smartutils.app.plugin.factory import MiddlewarePluginFactory
-from smartutils.config.const import ConfKey
 from smartutils.config.schema.middleware import MiddlewarePluginKey
 from smartutils.error.sys import (
     LibraryError,

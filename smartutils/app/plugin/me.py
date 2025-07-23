@@ -14,7 +14,6 @@ from smartutils.app.auth.token import TokenHelper
 from smartutils.app.const import MiddlewarePluginOrder
 from smartutils.app.plugin.common import CustomHeader
 from smartutils.app.plugin.factory import MiddlewarePluginFactory
-from smartutils.config.const import ConfKey
 from smartutils.config.schema.middleware import MiddlewarePluginKey
 from smartutils.error.sys import (
     LibraryError,
