@@ -1,13 +1,7 @@
-import io
 import os
-import shutil
-import sys
-import tempfile
 
 import pytest
 
-from smartutils.error import OK
-from smartutils.error.sys import NoFileError
 from smartutils.file import _fileop
 
 

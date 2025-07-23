@@ -1,7 +1,4 @@
 import os
-import tempfile
-
-import pytest
 
 from smartutils.file import _lock
 
