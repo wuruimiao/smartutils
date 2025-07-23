@@ -2,6 +2,12 @@ import json
 
 import pytest
 
+from smartutils.app.adapter.json_resp import flask as json_resp_flask
+from smartutils.app.adapter.json_resp.factory import JsonRespFactory
+from smartutils.app.adapter.resp.flask import FlaskResponseAdapter
+from smartutils.app.const import AppKey
+from smartutils.error.base import BaseDataDict
+
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_flask_env():
@@ -9,13 +15,6 @@ def setup_flask_env():
 
     app = Flask(__name__)
     app.app_context().push()
-
-
-from smartutils.app.adapter.json_resp import flask as json_resp_flask
-from smartutils.app.adapter.json_resp.factory import JsonRespFactory
-from smartutils.app.adapter.resp.flask import FlaskResponseAdapter
-from smartutils.app.const import AppKey
-from smartutils.error.base import BaseDataDict
 
 
 class DummyDataDict(BaseDataDict):
