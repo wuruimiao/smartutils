@@ -245,7 +245,10 @@ async def test_auth_me_fail_code(client, patch_async_client):
     )
     resp = client.get("/info", cookies={"access_token": "f"})
     data = resp.json()
-    assert resp.status_code == 401 and data["detail"] == "failed"
+    assert resp.status_code == 401
+    assert data["code"] == 1019
+    assert data["msg"] == "Unauthorized Error"
+    assert data["detail"] == "MePlugin failed"
 
 
 async def test_permission_non200(client, patch_async_client):
@@ -257,7 +260,10 @@ async def test_permission_non200(client, patch_async_client):
     resp = client.get("/info", cookies={"access_token": "f"})
     data = resp.json()
     # 权限服务非200
-    assert resp.status_code == 500 or data["code"] == 1020
+    assert resp.status_code == 401
+    assert data["code"] == 1019
+    assert data["msg"] == "Unauthorized Error"
+    assert data["detail"] == "PermissionPlugin return 500"
 
 
 async def test_permission_not_json(client, patch_async_client):
@@ -279,7 +285,8 @@ async def test_permission_fail_code(client, patch_async_client):
     set_permission(FakeAsyncResponse(jsondata={"code": 99, "msg": "perm-fail"}))
     resp = client.get("/info", cookies={"access_token": "f"})
     data = resp.json()
-    assert resp.status_code == 401 and data["detail"] == "perm-fail"
+    assert resp.status_code == 401
+    assert data["detail"] == "PermissionPlugin perm-fail"
 
 
 async def test_permission_cannot_access(client, patch_async_client):
@@ -301,7 +308,8 @@ async def test_permission_cannot_access(client, patch_async_client):
     )
     resp = client.get("/info", cookies={"access_token": "f"})
     data = resp.json()
-    assert resp.status_code == 401 and data["detail"] == "no-access-tip"
+    assert resp.status_code == 401
+    assert data["detail"] == "no-access-tip"
 
 
 # ... rest of code ...

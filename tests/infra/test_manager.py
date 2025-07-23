@@ -97,7 +97,7 @@ def test_curr_should_raise_without_use(dummy_manager):
 def test_client_ok_and_no_resource(dummy_manager):
     cli = dummy_manager.client()
     assert cli.name == "default"
-    with pytest.raises(LibraryError):
+    with pytest.raises(LibraryUsageError):
         dummy_manager.client("no-such-key")
 
 

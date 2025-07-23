@@ -42,7 +42,7 @@ class MiddlewareManager(LibraryCheckMixin, metaclass=SingletonMeta):
     ) -> List[AbstractMiddlewarePlugin]:
         plugins = []
         for plugin_cls in self._enable_plugins.get(route_key, []):
-            plugin = plugin_cls(key, self._conf.safe_setting)
+            plugin = plugin_cls(app_key=key, conf=self._conf.safe_setting)
             logger.debug(f"Enable plugin {plugin.key} for route {route_key}.")
             plugins.append(plugin)
         return plugins
@@ -69,7 +69,7 @@ class MiddlewareManager(LibraryCheckMixin, metaclass=SingletonMeta):
     def init_default_route_middleware(self):
         logger.info("Middleware init default route.")
         return RouteMiddlewareFactory.get(self._app_key)(
-            [LogPlugin(self._app_key, self._conf.safe_setting)]
+            [LogPlugin(app_key=self._app_key, conf=self._conf.safe_setting)]
         )
 
 

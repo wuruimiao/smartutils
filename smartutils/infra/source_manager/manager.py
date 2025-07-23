@@ -138,7 +138,7 @@ class CTXResourceManager(Generic[T], ABC):
 
     def client(self, key: str = ConfKey.GROUP_DEFAULT) -> T:
         if key not in self._resources:
-            raise LibraryError(f"No resource found for key: {key}")
+            raise LibraryUsageError(f"No resource found for key: {key}")
         return self._resources[key]
 
     async def close(self):

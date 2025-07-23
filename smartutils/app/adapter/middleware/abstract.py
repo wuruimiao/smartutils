@@ -16,7 +16,7 @@ __all__ = ["AbstractMiddlewarePlugin", "AbstractMiddleware"]
 
 
 class AbstractMiddlewarePlugin(ABC):
-    def __init__(self, app_key: AppKey, conf: MiddlewarePluginSetting):
+    def __init__(self, *, app_key: AppKey, conf: MiddlewarePluginSetting):
         self.key: MiddlewarePluginKey
         self._app_key: AppKey = app_key
         self._resp_fn = JsonRespFactory.get(app_key)

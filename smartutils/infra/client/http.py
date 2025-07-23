@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from functools import partial
-from typing import TYPE_CHECKING, Awaitable, Callable, Dict
+from typing import TYPE_CHECKING, Awaitable, Callable, Dict, Optional, Tuple
 
 import orjson
 
@@ -100,6 +100,23 @@ class HttpClient(LibraryCheckMixin, AbstractResource):
             return resp
 
         return await self._breaker.with_breaker(_do_request)
+
+    def check_resp(self, resp: Response) -> Tuple[Optional[Dict], Optional[str]]:
+        if resp.status_code != 200:
+            return None, f"return {resp.status_code}"
+
+        try:
+            data = resp.json()
+        except ValueError:
+            return None, f"return data not json. {resp.text}"
+
+        if data["code"] != 0:
+            return None, data["msg"]
+
+        if "data" not in data:
+            return None, "data not found."
+
+        return data["data"], None
 
     async def close(self):
         await self._client.aclose()
