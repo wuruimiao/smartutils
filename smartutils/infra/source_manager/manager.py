@@ -17,6 +17,7 @@ from typing import (
 from smartutils.call import call_hook
 from smartutils.config.const import ConfKey
 from smartutils.ctx import CTXKey, CTXVarManager
+from smartutils.design import MyBase
 from smartutils.error.base import BaseError
 from smartutils.error.sys import LibraryError, LibraryUsageError, SysError
 from smartutils.infra.source_manager.abstract import T
@@ -46,7 +47,7 @@ class ResourceManagerRegistry:
         )
 
 
-class CTXResourceManager(Generic[T], ABC):
+class CTXResourceManager(MyBase, Generic[T], ABC):
     def __init__(
         self,
         *,
@@ -66,13 +67,16 @@ class CTXResourceManager(Generic[T], ABC):
         super().__init__(**kwargs)
 
     def __str__(self) -> str:
-        return f"mgr_{self._ctx_key}"
+        return self.name
+
+    def _check_key(self, key):
+        if key not in self._resources:
+            raise LibraryUsageError(f"{self.name} require {key} in config.yaml.")
 
     def _build_wrapper(self, func, key, use_transaction: bool = False):
         @functools.wraps(func)
         async def wrapper(*args, **kwargs):
-            if key not in self._resources:
-                raise LibraryError(f"No resource found for key: {key}")
+            self._check_key(key)
             resource = self._resources[key]
             async with resource.db(use_transaction=use_transaction) as session:
                 with CTXVarManager.use(self._ctx_key, session):
@@ -84,8 +88,8 @@ class CTXResourceManager(Generic[T], ABC):
                         raise e
                     except Exception as e:
                         await call_hook(self._fail, session)
-                        logger.exception(f"{key} fail")
-                        raise self._error(f"{key} fail: {e}") from None
+                        logger.exception(f"{self.name} fail")
+                        raise self._error(f"{self.name} fail: {e}") from None
 
         return wrapper
 
@@ -134,11 +138,10 @@ class CTXResourceManager(Generic[T], ABC):
         try:
             return CTXVarManager.get(self._ctx_key)
         except LibraryUsageError:
-            raise LibraryUsageError("Must call xxxManager.use(...) first.") from None
+            raise LibraryUsageError(f"Must call {self.name}.use(...) first.") from None
 
     def client(self, key: str = ConfKey.GROUP_DEFAULT) -> T:
-        if key not in self._resources:
-            raise LibraryUsageError(f"No resource found for key: {key}")
+        self._check_key(key)
         return self._resources[key]
 
     async def close(self):
@@ -146,11 +149,7 @@ class CTXResourceManager(Generic[T], ABC):
             try:
                 await cli.close()
             except:  # noqa
-                logger.exception(
-                    "CTXResourceManager Failed to close {self} {key}",
-                    self=self,
-                    key=key,
-                )
+                logger.exception(f"{self.name} Failed to close {self} {key}")
 
     async def health_check(self) -> Dict[str, bool]:
         result = {}

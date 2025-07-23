@@ -1,3 +1,4 @@
+from smartutils.design._class import MyBase
 from smartutils.design._singleton import SingletonBase, SingletonMeta, singleton
 from smartutils.design.attr import RequireAttrs
 from smartutils.design.deprecated import deprecated
@@ -12,4 +13,5 @@ __all__ = [
     "BaseFactory",
     "RequireAttrs",
     "require_modules",
+    "MyBase",
 ]

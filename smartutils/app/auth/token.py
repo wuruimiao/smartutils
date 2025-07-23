@@ -54,7 +54,7 @@ class TokenHelper(LibraryCheckMixin, metaclass=SingletonMeta):
         return Token(token, exp_time)
 
     @staticmethod
-    def verify_token(token: str, secret: str) -> Optional[dict]:
+    def _verify_token(token: str, secret: str) -> Optional[dict]:
         try:
             payload = jwt.decode(token, secret, algorithms=["HS256"])
             return payload
@@ -71,13 +71,13 @@ class TokenHelper(LibraryCheckMixin, metaclass=SingletonMeta):
         return access_t, refresh_t
 
     def verify_access_token(self, token: str) -> Optional[User]:
-        data = self.verify_token(token, self._access_secret)
+        data = self._verify_token(token, self._access_secret)
         if not data:
             return None
         return User(data[self._userid_key], data[self._username_key])
 
     def refresh(self, refresh_token) -> Optional[Tuple[Token, Token]]:
-        payload = self.verify_token(refresh_token, self._refresh_secret)
+        payload = self._verify_token(refresh_token, self._refresh_secret)
         if not payload:
             return None
         user = User(payload["userid"], payload["username"])
