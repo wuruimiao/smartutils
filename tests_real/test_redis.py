@@ -285,7 +285,7 @@ async def test_redis_manager_init_with_empty():
         RedisManager({})
 
 
-async def test_async_methods_exception_branches(monkeypatch, setup_cache):
+async def test_async_methods_exception_branches(mocker, setup_cache):
     from smartutils.config.schema.redis import RedisConf
     from smartutils.infra.cache.redis import AsyncRedisCli
 
@@ -301,17 +301,17 @@ async def test_async_methods_exception_branches(monkeypatch, setup_cache):
     cli = AsyncRedisCli(conf, "pytest-exception")
 
     # 强制 _redis 某方法抛出异常以测 except 分支
-    monkeypatch.setattr(
+    mocker.patch.object(
         cli._redis, "delete", lambda *a, **k: (_ for _ in ()).throw(Exception("fail"))
     )
     with pytest.raises(Exception):
         await cli.delete("foo")
 
-    # monkeypatch close 分支
-    monkeypatch.setattr(
+    # mocker close 分支
+    mocker.patch.object(
         cli._redis, "aclose", lambda: (_ for _ in ()).throw(Exception("fail"))
     )
-    monkeypatch.setattr(
+    mocker.patch.object(
         cli._pool, "disconnect", lambda: (_ for _ in ()).throw(Exception("fail"))
     )
     # 不抛出异常，只是走 except 路径
@@ -352,7 +352,7 @@ async def test_safe_context_none_branches(setup_cache):
     # xread_xack 发生异常
     stream, group = "pytest:none:stream", "pytestnonegroup"
     await cli.delete(stream)
-    # monkeypatch _redis.xreadgroup 让它抛异常
+    # mocker _redis.xreadgroup 让它抛异常
     orig_xreadgroup = cli._redis.xreadgroup
 
     async def fail(*a, **k):

@@ -66,10 +66,15 @@ class DummyConf:
     db = "test"
 
 
-async def test_ping_true_false(monkeypatch):
-    monkeypatch.setattr(mongomod, "AsyncIOMotorClient", lambda *a, **k: DummyClient())
-    monkeypatch.setattr(mongomod, "AsyncIOMotorDatabase", DummyDB)
+@pytest.fixture
+def c(mocker):
+    mocker.patch.object(mongomod, "AsyncIOMotorClient", return_value=DummyClient())
+    mocker.patch.object(mongomod, "AsyncIOMotorDatabase", DummyDB)
     c = mongomod.AsyncMongoCli(DummyConf(), "abc")
+    yield c
+
+
+async def test_ping_true_false(c):
     mongomod.logger = DummyLogger()  # 覆盖 logger
     assert await c.ping() is True
     c._client.do_fail = True
@@ -77,28 +82,19 @@ async def test_ping_true_false(monkeypatch):
     assert DummyLogger.last[0].startswith("[{name}] MongoDB ping failed")
 
 
-async def test_close(monkeypatch):
-    monkeypatch.setattr(mongomod, "AsyncIOMotorClient", lambda *a, **k: DummyClient())
-    monkeypatch.setattr(mongomod, "AsyncIOMotorDatabase", DummyDB)
-    c = mongomod.AsyncMongoCli(DummyConf(), "abc")
+async def test_close(c):
     c._client.closed = False
     await c.close()
     assert c._client.closed is True
 
 
-async def test_db_context_no_transaction(monkeypatch):
-    monkeypatch.setattr(mongomod, "AsyncIOMotorClient", lambda *a, **k: DummyClient())
-    monkeypatch.setattr(mongomod, "AsyncIOMotorDatabase", DummyDB)
-    c = mongomod.AsyncMongoCli(DummyConf(), "abc")
+async def test_db_context_no_transaction(c):
     async with c.db(use_transaction=False) as (db, session):
         assert session is None
         assert isinstance(db, DummyDB)
 
 
-async def test_db_context_use_transaction(monkeypatch):
-    monkeypatch.setattr(mongomod, "AsyncIOMotorClient", lambda *a, **k: DummyClient())
-    monkeypatch.setattr(mongomod, "AsyncIOMotorDatabase", DummyDB)
-    c = mongomod.AsyncMongoCli(DummyConf(), "abc")
+async def test_db_context_use_transaction(c):
     # 必须再mock _client.start_session
     async with c.db(use_transaction=True) as (db, session):
         assert hasattr(session, "start_transaction") and hasattr(session, "closed")

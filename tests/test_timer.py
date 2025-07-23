@@ -7,7 +7,7 @@ import pytest
 from smartutils.timer import Timer, timeit
 
 
-def test_timer_basic(monkeypatch):
+def test_timer_basic():
     cg = iter([0.0, 1.0, 2.0, 3.0, 4.0])
 
     def fake_counter():
@@ -54,7 +54,7 @@ async def test_timer_async_with_context():
     assert t.elapsed >= 0.005
 
 
-def test_timer_elapsed_during_running(monkeypatch):
+def test_timer_elapsed_during_running():
     # 测试 running 时 elapsed 随时间变化
     fake_time = [0]
 
@@ -94,12 +94,12 @@ def test_timer_multiple_intervals():
 
 
 @pytest.fixture
-def capture_logger(monkeypatch):
+def capture_logger(mocker):
     logs = []
     from smartutils.log import logger
 
-    monkeypatch.setattr(logger, "debug", lambda msg: logs.append(msg))
-    monkeypatch.setattr(logger, "info", lambda msg: logs.append(msg))
+    mocker.patch.object(logger, "debug", lambda msg: logs.append(msg))
+    mocker.patch.object(logger, "info", lambda msg: logs.append(msg))
     return logs
 
 

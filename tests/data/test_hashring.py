@@ -6,7 +6,7 @@ import smartutils.data.hashring as hashring_mod
 
 
 @pytest.fixture
-def mock_hashring(monkeypatch):
+def mock_hashring(mocker):
     class DummyHashRing:
         def __init__(self, nodes=None, **kwargs):
             self.runtime = types.SimpleNamespace(
@@ -17,7 +17,7 @@ def mock_hashring(monkeypatch):
         def __init_subclass__(cls):
             pass
 
-    monkeypatch.setattr(hashring_mod, "_HashRing", DummyHashRing)
+    mocker.patch.object(hashring_mod, "_HashRing", DummyHashRing)
     return DummyHashRing
 
 
@@ -53,15 +53,4 @@ def test_hashring_edge_cases(mock_hashring):
     assert ring.get_node_next_nodes("not_exist") == []
 
 
-# def test_hashring_import_fallback(monkeypatch):
-#     import importlib
-#     import sys
-
-#     m = importlib.util.find_spec("uhashring")
-#     if m:
-#         monkeypatch.setitem(sys.modules, "uhashring", None)  # 模拟找不到模块
-#     import smartutils.data.hashring as hashring_reload
-
-#     importlib.reload(hashring_reload)
-#     HashRingCls = getattr(hashring_reload, "_HashRing")
-#     assert isinstance(HashRingCls(), object)
+# def test_hashring_import_fallback(mocker):

@@ -16,7 +16,7 @@ def test_hash_and_check_password():
     assert helper.check_password("wrongpassword", hashed) is False
 
 
-def test_check_password_invalid(monkeypatch):
+def test_check_password_invalid(mocker):
     """测试bcrypt.checkpw抛出异常时，应该抛出异常或False（边界）"""
     helper = pwmod.PasswordHelper()
 
@@ -24,12 +24,12 @@ def test_check_password_invalid(monkeypatch):
         def checkpw(self, *a, **kw):
             raise ValueError("synthetic")
 
-    monkeypatch.setattr(pwmod, "bcrypt", DummyBcrypt())
+    mocker.patch.object(pwmod, "bcrypt", DummyBcrypt())
     with pytest.raises(ValueError):
         helper.check_password("x", "y")
 
 
-def test_hash_password_invalid(monkeypatch):
+def test_hash_password_invalid(mocker):
     """测试bcrypt.hashpw异常"""
     helper = pwmod.PasswordHelper()
 
@@ -40,6 +40,6 @@ def test_hash_password_invalid(monkeypatch):
         def hashpw(self, *a, **kw):
             raise RuntimeError("bad hash")
 
-    monkeypatch.setattr(pwmod, "bcrypt", DummyBcrypt())
+    mocker.patch.object(pwmod, "bcrypt", DummyBcrypt())
     with pytest.raises(RuntimeError):
         helper.hash_password("p")

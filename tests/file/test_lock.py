@@ -29,8 +29,8 @@ def test_lock_write_and_read_lock(tmp_path):
         pass
 
 
-def test_lock_del_ioerror(tmp_path, monkeypatch):
+def test_lock_del_ioerror(tmp_path, mocker):
     l = _lock.Lock(tmp_path)
-    monkeypatch.setattr(l._fd, "close", lambda: (_ for _ in ()).throw(IOError("test")))
+    mocker.patch.object(l._fd, "close", lambda: (_ for _ in ()).throw(IOError("test")))
     # 日志不会崩溃，仅记录错误
     l.__del__()

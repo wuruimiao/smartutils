@@ -53,7 +53,7 @@ def test_csv_edge_cases():
         pass
 
 
-def test_increase_csv_limit_overflow(monkeypatch):
+def test_increase_csv_limit_overflow(mocker):
     # 模拟 csv.field_size_limit 抛出 OverflowError 一次，然后成功
     import smartutils.data.csv as csv_mod
 
@@ -65,5 +65,5 @@ def test_increase_csv_limit_overflow(monkeypatch):
             raise OverflowError
         return 123
 
-    monkeypatch.setattr(csv_mod.csv, "field_size_limit", fake_limit)
+    mocker.patch.object(csv_mod.csv, "field_size_limit", fake_limit)
     csv_mod.increase_csv_limit()

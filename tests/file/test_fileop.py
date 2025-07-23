@@ -87,7 +87,7 @@ def test_is_binary(tmp_path):
     assert _fileop.is_binary_f(str(f)) is True
 
 
-def test_load_f_line_unicode_error(tmp_path, monkeypatch):
+def test_load_f_line_unicode_error(tmp_path):
     f = tmp_path / "err.txt"
     f.write_bytes(b"\xff\xff\x00notutf8")
     ret, err = _fileop.load_f_line(str(f))
@@ -118,7 +118,7 @@ def test_copy_dir_and_override(tmp_path):
     assert count3 == 1
 
 
-def test_link_and_rm_link(tmp_path, monkeypatch):
+def test_link_and_rm_link(tmp_path, mocker):
     src = tmp_path / "srcdir"
     dst = tmp_path / "alink"
     src.mkdir()
@@ -126,7 +126,7 @@ def test_link_and_rm_link(tmp_path, monkeypatch):
     def fake_is_win():
         return False
 
-    monkeypatch.setattr(_fileop, "is_win", fake_is_win)
+    mocker.patch.object(_fileop, "is_win", fake_is_win)
     ret = _fileop.link(str(src), str(dst))
     assert ret.is_ok and os.path.islink(dst)
     ret2 = _fileop.link(str(src), str(dst))

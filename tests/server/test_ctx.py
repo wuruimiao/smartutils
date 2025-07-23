@@ -2,12 +2,12 @@ from smartutils.error.sys import TimeOutError
 from smartutils.server.ctx import Context, timeoutd
 
 
-def test_context_basics(monkeypatch):
+def test_context_basics(mocker):
     fake_now = 1000
 
     # 固定 get_now_stamp_float - 保证start和检验点一致
-    monkeypatch.setattr("smartutils.server.ctx.get_now_stamp_float", lambda: fake_now)
-    monkeypatch.setattr(
+    mocker.patch("smartutils.server.ctx.get_now_stamp_float", lambda: fake_now)
+    mocker.patch(
         "smartutils.server.ctx.get_stamp_after", lambda x, second=0: x + second
     )
 
@@ -17,19 +17,17 @@ def test_context_basics(monkeypatch):
     assert ctx.timeout == 5
 
     # remain_sec 边界
-    monkeypatch.setattr(
-        "smartutils.server.ctx.get_now_stamp_float", lambda: fake_now + 2
-    )
+    mocker.patch("smartutils.server.ctx.get_now_stamp_float", lambda: fake_now + 2)
     assert ctx.remain_sec(fake_now + 2) == 3
     assert ctx.timeoutd(fake_now + 2) is False
     assert ctx.remain_sec(fake_now + 10) == 0
     assert ctx.timeoutd(fake_now + 10) is True
 
 
-def test_context_remain_sec_clipped(monkeypatch):
+def test_context_remain_sec_clipped(mocker):
     fake_now = 100
-    monkeypatch.setattr("smartutils.server.ctx.get_now_stamp_float", lambda: fake_now)
-    monkeypatch.setattr(
+    mocker.patch("smartutils.server.ctx.get_now_stamp_float", lambda: fake_now)
+    mocker.patch(
         "smartutils.server.ctx.get_stamp_after", lambda x, second=0: x + second
     )
     ctx = Context(1)
@@ -37,7 +35,7 @@ def test_context_remain_sec_clipped(monkeypatch):
     assert ctx.remain_sec(ctx._deadline + 1) == 0
 
 
-def test_timeoutd_decorator_default_ret(monkeypatch):
+def test_timeoutd_decorator_default_ret():
     # Context已超时
     ctx = Context(0)
 
@@ -62,7 +60,7 @@ def test_timeoutd_decorator_default_ret(monkeypatch):
     assert result2 == TimeOutError
 
 
-def test_timeoutd_decorator_success(monkeypatch):
+def test_timeoutd_decorator_success():
     ctx = Context(9999)
     # timeoutd返回False（未超时）
     ctx.timeoutd = lambda now=None: False

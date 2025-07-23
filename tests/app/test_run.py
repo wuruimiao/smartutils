@@ -15,10 +15,10 @@ class DummyUvicorn:
         self.called["kwargs"] = kwargs
 
 
-def test_run_env_and_uvicorn(monkeypatch):
+def test_run_env_and_uvicorn(mocker):
     # patch uvicorn
     dummy = DummyUvicorn()
-    monkeypatch.setattr(run_module, "uvicorn", dummy)
+    mocker.patch.object(run_module, "uvicorn", dummy)
     # patch argparse to set values
     argv_backup = sys.argv
     sys.argv = [
@@ -36,7 +36,7 @@ def test_run_env_and_uvicorn(monkeypatch):
     # patch AppKey to a dummy for full injection
     from smartutils.app.const import CONF_ENV_NAME
 
-    monkeypatch.setattr(run_module, "load_dotenv", lambda *a, **k: None)
+    mocker.patch.object(run_module, "load_dotenv", return_value=None)
 
     run_module.run()
 
@@ -49,11 +49,11 @@ def test_run_env_and_uvicorn(monkeypatch):
     sys.argv = argv_backup
 
 
-def test_run_default(monkeypatch):
+def test_run_default(mocker):
     dummy = DummyUvicorn()
-    monkeypatch.setattr(run_module, "uvicorn", dummy)
+    mocker.patch.object(run_module, "uvicorn", dummy)
     sys.argv = ["prog"]
-    monkeypatch.setattr(run_module, "load_dotenv", lambda *a, **k: None)
+    mocker.patch.object(run_module, "load_dotenv", return_value=None)
 
     run_module.run()
     # host为默认
@@ -62,11 +62,11 @@ def test_run_default(monkeypatch):
     sys.argv = ["prog"]  # 恢复以避免影响后续
 
 
-def test_run_invalid_app(monkeypatch):
+def test_run_invalid_app(mocker):
     # 验证非法的app会触发SystemExit
-    monkeypatch.setattr(run_module, "uvicorn", DummyUvicorn())
+    mocker.patch.object(run_module, "uvicorn", DummyUvicorn())
     sys.argv = ["prog", "--app", "notavalidapp"]
-    monkeypatch.setattr(run_module, "load_dotenv", lambda *a, **k: None)
+    mocker.patch.object(run_module, "load_dotenv", return_value=None)
     with pytest.raises(SystemExit):
         run_module.run()
     sys.argv = ["prog"]

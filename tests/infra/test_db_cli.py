@@ -61,19 +61,6 @@ def test_engine_property(dbcli):
     assert dbcli.engine == dbcli._engine
 
 
-# async def test_write_in_session(mocker):
-#     sess = mocker.MagicMock()
-#     sess.new = {1}
-#     sess.dirty = set()
-#     sess.deleted = set()
-#     sess.info = {}
-
-#     # in_transaction 为 False
-#     sess.in_transaction = lambda: False
-#     monkeypatch.setattr(dbmod, "logger", mocker.MagicMock())
-#     assert dbmod._write_in_session(sess) is True
-
-
 async def test_sqlalchemy_db_commit_and_rollback(mocker):
     sess = mocker.AsyncMock()
     transaction = mocker.MagicMock()

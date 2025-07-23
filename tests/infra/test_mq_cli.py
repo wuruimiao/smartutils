@@ -23,15 +23,15 @@ def async_kafka_cli(mocker, kafka_conf):
     return cli
 
 
-async def test_start_producer_and_ping_success(mocker, async_kafka_cli, monkeypatch):
+async def test_start_producer_and_ping_success(mocker, async_kafka_cli):
     fake_producer = mocker.AsyncMock()
-    monkeypatch.setattr(
+    mocker.patch.object(
         mqmod, "AIOKafkaProducer", mocker.MagicMock(return_value=fake_producer)
     )
-    monkeypatch.setattr(fake_producer, "start", mocker.AsyncMock())
-    monkeypatch.setattr(fake_producer, "client", mocker.MagicMock())
+    mocker.patch.object(fake_producer, "start", mocker.AsyncMock())
+    mocker.patch.object(fake_producer, "client", mocker.MagicMock())
     fake_producer.client.fetch_all_metadata = mocker.AsyncMock(return_value=True)
-    monkeypatch.setattr(mqmod, "errors", mocker.MagicMock())
+    mocker.patch.object(mqmod, "errors", mocker.MagicMock())
     async_kafka_cli._conf.kw = {}
     await async_kafka_cli._start_producer()
     async_kafka_cli._producer = fake_producer
@@ -39,7 +39,7 @@ async def test_start_producer_and_ping_success(mocker, async_kafka_cli, monkeypa
     fake_producer.client.fetch_all_metadata.assert_awaited()
 
 
-async def test_start_producer_kafka_fail(mocker, async_kafka_cli, monkeypatch):
+async def test_start_producer_kafka_fail(mocker, async_kafka_cli):
     fake_producer = mocker.AsyncMock()
 
     class DummyKafkaConn(Exception):
@@ -47,24 +47,24 @@ async def test_start_producer_kafka_fail(mocker, async_kafka_cli, monkeypatch):
 
     errors = mocker.MagicMock()
     errors.KafkaConnectionError = DummyKafkaConn
-    monkeypatch.setattr(
+    mocker.patch.object(
         mqmod, "AIOKafkaProducer", mocker.MagicMock(return_value=fake_producer)
     )
-    monkeypatch.setattr(
+    mocker.patch.object(
         fake_producer, "start", mocker.AsyncMock(side_effect=DummyKafkaConn("fail"))
     )
-    monkeypatch.setattr(fake_producer, "stop", mocker.AsyncMock())
-    monkeypatch.setattr(mqmod, "errors", errors)
+    mocker.patch.object(fake_producer, "stop", mocker.AsyncMock())
+    mocker.patch.object(mqmod, "errors", errors)
     async_kafka_cli._conf.kw = {}
     with pytest.raises(mqmod.MQError):
         await async_kafka_cli._start_producer()
 
 
-async def test_send_data(mocker, async_kafka_cli, monkeypatch):
+async def test_send_data(mocker, async_kafka_cli):
     fake_producer = mocker.AsyncMock()
     fake_producer.send_and_wait = mocker.AsyncMock()
     async_kafka_cli._producer = fake_producer
-    monkeypatch.setattr(async_kafka_cli, "start_producer", mocker.AsyncMock())
+    mocker.patch.object(async_kafka_cli, "start_producer", mocker.AsyncMock())
     data = [{"x": 1}, {"y": 2}]
     await async_kafka_cli.send_data("t", data)
     assert fake_producer.send_and_wait.await_count == 2
@@ -77,9 +77,9 @@ async def test_close(mocker, async_kafka_cli):
     fake_producer.stop.assert_awaited()
 
 
-async def test_consumer(mocker, async_kafka_cli, monkeypatch):
+async def test_consumer(mocker, async_kafka_cli):
     fake_consumer = mocker.AsyncMock()
-    monkeypatch.setattr(
+    mocker.patch.object(
         mqmod, "AIOKafkaConsumer", mocker.MagicMock(return_value=fake_consumer)
     )
     c = async_kafka_cli.consumer("t1", "gid", auto_offset_reset="earliest")

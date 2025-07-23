@@ -60,7 +60,7 @@ async def test_mock_api(client):
     assert resp.json() == {"msg": "mocked"}
 
 
-async def test_ping_and_api_request(client_conf, monkeypatch):
+async def test_ping_and_api_request(mocker):
     """测试真实 API 路径绑定与 ping 功能。"""
     # 构造不带mock的api conf
     no_mock_api_conf = ApiConf(
@@ -77,14 +77,14 @@ async def test_ping_and_api_request(client_conf, monkeypatch):
         apis={"get_api": no_mock_api_conf},
     )
     client = HttpClient(conf=conf, name="real_test")
-    monkeypatch.setattr(client._client, "get", fake_get())
+    mocker.patch.object(client._client, "get", fake_get())
 
     result = await client.ping()
     assert result is True
 
     # 测试动态绑定api (get_api)
 
-    monkeypatch.setattr(client._client, "request", fake_get({"hello": "world"}))
+    mocker.patch.object(client._client, "request", fake_get({"hello": "world"}))
     response = await client.get_api()
     assert response.status_code == 200
     print(response.json())
