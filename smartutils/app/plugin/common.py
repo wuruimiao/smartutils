@@ -1,5 +1,5 @@
 import base64
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.const import HeaderKey
