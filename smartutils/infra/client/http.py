@@ -103,12 +103,15 @@ class HttpClient(LibraryCheckMixin, AbstractResource):
 
     def check_resp(self, resp: Response) -> Tuple[Optional[Dict], Optional[str]]:
         if resp.status_code != 200:
-            return None, f"return {resp.status_code}"
+            return None, f"return {resp.status_code}."
 
         try:
             data = resp.json()
         except ValueError:
-            return None, f"return data not json. {resp.text}"
+            return None, f"return data not json. {resp.text}."
+
+        if "code" not in data:
+            return None, "code not found."
 
         if data["code"] != 0:
             return None, data["msg"]
