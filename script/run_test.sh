@@ -16,7 +16,9 @@ if [ $status -ne 0 ]; then
     exit $status
 else
     echo "✅ pytest 执行成功。"
+    rm -rf htmlcov/*
+    coverage report -m > test_cover_output.log
+    coverage html
 fi
 
-coverage report -m > test_cover_output.log
-coverage html
+
