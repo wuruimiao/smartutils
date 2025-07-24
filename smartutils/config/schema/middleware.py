@@ -16,15 +16,9 @@ class MiddlewarePluginKey(str, Enum):
     APIKEY = "apikey"
 
 
-class PluginMeConf(BaseModel):
+class PluginDependAuthConf(BaseModel):
     access_name: str = "access_token"  # 访问令牌name
-    local: bool = False  # 是否本地模式，如果为True，则使用token的配置解码
-    client_key: str = "auth"  # 使用配置中client.指向的Client
-
-
-class PluginPermissionConf(BaseModel):
-    access_name: str = "access_token"  # 访问令牌name
-    access_secret: str = ""  # 访问令牌secret
+    local: bool = False  # 是否本地模式，如果为True，则本地逻辑
     client_key: str = "auth"  # 使用配置中client.指向的Client
 
 
@@ -37,11 +31,11 @@ class PluginApiKeyConf(BaseModel):
 
 
 class MiddlewarePluginSetting(BaseModel):
-    me: PluginMeConf = Field(
-        default_factory=lambda: PluginMeConf(), description="me插件配置"
+    me: PluginDependAuthConf = Field(
+        default_factory=lambda: PluginDependAuthConf(), description="me插件配置"
     )
-    permission: PluginPermissionConf = Field(
-        default_factory=lambda: PluginPermissionConf(), description="permission插件配置"
+    permission: PluginDependAuthConf = Field(
+        default_factory=lambda: PluginDependAuthConf(), description="permission插件配置"
     )
     apikey: PluginApiKeyConf = Field(
         default_factory=lambda: PluginApiKeyConf(), description="api_key插件配置"
