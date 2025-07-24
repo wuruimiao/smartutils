@@ -44,10 +44,10 @@ class CustomHeader:
         set_value: bool = False,
     ) -> Optional[List[int]]:
         if set_value:
-            adapter.set_header(
-                HeaderKey.X_P_USER_IDS,
-                ",".join([str(i) for i in value]) if value else None,
-            )
+            if value:
+                adapter.set_header(
+                    HeaderKey.X_P_USER_IDS, ",".join([str(i) for i in value])
+                )
             return
 
         ids = adapter.get_header(HeaderKey.X_P_USER_IDS)
@@ -59,11 +59,3 @@ class CustomHeader:
             )
             return None
         return [int(s) for s in ids.split(",")]
-
-
-def get_auth_cookies(req: RequestAdapter, access_name: str) -> Dict:
-    value = req.get_cookie(access_name)
-    if not value:
-        logger.error(f"get_auth_cookies request no {access_name}")
-        return {}
-    return {access_name: value}
