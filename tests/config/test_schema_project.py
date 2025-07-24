@@ -31,6 +31,4 @@ def test_project_conf_valid(name, id, description, version):
 def test_project_conf_invalid(name, id, description, version):
     with pytest.raises(ValidationError) as exc:
         ProjectConf(name=name, id=id, description=description, version=version)
-    assert "Input should be a valid string" in str(
-        exc.value
-    ) or "String should have at least 1 character" in str(exc.value)
+    assert "validation errors for ProjectConf" in str(exc.value)

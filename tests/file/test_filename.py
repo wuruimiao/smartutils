@@ -100,7 +100,8 @@ def test_dir_listing_utils(tmp_path):
 
     # paths_in_path/dirs_in_dir
     all_dirs = _filename.paths_in_path(str(tmp_path))
-    assert str(d1.name) in all_dirs or d1.name in all_dirs  # path(str) 和 name
+    assert str(d1.name) in all_dirs
+    assert d1.name in all_dirs  # path(str) 和 name
     # full_paths_in_path只返回目录绝对路径
     full_dirs = _filename.full_paths_in_path(str(tmp_path))
     assert any(str(d1) in d for d in full_dirs)

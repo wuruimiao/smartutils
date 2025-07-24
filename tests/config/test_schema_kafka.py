@@ -1,5 +1,6 @@
 import pytest
 from pydantic import ValidationError
+
 from smartutils.config.schema.host import HostConf
 from smartutils.config.schema.kafka import KafkaConf
 
@@ -41,7 +42,10 @@ def test_kafka_conf_acks_invalid(acks):
     conf_dict = valid_kafka_conf(acks=acks)
     with pytest.raises(ValidationError) as exc:
         KafkaConf(**conf_dict)
-    assert "Input should be" in str(exc.value) or "unexpected value" in str(exc.value)
+    assert (
+        "1 validation error for KafkaConf\nacks\n  Input should be 'all', 1 or 0"
+        in str(exc.value)
+    )
 
 
 @pytest.mark.parametrize("compression_type", ["zstd", "snappy", None])
@@ -55,30 +59,34 @@ def test_kafka_conf_compression_type_invalid(compression_type):
     conf_dict = valid_kafka_conf(compression_type=compression_type)
     with pytest.raises(ValidationError) as exc:
         KafkaConf(**conf_dict)
-    assert "Input should be" in str(exc.value) or "unexpected value" in str(exc.value)
+    assert (
+        "1 validation error for KafkaConf\ncompression_type\n  Input should be 'zstd', 'snappy' or None"
+        in str(exc.value)
+    )
 
 
 def test_kafka_conf_bootstrap_servers_empty():
     conf_dict = valid_kafka_conf(bootstrap_servers=[])
     with pytest.raises(ValidationError) as exc:
         KafkaConf(**conf_dict)
-    assert "bootstrap_servers" in str(exc.value) or "at least 1 item" in str(exc.value)
+    assert "bootstrap_servers" in str(exc.value)
+    assert "at least 1 item" in str(exc.value)
 
 
 def test_kafka_conf_bootstrap_servers_invalid_type():
     conf_dict = valid_kafka_conf(bootstrap_servers=["not_a_hostconf"])
     with pytest.raises(ValidationError) as exc:
         KafkaConf(**conf_dict)
-    assert "bootstrap_servers" in str(exc.value) or "HostConf" in str(exc.value)
+    assert "bootstrap_servers" in str(exc.value)
+    assert "HostConf" in str(exc.value)
 
 
 def test_kafka_conf_empty_client_id():
     conf_dict = valid_kafka_conf(client_id="")
     with pytest.raises(ValidationError) as exc:
         KafkaConf(**conf_dict)
-    assert "String should have at least 1 character" in str(
-        exc.value
-    ) and "client_id" in str(exc.value)
+    assert "String should have at least 1 character" in str(exc.value)
+    assert "client_id" in str(exc.value)
 
 
 @pytest.mark.parametrize(
@@ -90,9 +98,8 @@ def test_kafka_conf_le_0(field, value):
     conf_dict[field] = value
     with pytest.raises(ValidationError) as exc:
         KafkaConf(**conf_dict)
-    assert "Input should be greater than 0" in str(exc.value) and field in str(
-        exc.value
-    )
+    assert "Input should be greater than 0" in str(exc.value)
+    assert field in str(exc.value)
 
 
 @pytest.mark.parametrize("value", [-1, -2])
@@ -100,9 +107,8 @@ def test_kafka_conf_lt_0(value):
     conf_dict = valid_kafka_conf(linger_ms=value)
     with pytest.raises(ValidationError) as exc:
         KafkaConf(**conf_dict)
-    assert "Input should be greater than or equal to 0" in str(
-        exc.value
-    ) and "linger_ms" in str(exc.value)
+    assert "Input should be greater than or equal to 0" in str(exc.value)
+    assert "linger_ms" in str(exc.value)
 
 
 def test_kafka_conf_kw():

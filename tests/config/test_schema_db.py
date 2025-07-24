@@ -103,9 +103,8 @@ def test_db_con_ge_0(max_overflow):
     conf_dict = valid_conf_dict(max_overflow=max_overflow)
     with pytest.raises(ValidationError) as exc:
         DBConf(**conf_dict)
-    assert "Input should be greater than or equal to 0" in str(
-        exc.value
-    ) and "max_overflow" in str(exc.value)
+    assert "Input should be greater than or equal to 0" in str(exc.value)
+    assert "max_overflow" in str(exc.value)
 
 
 def test_db_con_kw():

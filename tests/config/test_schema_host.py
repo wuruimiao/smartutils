@@ -18,17 +18,22 @@ def test_hostconf_valid(host, port):
     assert conf.port == port
 
 
-@pytest.mark.parametrize(
-    "host",
-    [
-        "",  # 为空
-        None,
-    ],
-)
-def test_hostconf_invalid_host(host):
+def test_hostconf_invalid_none_host():
     with pytest.raises(ValidationError) as exc:
-        HostConf(host=host, port=8080)
-    assert "host不能为空" in str(exc.value) or "host" in str(exc.value)
+        HostConf(host=None, port=8080)  # type: ignore
+    assert (
+        "1 validation error for HostConf\nhost\n  Input should be a valid string"
+        in str(exc.value)
+    )
+
+
+def test_hostconf_invalid_host_empty():
+    with pytest.raises(ValidationError) as exc:
+        HostConf(host="", port=8080)
+    assert (
+        "1 validation error for HostConf\nhost\n  String should have at least 1 character"
+        in str(exc.value)
+    )
 
 
 @pytest.mark.parametrize(
@@ -37,13 +42,21 @@ def test_hostconf_invalid_host(host):
         0,  # 太小
         65536,  # 太大
         -1,  # 负数
-        None,  # 为空
     ],
 )
 def test_hostconf_invalid_port(port):
     with pytest.raises(ValidationError) as exc:
         HostConf(host="127.0.0.1", port=port)
-    assert "port必须在1-65535之间" in str(exc.value) or "port" in str(exc.value)
+    assert "port必须在1-65535之间" in str(exc.value)
+
+
+def test_hostconf_invalid_port_none():
+    with pytest.raises(ValidationError) as exc:
+        HostConf(host="127.0.0.1", port=None)  # type: ignore
+    assert (
+        "validation error for HostConf\nport\n  Input should be a valid integer"
+        in str(exc.value)
+    )
 
 
 def test_the_url():

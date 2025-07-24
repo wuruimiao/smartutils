@@ -69,7 +69,7 @@ def test_base_edge_cases():
 
     data = [dict(id=1, parent_id=2), dict(id=2, parent_id=0)]
     tree = base.make_parent(data, Info)
-    assert 1 in tree or 2 in tree
+    assert 2 in tree
     # make_children无parent
     children = base.make_children([dict(id=1, parent_id=0)], Info)
     assert 1 in children
