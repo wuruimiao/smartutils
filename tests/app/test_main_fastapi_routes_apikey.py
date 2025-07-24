@@ -124,7 +124,6 @@ async def test_routes_api_key_no_plugin_success(client):
     resp = client.get("/no-plugin")
     data = resp.json()
     assert resp.status_code == 200
-    print(data)
     assert data["data"]["name"] == "no-plugin"
 
 

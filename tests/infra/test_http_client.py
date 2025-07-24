@@ -87,6 +87,5 @@ async def test_ping_and_api_request(mocker):
     mocker.patch.object(client._client, "request", fake_get({"hello": "world"}))
     response = await client.get_api()
     assert response.status_code == 200
-    print(response.json())
     assert response.json() == {"hello": "world"}
     await client.close()

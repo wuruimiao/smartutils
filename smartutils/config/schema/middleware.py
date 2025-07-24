@@ -18,7 +18,7 @@ class MiddlewarePluginKey(str, Enum):
 
 class PluginMeConf(BaseModel):
     access_name: str = "access_token"  # 访问令牌name
-    access_secret: str = ""  # 访问令牌secret
+    local: bool = False  # 是否本地模式，如果为True，则使用token的配置解码
     client_key: str = "auth"  # 使用配置中client.指向的Client
 
 

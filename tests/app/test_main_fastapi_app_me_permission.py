@@ -12,11 +12,11 @@ async def client(tmp_path_factory):
 middleware:
   routes:
     app:
-        - log
-        - exception
-        - header
-        - me
-        - permission
+      - log
+      - exception
+      - header
+      - me
+      - permission
 
 client:
   auth:
@@ -38,7 +38,8 @@ client:
 project:
   name: auth
   debug: true
-  id: 0"""
+  id: 0
+"""
 
     tmp_dir = tmp_path_factory.mktemp("config")
     config_file = tmp_dir / "test_config.yaml"
@@ -127,23 +128,21 @@ async def fake_me_permission(mocker):
     yield
 
 
-async def test_auth_middleware_success(client, fake_me_permission):
+async def test_me_middleware_success(client, fake_me_permission):
     resp = client.get("/info", cookies={"access_token": "fake"})
     data = resp.json()
     assert data["detail"] == ""
     assert resp.status_code == 200
-    print(data)
     assert data["data"]["userid"] == 4321
     assert data["data"]["username"] == "unit"
 
 
-async def test_auth_middleware_no_cookie(client):
+async def test_me_middleware_no_cookie(client):
     resp = client.get("/info")
     assert resp.status_code == 401
     data = resp.json()
-    assert data["code"] == 1019 or data["detail"].startswith(
-        "AuthPlugin request no cookies"
-    )
+    assert data["code"] == 1019
+    assert data["detail"] == "[MePlugin] request no cookies"
 
 
 async def test_permission_middleware_success(client, fake_me_permission):
@@ -196,23 +195,22 @@ async def test_auth_me_non200(client, patch_async_client):
     set_me, set_permission = patch_async_client
     # me接口返回403
     set_me(FakeAsyncResponse(status=403, jsondata={}))
-    set_permission(
-        FakeAsyncResponse(
-            status=200,
-            jsondata={
-                "code": 0,
-                "data": {"can_access": True, "user_ids": [1], "no permission": ""},
-            },
-        )
-    )
     resp = client.get("/info", cookies={"access_token": "f"})
     data = resp.json()
-    assert (
-        resp.status_code == 500
-        or resp.status_code == 401
-        or data["code"] == 1020
-        or data["code"] == 1019
-    )
+    assert resp.status_code == 401
+    assert data["code"] == 1019
+
+
+async def test_auth_me_no_data(client, patch_async_client):
+    set_me, set_permission = patch_async_client
+    # me接口返回403
+    set_me(FakeAsyncResponse(status=200, jsondata={"code": 0, "data": {}}))
+    resp = client.get("/info", cookies={"access_token": "f"})
+    assert resp.status_code == 500
+    data = resp.json()
+    assert data["detail"] == "[MePlugin] no data"
+    assert data["code"] == 1000
+    assert data["msg"] == "Internal Server Error"
 
 
 async def test_auth_me_not_json(client, patch_async_client):
@@ -248,7 +246,7 @@ async def test_auth_me_fail_code(client, patch_async_client):
     assert resp.status_code == 401
     assert data["code"] == 1019
     assert data["msg"] == "Unauthorized Error"
-    assert data["detail"] == "MePlugin failed"
+    assert data["detail"] == "[MePlugin] failed"
 
 
 async def test_permission_non200(client, patch_async_client):
@@ -263,7 +261,7 @@ async def test_permission_non200(client, patch_async_client):
     assert resp.status_code == 401
     assert data["code"] == 1019
     assert data["msg"] == "Unauthorized Error"
-    assert data["detail"] == "PermissionPlugin return 500"
+    assert data["detail"] == "PermissionPlugin return 500."
 
 
 async def test_permission_not_json(client, patch_async_client):
