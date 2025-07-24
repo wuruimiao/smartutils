@@ -37,7 +37,6 @@ project:
         fake_session,
         instance,
     ):
-        print(">>> setup_config: start fixture patch/db generation")
         from smartutils.infra.db import mysql
 
         assert isinstance(mysql.AsyncDBCli, mocker.MagicMock)

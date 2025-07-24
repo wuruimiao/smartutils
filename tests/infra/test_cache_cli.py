@@ -76,7 +76,7 @@ async def test_zset_ops(async_cli):
     assert await async_cli.zrem("z", "a", "b") == 1
 
 
-async def test_close(async_cli):
+async def test_redis_close(async_cli):
     await async_cli.close()
     async_cli._redis.aclose.assert_awaited()
     async_cli._pool.disconnect.assert_awaited()
@@ -119,7 +119,7 @@ async def test_safe_rpop_zadd_and_rpush_zrem(async_cli, mocker):
     assert ret == "msg2"
 
 
-async def test_safe_zpop_zadd_and_safe_zrem_zadd(async_cli, mocker):
+async def test_mock_safe_zpop_zadd_and_safe_zrem_zadd(async_cli, mocker):
     # 与前面的用法保持一致，mock register_script 返回 AsyncLuaMock 实例
     async_cli._redis.register_script = mocker.MagicMock(
         return_value=AsyncLuaMock("msg3")

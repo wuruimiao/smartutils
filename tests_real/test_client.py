@@ -1,17 +1,9 @@
-import sys
-from pathlib import Path
-
 import pytest
 
 from smartutils.error.sys import (
     BreakerOpenError,
     ClientError,
 )
-
-# 确保能找到 hello_pb2, hello_pb2_grpc
-sys.path.insert(0, str(Path(__file__).parent / "grpcbin" / "stub"))
-
-from hello_pb2 import HelloRequest, HelloResponse  # type: ignore
 
 
 @pytest.fixture(scope="function")
@@ -21,6 +13,8 @@ async def setup_config(tmp_path_factory):
 
 @pytest.mark.parametrize("key", ["grpcbin-ok", "grpcbin-ssl-ok", "grpcbin-breaker"])
 async def test_grpc_hello_with_manager(setup_config, key):
+    from hello_pb2 import HelloRequest, HelloResponse  # type: ignore
+
     from smartutils.infra import ClientManager
 
     mgr = ClientManager()
@@ -36,6 +30,8 @@ async def test_grpc_hello_with_manager(setup_config, key):
 
 
 async def test_grpc_hello_with_fail(setup_config):
+    from hello_pb2 import HelloRequest, HelloResponse  # type: ignore
+
     from smartutils.infra import ClientManager
 
     mgr = ClientManager()
@@ -52,6 +48,8 @@ async def test_grpc_hello_with_fail(setup_config):
 
 
 async def test_grpc_hello_with_break_fail(setup_config):
+    from hello_pb2 import HelloRequest, HelloResponse  # type: ignore
+
     from smartutils.infra import ClientManager
 
     mgr = ClientManager()
@@ -69,6 +67,8 @@ async def test_grpc_hello_with_break_fail(setup_config):
 
 @pytest.mark.parametrize("key", ["grpcbin-ok", "grpcbin-ssl-ok", "grpcbin-breaker"])
 async def test_request_grpc_hello_with_manager(setup_config, key):
+    from hello_pb2 import HelloRequest, HelloResponse  # type: ignore
+
     from smartutils.infra import ClientManager
 
     mgr = ClientManager()
@@ -300,7 +300,7 @@ async def test_ping_success(setup_config):
     await biz()
 
 
-async def test_ping_fail():
+async def test_client_ping_fail():
     # 错误endpoint，ping应返回False
     from smartutils.config.schema.client import ClientConf
     from smartutils.infra.client.http import HttpClient

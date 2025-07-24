@@ -1,12 +1,4 @@
-import pytest
-
-
-@pytest.fixture
-async def setup_alertfeishu(tmp_path_factory):
-    yield
-
-
-async def test_real_alert_feishu(setup_alertfeishu):
+async def test_real_alert_feishu():
     from smartutils.infra.alert.feishu import AlertFeishuManager
 
     mgr = AlertFeishuManager()

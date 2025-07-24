@@ -129,7 +129,7 @@ async def test_send_and_batch_consume(setup_kafka):
     await test()
 
 
-async def test_ping(setup_kafka):
+async def test_kafka_ping(setup_kafka):
     from smartutils.infra import KafkaManager
 
     kafka_mgr = KafkaManager()

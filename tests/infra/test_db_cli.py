@@ -22,7 +22,7 @@ def dbcli(dummy_conf, mocker):
     return cli
 
 
-async def test_ping_ok(dbcli, mocker):
+async def test_db_ping_ok(dbcli, mocker):
     conn = mocker.AsyncMock()
     conn.execute = mocker.AsyncMock(return_value=True)
     mgr = mocker.MagicMock()
@@ -32,7 +32,7 @@ async def test_ping_ok(dbcli, mocker):
     assert await dbcli.ping() is True
 
 
-async def test_ping_fail(dbcli, mocker):
+async def test_db_ping_fail(dbcli, mocker):
     conn = mocker.AsyncMock()
     conn.execute = mocker.AsyncMock(return_value=True)
     mgr = mocker.MagicMock()
@@ -42,7 +42,7 @@ async def test_ping_fail(dbcli, mocker):
     assert await dbcli.ping() is False
 
 
-async def test_close(dbcli):
+async def test_db_close(dbcli):
     await dbcli.close()
     dbcli._engine.dispose.assert_awaited()
 

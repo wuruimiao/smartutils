@@ -81,7 +81,7 @@ async def test_mysql_manager_use_and_curr(setup_config):
     fake_session.rollback.assert_awaited()
 
 
-async def test_curr_no_context(setup_config):
+async def test_mysql_curr_no_context(setup_config):
     from smartutils.infra import MySQLManager
 
     mysql_mgr = MySQLManager()

@@ -1,10 +1,17 @@
 import os
+import sys
+from pathlib import Path
 
 import pytest
 
 
 @pytest.fixture(autouse=True, scope="function")
 async def ensure_smartutils_init():
+    stub_path = Path(__file__).parent / "grpcbin" / "stub"
+    assert stub_path.exists(), "stub path does not exist."
+    if str(stub_path) not in sys.path:
+        sys.path.insert(0, str(stub_path))
+
     test_conf_path = "tests_real/config.test.yaml"
     assert os.path.exists(
         test_conf_path

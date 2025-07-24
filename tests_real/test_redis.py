@@ -66,14 +66,14 @@ async def test_out_of_context(setup_cache):
         redis_mgr.curr
 
 
-async def test_ping(setup_cache):
+async def test_redis_ping(setup_cache):
     from smartutils.infra import RedisManager
 
     redis_mgr = RedisManager()
     assert await redis_mgr.client().ping()
 
 
-async def test_unreachable_ping(setup_unreachable_cache):
+async def test_redis_unreachable_ping(setup_unreachable_cache):
     from smartutils.infra import RedisManager
 
     redis_mgr = RedisManager()
@@ -203,7 +203,7 @@ async def test_safe_rpop_zadd_and_safe_rpush_zrem(setup_cache):
     await test()
 
 
-async def test_safe_zpop_zadd_and_safe_zrem_zadd(setup_cache):
+async def test_real_safe_zpop_zadd_and_safe_zrem_zadd(setup_cache):
     from smartutils.infra import RedisManager
 
     redis_mgr = RedisManager()

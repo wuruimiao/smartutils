@@ -80,7 +80,7 @@ async def test_ping_true_false(c):
     assert DummyLogger.last[0].startswith("[{name}] MongoDB ping failed")
 
 
-async def test_close(c):
+async def test_mongo_close(c):
     c._client.closed = False
     await c.close()
     assert c._client.closed is True

@@ -81,7 +81,7 @@ async def test_pgsql_manager_use_and_curr(setup_config):
     fake_session.rollback.assert_awaited()
 
 
-async def test_curr_no_context(setup_config):
+async def test_postgresql_curr_no_context(setup_config):
     from smartutils.infra import PostgresqlManager
 
     pgsql_mgr = PostgresqlManager()

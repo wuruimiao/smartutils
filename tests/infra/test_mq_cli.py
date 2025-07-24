@@ -70,7 +70,7 @@ async def test_send_data(mocker, async_kafka_cli):
     assert fake_producer.send_and_wait.await_count == 2
 
 
-async def test_close(mocker, async_kafka_cli):
+async def test_mq_close(mocker, async_kafka_cli):
     fake_producer = mocker.AsyncMock()
     async_kafka_cli._producer = fake_producer
     await async_kafka_cli.close()
