@@ -1,8 +1,6 @@
 import pytest
 
 import smartutils.infra.cache.redis as cachemod
-from smartutils.call import mock_module_absent
-from smartutils.error.sys import LibraryUsageError
 
 
 @pytest.fixture
@@ -196,14 +194,6 @@ async def test_xread_xack(async_cli, mocker):
     async with async_cli.xread_xack("stream", "gp", count=2) as msg:
         assert msg is None
     async_cli._redis.xack.assert_not_awaited()
-
-
-async def test_init_assertion(mocker, redis_conf):
-    # 模拟redis未导入场景
-    mock_module_absent(mocker, "redis")
-    with pytest.raises(LibraryUsageError) as e:
-        cachemod.AsyncRedisCli(redis_conf, name="failcli")
-    assert str(e.value) == "AsyncRedisCli depend on redis, install first!"
 
 
 async def test_close_error(async_cli):

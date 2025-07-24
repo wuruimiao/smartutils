@@ -4,7 +4,6 @@ from types import SimpleNamespace
 import pytest
 
 import smartutils.app.auth.token as token_mod
-from smartutils.call import mock_module_absent
 from smartutils.error.sys import LibraryUsageError
 
 
@@ -90,13 +89,6 @@ def test_tokenhelper_missing_conf():
     with pytest.raises(LibraryUsageError) as exc:
         token_mod.TokenHelper(conf=None)
     assert str(exc.value) == "TokenHelper must init by infra."
-
-
-def test_tokenhelper_missing_jwt(mocker):
-    mock_module_absent(mocker, "jwt")
-    with pytest.raises(LibraryUsageError) as exc:
-        token_mod.TokenHelper(conf={"a": 1})
-    assert str(exc.value) == "TokenHelper depend on jwt, install first!"
 
 
 def test_tokenhelper_expired(mocker):

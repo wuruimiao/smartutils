@@ -19,7 +19,7 @@ from smartutils.config.const import ConfKey
 from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.design import MyBase
 from smartutils.error.base import BaseError
-from smartutils.error.sys import LibraryError, LibraryUsageError, SysError
+from smartutils.error.sys import LibraryUsageError, SysError
 from smartutils.infra.source_manager.abstract import T
 from smartutils.log import logger
 
