@@ -111,13 +111,13 @@ class HttpClient(LibraryCheckMixin, AbstractResource):
             return None, f"return data not json. {resp.text}."
 
         if "code" not in data:
-            return None, "code not found."
+            return None, f"code not found {data}."
 
         if data["code"] != 0:
-            return None, data["msg"]
+            return None, f"code not 0 {data}."
 
         if "data" not in data:
-            return None, "data not found."
+            return None, f"data not found {data}."
 
         return data["data"], None
 

@@ -24,23 +24,6 @@ token:
   access_secret: access
   refresh_secret: refresh
 
-client:
-  auth:
-    type: http
-    endpoint: https://httpbin.org
-    timeout: 10
-    verify_tls: true
-    breaker_enabled: true
-    breaker_fail_max: 1
-    breaker_reset_timeout: 3
-    apis:
-      me:
-        method: GET
-        path: /me
-      permission:
-        method: GET
-        path: /permission
-
 project:
   name: auth
   debug: true
@@ -88,9 +71,10 @@ async def test_me_local_middleware_success(client, mocker):
     )
     resp = client.get("/info", cookies={"access_token": "fake"})
     data = resp.json()
-    assert data["code"] == 0
+
     assert data["detail"] == ""
     assert resp.status_code == 200
+    assert data["code"] == 0
     assert data["data"]["userid"] == 1
     assert data["data"]["username"] == "test_user"
 
@@ -103,4 +87,4 @@ async def test_me_local_middleware_fail(client, mocker):
     data = resp.json()
     assert data["code"] == 1019
     assert data["msg"] == "Unauthorized Error"
-    assert data["detail"] == "[MePlugin] verify token failed"
+    assert data["detail"] == "[MePlugin] verify token failed."

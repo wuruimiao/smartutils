@@ -15,11 +15,13 @@ class AuthBase(LibraryCheckMixin, MyBase):
 
         self._plugin_conf = plugin_conf
         self.check(require_conf=False, libs=["httpx"])
+
         try:
-            self._client = cast(
-                HttpClient,
-                ClientManager().client(plugin_conf.client_key),
-            )
+            if not self._plugin_conf.local:
+                self._client = cast(
+                    HttpClient,
+                    ClientManager().client(plugin_conf.client_key),
+                )
         except LibraryUsageError:
             raise LibraryUsageError(
                 f"{self.name} requires auth below client in config.yaml."

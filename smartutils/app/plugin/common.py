@@ -38,11 +38,15 @@ class CustomHeader:
 
     @classmethod
     def permission_user_ids(
-        cls, adapter: RequestAdapter, value: Optional[List[int]] = None
+        cls,
+        adapter: RequestAdapter,
+        value: Optional[List[int]] = None,
+        set_value: bool = False,
     ) -> Optional[List[int]]:
-        if value is not None:
+        if set_value:
             adapter.set_header(
-                HeaderKey.X_P_USER_IDS, ",".join([str(i) for i in value])
+                HeaderKey.X_P_USER_IDS,
+                ",".join([str(i) for i in value]) if value else None,
             )
             return
 

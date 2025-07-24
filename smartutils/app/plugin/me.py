@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Awaitable, Callable, Optional, Tuple
+from venv import logger
 
 from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin
 from smartutils.app.adapter.req.abstract import RequestAdapter
@@ -57,7 +58,7 @@ class MePlugin(AuthBase, AbstractMiddlewarePlugin):
 
     async def _local(self, req: RequestAdapter) -> Tuple[Optional[User], str]:
         access_token, msg = self.access_token(req)
-        if not msg:
+        if msg:
             return None, msg
 
         user = self._token_helper.verify_access_token(access_token)

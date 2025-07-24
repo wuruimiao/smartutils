@@ -144,7 +144,7 @@ async def test_me_middleware_no_cookie(client):
     data = resp.json()
     assert data["code"] == 1019
     assert data["msg"] == "Unauthorized Error"
-    assert data["detail"] == "[MePlugin] request no cookies"
+    assert data["detail"] == "[MePlugin] request no cookies."
 
 
 async def test_permission_middleware_success(client, fake_me_permission):
@@ -210,11 +210,11 @@ async def test_auth_me_no_data(client, patch_async_client):
     # me接口返回403
     set_me(FakeAsyncResponse(status=200, jsondata={"code": 0, "data": {}}))
     resp = client.get("/info", cookies={"access_token": "f"})
-    assert resp.status_code == 500
+    assert resp.status_code == 401
     data = resp.json()
-    assert data["detail"] == "[MePlugin] no data"
-    assert data["code"] == 1000
-    assert data["msg"] == "Internal Server Error"
+    assert data["detail"] == "[MePlugin] no data."
+    assert data["code"] == 1019
+    assert data["msg"] == "Unauthorized Error"
 
 
 async def test_auth_me_not_json(client, patch_async_client):
@@ -253,7 +253,7 @@ async def test_auth_me_fail_code(client, patch_async_client):
     assert resp.status_code == 401
     assert data["code"] == 1019
     assert data["msg"] == "Unauthorized Error"
-    assert data["detail"] == "[MePlugin] failed"
+    assert data["detail"] == "[MePlugin] code not 0 {'code': 1, 'msg': 'failed'}."
 
 
 async def test_permission_non200(client, patch_async_client):
@@ -296,7 +296,10 @@ async def test_permission_fail_code(client, patch_async_client):
     assert resp.status_code == 401
     assert data["code"] == 1019
     assert data["msg"] == "Unauthorized Error"
-    assert data["detail"] == "[PermissionPlugin] perm-fail"
+    assert (
+        data["detail"]
+        == "[PermissionPlugin] code not 0 {'code': 99, 'msg': 'perm-fail'}."
+    )
 
 
 async def test_permission_cannot_access(client, patch_async_client):
