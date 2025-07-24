@@ -12,7 +12,8 @@ from smartutils.config.schema.middleware import (
     MiddlewarePluginKey,
     MiddlewarePluginSetting,
 )
-from smartutils.error.sys import SysError, UnauthorizedError
+from smartutils.design import MyBase
+from smartutils.error.sys import LibraryUsageError, SysError, UnauthorizedError
 from smartutils.infra.client.http import HttpClient
 from smartutils.infra.client.manager import ClientManager
 from smartutils.init.mixin import LibraryCheckMixin
@@ -29,15 +30,20 @@ if TYPE_CHECKING:
 @MiddlewarePluginFactory.register(
     MiddlewarePluginKey.PERMISSION, order=MiddlewarePluginOrder.PERMISSION
 )
-class PermissionPlugin(LibraryCheckMixin, AbstractMiddlewarePlugin):
+class PermissionPlugin(LibraryCheckMixin, MyBase, AbstractMiddlewarePlugin):
     def __init__(self, *, app_key: AppKey, conf: MiddlewarePluginSetting):
         super().__init__(app_key=app_key, conf=conf)
 
         self.check(require_conf=False, libs=["httpx"])
-        self._client = cast(
-            HttpClient,
-            ClientManager().client(self._conf.permission.client_key),
-        )
+        try:
+            self._client = cast(
+                HttpClient,
+                ClientManager().client(self._conf.permission.client_key),
+            )
+        except LibraryUsageError:
+            raise LibraryUsageError(
+                f"{self.name} requires auth below client in config.yaml."
+            )
 
     async def dispatch(
         self,
@@ -47,7 +53,7 @@ class PermissionPlugin(LibraryCheckMixin, AbstractMiddlewarePlugin):
         cookies = get_auth_cookies(req, self._conf.permission.access_name)
         if not cookies:
             return self._resp_fn(
-                UnauthorizedError("PermissionPlugin request no cookies").as_dict
+                UnauthorizedError(f"{self.name} request no cookies").as_dict
             )
 
         p_resp: Response = await self._client.permission(
@@ -55,12 +61,14 @@ class PermissionPlugin(LibraryCheckMixin, AbstractMiddlewarePlugin):
         )
         data, msg = self._client.check_resp(p_resp)
         if msg:
-            return self._resp_fn(UnauthorizedError(f"PermissionPlugin {msg}").as_dict)
+            return self._resp_fn(UnauthorizedError(f"{self.name} {msg}").as_dict)
         if not data:
-            return self._resp_fn(SysError("PermissionPlugin no data").as_dict)
+            return self._resp_fn(SysError(f"{self.name} no data").as_dict)
 
         if not data["can_access"]:
-            return self._resp_fn(UnauthorizedError(data["no permission"]).as_dict)
+            return self._resp_fn(
+                UnauthorizedError(f"{self.name} no permission").as_dict
+            )
 
         CustomHeader.permission_user_ids(req, data["user_ids"])
 

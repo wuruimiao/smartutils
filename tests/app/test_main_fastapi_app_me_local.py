@@ -88,6 +88,7 @@ async def test_me_local_middleware_success(client, mocker):
     )
     resp = client.get("/info", cookies={"access_token": "fake"})
     data = resp.json()
+    assert data["code"] == 0
     assert data["detail"] == ""
     assert resp.status_code == 200
     assert data["data"]["userid"] == 1

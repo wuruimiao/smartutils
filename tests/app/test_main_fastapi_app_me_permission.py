@@ -131,6 +131,7 @@ async def fake_me_permission(mocker):
 async def test_me_middleware_success(client, fake_me_permission):
     resp = client.get("/info", cookies={"access_token": "fake"})
     data = resp.json()
+    assert data["code"] == 0
     assert data["detail"] == ""
     assert resp.status_code == 200
     assert data["data"]["userid"] == 4321
@@ -142,6 +143,7 @@ async def test_me_middleware_no_cookie(client):
     assert resp.status_code == 401
     data = resp.json()
     assert data["code"] == 1019
+    assert data["msg"] == "Unauthorized Error"
     assert data["detail"] == "[MePlugin] request no cookies"
 
 
@@ -199,6 +201,8 @@ async def test_auth_me_non200(client, patch_async_client):
     data = resp.json()
     assert resp.status_code == 401
     assert data["code"] == 1019
+    assert data["msg"] == "Unauthorized Error"
+    assert data["detail"] == "[MePlugin] return 403."
 
 
 async def test_auth_me_no_data(client, patch_async_client):
@@ -227,7 +231,10 @@ async def test_auth_me_not_json(client, patch_async_client):
     resp = client.get("/info", cookies={"access_token": "f"})
     data = resp.json()
     # 应报返回非json
-    assert "return data not json" in data["detail"]
+    assert resp.status_code == 401
+    assert data["detail"] == "[MePlugin] return data not json. not-json."
+    assert data["code"] == 1019
+    assert data["msg"] == "Unauthorized Error"
 
 
 async def test_auth_me_fail_code(client, patch_async_client):
@@ -261,7 +268,7 @@ async def test_permission_non200(client, patch_async_client):
     assert resp.status_code == 401
     assert data["code"] == 1019
     assert data["msg"] == "Unauthorized Error"
-    assert data["detail"] == "PermissionPlugin return 500."
+    assert data["detail"] == "[PermissionPlugin] return 500."
 
 
 async def test_permission_not_json(client, patch_async_client):
@@ -272,7 +279,10 @@ async def test_permission_not_json(client, patch_async_client):
     set_permission(FakeAsyncResponse(jsondata=ValueError(), text="fail-json"))
     resp = client.get("/info", cookies={"access_token": "f"})
     data = resp.json()
-    assert "return data not json" in data["detail"]
+    assert resp.status_code == 401
+    assert data["code"] == 1019
+    assert data["msg"] == "Unauthorized Error"
+    assert data["detail"] == "[PermissionPlugin] return data not json. fail-json."
 
 
 async def test_permission_fail_code(client, patch_async_client):
@@ -284,7 +294,9 @@ async def test_permission_fail_code(client, patch_async_client):
     resp = client.get("/info", cookies={"access_token": "f"})
     data = resp.json()
     assert resp.status_code == 401
-    assert data["detail"] == "PermissionPlugin perm-fail"
+    assert data["code"] == 1019
+    assert data["msg"] == "Unauthorized Error"
+    assert data["detail"] == "[PermissionPlugin] perm-fail"
 
 
 async def test_permission_cannot_access(client, patch_async_client):
@@ -299,7 +311,6 @@ async def test_permission_cannot_access(client, patch_async_client):
                 "data": {
                     "can_access": False,
                     "user_ids": [44],
-                    "no permission": "no-access-tip",
                 },
             }
         )
@@ -307,7 +318,6 @@ async def test_permission_cannot_access(client, patch_async_client):
     resp = client.get("/info", cookies={"access_token": "f"})
     data = resp.json()
     assert resp.status_code == 401
-    assert data["detail"] == "no-access-tip"
-
-
-# ... rest of code ...
+    assert data["code"] == 1019
+    assert data["msg"] == "Unauthorized Error"
+    assert data["detail"] == "[PermissionPlugin] no permission"
