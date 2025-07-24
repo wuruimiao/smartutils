@@ -41,6 +41,23 @@ def mock_module_absent(mocker):
     return _mock
 
 
+# TODO: 模拟import ImportError
+# 这里启用会导致直接失败
+@pytest.fixture
+def clear_smartutils():
+    mod_names = [
+        name
+        for name in sys.modules
+        if name == "smartutils" or name.startswith("smartutils.")
+    ]
+    orig = {}
+    for name in mod_names:
+        orig[name] = sys.modules[name]
+        del sys.modules[name]
+    yield
+    sys.modules.update(orig)
+
+
 @pytest.fixture
 def reset(mocker):
     from smartutils.design.factory import BaseFactory
