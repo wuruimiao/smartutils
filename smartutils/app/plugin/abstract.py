@@ -1,4 +1,3 @@
-from abc import ABC, abstractmethod
 from typing import Dict, Optional, Tuple, cast
 
 from smartutils.app.adapter.req.abstract import RequestAdapter
