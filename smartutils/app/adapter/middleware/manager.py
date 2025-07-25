@@ -4,6 +4,7 @@ from typing import Dict, List, Optional, Tuple, Type
 from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin
 from smartutils.app.adapter.middleware.factory import (
     AddMiddlewareFactory,
+    EndpointMiddlewareFactory,
     RouteMiddlewareFactory,
 )
 from smartutils.app.const import AppKey, RunEnv
@@ -68,6 +69,16 @@ class MiddlewareManager(LibraryCheckMixin, MyBase, metaclass=SingletonMeta):
             "{name} inited in route {route_key}.", name=self.name, route_key=route_key
         )
         return RouteMiddlewareFactory.get(self._app_key)(
+            self._get_route_enable_plugins(route_key)
+        )
+
+    def init_endpoint(self, route_key: str):
+        logger.info(
+            "{name} inited in endpoint {route_key}.",
+            name=self.name,
+            route_key=route_key,
+        )
+        return EndpointMiddlewareFactory.get(self._app_key)(
             self._get_route_enable_plugins(route_key)
         )
 

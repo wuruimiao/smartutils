@@ -19,3 +19,9 @@ class RouteMiddlewareFactory(
     BaseFactory[AppKey, Callable[[Tuple[AbstractMiddlewarePlugin]], Any]]
 ):
     pass
+
+
+class EndpointMiddlewareFactory(
+    BaseFactory[AppKey, Callable[[Tuple[AbstractMiddlewarePlugin]], Any]]
+):
+    pass

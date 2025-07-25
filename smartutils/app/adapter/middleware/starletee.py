@@ -1,6 +1,10 @@
+import inspect
+from functools import wraps
 from typing import Awaitable, Callable, Tuple, Type
 
 from fastapi import Request, Response
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import ORJSONResponse
 from fastapi.routing import APIRoute
 from starlette.middleware.base import BaseHTTPMiddleware
 
@@ -11,11 +15,13 @@ from smartutils.app.adapter.middleware.abstract import (
 )
 from smartutils.app.adapter.middleware.factory import (
     AddMiddlewareFactory,
+    EndpointMiddlewareFactory,
     RouteMiddlewareFactory,
 )
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.const import AppKey
+from smartutils.error.sys import LibraryUsageError
 from smartutils.log import logger
 
 __all__ = []
@@ -67,3 +73,35 @@ def _(plugins: Tuple[AbstractMiddlewarePlugin]) -> Type[APIRoute]:
             return chain_dispatch(plugins, original_route_handler)
 
     return PluginsAPIRoute
+
+
+@EndpointMiddlewareFactory.register(key)
+def _(plugins: Tuple[AbstractMiddlewarePlugin]):
+    # Depends实现，需要在handler里实现业务逻辑，侵入太重
+    # 使用装饰器
+    def decorator(endpoint_func):
+        signature = inspect.signature(endpoint_func)
+        param_names = list(signature.parameters.keys())
+
+        if (
+            not param_names
+            or signature.parameters[param_names[0]].annotation is not Request
+        ):
+            raise LibraryUsageError(
+                f"Endpoint `{endpoint_func.__name__}` require first param be: req: Request，"
+            )
+
+        @wraps(endpoint_func)
+        async def wrapper(req: Request, *args, **kwargs):
+            async def handler(_):
+                ret = await endpoint_func(req, *args, **kwargs)
+                if isinstance(ret, Response):
+                    return ret
+                return ORJSONResponse(content=jsonable_encoder(ret))
+
+            final_handler = chain_dispatch(plugins, handler)
+            return await final_handler(req)
+
+        return wrapper
+
+    return decorator
