@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Awaitable, Callable, Generic, List, TypeVar
+from typing import Awaitable, Callable, List, TypeVar
 
 from smartutils.app.adapter.json_resp.factory import JsonRespFactory
 from smartutils.app.adapter.req.abstract import RequestAdapter

@@ -1,4 +1,4 @@
-from typing import Any, Awaitable, Callable, Coroutine, List, Type
+from typing import Awaitable, Callable, List, Type
 
 from fastapi import Request, Response
 from fastapi.routing import APIRoute
@@ -14,9 +14,7 @@ from smartutils.app.adapter.middleware.factory import (
     RouteMiddlewareFactory,
 )
 from smartutils.app.adapter.req.abstract import RequestAdapter
-from smartutils.app.adapter.req.factory import RequestAdapterFactory
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
-from smartutils.app.adapter.resp.factory import ResponseAdapterFactory
 from smartutils.app.const import AppKey
 from smartutils.log import logger
 
