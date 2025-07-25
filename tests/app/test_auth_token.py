@@ -88,7 +88,7 @@ async def test_generate_and_verify_token_and_refresh_token(user, mocker):
 def test_tokenhelper_missing_conf():
     with pytest.raises(LibraryUsageError) as exc:
         token_mod.TokenHelper(conf=None)
-    assert str(exc.value) == "TokenHelper must init by infra."
+    assert str(exc.value) == "[TokenHelper] must init by infra."
 
 
 def test_tokenhelper_expired(mocker):

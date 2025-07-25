@@ -75,7 +75,7 @@ def test_importerror_when_httpx_missing(mock_module_absent, reset):
         from smartutils.infra.client.http import HttpClient
 
         HttpClient(conf=1, name="demo")
-    assert str(exc.value) == "HttpClient depend on httpx, install first!"
+    assert str(exc.value) == "[HttpClient] depend on httpx, install first!"
 
 
 def test_tokenhelper_missing_jwt(mock_module_absent, reset):
@@ -85,7 +85,7 @@ def test_tokenhelper_missing_jwt(mock_module_absent, reset):
         from smartutils.app.auth.token import TokenHelper
 
         TokenHelper(conf=1)
-    assert str(exc.value) == "TokenHelper depend on jwt, install first!"
+    assert str(exc.value) == "[TokenHelper] depend on jwt, install first!"
 
 
 def test_redis_missing_redis(mock_module_absent, reset):
@@ -95,7 +95,7 @@ def test_redis_missing_redis(mock_module_absent, reset):
         from smartutils.infra.cache.redis import AsyncRedisCli
 
         AsyncRedisCli(conf=1, name="failcli")
-    assert str(e.value) == "AsyncRedisCli depend on redis, install first!"
+    assert str(e.value) == "[AsyncRedisCli] depend on redis, install first!"
 
 
 def test_assert_mongo_missing_motor(mock_module_absent, reset):
