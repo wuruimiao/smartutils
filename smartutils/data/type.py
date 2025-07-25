@@ -80,3 +80,17 @@ class SharedData:
     @classmethod
     def get(cls, key, default=None) -> Any:
         return cls._data.get(key, default)
+
+    @classmethod
+    def get_or_set(cls, key, default) -> Any:
+        value = cls.get(key)
+        if value:
+            return value
+
+        if default:
+            value = default
+
+        if value:
+            cls.set(key, value)
+
+        return value
