@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Awaitable, Callable
+from typing import Any, Awaitable, Callable, Generic, List, TypeVar
 
 from smartutils.app.adapter.json_resp.factory import JsonRespFactory
 from smartutils.app.adapter.req.abstract import RequestAdapter
@@ -13,7 +13,7 @@ from smartutils.config.schema.middleware import (
     MiddlewarePluginSetting,
 )
 
-__all__ = ["AbstractMiddlewarePlugin", "AbstractMiddleware"]
+__all__ = ["AbstractMiddlewarePlugin", "AbstractMiddleware", "chain_dispatch"]
 
 
 class AbstractMiddlewarePlugin(ABC):
@@ -45,3 +45,34 @@ class AbstractMiddleware(ABC):
 
     def resp_adapter(self, response):
         return self._resp_adapter(response)
+
+
+RequestT = TypeVar("RequestT")
+ResponseT = TypeVar("ResponseT")
+
+
+def chain_dispatch(
+    plugins: List[AbstractMiddlewarePlugin],
+    handler: Callable[[RequestT], Awaitable[ResponseT]],
+) -> Callable[[RequestT], Awaitable[ResponseT]]:
+
+    req_adapter = RequestAdapterFactory.get(RunEnv.get_app())
+    resp_adapter = ResponseAdapterFactory.get(RunEnv.get_app())
+
+    async def dispatch_from(i: int, request: RequestT) -> ResponseT:
+        if i >= len(plugins):
+            return await handler(request)
+        plugin = plugins[i]
+        req = req_adapter(request)
+
+        async def next_call() -> ResponseAdapter:
+            response = await dispatch_from(i + 1, request)
+            return resp_adapter(response)
+
+        resp: ResponseAdapter = await plugin.dispatch(req, next_call)
+        return resp.response
+
+    async def entry(request: RequestT) -> ResponseT:
+        return await dispatch_from(0, request)
+
+    return entry

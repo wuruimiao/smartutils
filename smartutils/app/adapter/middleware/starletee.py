@@ -1,4 +1,4 @@
-from typing import Any, Callable, Coroutine, List, Type
+from typing import Any, Awaitable, Callable, Coroutine, List, Type
 
 from fastapi import Request, Response
 from fastapi.routing import APIRoute
@@ -7,6 +7,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from smartutils.app.adapter.middleware.abstract import (
     AbstractMiddleware,
     AbstractMiddlewarePlugin,
+    chain_dispatch,
 )
 from smartutils.app.adapter.middleware.factory import (
     AddMiddlewareFactory,
@@ -55,37 +56,16 @@ def _(plugins: List[AbstractMiddlewarePlugin]) -> Type[APIRoute]:
     if not plugins:
         return APIRoute
 
-    _req_adapter = RequestAdapterFactory.get(key)
-    _res_adapter = ResponseAdapterFactory.get(key)
-
     # TODO: 优化，这里可以考虑使用一个函数来处理, 和上面的类似，可以考虑使用一个函数来处理
     class PluginsAPIRoute(APIRoute):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
 
-        def get_route_handler(
+        # Awaitable[Response] ≥ Coroutine[Any, Any, Response]（前者包含后者及其它实现）
+        def get_route_handler(  # type: ignore
             self,
-        ) -> Callable[[Request], Coroutine[Any, Any, Response]]:
+        ) -> Callable[[Request], Awaitable[Response]]:
             original_route_handler = super().get_route_handler()
-
-            async def next_plugin(i, request) -> Response:
-                if i >= len(plugins):
-                    return await original_route_handler(request)
-
-                plugin = plugins[i]
-                req: RequestAdapter = _req_adapter(request)
-
-                async def next_call():
-                    response: Response = await next_plugin(i + 1, request)
-                    return _res_adapter(response)
-
-                resp: ResponseAdapter = await plugin.dispatch(req, next_call)
-                return resp.response
-
-            async def custom_route_handler(request: Request):
-                return await next_plugin(0, request)
-
-            return custom_route_handler
+            return chain_dispatch(plugins, original_route_handler)
 
     return PluginsAPIRoute
-    # return APIRouter(route_class=ThisRoute)
