@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, Awaitable, Callable, Dict, Optional, Tuple
 import orjson
 
 from smartutils.config.schema.client import ApiConf, ClientConf
-from smartutils.design import MyBase
 from smartutils.infra.client.breaker import Breaker
 from smartutils.infra.source_manager.abstract import AbstractResource
 from smartutils.init.mixin import LibraryCheckMixin
@@ -39,7 +38,7 @@ async def mock_response(api_conf: ApiConf, *args, **kwargs) -> Response:
     )
 
 
-class HttpClient(LibraryCheckMixin, MyBase, AbstractResource):
+class HttpClient(LibraryCheckMixin, AbstractResource):
     def __init__(self, conf: ClientConf, name: str):
         self.check(conf=conf, libs=["httpx"])
 

@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 __all__ = ["AsyncKafkaCli", "KafkaBatchConsumer"]
 
 
-class AsyncKafkaCli(LibraryCheckMixin, MyBase, AbstractResource):
+class AsyncKafkaCli(LibraryCheckMixin, AbstractResource):
     def __init__(self, conf: KafkaConf, name: str):
         self.check(conf=conf, libs=["aiokafka"])
 
