@@ -6,7 +6,8 @@ from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.req.factory import RequestAdapterFactory
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.adapter.resp.factory import ResponseAdapterFactory
-from smartutils.app.const import AppKey
+from smartutils.app.const import AppKey, RunEnv
+from smartutils.app.factory import ExcJsonResp
 from smartutils.config.schema.middleware import (
     MiddlewarePluginKey,
     MiddlewarePluginSetting,
@@ -16,10 +17,11 @@ __all__ = ["AbstractMiddlewarePlugin", "AbstractMiddleware"]
 
 
 class AbstractMiddlewarePlugin(ABC):
-    def __init__(self, *, app_key: AppKey, conf: MiddlewarePluginSetting):
+    def __init__(self, *, conf: MiddlewarePluginSetting):
         self.key: MiddlewarePluginKey
-        self._app_key: AppKey = app_key
-        self._resp_fn = JsonRespFactory.get(app_key)
+        self._app_key: AppKey = RunEnv.get_app()
+        self._resp_fn = JsonRespFactory.get(self._app_key)
+        self._exc_resp = ExcJsonResp()
         self._conf: MiddlewarePluginSetting = conf
 
     @abstractmethod

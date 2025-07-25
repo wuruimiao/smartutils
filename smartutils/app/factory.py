@@ -2,7 +2,7 @@ from loguru import logger
 
 from smartutils.app.adapter.json_resp.factory import JsonRespFactory
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
-from smartutils.app.const import AppKey
+from smartutils.app.const import RunEnv
 from smartutils.design import singleton
 from smartutils.error.factory import ExcDetailFactory, ExcErrorFactory
 
@@ -11,9 +11,9 @@ __all__ = ["ExcJsonResp"]
 
 @singleton
 class ExcJsonResp:
-    def __init__(self, key: AppKey):
-        self._key = key
-        self._resp_fn = JsonRespFactory.get(key)
+    def __init__(self):
+        self._key = RunEnv.get_app()
+        self._resp_fn = JsonRespFactory.get(self._key)
 
     def handle(self, exc: BaseException) -> ResponseAdapter:
         error = ExcErrorFactory.get(exc)

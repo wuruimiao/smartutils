@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Awaitable, Callable, Dict, Optional, Tuple
 from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
-from smartutils.app.const import AppKey, MiddlewarePluginOrder
+from smartutils.app.const import MiddlewarePluginOrder
 from smartutils.app.plugin.abstract import AuthBase
 from smartutils.app.plugin.common import CustomHeader
 from smartutils.app.plugin.factory import MiddlewarePluginFactory
@@ -28,8 +28,8 @@ if TYPE_CHECKING:
     MiddlewarePluginKey.PERMISSION, order=MiddlewarePluginOrder.PERMISSION
 )
 class PermissionPlugin(AuthBase, AbstractMiddlewarePlugin):
-    def __init__(self, *, app_key: AppKey, conf: MiddlewarePluginSetting):
-        super().__init__(app_key=app_key, conf=conf, plugin_conf=conf.permission)
+    def __init__(self, *, conf: MiddlewarePluginSetting):
+        super().__init__(conf=conf, plugin_conf=conf.permission)
 
     async def _local(self, req: RequestAdapter) -> Tuple[Optional[Dict], str]:
         # TODO: 完善local调用

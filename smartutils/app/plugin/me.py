@@ -6,7 +6,7 @@ from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.auth.token import TokenHelper, User
-from smartutils.app.const import AppKey, MiddlewarePluginOrder
+from smartutils.app.const import MiddlewarePluginOrder
 from smartutils.app.plugin.abstract import AuthBase
 from smartutils.app.plugin.common import CustomHeader
 from smartutils.app.plugin.factory import MiddlewarePluginFactory
@@ -29,8 +29,8 @@ if TYPE_CHECKING:
     MiddlewarePluginKey.ME, order=MiddlewarePluginOrder.ME
 )
 class MePlugin(AuthBase, AbstractMiddlewarePlugin):
-    def __init__(self, *, app_key: AppKey, conf: MiddlewarePluginSetting):
-        super().__init__(app_key=app_key, conf=conf, plugin_conf=conf.me)
+    def __init__(self, *, conf: MiddlewarePluginSetting):
+        super().__init__(conf=conf, plugin_conf=conf.me)
 
         try:
             if self._conf.me.local:

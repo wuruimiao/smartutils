@@ -6,7 +6,7 @@ from smartutils.app.adapter.middleware.factory import (
     AddMiddlewareFactory,
     RouteMiddlewareFactory,
 )
-from smartutils.app.const import AppKey
+from smartutils.app.const import AppKey, RunEnv
 from smartutils.app.plugin.factory import MiddlewarePluginFactory
 from smartutils.app.plugin.log import LogPlugin
 from smartutils.config.const import ConfKey
@@ -24,11 +24,12 @@ class MiddlewareManager(LibraryCheckMixin, metaclass=SingletonMeta):
     def __init__(self, conf: Optional[MiddlewareConf] = None):
         self.check(conf=conf)
 
-        self._app_key: AppKey
+        self._app_key: AppKey = RunEnv.get_app()
         self._conf: MiddlewareConf = conf
         self._enable_plugins: Dict[str, List[Type[AbstractMiddlewarePlugin]]] = (
             defaultdict(list)
         )
+        self._app_inited: bool = False
         if not self._conf.routes:
             return
 
@@ -38,38 +39,38 @@ class MiddlewareManager(LibraryCheckMixin, metaclass=SingletonMeta):
                     self._enable_plugins[key].append(plugin_cls)
 
     def _get_route_enable_plugins(
-        self, route_key: str, key: AppKey
+        self, route_key: str
     ) -> List[AbstractMiddlewarePlugin]:
         plugins = []
         for plugin_cls in self._enable_plugins.get(route_key, []):
-            plugin = plugin_cls(app_key=key, conf=self._conf.safe_setting)
+            plugin = plugin_cls(conf=self._conf.safe_setting)
             logger.debug(f"Enable plugin {plugin.key} for route {route_key}.")
             plugins.append(plugin)
         return plugins
 
     # TODO: 其他框架的中间件执行顺序和添加顺序
-    def init_app_middlewares(self, app, app_key: AppKey):
-        if hasattr(self, "_app_key"):
+    def init_app_middlewares(self, app):
+        if self._app_inited:
             raise LibraryUsageError(
-                "Cannot init middleware for app key {app_key} twice."
+                f"Cannot init middleware for app key {self._app_key} twice."
             )
-        self._app_key = app_key
+        self._app_inited = True
 
         logger.info("Middleware inited in app.")
-        AddMiddlewareFactory.get(app_key)(
-            app, self._get_route_enable_plugins(_ROUTE_APP_KEY, app_key)
+        AddMiddlewareFactory.get(self._app_key)(
+            app, self._get_route_enable_plugins(_ROUTE_APP_KEY)
         )
 
     def init_route_middleware(self, route_key: str):
         logger.info(f"Middleware inited in route {route_key}.")
         return RouteMiddlewareFactory.get(self._app_key)(
-            self._get_route_enable_plugins(route_key, self._app_key)
+            self._get_route_enable_plugins(route_key)
         )
 
     def init_default_route_middleware(self):
         logger.info("Middleware init default route.")
         return RouteMiddlewareFactory.get(self._app_key)(
-            [LogPlugin(app_key=self._app_key, conf=self._conf.safe_setting)]
+            [LogPlugin(conf=self._conf.safe_setting)]
         )
 
 

@@ -73,7 +73,7 @@ def create_app(_conf_path="config.yaml"):
     from smartutils.app.factory import ExcJsonResp
     from smartutils.init import init
 
-    key = AppKey.FASTAPI
+    RunEnv.set_app(AppKey.FASTAPI)
 
     app = FastAPI(lifespan=lifespan, default_response_class=STJsonResponse)
 
@@ -82,15 +82,15 @@ def create_app(_conf_path="config.yaml"):
 
     # TODO: 初始化一次，这里是为了middleware初始化能读取配置
     init(conf_path)
-    MiddlewareManager().init_app_middlewares(app, key)
+    MiddlewareManager().init_app_middlewares(app)
 
     @app.exception_handler(RequestValidationError)
     async def _(request: Request, exc: RequestValidationError):
-        return ExcJsonResp(key).handle(exc).response
+        return ExcJsonResp().handle(exc).response
 
     @app.exception_handler(HTTPException)
     async def _(request: Request, exc: HTTPException):
-        return ExcJsonResp(key).handle(exc).response
+        return ExcJsonResp().handle(exc).response
 
     router = APIRouter(route_class=MiddlewareManager().init_default_route_middleware())
 
