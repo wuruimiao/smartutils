@@ -70,6 +70,7 @@ def chain_dispatch(
             response = await dispatch_from(i + 1, request)
             return resp_adapter(response)
 
+        # 在plugin中的逻辑，实现是否调用next_call
         resp: ResponseAdapter = await plugin.dispatch(req, next_call)
         return resp.response
 
