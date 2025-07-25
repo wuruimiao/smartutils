@@ -17,10 +17,10 @@ from smartutils.init.factory import InitByConfFactory
 from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
 
-_ROUTE_APP_KEY = "app"
-
 
 class MiddlewareManager(LibraryCheckMixin, MyBase, metaclass=SingletonMeta):
+    ROUTE_APP_KEY = "app"
+
     def __init__(self, conf: Optional[MiddlewareConf] = None):
         self.check(conf=conf)
 
@@ -60,7 +60,7 @@ class MiddlewareManager(LibraryCheckMixin, MyBase, metaclass=SingletonMeta):
 
         logger.info("{name} inited in app.", name=self.name)
         AddMiddlewareFactory.get(self._app_key)(
-            app, self._get_route_enable_plugins(_ROUTE_APP_KEY)
+            app, self._get_route_enable_plugins(self.ROUTE_APP_KEY)
         )
 
     def init_route(self, route_key: str):
