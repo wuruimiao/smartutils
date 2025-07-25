@@ -6,7 +6,7 @@ from smartutils.config.const import ConfKey
 from smartutils.config.schema.client import ClientConf, ClientType
 from smartutils.ctx.const import CTXKey
 from smartutils.ctx.manager import CTXVarManager
-from smartutils.design import MyBase, singleton
+from smartutils.design import singleton
 from smartutils.error.sys import ClientError
 from smartutils.infra.client.grpc import GrpcClient
 from smartutils.infra.client.http import HttpClient
