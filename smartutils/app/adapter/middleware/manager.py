@@ -11,7 +11,7 @@ from smartutils.app.plugin.factory import MiddlewarePluginFactory
 from smartutils.app.plugin.log import LogPlugin
 from smartutils.config.const import ConfKey
 from smartutils.config.schema.middleware import MiddlewareConf
-from smartutils.design import SingletonMeta
+from smartutils.design import MyBase, SingletonMeta
 from smartutils.error.sys import LibraryUsageError
 from smartutils.init.factory import InitByConfFactory
 from smartutils.init.mixin import LibraryCheckMixin
@@ -20,7 +20,7 @@ from smartutils.log import logger
 _ROUTE_APP_KEY = "app"
 
 
-class MiddlewareManager(LibraryCheckMixin, metaclass=SingletonMeta):
+class MiddlewareManager(LibraryCheckMixin, MyBase, metaclass=SingletonMeta):
     def __init__(self, conf: Optional[MiddlewareConf] = None):
         self.check(conf=conf)
 
@@ -44,7 +44,9 @@ class MiddlewareManager(LibraryCheckMixin, metaclass=SingletonMeta):
         plugins = []
         for plugin_cls in self._enable_plugins.get(route_key, []):
             plugin = plugin_cls(conf=self._conf.safe_setting)
-            logger.debug(f"Enable plugin {plugin.key} for route {route_key}.")
+            logger.debug(
+                f"{self.name} enable plugin {plugin.key} for route {route_key}."
+            )
             plugins.append(plugin)
         return plugins
 
@@ -52,23 +54,25 @@ class MiddlewareManager(LibraryCheckMixin, metaclass=SingletonMeta):
     def init_app(self, app):
         if self._app_inited:
             raise LibraryUsageError(
-                f"Cannot init middleware for app key {self._app_key} twice."
+                f"{self.name} Cannot init middleware for app key {self._app_key} twice."
             )
         self._app_inited = True
 
-        logger.info("Middleware inited in app.")
+        logger.info("{name} inited in app.", name=self.name)
         AddMiddlewareFactory.get(self._app_key)(
             app, self._get_route_enable_plugins(_ROUTE_APP_KEY)
         )
 
     def init_route(self, route_key: str):
-        logger.info(f"Middleware inited in route {route_key}.")
+        logger.info(
+            "{name} inited in route {route_key}.", name=self.name, route_key=route_key
+        )
         return RouteMiddlewareFactory.get(self._app_key)(
             self._get_route_enable_plugins(route_key)
         )
 
     def init_default_route(self):
-        logger.info("Middleware init default route.")
+        logger.info("{name} init default route.", name=self.name)
         return RouteMiddlewareFactory.get(self._app_key)(
             [LogPlugin(conf=self._conf.safe_setting)]
         )
