@@ -1,14 +1,13 @@
 from typing import Any, Callable
 
-from smartutils.call import call_hook
 from smartutils.config import Config, ConfKey
-from smartutils.design import BaseFactory
+from smartutils.design import BaseFactory, MyBase
 from smartutils.log import logger
 
 __all__ = ["InitByConfFactory"]
 
 
-class InitByConfFactory(BaseFactory[ConfKey, Callable[[Any], Any]]):
+class InitByConfFactory(MyBase, BaseFactory[ConfKey, Callable[[Any], Any]]):
     # @classmethod
     # def register(cls, key: ConfKey, need_conf: bool = True, **kwargs):  # type: ignore
     #     def decorator(func: Callable[[Any], Any]):
@@ -25,11 +24,23 @@ class InitByConfFactory(BaseFactory[ConfKey, Callable[[Any], Any]]):
             conf = config.get(comp_key)
             # if need_conf and not conf:
             if not conf:
-                logger.debug("init by conf no {comp_key}, ignore.", comp_key=comp_key)
+                logger.debug(
+                    "{name} init by conf no {comp_key}, ignore.",
+                    name=cls.name,
+                    comp_key=comp_key,
+                )
                 continue
 
-            logger.debug("init by conf initializing {comp_key} ...", comp_key=comp_key)
+            logger.debug(
+                "{name} init by conf initializing {comp_key} ...",
+                name=cls.name,
+                comp_key=comp_key,
+            )
 
             init_func(conf)
 
-            logger.info("init by conf {comp_key} inited.", comp_key=comp_key)
+            logger.info(
+                "{name} init by conf {comp_key} inited.",
+                name=cls.name,
+                comp_key=comp_key,
+            )

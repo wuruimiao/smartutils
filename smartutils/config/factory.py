@@ -3,7 +3,7 @@ from typing import Dict, Tuple, Type, Union
 from pydantic import ValidationError
 
 from smartutils.config.const import BaseModelT, ConfKey
-from smartutils.design import BaseFactory
+from smartutils.design import BaseFactory, MyBase
 from smartutils.error.factory import ExcDetailFactory
 from smartutils.error.sys import ConfigError
 from smartutils.log import logger
@@ -11,7 +11,7 @@ from smartutils.log import logger
 __all__ = ["ConfFactory"]
 
 
-class ConfFactory(BaseFactory[ConfKey, Tuple[Type, bool, bool]]):
+class ConfFactory(MyBase, BaseFactory[ConfKey, Tuple[Type, bool, bool]]):
     @classmethod
     def register(cls, name: ConfKey, multi: bool = False, require: bool = True):  # type: ignore
         def decorator(conf_cls: Type):
@@ -22,13 +22,13 @@ class ConfFactory(BaseFactory[ConfKey, Tuple[Type, bool, bool]]):
 
         return decorator
 
-    @staticmethod
-    def _init_conf_cls(name, key, conf_cls, conf):
+    @classmethod
+    def _init_conf_cls(cls, name, key, conf_cls, conf):
         try:
             return conf_cls(**conf)
         except ValidationError as e:
             raise ConfigError(
-                f"ConfFactory invalid {name}-{key} in config.yml: {ExcDetailFactory.get(e)}"
+                f"{cls.name} invalid {name}-{key} in config.yml: {ExcDetailFactory.get(e)}"
             )
 
     @classmethod
@@ -40,11 +40,15 @@ class ConfFactory(BaseFactory[ConfKey, Tuple[Type, bool, bool]]):
         conf_cls, multi, require = info
         if not conf:
             if require:
-                raise ConfigError(f"ConfFactory require {name} in config.yml")
-            logger.debug("ConfFactory no {name} in config.yml, ignore.", name=name)
+                raise ConfigError(f"{cls.name} require {name} in config.yml")
+            logger.debug(
+                "{cls_name} no {name} in config.yml, ignore.",
+                cls_name=cls.name,
+                name=name,
+            )
             return None
 
-        logger.info("ConfFactory {name} created.", name=name)
+        logger.info("{cls_name} {name} created.", cls_name=cls.name, name=name)
 
         if multi:
             # if ConfKey.GROUP_DEFAULT not in conf:

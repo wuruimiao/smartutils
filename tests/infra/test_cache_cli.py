@@ -17,7 +17,7 @@ def async_cli(mocker):
     cli = cachemod.AsyncRedisCli.__new__(cachemod.AsyncRedisCli)
     cli._redis = mocker.AsyncMock()
     cli._pool = mocker.AsyncMock()
-    cli._name = "test"
+    cli._key = "test"
     return cli
 
 

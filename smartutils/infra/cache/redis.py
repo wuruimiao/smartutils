@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Dict, Optional
 from smartutils.config.const import ConfKey
 from smartutils.config.schema.redis import RedisConf
 from smartutils.ctx import CTXKey, CTXVarManager
-from smartutils.design import singleton
+from smartutils.design import MyBase, singleton
 from smartutils.error.factory import ExcDetailFactory
 from smartutils.error.sys import CacheError
 from smartutils.infra.source_manager.abstract import AbstractResource
@@ -27,13 +27,13 @@ if TYPE_CHECKING:
 __all__ = ["AsyncRedisCli", "RedisManager"]
 
 
-class AsyncRedisCli(LibraryCheckMixin, AbstractResource):
+class AsyncRedisCli(LibraryCheckMixin, MyBase, AbstractResource):
     """异步 Redis 客户端封装，线程安全、协程安全。"""
 
     def __init__(self, conf: RedisConf, name: str):
         self.check(conf=conf, libs=["redis"])
 
-        self._name = name
+        self._key = name
 
         kw = conf.kw
         kw["decode_responses"] = True
@@ -49,7 +49,11 @@ class AsyncRedisCli(LibraryCheckMixin, AbstractResource):
             pong = await self._redis.ping()
             return pong is True
         except:  # noqa
-            logger.exception("Redis health check {name} failed", name=self._name)
+            logger.exception(
+                "{cls_name} {name} health check  failed",
+                cls_name=self.name,
+                name=self._key,
+            )
             return False
 
     async def close(self):
@@ -230,7 +234,8 @@ class AsyncRedisCli(LibraryCheckMixin, AbstractResource):
             )
             if len(messages) > count:
                 logger.error(
-                    "xread_xack get {length} expect {count}",
+                    "{name} xread_xack get {length} expect {count}",
+                    name=self.name,
                     length=len(messages),
                     count=count,
                 )
@@ -238,7 +243,7 @@ class AsyncRedisCli(LibraryCheckMixin, AbstractResource):
             if not messages:
                 yield None
                 return
-            logger.debug("{messages}", messages=messages)
+            logger.debug("{name} {messages}", name=self.name, messages=messages)
             for message in messages:
                 stream_name, messages_list = message
                 for message_id, fields in messages_list:
@@ -252,7 +257,7 @@ class AsyncRedisCli(LibraryCheckMixin, AbstractResource):
                     }
                     yield fields
         except:  # noqa
-            logger.exception("xread xack fail")
+            logger.exception("{name} xread xack fail", name=self.name)
             yield None
         finally:
             # 在退出时提交 ACK

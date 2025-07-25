@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from typing import TYPE_CHECKING
 
+from smartutils.design import MyBase
 from smartutils.log import logger
 
 try:
@@ -11,7 +12,7 @@ if TYPE_CHECKING:
     from uhashring import HashRing as _HashRing
 
 
-class HashRing(_HashRing):
+class HashRing(MyBase, _HashRing):
     def __init__(self, nodes=None, **kwargs):
         if not nodes:
             nodes = []
@@ -22,7 +23,11 @@ class HashRing(_HashRing):
 
     def _init(self):
         _node_weight = {k: v["weight"] for k, v in self.runtime._nodes.items()}  # noqa
-        logger.debug(f"HashRing node weight={_node_weight}")
+        logger.debug(
+            "{name} node weight={_node_weight}",
+            name=self.name,
+            _node_weight=_node_weight,
+        )
         # 虚拟节点hash值对应的真实节点
         self._sorted_node = OrderedDict(sorted(self.runtime._ring.items()))  # noqa
         last = None

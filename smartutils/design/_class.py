@@ -1,8 +1,14 @@
-class MyBase:
-    @property
-    def name(self):
-        return f"[{self.__class__.__name__}]"
+class classproperty(property):
+    def __get__(self, obj, cls):
+        return self.fget(cls)
 
-    @property
-    def full_name(self):
-        return f"[{self.__class__.__module__}.{self.__class__.__qualname__}]"
+
+class MyBase:
+    @classproperty
+    def name(cls):
+        return f"[{cls.__name__}]"
+
+    @classproperty
+    def full_name(cls):
+        # 限定名，含作用域
+        return f"[{cls.__module__}.{cls.__qualname__}]"

@@ -16,7 +16,7 @@ def dummy_conf():
 def dbcli(dummy_conf, mocker):
     # 避免实际构造engine，直接new并mock必要属性
     cli = dbmod.AsyncDBCli.__new__(dbmod.AsyncDBCli)
-    cli._name = "test"
+    cli._key = "test"
     cli._engine = mocker.AsyncMock()
     cli._session = mocker.MagicMock()
     return cli

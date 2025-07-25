@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any, AsyncGenerator, Callable, Dict, List, Opt
 import orjson
 
 from smartutils.config.schema.kafka import KafkaConf
+from smartutils.design import MyBase
 from smartutils.error.factory import ExcDetailFactory
 from smartutils.error.sys import MQError
 from smartutils.infra.source_manager.abstract import AbstractResource
@@ -23,7 +24,7 @@ if TYPE_CHECKING:
 __all__ = ["AsyncKafkaCli", "KafkaBatchConsumer"]
 
 
-class AsyncKafkaCli(LibraryCheckMixin, AbstractResource):
+class AsyncKafkaCli(LibraryCheckMixin, MyBase, AbstractResource):
     def __init__(self, conf: KafkaConf, name: str):
         self.check(conf=conf, libs=["aiokafka"])
 
@@ -40,7 +41,7 @@ class AsyncKafkaCli(LibraryCheckMixin, AbstractResource):
             await self._producer.client.fetch_all_metadata()
             return True
         except Exception as e:
-            logger.warning("[{name}] Kafka ping failed: {e}", name=self._name, e=e)
+            logger.warning("{name} Kafka ping failed: {e}", name=self.name, e=e)
             return False
 
     async def close(self):
@@ -63,7 +64,9 @@ class AsyncKafkaCli(LibraryCheckMixin, AbstractResource):
             self._producer = producer
         except errors.KafkaConnectionError as e:
             logger.exception(
-                "start kafka producer {servers} fail", servers=self._bootstrap_servers
+                "{name} start kafka producer {servers} fail",
+                name=self.name,
+                servers=self._bootstrap_servers,
             )
             await producer.stop()
             raise MQError(ExcDetailFactory.get(e)) from None
@@ -92,7 +95,7 @@ class AsyncKafkaCli(LibraryCheckMixin, AbstractResource):
             await self._producer.send_and_wait(topic, orjson.dumps(record))
 
 
-class KafkaBatchConsumer:
+class KafkaBatchConsumer(MyBase):
     def __init__(
         self,
         kafka_cli: AsyncKafkaCli,
@@ -158,4 +161,4 @@ class KafkaBatchConsumer:
                     await consumer.commit(commit_offsets)
 
             except:  # noqa
-                logger.exception("batch consume fail.")
+                logger.exception(f"{self.name} batch consume fail.")

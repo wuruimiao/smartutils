@@ -3,10 +3,11 @@ from typing import List, Optional
 
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.app.const import HeaderKey
+from smartutils.design import MyBase
 from smartutils.log import logger
 
 
-class CustomHeader:
+class CustomHeader(MyBase):
     @classmethod
     def userid(cls, adapter: RequestAdapter, value: Optional[int] = None) -> int:
         if value is not None:
@@ -55,7 +56,10 @@ class CustomHeader:
             return None
         if not isinstance(ids, str):
             logger.error(
-                "CustomHeader get {ids}, not str, {type}", ids=ids, type=type(ids)
+                "{name} get {ids}, not str, {type}",
+                name=cls.name,
+                ids=ids,
+                type=type(ids),
             )
             return None
         return [int(s) for s in ids.split(",")]

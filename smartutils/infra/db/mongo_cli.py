@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, AsyncGenerator, Optional, Tuple
 
 from smartutils.config.schema.mongo import MongoConf
+from smartutils.design import MyBase
 from smartutils.infra.source_manager.abstract import AbstractResource
 from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
@@ -26,11 +27,11 @@ if TYPE_CHECKING:
 __all__ = ["AsyncMongoCli"]
 
 
-class AsyncMongoCli(LibraryCheckMixin, AbstractResource):
+class AsyncMongoCli(LibraryCheckMixin, MyBase, AbstractResource):
     def __init__(self, conf: MongoConf, name: str):
         self.check(conf=conf, libs=["motor"])
 
-        self._name = name
+        self._key = name
         self.conf = conf
         self._client: AsyncIOMotorClient = AsyncIOMotorClient(conf.url, **conf.kw)
         self._db: AsyncIOMotorDatabase = self._client[self.conf.db]
@@ -40,7 +41,7 @@ class AsyncMongoCli(LibraryCheckMixin, AbstractResource):
             await self._client.admin.command("ping")
             return True
         except Exception:
-            logger.exception("[{name}] MongoDB ping failed", name=self._name)
+            logger.exception("{name} MongoDB ping failed", name=self.name)
             return False
 
     async def close(self):

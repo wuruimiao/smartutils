@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Optional, Tuple, Union
 
 from smartutils.config.schema.mysql import MySQLConf
 from smartutils.config.schema.postgresql import PostgreSQLConf
+from smartutils.design import MyBase
 from smartutils.infra.source_manager.abstract import AbstractResource
 from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
@@ -45,11 +46,11 @@ __all__ = ["AsyncDBCli", "db_commit", "db_rollback"]
 #         return result
 
 
-class AsyncDBCli(LibraryCheckMixin, AbstractResource):
+class AsyncDBCli(LibraryCheckMixin, MyBase, AbstractResource):
     def __init__(self, conf: Union[MySQLConf, PostgreSQLConf], name: str):
         self.check(conf=conf, libs=["sqlalchemy"])
 
-        self._name = name
+        self._key = name
         kw = conf.kw
         kw["pool_reset_on_return"] = "rollback"
         kw["pool_pre_ping"] = True
@@ -71,7 +72,7 @@ class AsyncDBCli(LibraryCheckMixin, AbstractResource):
                 await conn.execute(text("SELECT 1"))
             return True
         except:  # noqa
-            logger.exception("[{name}] DB ping failed", name=self._name)
+            logger.exception("{name} DB ping failed", name=self.name)
             return False
 
     async def close(self):
