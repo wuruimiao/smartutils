@@ -1,4 +1,4 @@
-from typing import Awaitable, Callable, List, Type
+from typing import Awaitable, Callable, Tuple, Type
 
 from fastapi import Request, Response
 from fastapi.routing import APIRoute
@@ -43,14 +43,14 @@ class StarletteMiddleware(AbstractMiddleware, BaseHTTPMiddleware):
 
 
 @AddMiddlewareFactory.register(key)
-def _(app, plugins: List[AbstractMiddlewarePlugin]):
+def _(app, plugins: Tuple[AbstractMiddlewarePlugin]):
     # fastapi调用顺序和add顺序相反
     for plugin in plugins[::-1]:
         app.add_middleware(StarletteMiddleware, plugin)
 
 
 @RouteMiddlewareFactory.register(key)
-def _(plugins: List[AbstractMiddlewarePlugin]) -> Type[APIRoute]:
+def _(plugins: Tuple[AbstractMiddlewarePlugin]) -> Type[APIRoute]:
     if not plugins:
         return APIRoute
 

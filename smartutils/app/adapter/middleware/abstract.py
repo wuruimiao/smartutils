@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Awaitable, Callable, List, TypeVar
+from typing import Awaitable, Callable, Tuple, TypeVar
 
 from smartutils.app.adapter.json_resp.factory import JsonRespFactory
 from smartutils.app.adapter.req.abstract import RequestAdapter
@@ -52,7 +52,7 @@ ResponseT = TypeVar("ResponseT")
 
 
 def chain_dispatch(
-    plugins: List[AbstractMiddlewarePlugin],
+    plugins: Tuple[AbstractMiddlewarePlugin],
     handler: Callable[[RequestT], Awaitable[ResponseT]],
 ) -> Callable[[RequestT], Awaitable[ResponseT]]:
 
@@ -62,6 +62,7 @@ def chain_dispatch(
     async def dispatch_from(i: int, request: RequestT) -> ResponseT:
         if i >= len(plugins):
             return await handler(request)
+
         plugin = plugins[i]
         req = req_adapter(request)
 

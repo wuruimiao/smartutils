@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Dict, List, Optional, Type
+from typing import Dict, List, Optional, Tuple, Type
 
 from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin
 from smartutils.app.adapter.middleware.factory import (
@@ -40,7 +40,7 @@ class MiddlewareManager(LibraryCheckMixin, MyBase, metaclass=SingletonMeta):
 
     def _get_route_enable_plugins(
         self, route_key: str
-    ) -> List[AbstractMiddlewarePlugin]:
+    ) -> Tuple[AbstractMiddlewarePlugin]:
         plugins = []
         for plugin_cls in self._enable_plugins.get(route_key, []):
             plugin = plugin_cls(conf=self._conf.safe_setting)
@@ -48,7 +48,7 @@ class MiddlewareManager(LibraryCheckMixin, MyBase, metaclass=SingletonMeta):
                 f"{self.name} enable plugin {plugin.key} for route {route_key}."
             )
             plugins.append(plugin)
-        return plugins
+        return tuple(plugins)
 
     # TODO: 其他框架的中间件执行顺序和添加顺序
     def init_app(self, app):
@@ -74,7 +74,7 @@ class MiddlewareManager(LibraryCheckMixin, MyBase, metaclass=SingletonMeta):
     def init_default_route(self):
         logger.info("{name} init default route.", name=self.name)
         return RouteMiddlewareFactory.get(self._app_key)(
-            [LogPlugin(conf=self._conf.safe_setting)]
+            (LogPlugin(conf=self._conf.safe_setting),)
         )
 
 
