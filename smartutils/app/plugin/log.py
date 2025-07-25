@@ -30,7 +30,7 @@ class LogPlugin(AbstractMiddlewarePlugin):
             url=req.url,
             query=req.query_params,
         )
-        resp = await next_adapter()
+        resp: ResponseAdapter = await next_adapter()
 
         cost = (perf_counter() - start) * 1000
         logger.info(
