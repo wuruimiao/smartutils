@@ -65,7 +65,7 @@ project:
 
         mgr = MiddlewareManager()
 
-        me_router = APIRouter(route_class=mgr.init_route_middleware("me"))
+        me_router = APIRouter(route_class=mgr.init_route("me"))
 
         @me_router.get("/test-me")
         def me():
@@ -80,9 +80,7 @@ project:
 
         app.include_router(me_router)
 
-        permission_router = APIRouter(
-            route_class=mgr.init_route_middleware("permission")
-        )
+        permission_router = APIRouter(route_class=mgr.init_route("permission"))
 
         @permission_router.get("/test-permission")
         def permission():

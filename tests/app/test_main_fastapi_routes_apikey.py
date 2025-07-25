@@ -42,7 +42,7 @@ project:
 
         mgr = MiddlewareManager()
 
-        api_key_router = APIRouter(route_class=mgr.init_route_middleware("apikey"))
+        api_key_router = APIRouter(route_class=mgr.init_route("apikey"))
 
         @api_key_router.get("/test-api-key")
         def api_key():
@@ -98,7 +98,7 @@ project:
 
         mgr = MiddlewareManager()
 
-        api_key_router = APIRouter(route_class=mgr.init_route_middleware("apikey"))
+        api_key_router = APIRouter(route_class=mgr.init_route("apikey"))
 
         @api_key_router.get("/test-api-key-secret")
         def api_key_secret():

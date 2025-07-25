@@ -49,7 +49,7 @@ class MiddlewareManager(LibraryCheckMixin, metaclass=SingletonMeta):
         return plugins
 
     # TODO: 其他框架的中间件执行顺序和添加顺序
-    def init_app_middlewares(self, app):
+    def init_app(self, app):
         if self._app_inited:
             raise LibraryUsageError(
                 f"Cannot init middleware for app key {self._app_key} twice."
@@ -61,13 +61,13 @@ class MiddlewareManager(LibraryCheckMixin, metaclass=SingletonMeta):
             app, self._get_route_enable_plugins(_ROUTE_APP_KEY)
         )
 
-    def init_route_middleware(self, route_key: str):
+    def init_route(self, route_key: str):
         logger.info(f"Middleware inited in route {route_key}.")
         return RouteMiddlewareFactory.get(self._app_key)(
             self._get_route_enable_plugins(route_key)
         )
 
-    def init_default_route_middleware(self):
+    def init_default_route(self):
         logger.info("Middleware init default route.")
         return RouteMiddlewareFactory.get(self._app_key)(
             [LogPlugin(conf=self._conf.safe_setting)]

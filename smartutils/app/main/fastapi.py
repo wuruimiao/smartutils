@@ -82,7 +82,7 @@ def create_app(_conf_path="config.yaml"):
 
     # TODO: 初始化一次，这里是为了middleware初始化能读取配置
     init(conf_path)
-    MiddlewareManager().init_app_middlewares(app)
+    MiddlewareManager().init_app(app)
 
     @app.exception_handler(RequestValidationError)
     async def _(request: Request, exc: RequestValidationError):
@@ -92,7 +92,7 @@ def create_app(_conf_path="config.yaml"):
     async def _(request: Request, exc: HTTPException):
         return ExcJsonResp().handle(exc).response
 
-    router = APIRouter(route_class=MiddlewareManager().init_default_route_middleware())
+    router = APIRouter(route_class=MiddlewareManager().init_default_route())
 
     @router.get("/")
     def root() -> ResponseModel:
