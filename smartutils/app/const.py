@@ -1,11 +1,12 @@
 import sys
 from enum import Enum, IntEnum
 
+from smartutils.data import SharedData
+
 __all__ = [
     "HeaderKey",
     "AppKey",
     "MiddlewarePluginOrder",
-    "CONF_ENV_NAME",
 ]
 
 
@@ -39,4 +40,19 @@ class MiddlewarePluginOrder(IntEnum):
     EXCEPTION = sys.maxsize
 
 
-CONF_ENV_NAME = "smartutils_conf_path"
+class RunEnv(SharedData):
+    @classmethod
+    def set_conf_path(cls, path: str):
+        cls.set("conf", path)
+
+    @classmethod
+    def get_conf_path(cls, default=None) -> str:
+        return cls.get("conf", default)
+
+    @classmethod
+    def set_app(cls, app: AppKey):
+        cls.set("app", app)
+
+    @classmethod
+    def get_app(cls) -> AppKey:
+        return cls.get("app")

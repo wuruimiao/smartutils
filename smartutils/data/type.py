@@ -1,6 +1,6 @@
 import difflib
 from enum import Enum
-from typing import TypeVar, Type, Any, Dict, Optional
+from typing import Any, Dict, Optional, Type, TypeVar
 
 __all__ = ["ZhEnumBase", "LowStr"]
 
@@ -68,3 +68,15 @@ class ZhEnumBase(Enum):
 class LowStr(str):
     def __new__(cls, s: str):
         return str.__new__(cls, s.lower())
+
+
+class SharedData:
+    _data = {}
+
+    @classmethod
+    def set(cls, key, value):
+        cls._data[key] = value
+
+    @classmethod
+    def get(cls, key, default=None) -> Any:
+        return cls._data.get(key, default)

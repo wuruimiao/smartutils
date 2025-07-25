@@ -4,6 +4,8 @@ from pathlib import Path
 import uvicorn
 from dotenv import load_dotenv
 
+from smartutils.app.const import RunEnv
+
 load_dotenv(dotenv_path=Path("config") / ".env", override=True)
 
 # if os.environ.get("ENABLE_OTEL_AUTO_INSTRUMENT", "1") == "1":
@@ -39,9 +41,8 @@ def run():
     )
     args = parser.parse_args()
 
-    from smartutils.app.const import CONF_ENV_NAME
-
-    os.environ[CONF_ENV_NAME] = args.conf
+    RunEnv.set_conf_path(args.conf)
+    RunEnv.set_app(AppKey(args.app))
 
     uvicorn.run(
         f"smartutils.app.main.{args.app}:create_app",

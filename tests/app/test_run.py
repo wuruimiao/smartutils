@@ -4,6 +4,7 @@ import sys
 import pytest
 
 from smartutils.app import run_main as run_module
+from smartutils.app.const import RunEnv
 
 
 class DummyUvicorn:
@@ -34,13 +35,12 @@ def test_run_env_and_uvicorn(mocker):
         "fastapi",
     ]
     # patch AppKey to a dummy for full injection
-    from smartutils.app.const import CONF_ENV_NAME
 
     mocker.patch.object(run_module, "load_dotenv", return_value=None)
 
     run_module.run()
 
-    assert os.environ[CONF_ENV_NAME] == "abc.yaml"
+    assert RunEnv.get_conf_path() == "abc.yaml"
     assert dummy.called["kwargs"]["host"] == "1.2.3.4"
     assert dummy.called["kwargs"]["port"] == 12345
     assert dummy.called["kwargs"]["reload"] is True
