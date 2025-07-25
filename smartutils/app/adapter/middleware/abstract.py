@@ -52,7 +52,7 @@ ResponseT = TypeVar("ResponseT")
 
 
 def chain_dispatch(
-    plugins: Tuple[AbstractMiddlewarePlugin],
+    plugins: Tuple[AbstractMiddlewarePlugin, ...],
     handler: Callable[[RequestT], Awaitable[ResponseT]],
 ) -> Callable[[RequestT], Awaitable[ResponseT]]:
 
