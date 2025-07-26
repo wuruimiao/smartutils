@@ -1,6 +1,11 @@
 import threading
 from functools import wraps
 
+"""
+此单例不可直接/间接在构造中做异步IO或 await 操作。
+"""
+
+
 __all__ = ["singleton", "SingletonBase", "SingletonMeta", "reset_all"]
 
 _singleton_instances = {}
@@ -104,25 +109,32 @@ class SingletonMeta(type):
     """
 
     _instances = {}
-    _lock = threading.Lock()
+    _locks = {}
+    _locks_control = threading.Lock()
 
     def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            with cls._lock:
-                if cls not in cls._instances:
-                    cls._instances[cls] = super().__call__(*args, **kwargs)
-        return cls._instances[cls]
+        if cls not in SingletonMeta._locks:
+            with SingletonMeta._locks_control:
+                if cls not in SingletonMeta._locks:
+                    SingletonMeta._locks[cls] = threading.Lock()
+        # 后续的加锁只用自己 class 的锁
+        if cls not in SingletonMeta._instances:
+            with SingletonMeta._locks[cls]:
+                if cls not in SingletonMeta._instances:
+                    SingletonMeta._instances[cls] = super().__call__(*args, **kwargs)
+        return SingletonMeta._instances[cls]
 
     def reset(cls):
-        """重置当前类的单例实例"""
-        with SingletonMeta._lock:
-            SingletonMeta._instances.pop(cls, None)
+        if cls in SingletonMeta._locks:
+            with SingletonMeta._locks[cls]:
+                SingletonMeta._instances.pop(cls, None)
 
     @classmethod
-    def reset_all(cls):
-        """重置所有单例实例"""
-        with cls._lock:
-            cls._instances.clear()
+    def reset_all(mcs):
+        for cls in list(mcs._instances):
+            if cls in mcs._locks:
+                with mcs._locks[cls]:
+                    mcs._instances.pop(cls, None)
 
 
 def reset_all():
