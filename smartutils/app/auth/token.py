@@ -33,8 +33,11 @@ class Token:
 
 class TokenHelper(LibraryCheckMixin, metaclass=SingletonMeta):
     def __init__(self, conf: Optional[TokenConf] = None):
+        print("token check start 111")
         self.check(conf=conf, libs=["jwt"])
+        print("check end 1111")
         assert conf
+        print("check end 2222")
 
         self._access_secret: str = conf.access_secret
         self._access_exp_sec: int = conf.access_exp_min * 60
