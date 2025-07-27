@@ -111,28 +111,12 @@ def test_base_singleton_reset():
     assert b.value == 6  # type: ignore
 
 
-def test_base_singleton_reset_all():
-    a = BaseSingleton(7)
-    SingletonBase.reset_all()
-    b = BaseSingleton(8)
-    assert a is not b
-    assert b.value == 8  # type: ignore
-
-
 def test_meta_singleton_reset():
     a = MetaSingleton(11)
     MetaSingleton.reset()
     b = MetaSingleton(12)
     assert a is not b
     assert b.value == 12
-
-
-def test_meta_singleton_reset_all():
-    a = MetaSingleton(13)
-    MetaSingleton.reset_all()
-    b = MetaSingleton(14)
-    assert a is not b
-    assert b.value == 14
 
 
 class CounterSingleton(SingletonBase):

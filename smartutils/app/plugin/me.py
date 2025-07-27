@@ -35,8 +35,10 @@ class MePlugin(AuthBase, AbstractMiddlewarePlugin):
         try:
             if self._conf.me.local:
                 self._token_helper = TokenHelper()
-        except LibraryUsageError:
-            raise LibraryUsageError(f"{self.name} requires token in config.yaml.")
+        except LibraryUsageError as e:
+            raise LibraryUsageError(
+                f"{self.name} requires token in config.yaml. err={e}"
+            )
 
     async def _remote(self, req: RequestAdapter) -> Tuple[Optional[User], str]:
         # TODO：支持grpc服务
