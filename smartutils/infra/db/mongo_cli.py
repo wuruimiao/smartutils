@@ -4,7 +4,6 @@ from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, AsyncGenerator, Optional, Tuple
 
 from smartutils.config.schema.mongo import MongoConf
-from smartutils.design import MyBase
 from smartutils.infra.source_manager.abstract import AbstractResource
 from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
@@ -27,7 +26,7 @@ if TYPE_CHECKING:
 __all__ = ["AsyncMongoCli"]
 
 
-class AsyncMongoCli(LibraryCheckMixin, MyBase, AbstractResource):
+class AsyncMongoCli(LibraryCheckMixin, AbstractResource):
     def __init__(self, conf: MongoConf, name: str):
         self.check(conf=conf, libs=["motor"])
 

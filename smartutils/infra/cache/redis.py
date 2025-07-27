@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Dict, Optional
 from smartutils.config.const import ConfKey
 from smartutils.config.schema.redis import RedisConf
 from smartutils.ctx import CTXKey, CTXVarManager
-from smartutils.design import MyBase, singleton
+from smartutils.design import singleton
 from smartutils.error.factory import ExcDetailFactory
 from smartutils.error.sys import CacheError
 from smartutils.infra.source_manager.abstract import AbstractResource
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 __all__ = ["AsyncRedisCli", "RedisManager"]
 
 
-class AsyncRedisCli(LibraryCheckMixin, MyBase, AbstractResource):
+class AsyncRedisCli(LibraryCheckMixin, AbstractResource):
     """异步 Redis 客户端封装，线程安全、协程安全。"""
 
     def __init__(self, conf: RedisConf, name: str):

@@ -2,14 +2,13 @@ from typing import Dict, Optional, Tuple, cast
 
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.config.schema.middleware import PluginDependAuthConf
-from smartutils.design import MyBase
 from smartutils.error.sys import LibraryUsageError
 from smartutils.infra.client.http import HttpClient
 from smartutils.infra.client.manager import ClientManager
 from smartutils.init.mixin import LibraryCheckMixin
 
 
-class AuthBase(LibraryCheckMixin, MyBase):
+class AuthBase(LibraryCheckMixin):
     def __init__(self, *, plugin_conf: PluginDependAuthConf, **kwargs):
         super().__init__(**kwargs)
 

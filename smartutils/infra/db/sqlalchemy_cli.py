@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, Optional, Tuple, Union
 
 from smartutils.config.schema.mysql import MySQLConf
 from smartutils.config.schema.postgresql import PostgreSQLConf
-from smartutils.design import MyBase
 from smartutils.infra.source_manager.abstract import AbstractResource
 from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
@@ -46,7 +45,7 @@ __all__ = ["AsyncDBCli", "db_commit", "db_rollback"]
 #         return result
 
 
-class AsyncDBCli(LibraryCheckMixin, MyBase, AbstractResource):
+class AsyncDBCli(LibraryCheckMixin, AbstractResource):
     def __init__(self, conf: Union[MySQLConf, PostgreSQLConf], name: str):
         self.check(conf=conf, libs=["sqlalchemy"])
 

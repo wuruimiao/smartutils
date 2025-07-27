@@ -1,5 +1,4 @@
 import threading
-import weakref
 from functools import wraps
 from typing import Callable, Dict
 
