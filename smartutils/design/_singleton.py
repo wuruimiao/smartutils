@@ -1,4 +1,5 @@
 import threading
+from abc import ABCMeta
 from functools import wraps
 from typing import Callable, Dict
 
@@ -83,7 +84,7 @@ def singleton(cls):
     return get_instance
 
 
-class SingletonBase:
+class SingletonBase(ABCMeta):
     """
     单例基类。支持reset和reset_all
     使用方式：
@@ -109,7 +110,7 @@ class SingletonBase:
         _SingleTonData.reset(cls)
 
 
-class SingletonMeta(type):
+class SingletonMeta(ABCMeta):
     """
     单例元类，支持reset和reset_all
     class MyMetaSingleton(metaclass=SingletonMeta): ...
