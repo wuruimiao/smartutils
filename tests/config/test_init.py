@@ -64,11 +64,11 @@ def project_not_required():
     from smartutils.config.factory import ConfFactory
     from smartutils.config.schema.project import ProjectConf
 
-    orig = ConfFactory._registry.copy()
+    orig = ConfFactory._registry_value.copy()
     ConfFactory.register(ConfKey.PROJECT, multi=False, require=False)(ProjectConf)
     yield
-    ConfFactory._registry.clear()
-    ConfFactory._registry.update(orig)
+    ConfFactory._registry_value.clear()
+    ConfFactory._registry_value.update(orig)
 
 
 def test_config_init_missing_key(tmp_path, project_not_required):

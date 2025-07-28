@@ -17,7 +17,7 @@ def test_conf_factory_create_single():
     assert isinstance(conf, DummyConf)
     assert conf.foo == 1
     # 清理注册
-    del ConfFactory._registry[ConfKey("__test__")]
+    del ConfFactory._registry_value[ConfKey("__test__")]
 
 
 def test_conf_factory_create_missing_required():
@@ -27,7 +27,7 @@ def test_conf_factory_create_missing_required():
     ConfFactory.register(ConfKey("__test__"), multi=False, require=True)(DummyConf)
     with pytest.raises(ConfigError):
         ConfFactory.create(ConfKey("__test__"), {})
-    del ConfFactory._registry[ConfKey("__test__")]
+    del ConfFactory._registry_value[ConfKey("__test__")]
 
 
 def test_conf_factory_create_missing_not_required():
@@ -37,7 +37,7 @@ def test_conf_factory_create_missing_not_required():
     ConfFactory.register(ConfKey("__test2__"), multi=False, require=False)(DummyConf2)
     result = ConfFactory.create(ConfKey("__test2__"), {})
     assert result is None
-    del ConfFactory._registry[ConfKey("__test2__")]
+    del ConfFactory._registry_value[ConfKey("__test2__")]
 
 
 def test_conf_factory_create_multi():
@@ -49,7 +49,7 @@ def test_conf_factory_create_multi():
     assert conf
     assert isinstance(conf["default"], DummyConf3)
     assert conf["default"].foo == 2
-    del ConfFactory._registry[ConfKey("__test3__")]
+    del ConfFactory._registry_value[ConfKey("__test3__")]
 
 
 def test_conf_factory_create_multi_missing_group_default():
@@ -59,7 +59,7 @@ def test_conf_factory_create_multi_missing_group_default():
     ConfFactory.register(ConfKey("__test4__"), multi=True, require=True)(DummyConf4)
     # with pytest.raises(ConfigError):
     ConfFactory.create(ConfKey("__test4__"), {"notdefault": {"foo": 3}})
-    del ConfFactory._registry[ConfKey("__test4__")]
+    del ConfFactory._registry_value[ConfKey("__test4__")]
 
 
 def test_conf_factory_create_invalid_conf():
@@ -69,4 +69,4 @@ def test_conf_factory_create_invalid_conf():
     ConfFactory.register(ConfKey("__test__"), multi=False, require=True)(DummyConf)
     with pytest.raises(ConfigError):
         ConfFactory.create(ConfKey("__test__"), {"foo": "notint"})
-    del ConfFactory._registry[ConfKey("__test__")]
+    del ConfFactory._registry_value[ConfKey("__test__")]

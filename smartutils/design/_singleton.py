@@ -84,32 +84,6 @@ def singleton(cls):
     return get_instance
 
 
-class SingletonBase(ABCMeta):
-    """
-    单例基类。支持reset和reset_all
-    使用方式：
-    class MySingleton(SingletonBase): ...
-    """
-
-    def __new__(cls, *args, **kwargs):
-        return _SingleTonData.get_instance(
-            cls, lambda: super(SingletonBase, cls).__new__(cls, *args, **kwargs)
-        )
-
-    def _init_once(self, *args, **kwargs):
-        pass
-
-    def __init__(self, *args, **kwargs):
-        if getattr(self, "_initialized", False):
-            return
-        self._init_once(*args, **kwargs)
-        self._initialized = True
-
-    @classmethod
-    def reset(cls):
-        _SingleTonData.reset(cls)
-
-
 class SingletonMeta(ABCMeta):
     """
     单例元类，支持reset和reset_all
@@ -121,6 +95,32 @@ class SingletonMeta(ABCMeta):
             cls, lambda: super(SingletonMeta, cls).__call__(*args, **kwargs)
         )
 
+    def reset(cls):
+        _SingleTonData.reset(cls)
+
+
+class SingletonBase(metaclass=SingletonMeta):
+    """
+    单例基类。支持reset和reset_all
+    使用方式：
+    class MySingleton(SingletonBase): ...
+    """
+
+    # def __new__(cls, *args, **kwargs):
+    #     return _SingleTonData.get_instance(
+    #         cls, lambda: super(SingletonBase, cls).__new__(cls, *args, **kwargs)
+    #     )
+
+    def _init_once(self, *args, **kwargs):
+        pass
+
+    def __init__(self, *args, **kwargs):
+        if getattr(self, "_initialized", False):
+            return
+        self._init_once(*args, **kwargs)
+        self._initialized = True
+
+    @classmethod
     def reset(cls):
         _SingleTonData.reset(cls)
 
