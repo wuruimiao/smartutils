@@ -50,7 +50,7 @@ async def setup_kafka_cli(tmp_path_factory, mocker):
     yield cli, fake_producer, fake_consumer
 
 
-async def test_ping_success(setup_kafka_cli):
+async def test_kafka_mock_ping_success(setup_kafka_cli):
     cli, fake_producer, _ = setup_kafka_cli
     ok = await cli.ping()
     assert ok
