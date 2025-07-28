@@ -145,3 +145,36 @@ async def test_routes_permission_middleware_success(client, fake_permission):
     assert data["data"]["username"] == ""
     assert data["data"]["traceid"] != ""
     assert data["data"]["user_ids"] == [1, 2, 3]
+
+
+async def test_routes_permission_middleware_no_cookie(client, fake_permission):
+    resp = client.get("/test-permission")
+    data = resp.json()
+    assert data["code"] == 1019
+    assert data["msg"] == "Unauthorized Error"
+    assert data["detail"] == "[PermissionPlugin] request no cookies."
+
+
+async def test_routes_permission_middleware_no_data(client, mocker):
+    from smartutils.infra.client.http import AsyncClient
+
+    class FakeResp:
+        status_code = 200
+
+        def json(self):
+            return {"code": 0, "data": None}
+
+        async def aread(self):
+            from json import dumps
+
+            return dumps(self.json()).encode("utf-8")
+
+        async def aclose(self):
+            pass
+
+    mocker.patch.object(AsyncClient, "request", return_value=FakeResp())
+    resp = client.get("/test-permission", cookies={"access_token": "fake"})
+    data = resp.json()
+    assert data["code"] == 1019
+    assert data["msg"] == "Unauthorized Error"
+    assert data["detail"] == "[PermissionPlugin] no data."
