@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import Callable, Generic, List, Tuple, TypeVar, final
+from typing import Callable, Generic, Tuple, TypeVar, final
 
 from smartutils.error.sys import LibraryError, LibraryUsageError
 
@@ -8,10 +8,27 @@ V = TypeVar("V")
 
 
 class BaseFactory(Generic[K, V]):
-    _registry: OrderedDict[K, Tuple[int, V]] = OrderedDict()
+    _registry_value: OrderedDict[K, V] = OrderedDict()
+    _registry_order: dict[K, int] = {}
 
     def __init_subclass__(cls):
-        cls._registry = OrderedDict()
+        cls._registry_value = OrderedDict()
+        cls._registry_order = {}
+
+    @classmethod
+    def _with_order(cls, key: K, value: V, order: int):
+        cls._registry_order[key] = order
+        # 有序插入
+        items = list(cls._registry_value.items())
+        for idx, (exist_key, _) in enumerate(items):
+            exist_order = cls._registry_order.get(exist_key, 0)
+            if order <= exist_order:
+                break
+        else:
+            # 没有break
+            idx = len(items)
+        items.insert(idx, (key, value))
+        cls._registry_value = OrderedDict(items)
 
     @classmethod
     def register(
@@ -28,33 +45,27 @@ class BaseFactory(Generic[K, V]):
         """
 
         def decorator(func_or_obj: V):
-            if only_register_once and key in cls._registry:
+            if only_register_once and key in cls._registry_value:
                 raise LibraryError(f"{cls.__name__} key {key} already registered.")
-            items = list(cls._registry.items())
-            for idx, (exist_key, (exist_order, _)) in enumerate(items):
-                if order < exist_order:
-                    break
-            else:
-                idx = len(items)
-            items.insert(idx, (key, (order, func_or_obj)))
-            # 保持按照Order从小到大有序
-            cls._registry = OrderedDict(items)
+
+            cls._with_order(key, func_or_obj, order)
             return func_or_obj
 
         return decorator
 
     @classmethod
     def get(cls, key: K) -> V:
-        if key not in cls._registry:
+        if key not in cls._registry_value:
             raise LibraryUsageError(f"{cls.__name__} key {key} not registered.")
-        return cls._registry[key][1]
+        return cls._registry_value[key]
 
     @classmethod
     @final
-    def all(cls) -> List[Tuple[K, V]]:
-        return [(k, v) for k, (order, v) in cls._registry.items()]
+    def all(cls) -> Tuple[Tuple[K, V], ...]:
+        return tuple(cls._registry_value.items())
 
     @classmethod
     @final
     def reset(cls):
-        cls._registry.clear()
+        cls._registry_value.clear()
+        cls._registry_order.clear()
