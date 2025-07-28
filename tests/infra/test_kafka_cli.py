@@ -1,3 +1,5 @@
+import asyncio
+
 import pytest
 
 
@@ -103,3 +105,27 @@ async def test_start_producer_error(mocker):
     with pytest.raises(Exception):
         await cli._start_producer()
     logger_exc.assert_called()
+
+
+async def test_start_producer_concurrent(setup_kafka_cli, mocker):
+    cli, fake_producer, _ = setup_kafka_cli
+    # 使 producer 置为 None，模拟尚未启动
+    cli._producer = None
+    # mock _start_producer，每次调用 sleep 模拟耗时操作
+    called = mocker.MagicMock()
+    orig_start_producer = cli._start_producer
+
+    async def wrapped_start_producer():
+        called()
+        await asyncio.sleep(0.1)
+        await orig_start_producer()
+
+    mocker.patch.object(cli, "_start_producer", wrapped_start_producer)
+    # 多协程并发执行 start_producer
+    await asyncio.gather(
+        cli.start_producer(),
+        cli.start_producer(),
+        cli.start_producer(),
+    )
+    # 应仅有一次真正执行
+    assert called.call_count == 1
