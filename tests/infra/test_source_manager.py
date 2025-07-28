@@ -16,6 +16,7 @@ class DummyResource(AbstractResource):
         self.closed = False
 
     def db(self, use_transaction: bool = False):
+        super().db(use_transaction)
         return self
 
     async def __aenter__(self):
@@ -25,9 +26,11 @@ class DummyResource(AbstractResource):
         pass
 
     async def close(self):
+        await super().close()
         self.closed = True
 
     async def ping(self):
+        await super().ping()
         return True
 
 
@@ -122,3 +125,19 @@ async def test_health_check_all_ok(dummy_manager):
     res = await dummy_manager.health_check()
     for k, v in res.items():
         assert v is True
+
+
+async def test_use_decorator_catch_baseerror(dummy_manager):
+    from smartutils.error.base import BaseError
+
+    class DummyErr(BaseError):
+        pass
+
+    @dummy_manager.use
+    async def err_func():
+        raise DummyErr("err")
+
+    import pytest
+
+    with pytest.raises(DummyErr):
+        await err_func()

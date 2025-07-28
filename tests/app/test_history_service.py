@@ -72,7 +72,6 @@ def fake_OpType(mocker):
     # mocker.patch.object(mod, "OpType", mod.OpType)
 
 
-@pytest.mark.asyncio
 async def test_record_history(fake_OpType, mocker):
     import smartutils.app.history.service as mod
 
@@ -83,7 +82,6 @@ async def test_record_history(fake_OpType, mocker):
     mod.db.curr.add.assert_called()
 
 
-@pytest.mark.asyncio
 async def test_get_op_id_by_order_basic(mocker, fake_OpType):
     import smartutils.app.history.service as mod
 
@@ -99,7 +97,6 @@ async def test_get_op_id_by_order_basic(mocker, fake_OpType):
     assert ids == {}
 
 
-@pytest.mark.asyncio
 async def test_get_op_id_by_order_desc(mocker, fake_OpType):
     import smartutils.app.history.service as mod
 
@@ -113,7 +110,6 @@ async def test_get_op_id_by_order_desc(mocker, fake_OpType):
     assert ids == {4: 30}
 
 
-@pytest.mark.asyncio
 async def test_get_creator_id_and_last_updator_id(fake_OpType, mocker):
     import smartutils.app.history.service as mod
 
@@ -133,7 +129,6 @@ async def test_get_creator_id_and_last_updator_id(fake_OpType, mocker):
     assert ret2 == {8: 33}
 
 
-@pytest.mark.asyncio
 async def test_get_creator_and_last_updator_id_normal(mocker, fake_OpType):
     import smartutils.app.history.service as mod
 
@@ -150,7 +145,6 @@ async def test_get_creator_and_last_updator_id_normal(mocker, fake_OpType):
     assert emp == {}
 
 
-@pytest.mark.asyncio
 async def test_get_op_ids(mocker):
     import smartutils.app.history.service as mod
 
@@ -164,7 +158,6 @@ async def test_get_op_ids(mocker):
     assert dict(emp) == {}
 
 
-@pytest.mark.asyncio
 async def test_BizOpInfo_all(mocker, fake_OpType):
     import smartutils.app.history.service as mod
 
