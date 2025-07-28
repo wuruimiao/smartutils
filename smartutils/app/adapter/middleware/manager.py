@@ -40,6 +40,7 @@ class MiddlewareManager(LibraryCheckMixin, metaclass=SingletonMeta):
         for plugin_name, plugin_cls in MiddlewarePluginFactory.all():
             if plugin_name in all_enables:
                 plugins[plugin_name] = plugin_cls(conf=self._conf.safe_setting)
+
         result = defaultdict(list)
         for plugin_name, plugin in plugins.items():
             for key, enables in self._conf.routes.items():
@@ -63,6 +64,13 @@ class MiddlewareManager(LibraryCheckMixin, metaclass=SingletonMeta):
 
     # TODO: 其他框架的中间件执行顺序和添加顺序
     def init_app(self, app):
+        if self.ROUTE_APP_KEY not in self._route_ps:
+            logger.debug(
+                "{name} no {key} below middleware.routes in config.yaml, ignore.",
+                name=self.name,
+                key=self.ROUTE_APP_KEY,
+            )
+            return
         if self._app_inited:
             raise LibraryUsageError(
                 f"{self.name} Cannot init middleware for app key {self._app_key} twice."
