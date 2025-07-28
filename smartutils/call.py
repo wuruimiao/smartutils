@@ -1,4 +1,3 @@
-import asyncio
 import importlib
 import importlib.util
 import inspect
@@ -22,11 +21,6 @@ async def call_hook(hook, *args, **kwargs):
     result = hook(*args, **kwargs)
     if inspect.isawaitable(result):
         await result
-
-
-def call_async(func):
-    loop = asyncio.get_event_loop()
-    return loop.run_until_complete(func)
 
 
 def register_package(package: types.ModuleType):
