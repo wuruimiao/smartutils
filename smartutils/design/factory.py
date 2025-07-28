@@ -8,8 +8,8 @@ V = TypeVar("V")
 
 
 class BaseFactory(Generic[K, V]):
-    _registry_value: OrderedDict[K, V] = OrderedDict()
-    _registry_order: dict[K, int] = {}
+    _registry_value: OrderedDict[K, V]
+    _registry_order: dict[K, int]
 
     def __init_subclass__(cls):
         cls._registry_value = OrderedDict()
