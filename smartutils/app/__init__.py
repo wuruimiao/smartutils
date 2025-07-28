@@ -11,8 +11,8 @@ from smartutils.app.run_main import run
 from smartutils.call import register_package
 from smartutils.ctx import CTXKey, CTXVarManager
 
-register_package(_adapter)
 register_package(_plugin)
+register_package(_adapter)
 
 CTXVarManager.register(CTXKey.USERID)(None)
 CTXVarManager.register(CTXKey.USERNAME)(None)
