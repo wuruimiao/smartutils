@@ -88,3 +88,11 @@ async def test_me_local_middleware_fail(client, mocker):
     assert data["code"] == 1019
     assert data["msg"] == "Unauthorized Error"
     assert data["detail"] == "[MePlugin] verify token failed."
+
+
+async def test_me_local_middleware_no_cookie(client, mocker):
+    resp = client.get("/info")
+    data = resp.json()
+    assert data["code"] == 1019
+    assert data["msg"] == "Unauthorized Error"
+    assert data["detail"] == "[MePlugin] request no cookies."
