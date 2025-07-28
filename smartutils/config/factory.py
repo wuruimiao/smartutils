@@ -41,11 +41,11 @@ class ConfFactory(MyBase, BaseFactory[ConfKey, Tuple[Type, bool, bool]]):
         if not conf:
             if require:
                 raise ConfigError(f"{cls.name} require {name} in config.yml")
-            logger.debug(
-                "{cls_name} no {name} in config.yml, ignore.",
-                cls_name=cls.name,
-                name=name,
-            )
+            # logger.debug(
+            #     "{cls_name} no {name} in config.yml, ignore.",
+            #     cls_name=cls.name,
+            #     name=name,
+            # )
             return None
 
         logger.info("{cls_name} {name} created.", cls_name=cls.name, name=name)
