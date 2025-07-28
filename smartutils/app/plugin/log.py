@@ -7,6 +7,7 @@ from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.const import MiddlewarePluginOrder
 from smartutils.app.plugin.factory import MiddlewarePluginFactory
 from smartutils.config.schema.middleware import MiddlewarePluginKey
+from smartutils.design import SingletonMeta
 from smartutils.log import logger
 
 __all__ = ["LogPlugin"]
@@ -15,7 +16,7 @@ __all__ = ["LogPlugin"]
 @MiddlewarePluginFactory.register(
     MiddlewarePluginKey.LOG, order=MiddlewarePluginOrder.LOG
 )
-class LogPlugin(AbstractMiddlewarePlugin):
+class LogPlugin(AbstractMiddlewarePlugin, metaclass=SingletonMeta):
 
     async def dispatch(
         self,

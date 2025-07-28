@@ -6,6 +6,7 @@ from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.const import MiddlewarePluginOrder
 from smartutils.app.plugin.factory import MiddlewarePluginFactory
 from smartutils.config.schema.middleware import MiddlewarePluginKey
+from smartutils.design import SingletonMeta
 
 __all__ = ["ExceptionPlugin"]
 
@@ -13,7 +14,7 @@ __all__ = ["ExceptionPlugin"]
 @MiddlewarePluginFactory.register(
     MiddlewarePluginKey.EXCEPTION, order=MiddlewarePluginOrder.EXCEPTION
 )
-class ExceptionPlugin(AbstractMiddlewarePlugin):
+class ExceptionPlugin(AbstractMiddlewarePlugin, metaclass=SingletonMeta):
     async def dispatch(
         self,
         req: RequestAdapter,

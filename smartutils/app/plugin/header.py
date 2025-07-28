@@ -8,6 +8,7 @@ from smartutils.app.plugin.common import CustomHeader
 from smartutils.app.plugin.factory import MiddlewarePluginFactory
 from smartutils.config.schema.middleware import MiddlewarePluginKey
 from smartutils.ctx import CTXKey, CTXVarManager
+from smartutils.design import SingletonMeta
 
 __all__ = ["HeaderPlugin"]
 
@@ -15,7 +16,7 @@ __all__ = ["HeaderPlugin"]
 @MiddlewarePluginFactory.register(
     MiddlewarePluginKey.HEADER, order=MiddlewarePluginOrder.HEADER
 )
-class HeaderPlugin(AbstractMiddlewarePlugin):
+class HeaderPlugin(AbstractMiddlewarePlugin, metaclass=SingletonMeta):
     async def dispatch(
         self,
         req: RequestAdapter,

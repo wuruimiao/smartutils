@@ -7,6 +7,7 @@ from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.const import MiddlewarePluginOrder
 from smartutils.app.plugin.factory import MiddlewarePluginFactory
 from smartutils.config.schema.middleware import MiddlewarePluginKey
+from smartutils.design import SingletonMeta
 from smartutils.error.sys import UnauthorizedError
 
 __all__ = ["ApiKeyPlugin"]
@@ -27,7 +28,7 @@ def calc_signature(key: str, timestamp: str, secret: str):
 @MiddlewarePluginFactory.register(
     MiddlewarePluginKey.APIKEY, order=MiddlewarePluginOrder.APIKEY
 )
-class ApiKeyPlugin(AbstractMiddlewarePlugin):
+class ApiKeyPlugin(AbstractMiddlewarePlugin, metaclass=SingletonMeta):
     """
     API Key 鉴权中间件插件，实现请求头 apikey 及签名校验。
     """

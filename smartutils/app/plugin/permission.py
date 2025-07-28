@@ -13,6 +13,7 @@ from smartutils.config.schema.middleware import (
     MiddlewarePluginKey,
     MiddlewarePluginSetting,
 )
+from smartutils.design import SingletonMeta
 from smartutils.error.sys import UnauthorizedError
 
 try:
@@ -27,7 +28,7 @@ if TYPE_CHECKING:
 @MiddlewarePluginFactory.register(
     MiddlewarePluginKey.PERMISSION, order=MiddlewarePluginOrder.PERMISSION
 )
-class PermissionPlugin(AuthBase, AbstractMiddlewarePlugin):
+class PermissionPlugin(AuthBase, AbstractMiddlewarePlugin, metaclass=SingletonMeta):
     def __init__(self, *, conf: MiddlewarePluginSetting):
         super().__init__(conf=conf, plugin_conf=conf.permission)
 

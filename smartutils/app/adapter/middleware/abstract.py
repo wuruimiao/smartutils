@@ -12,12 +12,14 @@ from smartutils.config.schema.middleware import (
     MiddlewarePluginKey,
     MiddlewarePluginSetting,
 )
+from smartutils.init.mixin import LibraryCheckMixin
 
 __all__ = ["AbstractMiddlewarePlugin", "AbstractMiddleware", "chain_dispatch"]
 
 
-class AbstractMiddlewarePlugin(ABC):
+class AbstractMiddlewarePlugin(LibraryCheckMixin, ABC):
     def __init__(self, *, conf: MiddlewarePluginSetting):
+        self.check(conf=conf)
         self.key: MiddlewarePluginKey
         self._app_key: AppKey = RunEnv.get_app()
         self._resp_fn = JsonRespFactory.get(self._app_key)
