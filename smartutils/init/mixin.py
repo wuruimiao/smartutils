@@ -19,4 +19,6 @@ class LibraryCheckMixin(MyBase):
 
         if require_conf:
             if conf is None:
-                raise LibraryUsageError(f"{self.name} must init by infra.")
+                raise LibraryUsageError(
+                    f"{self.name} require conf, init by infra normally."
+                )

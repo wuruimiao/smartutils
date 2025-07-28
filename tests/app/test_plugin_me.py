@@ -17,7 +17,7 @@ def test_plugin_me_init_no_token_helper():
         MePlugin(conf=MiddlewarePluginSetting(me=PluginDependAuthConf(local=True)))
     assert (
         str(exc.value)
-        == "[MePlugin] requires token in config.yaml. err=[TokenHelper] must init by infra."
+        == "[MePlugin] requires token in config.yaml. err=[TokenHelper] require conf, init by infra normally."
     )
 
 
