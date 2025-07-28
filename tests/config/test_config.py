@@ -193,9 +193,7 @@ def test_config_no_conf_class(setup_no_conf_class_config: str):
 
 def test_config_no_default(setup_no_conf_default_config: str):
     from smartutils.config import Config
-    from smartutils.error.sys import ConfigError
 
-    # with pytest.raises(ConfigError):
     Config.init(setup_no_conf_default_config)
 
 

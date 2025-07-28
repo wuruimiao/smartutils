@@ -111,6 +111,10 @@ class BaseFactory(Generic[K, V]):
             )
 
         def decorator(func_or_obj: V):
+            if key in cls._registry_value:
+                cls._registry_value[key] = func_or_obj
+                return func_or_obj
+
             if deps is not None:
                 insert_idx = cls._with_deps(key, deps)
             elif order is not None:
