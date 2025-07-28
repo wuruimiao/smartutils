@@ -18,6 +18,6 @@ class ExcJsonResp(MyBase):
     def handle(self, exc: BaseException) -> ResponseAdapter:
         error = ExcErrorFactory.get(exc)
         logger.exception(
-            "{self.name} handle {e}", name=self.name, e=ExcDetailFactory.get(exc)
+            "{name} handle {e}", name=self.name, e=ExcDetailFactory.get(exc)
         )
         return self._resp_fn(error.as_dict)
