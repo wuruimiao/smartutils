@@ -19,7 +19,7 @@ async def client():
 
     @AppHook.on_shutdown
     async def shutdown(app):
-        a = 1
+        a = 1  # noqa: F841
 
     from smartutils.app.main.fastapi import create_app
 
