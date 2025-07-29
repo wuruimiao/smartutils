@@ -1,7 +1,25 @@
-from typing import Mapping
+from typing import Awaitable, Callable, Mapping
 
+from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin
 from smartutils.app.adapter.req.abstract import RequestAdapter
-from smartutils.app.const import HeaderKey
+from smartutils.app.adapter.resp.abstract import ResponseAdapter
+from smartutils.app.const import AppKey, HeaderKey, RunEnv
+
+
+async def test_adapter_middleware_plugin_abstract():
+    # 补齐AbstractMiddlewarePlugin dispatch
+    RunEnv.set_app(AppKey.FASTAPI)
+
+    class TestPlugin(AbstractMiddlewarePlugin):
+        async def dispatch(
+            self,
+            req: RequestAdapter,
+            next_adapter: Callable[[], Awaitable[ResponseAdapter]],
+        ) -> ResponseAdapter:
+            return await super().dispatch(req, next_adapter)
+
+    plugin = TestPlugin(conf=1)  # type: ignore
+    await plugin.dispatch(1, 2)  # type: ignore
 
 
 async def test_req_abstract():
@@ -50,3 +68,23 @@ async def test_req_abstract():
     assert r.method is None
     assert r.url is None
     assert r.path is None
+
+
+async def test_resp_abstract():
+    # 补齐ResponseAdapter抽象方法
+    class MyResponse(ResponseAdapter):
+        def set_header(self, key: HeaderKey, value: str):
+            super().set_header(key, value)
+
+        @property
+        def status_code(self) -> int:
+            return super().status_code
+
+        @status_code.setter
+        def status_code(self, value: int):
+            ResponseAdapter.status_code.fset(self, value)  # type: ignore
+
+    r = MyResponse(1)
+    assert r.set_header("test", "test") is None  # type: ignore
+    assert r.status_code is None
+    r.status_code = 300
