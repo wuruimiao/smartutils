@@ -22,7 +22,7 @@ class PrintToLogger:
             logger.debug(message)
 
     def flush(self):
-        pass
+        pass  # pragma: no cover
 
 
 class LoggerCli(AbstractResource):
@@ -54,8 +54,6 @@ class LoggerCli(AbstractResource):
 
         from smartutils.config import Config
 
-        _conf = Config.get_config()
-
         if not self._conf:
             logger.debug("LoggerCli init, config no loguru key, ignore.")
             return
@@ -67,7 +65,7 @@ class LoggerCli(AbstractResource):
             logger.add(sys.stdout, **kw)
 
         if self._conf.logdir:
-            project_name = "app" if not _conf.project else _conf.project.name
+            project_name = Config.get_config().project.name
             file_path = Path(self._conf.logdir) / f"{project_name}.log"
             file_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -84,11 +82,11 @@ class LoggerCli(AbstractResource):
         logger.remove()
 
     async def ping(self) -> bool:
-        return True
+        return True  # pragma: no cover
 
     @asynccontextmanager
     async def db(self, use_transaction: bool = False):
-        yield logger
+        yield logger  # pragma: no cover
 
 
 @singleton
