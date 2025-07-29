@@ -1,6 +1,7 @@
 import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import Optional
 
 from smartutils.config.const import ConfKey
 from smartutils.config.schema.loguru import LoguruConfig
@@ -9,7 +10,6 @@ from smartutils.design import singleton
 from smartutils.infra.source_manager.abstract import AbstractResource
 from smartutils.infra.source_manager.manager import CTXResourceManager
 from smartutils.init.factory import InitByConfFactory
-from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
 
 __all__ = ["LoggerManager"]
@@ -28,7 +28,7 @@ class PrintToLogger:
 class LoggerCli(AbstractResource):
     """loguru.logger线程安全、协程安全"""
 
-    def __init__(self, conf: LoguruConfig, name: str):
+    def __init__(self, conf: Optional[LoguruConfig] = None, name: str = "logur_cli"):
         self._name = name
         self._conf = conf
         self._format = (
@@ -50,13 +50,12 @@ class LoggerCli(AbstractResource):
 
     def _init(self):
         logger.remove()
-        logger.configure(patcher=self._inject)
-
-        from smartutils.config import Config
 
         if not self._conf:
             logger.debug("LoggerCli init, config no loguru key, ignore.")
             return
+
+        logger.configure(patcher=self._inject)
 
         if self._conf.stream:
             kw = self._conf.stream_kw
@@ -65,6 +64,8 @@ class LoggerCli(AbstractResource):
             logger.add(sys.stdout, **kw)
 
         if self._conf.logdir:
+            from smartutils.config import Config
+
             project_name = Config.get_config().project.name
             file_path = Path(self._conf.logdir) / f"{project_name}.log"
             file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -91,10 +92,8 @@ class LoggerCli(AbstractResource):
 
 @singleton
 @CTXVarManager.register(CTXKey.LOGGER_LOGURU)
-class LoggerManager(LibraryCheckMixin, CTXResourceManager[LoggerCli]):
-    def __init__(self, conf):
-        self.check(conf=conf)
-
+class LoggerManager(CTXResourceManager[LoggerCli]):
+    def __init__(self, conf: Optional[LoguruConfig] = None):
         resources = {ConfKey.GROUP_DEFAULT.value: LoggerCli(conf, "logger_loguru")}
         super().__init__(resources=resources, ctx_key=CTXKey.LOGGER_LOGURU)
 

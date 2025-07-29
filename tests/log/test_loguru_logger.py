@@ -143,10 +143,9 @@ project:
 
 
 async def test_loguru_logger_no_config():
-    from smartutils.init import init
+    from smartutils.infra.log.loguru import LoggerCli
 
-    init()
-
+    LoggerCli()
     from smartutils.log import logger
 
     logger.debug("logger debug in log file")
