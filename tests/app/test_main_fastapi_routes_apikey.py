@@ -1,9 +1,8 @@
 import pytest
-from fastapi import APIRouter, Request
+from fastapi import APIRouter
 from fastapi.testclient import TestClient
 
 from smartutils.app import AppHook
-from smartutils.error.sys import LibraryUsageError
 
 
 @pytest.fixture

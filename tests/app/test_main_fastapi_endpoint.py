@@ -1,5 +1,5 @@
 import pytest
-from fastapi import APIRouter, Request
+from fastapi import Request
 from fastapi.testclient import TestClient
 
 from smartutils.app import AppHook
