@@ -2,6 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from smartutils.app import AppHook
+from smartutils.error.sys import SysError
 
 
 @pytest.fixture
@@ -9,8 +10,12 @@ async def client():
     @AppHook.on_startup
     async def init(app):
         @app.get("/info")
-        def info():
+        async def info():
             return ResponseModel()
+
+        @app.get("/info/err")
+        async def info_err():
+            return ResponseModel.from_error(SysError())
 
     @AppHook.on_shutdown
     async def shutdown(app):
@@ -36,3 +41,19 @@ async def test_main_fastapi_root(client):
     data = resp.json()
     assert data["code"] == 0
     assert data["msg"] == "success"
+
+
+async def test_main_fastapi_info(client):
+    resp = client.get("/info")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["code"] == 0
+    assert data["msg"] == "success"
+
+
+async def test_main_fastapi_info_err(client):
+    resp = client.get("/info/err")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["code"] == 1000
+    assert data["msg"] == "Internal Server Error"

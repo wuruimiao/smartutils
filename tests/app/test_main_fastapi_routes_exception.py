@@ -25,7 +25,7 @@ project:
     @AppHook.on_startup
     async def init(app):
         @app.get("/info")
-        def info():
+        async def info():
             raise Exception("Test exception")
 
     from smartutils.app.main.fastapi import create_app

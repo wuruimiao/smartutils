@@ -26,7 +26,7 @@ project:
     @AppHook.on_startup
     async def init(app):
         @app.get("/info")
-        def info():
+        async def info():
             return ResponseModel(
                 data={
                     "userid": ReqCTX.get_userid(),

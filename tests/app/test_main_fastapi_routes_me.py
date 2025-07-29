@@ -46,7 +46,7 @@ project:
     @AppHook.on_startup
     async def init(app):
         @app.get("/no-plugin")
-        def no_plugin():
+        async def no_plugin():
             return ResponseModel(
                 data={
                     "userid": ReqCTX.get_userid(),
@@ -63,7 +63,7 @@ project:
         me_router = APIRouter(route_class=mgr.init_route("me"))
 
         @me_router.get("/test-me")
-        def me():
+        async def me():
             return ResponseModel(
                 data={
                     "userid": ReqCTX.get_userid(),

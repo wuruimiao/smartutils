@@ -41,7 +41,7 @@ middleware:
     @AppHook.on_startup
     async def init(app):
         @app.get("/info")
-        def info():
+        async def info():
             return ResponseModel(status_code=200, data={"a": 1})
 
     from smartutils.app.main.fastapi import create_app
