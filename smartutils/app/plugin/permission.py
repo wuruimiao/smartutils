@@ -32,12 +32,12 @@ class PermissionPlugin(AuthBase, AbstractMiddlewarePlugin, metaclass=SingletonMe
     def __init__(self, *, conf: MiddlewarePluginSetting):
         super().__init__(conf=conf, plugin_conf=conf.permission)
 
-    async def _local(self, req: RequestAdapter) -> Tuple[Optional[Dict], str]:
-        # TODO: 完善local调用
-        access_token, msg = self.access_token(req)
-        if msg:
-            return None, msg
-        return {}, ""
+    # async def _local(self, req: RequestAdapter) -> Tuple[Optional[Dict], str]:
+    #     # TODO: 完善local调用
+    #     access_token, msg = self.access_token(req)
+    #     if msg:
+    #         return None, msg
+    #     return {}, ""
 
     async def _remote(self, req: RequestAdapter) -> Tuple[Optional[Dict], str]:
         cookies, msg = self.mk_cookies(req)
@@ -62,7 +62,9 @@ class PermissionPlugin(AuthBase, AbstractMiddlewarePlugin, metaclass=SingletonMe
         next_adapter: Callable[[], Awaitable[ResponseAdapter]],
     ) -> ResponseAdapter:
         if self._plugin_conf.local:
-            data, msg = await self._local(req)
+            # data, msg = await self._local(req)
+            data = {}
+            msg = "no supported local now."
         else:
             data, msg = await self._remote(req)
 

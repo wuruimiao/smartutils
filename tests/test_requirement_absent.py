@@ -35,6 +35,10 @@ def test_missing_httpx(mock_module_absent, reset):
 
     mock_module_absent("httpx", mod=mod)
 
+    import smartutils.app.plugin.permission as mod
+
+    mock_module_absent("httpx", mod=mod)
+
 
 def test_tokenhelper_missing(mock_module_absent, reset):
     import smartutils.app.auth.token as mod
