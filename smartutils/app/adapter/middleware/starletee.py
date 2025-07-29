@@ -1,12 +1,8 @@
+from __future__ import annotations
+
 import inspect
 from functools import wraps
-from typing import Awaitable, Callable, Tuple, Type
-
-from fastapi import Request, Response
-from fastapi.encoders import jsonable_encoder
-from fastapi.responses import ORJSONResponse
-from fastapi.routing import APIRoute
-from starlette.middleware.base import BaseHTTPMiddleware
+from typing import TYPE_CHECKING, Awaitable, Callable, Tuple, Type
 
 from smartutils.app.adapter.middleware.abstract import (
     AbstractMiddleware,
@@ -24,9 +20,24 @@ from smartutils.app.const import AppKey
 from smartutils.error.sys import LibraryUsageError
 from smartutils.log import logger
 
-__all__ = []
-
 key = AppKey.FASTAPI
+
+
+try:
+    from fastapi import Request, Response
+    from fastapi.encoders import jsonable_encoder
+    from fastapi.responses import ORJSONResponse
+    from fastapi.routing import APIRoute
+    from starlette.middleware.base import BaseHTTPMiddleware
+except ImportError:
+    pass
+
+if TYPE_CHECKING:  # pragma: no cover
+    from fastapi import Request, Response
+    from fastapi.encoders import jsonable_encoder
+    from fastapi.responses import ORJSONResponse
+    from fastapi.routing import APIRoute
+    from starlette.middleware.base import BaseHTTPMiddleware
 
 
 class StarletteMiddleware(AbstractMiddleware, BaseHTTPMiddleware):

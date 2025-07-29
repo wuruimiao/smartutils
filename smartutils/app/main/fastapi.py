@@ -1,11 +1,21 @@
-from contextlib import asynccontextmanager
-from typing import Generic, Optional, TypeVar
+from __future__ import annotations
 
-from fastapi import APIRouter, FastAPI, Request
+from contextlib import asynccontextmanager
+from typing import TYPE_CHECKING, Generic, Optional, TypeVar
+
 from pydantic import BaseModel
 
 from smartutils.app.const import RunEnv
 from smartutils.error.base import BaseData, BaseError
+
+try:
+    from fastapi import APIRouter, FastAPI, Request
+except ImportError:
+    pass
+
+if TYPE_CHECKING:  # pragma: no cover
+    from fastapi import APIRouter, FastAPI, Request
+
 
 __all__ = ["create_app", "ResponseModel"]
 

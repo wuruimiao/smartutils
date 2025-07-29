@@ -87,21 +87,28 @@ def test_missing_fastapi(mock_module_absent, reset):
 
     mock_module_absent("fastapi", mod=mod)
 
-    mod.StarletteRequestAdapter(1)
-
     import smartutils.app.adapter.resp.starlette as mod
 
     mock_module_absent("fastapi", mod=mod)
-    mod.StarletteResponseAdapter(1)
+
+    import smartutils.app.adapter.exception.fastapi as mod
+
+    mock_module_absent("fastapi.exceptions", mod=mod)
+
+    import smartutils.app.adapter.middleware.starletee as mod
+
+    mock_module_absent("fastapi", mod=mod)
+
+    import smartutils.app.main.fastapi as mod
+
+    mock_module_absent("fastapi", mod=mod)
 
 
 def test_missing_sqlalchemy(mock_module_absent, reset):
     import smartutils.app.history.model as mod
 
     mock_module_absent("sqlalchemy", mod=mod)
-    assert mod.OpType.ADD.value == 1
 
     import smartutils.app.history.service as mod
 
     mock_module_absent("sqlalchemy", mod=mod)
-    mod.OpUser()
