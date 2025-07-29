@@ -86,10 +86,10 @@ reference = "tsinghua"
 name = "annotated-types"
 version = "0.7.0"
 description = "Reusable constraint types to use with typing.Annotated"
-optional = true
+optional = false
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "extra == \"mongo\" or extra == \"all\" or extra == \"fastapi\""
+markers = "extra == \"all\" or extra == \"mongo\" or extra == \"fastapi\""
 files = [
     {file = "annotated_types-0.7.0-py3-none-any.whl", hash = "sha256:1f02e8b43a8fbbc3f3e0d4f0f4bfc8131bcb4eebe8849b8e5c773f3a1c582a53"},
     {file = "annotated_types-0.7.0.tar.gz", hash = "sha256:aff07c09a53a08bc8cfccb9c85b05f1aa9a2a6f23728d790723543408344ce89"},
@@ -3142,10 +3142,10 @@ reference = "tsinghua"
 name = "pydantic"
 version = "2.10.6"
 description = "Data validation using Python type hints"
-optional = true
+optional = false
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "extra == \"mongo\" or extra == \"all\" or extra == \"fastapi\""
+markers = "extra == \"all\" or extra == \"mongo\" or extra == \"fastapi\""
 files = [
     {file = "pydantic-2.10.6-py3-none-any.whl", hash = "sha256:427d664bf0b8a2b34ff5dd0f5a18df00591adcee7198fbd71981054cef37b584"},
     {file = "pydantic-2.10.6.tar.gz", hash = "sha256:ca5daa827cce33de7a42be142548b0096bf05a7e7b365aebfa5f8eeec7128236"},
@@ -3169,10 +3169,10 @@ reference = "tsinghua"
 name = "pydantic-core"
 version = "2.27.2"
 description = "Core functionality for Pydantic validation and serialization"
-optional = true
+optional = false
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "extra == \"mongo\" or extra == \"all\" or extra == \"fastapi\""
+markers = "extra == \"all\" or extra == \"mongo\" or extra == \"fastapi\""
 files = [
     {file = "pydantic_core-2.27.2-cp310-cp310-macosx_10_12_x86_64.whl", hash = "sha256:2d367ca20b2f14095a8f4fa1210f5a7b78b8a20009ecced6b12818f455b1e9fa"},
     {file = "pydantic_core-2.27.2-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:491a2b73db93fab69731eaee494f320faa4e093dbed776be1a829c2eb222c34c"},
@@ -4223,7 +4223,7 @@ files = [
     {file = "typing_extensions-4.14.1-py3-none-any.whl", hash = "sha256:d1e1e3b58374dc93031d6eda2420a48ea44a36c2b4766a4fdeb3710755731d76"},
     {file = "typing_extensions-4.14.1.tar.gz", hash = "sha256:38b39f4aeeab64884ce9f74c94263ef78f3c22467c8724005483154c26648d36"},
 ]
-markers = {main = "extra == \"mysql\" or extra == \"pgsql\" or extra == \"all\" or extra == \"mongo\" or extra == \"fastapi\" or extra == \"kafka\" or extra == \"opentelemetry\" or python_version < \"3.13\""}
+markers = {main = "extra == \"all\" or extra == \"mongo\" or extra == \"fastapi\" or extra == \"mysql\" or extra == \"pgsql\" or extra == \"kafka\" or extra == \"opentelemetry\" or python_version < \"3.13\""}
 
 [package.source]
 type = "legacy"
@@ -5025,7 +5025,7 @@ auth = ["PyJWT", "bcrypt", "pillow", "pyotp", "qrcode"]
 client-grpc = ["aiobreaker", "grpcio"]
 client-http = ["aiobreaker", "httpx"]
 django = ["django"]
-fastapi = ["fastapi", "pydantic", "starlette", "uvicorn"]
+fastapi = ["fastapi", "starlette", "uvicorn"]
 flask = ["flask"]
 kafka = ["aiokafka", "python-snappy", "zstandard"]
 mongo = ["beanie", "motor"]
@@ -5037,4 +5037,4 @@ redis = ["redis"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "aee598d069f78e0d0efd674a93b17e72b58829ddf7193b66c822eb073a4db2c8"
+content-hash = "2dd1259c561512f8faf2d1d4eb6373672002697348c8cbde31abdff0493e8914"
