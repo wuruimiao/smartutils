@@ -14,6 +14,7 @@ class MiddlewarePluginKey(str, Enum):
     HEADER = "header"
     LOG = "log"
     APIKEY = "apikey"
+    ECHO = "echo"
 
 
 class PluginDependAuthConf(BaseModel):

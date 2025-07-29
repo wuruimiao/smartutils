@@ -15,6 +15,7 @@ class HeaderKey(str, Enum):
     X_USER_NAME = "X-User-Name"
     X_TRACE_ID = "X-Trace-ID"
     X_P_USER_IDS = "X-P-User-Ids"
+    X_ECHO = "X-Echo"
 
 
 class AppKey(Enum):
@@ -32,9 +33,10 @@ class AppKey(Enum):
 
 class MiddlewarePluginOrder(IntEnum):
     # 按值顺序，从小到大，依次处理请求
-    ME = -sys.maxsize
-    APIKEY = -sys.maxsize + 1
-    PERMISSION = -sys.maxsize + 2
+    ECHO = -sys.maxsize
+    ME = -sys.maxsize + 10
+    APIKEY = -sys.maxsize + 20
+    PERMISSION = -sys.maxsize + 30
     HEADER = -100
     LOG = 100
     EXCEPTION = sys.maxsize

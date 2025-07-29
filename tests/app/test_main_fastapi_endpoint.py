@@ -1,8 +1,10 @@
 import pytest
+from adaptix import P
 from fastapi import Request, Response
 from fastapi.testclient import TestClient
 
 from smartutils.app import AppHook
+from smartutils.app.const import HeaderKey
 from smartutils.error.sys import LibraryUsageError
 
 
@@ -16,6 +18,8 @@ middleware:
       - exception
       - header
       - apikey
+    echo:
+      - echo
   setting:
     apikey:
       header_key: test-X-API-Key
@@ -50,6 +54,14 @@ project:
             raw_data = '{"code": 0, "msg": "ok endpoint response"}'
             return Response(content=raw_data, media_type="application/json")
 
+        @app.get("/endpoint-echo")
+        @mgr.init_endpoint("echo")
+        async def endpoint_echo(req: Request):
+            # 其实不会走到这儿
+            return ResponseModel(
+                msg="ok endpoint echo", data={"name": "endpoint-plugin"}
+            )
+
     from smartutils.app.main.fastapi import create_app
 
     app = create_app(str(config_file))
@@ -71,6 +83,35 @@ async def test_endpoint_api_key_success(client):
     assert data["code"] == 0
     assert data["msg"] == "ok endpoint"
     assert data["data"]["name"] == "endpoint-plugin"
+
+
+async def test_endpoint_echo_success(client):
+    resp = client.get(
+        "/endpoint-echo?a=1",
+        headers={"test-X-API-Key": "test-api-key1"},
+        cookies={HeaderKey.X_ECHO: "test-echo"},
+    )
+    data = resp.json()
+    assert resp.status_code == 200
+    assert data == {
+        "code": 0,
+        "msg": "ok echo",
+        "headers": {
+            "host": "testserver",
+            "accept": "*/*",
+            "accept-encoding": "gzip, deflate, br, zstd",
+            "connection": "keep-alive",
+            "user-agent": "testclient",
+            "test-x-api-key": "test-api-key1",
+            "cookie": "HeaderKey.X_ECHO=test-echo",
+        },
+        "query_params": {"a": "1"},
+        "client_host": "testclient",
+        "method": "GET",
+        "url": "http://testserver/endpoint-echo?a=1",
+        "path": "/endpoint-echo",
+        "cookies": "",
+    }
 
 
 async def test_endpoint_response_api_key_success(client):
