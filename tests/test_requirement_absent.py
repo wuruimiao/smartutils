@@ -139,6 +139,24 @@ def test_missing_sqlalchemy(mock_module_absent, reset):
 
     mock_module_absent("sqlalchemy", mod=mod)
 
+    import smartutils.infra.db.mysql as mod
+
+    mock_module_absent("sqlalchemy.ext.asyncio", mod=mod)
+
+    import smartutils.infra.db.postgresql as mod
+
+    mock_module_absent("sqlalchemy.ext.asyncio", mod=mod)
+
+    import smartutils.infra.db.sqlalchemy_cli as mod
+
+    mock_module_absent("sqlalchemy.ext.asyncio", mod=mod)
+
+
+def test_missing_kafka(mock_module_absent, reset):
+    import smartutils.infra.mq.cli as mod
+
+    mock_module_absent("aiokafka", mod=mod)
+
 
 def test_missing_hashring(mock_module_absent, reset):
     import smartutils.data.hashring as mod
