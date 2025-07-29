@@ -12,6 +12,10 @@ async def client():
         def info():
             return ResponseModel()
 
+    @AppHook.on_shutdown
+    async def shutdown(app):
+        a = 1
+
     from smartutils.app.main.fastapi import create_app
 
     app = create_app()
