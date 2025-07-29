@@ -62,11 +62,13 @@ def test_redis_missing(mock_module_absent, reset):
 
 def test_mongo_missing(mock_module_absent, reset):
     import smartutils.infra.db.mongo as mod
+    import smartutils.infra.db.mongo_cli as mod2
 
     mock_module_absent("motor", "motor.motor_asyncio", mod=mod)
+    mock_module_absent("motor", "motor.motor_asyncio", mod=mod2)
 
     with pytest.raises(LibraryUsageError) as e:
-        mod.AsyncMongoCli(conf=1, name="abc")
+        mod2.AsyncMongoCli(conf=1, name="abc")
     assert str(e.value) == "[AsyncMongoCli] depend on motor, install first!"
 
 
