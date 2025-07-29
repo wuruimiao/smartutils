@@ -34,6 +34,7 @@ def test_decorator_singleton_threadsafe():
 class BaseSingleton(SingletonBase):
     def _init_once(self, value=0):
         self.value = value
+        super()._init_once(value)  # 覆盖SingletonBase的_init_once方法
 
 
 def test_base_singleton_basic():

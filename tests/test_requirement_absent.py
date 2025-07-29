@@ -136,3 +136,9 @@ def test_missing_sqlalchemy(mock_module_absent, reset):
     import smartutils.app.history.service as mod
 
     mock_module_absent("sqlalchemy", mod=mod)
+
+
+def test_missing_hashring(mock_module_absent, reset):
+    import smartutils.data.hashring as mod
+
+    mock_module_absent("uhashring", mod=mod)

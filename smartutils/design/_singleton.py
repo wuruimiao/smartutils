@@ -116,7 +116,7 @@ class SingletonBase(metaclass=SingletonMeta):
 
     def __init__(self, *args, **kwargs):
         if getattr(self, "_initialized", False):
-            return
+            return  # pragma: no cover
         self._init_once(*args, **kwargs)
         self._initialized = True
 

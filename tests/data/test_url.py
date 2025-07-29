@@ -11,6 +11,7 @@ def test_url_module():
     assert url_mod.url_host(url) == "http://example.com:8080"
     assert url_mod.is_same_host(url, url)
     assert url_mod.is_same_url(url, url)
+    assert not url_mod.is_same_url(url, "1234")
     assert url_mod.is_url_missing_host("/path")
     assert (
         url_mod.resolve_relative_url(url, "/other") == "http://example.com:8080/other"
