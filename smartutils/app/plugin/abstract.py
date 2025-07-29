@@ -2,18 +2,17 @@ from typing import Dict, Optional, Tuple, cast
 
 from smartutils.app.adapter.req.abstract import RequestAdapter
 from smartutils.config.schema.middleware import PluginDependAuthConf
+from smartutils.design import MyBase
 from smartutils.error.sys import LibraryUsageError
 from smartutils.infra.client.http import HttpClient
 from smartutils.infra.client.manager import ClientManager
-from smartutils.init.mixin import LibraryCheckMixin
 
 
-class AuthBase(LibraryCheckMixin):
+class AuthBase(MyBase):
     def __init__(self, *, plugin_conf: PluginDependAuthConf, **kwargs):
         super().__init__(**kwargs)
 
         self._plugin_conf = plugin_conf
-        self.check(require_conf=False, libs=["httpx"])
 
         try:
             if not self._plugin_conf.local:
