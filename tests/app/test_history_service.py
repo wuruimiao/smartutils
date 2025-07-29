@@ -59,20 +59,7 @@ def patch_db(mocker):
     mocker.patch.object(mod, "get_db", return_value=fake_db)
 
 
-# class mod.OpType:
-#     ADD = object()
-#     UPDATE = object()
-
-
-@pytest.fixture
-def fake_OpType(mocker):
-    pass
-    # import smartutils.app.history.service as mod
-
-    # mocker.patch.object(mod, "OpType", mod.OpType)
-
-
-async def test_record_history(fake_OpType, mocker):
+async def test_record_history(mocker):
     import smartutils.app.history.service as mod
 
     mod.get_db().curr.add = mocker.MagicMock()
@@ -82,7 +69,7 @@ async def test_record_history(fake_OpType, mocker):
     mod.get_db().curr.add.assert_called()
 
 
-async def test_get_op_id_by_order_basic(mocker, fake_OpType):
+async def test_get_op_id_by_order_basic(mocker):
     import smartutils.app.history.service as mod
 
     mod.get_db().curr.execute = mocker.AsyncMock()
@@ -97,7 +84,7 @@ async def test_get_op_id_by_order_basic(mocker, fake_OpType):
     assert ids == {}
 
 
-async def test_get_op_id_by_order_desc(mocker, fake_OpType):
+async def test_get_op_id_by_order_desc(mocker):
     import smartutils.app.history.service as mod
 
     mod.get_db().curr.execute = mocker.AsyncMock()
@@ -110,7 +97,7 @@ async def test_get_op_id_by_order_desc(mocker, fake_OpType):
     assert ids == {4: 30}
 
 
-async def test_get_creator_id_and_last_updator_id(fake_OpType, mocker):
+async def test_get_creator_id_and_last_updator_id(mocker):
     import smartutils.app.history.service as mod
 
     fake_row = mocker.MagicMock()
@@ -129,7 +116,7 @@ async def test_get_creator_id_and_last_updator_id(fake_OpType, mocker):
     assert ret2 == {8: 33}
 
 
-async def test_get_creator_and_last_updator_id_normal(mocker, fake_OpType):
+async def test_get_creator_and_last_updator_id_normal(mocker):
     import smartutils.app.history.service as mod
 
     mod.get_db().curr.execute = mocker.AsyncMock()
@@ -158,7 +145,7 @@ async def test_get_op_ids(mocker):
     assert dict(emp) == {}
 
 
-async def test_BizOpInfo_all(mocker, fake_OpType):
+async def test_BizOpInfo_all(mocker):
     import smartutils.app.history.service as mod
 
     handler = mocker.AsyncMock()
