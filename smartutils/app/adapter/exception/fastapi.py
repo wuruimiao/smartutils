@@ -19,7 +19,14 @@ from smartutils.error.sys import SysError, ValidationError
 def _(exc: BaseException) -> str:
     if hasattr(exc, "errors"):
         errors = getattr(exc, "errors", lambda: [])()
-        msg = "; ".join([str(e.get("msg", "")) for e in errors])
+        msg = "\n".join(
+            [
+                "{loc}: {msg}".format(
+                    loc=", ".join(e.get("loc", "")), msg=e.get("msg", "")
+                )
+                for e in errors
+            ]
+        )
         return msg if msg else "Param Validate Fail!"
     return "Unknown Validate Fail!"
 
