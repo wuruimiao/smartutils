@@ -1,5 +1,4 @@
 import pytest
-from adaptix import P
 from fastapi import Request, Response
 from fastapi.testclient import TestClient
 
