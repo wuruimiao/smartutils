@@ -16,7 +16,7 @@ try:
     )
 except ImportError:
     pass
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from motor.motor_asyncio import (
         AsyncIOMotorClient,
         AsyncIOMotorClientSession,

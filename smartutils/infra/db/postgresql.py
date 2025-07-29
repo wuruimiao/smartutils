@@ -16,7 +16,7 @@ try:
     from sqlalchemy.ext.asyncio import AsyncSession
 except ImportError:
     pass
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from sqlalchemy.ext.asyncio import AsyncSession
 
 __all__ = ["PostgresqlManager"]

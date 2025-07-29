@@ -18,7 +18,7 @@ try:
 except ImportError:
     pass
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from sqlalchemy.ext.asyncio import AsyncSession, AsyncSessionTransaction
 
 __all__ = ["MySQLManager"]

@@ -21,7 +21,7 @@ try:
     from redis.asyncio import ConnectionPool, Redis, ResponseError
 except ImportError:
     pass
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from redis.asyncio import ConnectionPool, Redis, ResponseError
 
 __all__ = ["AsyncRedisCli", "RedisManager"]

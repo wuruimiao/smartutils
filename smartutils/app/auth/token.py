@@ -13,7 +13,7 @@ try:
 except ImportError:
     pass
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     import jwt
 
 __all__ = ["User", "Token", "TokenHelper"]

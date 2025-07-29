@@ -7,7 +7,7 @@ try:
 except ImportError:
     pass
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from flask import jsonify
 
 

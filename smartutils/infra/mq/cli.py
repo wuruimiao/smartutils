@@ -18,7 +18,7 @@ try:
     from aiokafka import AIOKafkaConsumer, AIOKafkaProducer, TopicPartition, errors
 except ImportError:
     pass
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from aiokafka import AIOKafkaConsumer, AIOKafkaProducer, TopicPartition, errors
 
 __all__ = ["AsyncKafkaCli", "KafkaBatchConsumer"]

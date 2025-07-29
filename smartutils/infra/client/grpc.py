@@ -18,7 +18,7 @@ try:
 except ImportError:
     pass
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     import grpc
     import grpc.aio
     from google.protobuf.message import Message

@@ -8,7 +8,7 @@ try:
     import psutil
 except ImportError:
     pass
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     import psutil
 
 msg = "smartutils.system.cgroup.IOController depend on psutil, install before use."

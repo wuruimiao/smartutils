@@ -10,7 +10,7 @@ try:
     import qrcode
 except ImportError:
     pass
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     import pyotp
     import qrcode
 

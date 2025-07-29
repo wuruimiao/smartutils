@@ -4,7 +4,7 @@ try:
     import filetype
 except ImportError:
     pass
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     import filetype
 
 """

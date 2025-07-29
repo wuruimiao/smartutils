@@ -12,7 +12,7 @@ try:
     from sqlalchemy import asc, desc, func, or_, select
 except ImportError:
     pass
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from sqlalchemy import asc, desc, func, or_, select
 
 db: MySQLManager = MySQLManager()

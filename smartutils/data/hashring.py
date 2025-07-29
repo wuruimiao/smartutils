@@ -8,7 +8,7 @@ try:
     from uhashring import HashRing as _HashRing
 except ImportError:
     pass
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from uhashring import HashRing as _HashRing
 
 
