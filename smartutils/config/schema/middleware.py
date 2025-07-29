@@ -16,6 +16,8 @@ class MiddlewarePluginKey(str, Enum):
     APIKEY = "apikey"
     ECHO = "echo"
 
+    FOR_TEST = "for_test"
+
 
 class PluginDependAuthConf(BaseModel):
     access_name: str = "access_token"  # 访问令牌name

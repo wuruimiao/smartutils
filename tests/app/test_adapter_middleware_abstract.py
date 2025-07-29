@@ -18,5 +18,5 @@ async def test_adapter_middleware_plugin_abstract():
         ) -> ResponseAdapter:
             return await super().dispatch(req, next_adapter)
 
-    plugin = TestPlugin(conf=1)
-    await plugin.dispatch(1, 2)
+    plugin = TestPlugin(conf=1)  # type: ignore
+    await plugin.dispatch(1, 2)  # type: ignore
