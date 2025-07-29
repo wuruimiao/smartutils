@@ -56,7 +56,7 @@ def patch_db(mocker):
 
     fake_db = mocker.MagicMock()
     fake_db.curr = mocker.MagicMock()
-    mocker.patch.object(mod, "db", fake_db)
+    mocker.patch.object(mod, "get_db", return_value=fake_db)
 
 
 # class mod.OpType:
@@ -75,20 +75,20 @@ def fake_OpType(mocker):
 async def test_record_history(fake_OpType, mocker):
     import smartutils.app.history.service as mod
 
-    mod.db.curr.add = mocker.MagicMock()
+    mod.get_db().curr.add = mocker.MagicMock()
     await mod.op_history_controller.record_history(
         "A", 1, mod.OpType.ADD, 99, {"a": 1}, {"b": 2}
     )
-    mod.db.curr.add.assert_called()
+    mod.get_db().curr.add.assert_called()
 
 
 async def test_get_op_id_by_order_basic(mocker, fake_OpType):
     import smartutils.app.history.service as mod
 
-    mod.db.curr.execute = mocker.AsyncMock()
+    mod.get_db().curr.execute = mocker.AsyncMock()
     fake_row = mocker.MagicMock()
     fake_row.fetchall.return_value = [(2, 10), (3, 20)]
-    mod.db.curr.execute.return_value = fake_row
+    mod.get_db().curr.execute.return_value = fake_row
     ids = await mod.op_history_controller.get_op_id_by_order(
         "A", [2, 3], "asc", mod.OpType.ADD
     )
@@ -100,10 +100,10 @@ async def test_get_op_id_by_order_basic(mocker, fake_OpType):
 async def test_get_op_id_by_order_desc(mocker, fake_OpType):
     import smartutils.app.history.service as mod
 
-    mod.db.curr.execute = mocker.AsyncMock()
+    mod.get_db().curr.execute = mocker.AsyncMock()
     fake_row = mocker.MagicMock()
     fake_row.fetchall.return_value = [(4, 30)]
-    mod.db.curr.execute.return_value = fake_row
+    mod.get_db().curr.execute.return_value = fake_row
     ids = await mod.op_history_controller.get_op_id_by_order(
         "A", [4], "desc", mod.OpType.UPDATE
     )
@@ -115,7 +115,7 @@ async def test_get_creator_id_and_last_updator_id(fake_OpType, mocker):
 
     fake_row = mocker.MagicMock()
     fake_row.fetchall = mocker.MagicMock(return_value=[(8, 33)])
-    mod.db.curr.execute = mocker.AsyncMock(return_value=fake_row)
+    mod.get_db().curr.execute = mocker.AsyncMock(return_value=fake_row)
     called = {}
 
     async def fake_op_order(*a, **kw):
@@ -132,13 +132,13 @@ async def test_get_creator_id_and_last_updator_id(fake_OpType, mocker):
 async def test_get_creator_and_last_updator_id_normal(mocker, fake_OpType):
     import smartutils.app.history.service as mod
 
-    mod.db.curr.execute = mocker.AsyncMock()
+    mod.get_db().curr.execute = mocker.AsyncMock()
     fake_row = mocker.MagicMock()
     fake_row.fetchall.return_value = [
         (101, 1001, 1, 1, None),
         (101, 2002, 3, None, 1),
     ]
-    mod.db.curr.execute.return_value = fake_row
+    mod.get_db().curr.execute.return_value = fake_row
     res = await mod.op_history_controller.get_creator_and_last_updator_id("TT", [101])
     assert (res[101].creator_id, res[101].updator_id) == (1001, 2002)
     emp = await mod.op_history_controller.get_creator_and_last_updator_id("AA", [])
@@ -148,10 +148,10 @@ async def test_get_creator_and_last_updator_id_normal(mocker, fake_OpType):
 async def test_get_op_ids(mocker):
     import smartutils.app.history.service as mod
 
-    mod.db.curr.execute = mocker.AsyncMock()
+    mod.get_db().curr.execute = mocker.AsyncMock()
     fake_row = mocker.MagicMock()
     fake_row.fetchall.return_value = [(9, 111), (9, 112), (10, 120)]
-    mod.db.curr.execute.return_value = fake_row
+    mod.get_db().curr.execute.return_value = fake_row
     ret = await mod.op_history_controller.get_op_ids("BT", [9, 10])
     assert dict(ret) == {9: [111, 112], 10: [120]}
     emp = await mod.op_history_controller.get_op_ids("BT", [])

@@ -15,7 +15,9 @@ except ImportError:
 if TYPE_CHECKING:  # pragma: no cover
     from sqlalchemy import asc, desc, func, or_, select
 
-db: MySQLManager = MySQLManager()
+
+def get_db() -> MySQLManager:
+    return MySQLManager()
 
 
 __all__ = ["op_history_controller", "BizOpInfo"]
@@ -52,7 +54,7 @@ class OpHistoryController:
             after_data=after or {},
             remark=remark,
         )
-        db.curr.add(op)
+        get_db().curr.add(op)
 
     @classmethod
     async def get_op_id_by_order(
@@ -103,7 +105,7 @@ class OpHistoryController:
         )
         sub_q = stmt.subquery()
         outer_stmt = select(sub_q.c.biz_id, sub_q.c.op_id).where(sub_q.c.rn == 1)
-        result = await db.curr.execute(outer_stmt)
+        result = await get_db().curr.execute(outer_stmt)
         return {biz_id: op_id for biz_id, op_id in result.fetchall()}
 
     @classmethod
@@ -177,7 +179,7 @@ class OpHistoryController:
                 (sub_q.c.op_type == OpType.UPDATE.value) & (sub_q.c.updator_rn == 1),
             )
         )
-        result = await db.curr.execute(outer_stmt)
+        result = await get_db().curr.execute(outer_stmt)
         rows = result.fetchall()
 
         res: Dict[int, OpUser] = {}
@@ -197,7 +199,7 @@ class OpHistoryController:
         if not biz_ids:
             return {}
 
-        result = await db.curr.execute(
+        result = await get_db().curr.execute(
             select(OpHistory.biz_id, OpHistory.op_id)
             .where(
                 OpHistory.biz_type == biz_type,
