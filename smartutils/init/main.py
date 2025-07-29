@@ -53,3 +53,4 @@ async def reset_all():
     from smartutils.infra.source_manager.manager import ResourceManagerRegistry
 
     await ResourceManagerRegistry.close_all()
+    ResourceManagerRegistry.reset_all()

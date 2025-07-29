@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import asyncio
 import functools
-import threading
 from abc import ABC
 from typing import (
     Any,
@@ -8,6 +9,7 @@ from typing import (
     Callable,
     Dict,
     Generic,
+    List,
     Optional,
     Type,
     Union,
@@ -27,24 +29,24 @@ __all__ = ["ResourceManagerRegistry", "CTXResourceManager"]
 
 
 class ResourceManagerRegistry:
-    _instances = []
-    _lock = threading.Lock()
+    _instances: List[CTXResourceManager] = []
 
     @classmethod
     def register(cls, instance):
-        with cls._lock:
-            cls._instances.append(instance)
+        cls._instances.append(instance)
 
     @classmethod
     def get_all(cls):
-        with cls._lock:
-            return list(cls._instances)
+        return list(cls._instances)
 
     @classmethod
     async def close_all(cls):
-        await asyncio.gather(
-            *(mgr.close() for mgr in ResourceManagerRegistry.get_all())
-        )
+        await asyncio.gather(*(mgr.close() for mgr in cls.get_all()))
+
+    @classmethod
+    def reset_all(cls):
+        for mgr in cls.get_all():
+            mgr.reset()
 
 
 class CTXResourceManager(MyBase, Generic[T], ABC):
@@ -156,3 +158,6 @@ class CTXResourceManager(MyBase, Generic[T], ABC):
         for key, cli in self._resources.items():
             result[key] = await cli.ping()
         return result
+
+    def reset(self):
+        self._resources = {}
