@@ -1,6 +1,3 @@
-import builtins
-import importlib.util
-import sys
 from functools import partial
 
 import pytest
@@ -10,52 +7,9 @@ from smartutils.error.sys import LibraryUsageError
 
 @pytest.fixture
 def mock_module_absent(mocker):
-    """
-    让 import 指定模块时真正触发 ImportError，而不是 sys.modules[name] = None
-    """
+    from smartutils.call import mock_module_absent
 
-    def _mock(*module_names, modname=None):
-        real_import = builtins.__import__
-
-        def fake_import(name, *args, **kwargs):
-            if name in module_names:
-                raise ImportError(f"No module named '{name}'")
-            return real_import(name, *args, **kwargs)
-
-        mocker.patch("builtins.__import__", side_effect=fake_import)
-        mocker.patch(
-            "importlib.util.find_spec",
-            side_effect=lambda name, *a, **kw: (
-                None
-                if name in module_names
-                else importlib.util.find_spec(name, *a, **kw)
-            ),
-        )
-
-        # 这里启用会导致real中断失败
-        # 如果需要影响下游子模块（如from ... import ... 情况）
-        # if modname:
-        #     if modname in sys.modules:
-        #         del sys.modules[modname]
-
-    return _mock
-
-
-# TODO: 模拟import ImportError
-# 这里启用会导致直接失败
-@pytest.fixture
-def clear_smartutils():
-    mod_names = [
-        name
-        for name in sys.modules
-        if name == "smartutils" or name.startswith("smartutils.")
-    ]
-    orig = {}
-    for name in mod_names:
-        orig[name] = sys.modules[name]
-        del sys.modules[name]
-    yield
-    sys.modules.update(orig)
+    return mock_module_absent(mocker)
 
 
 @pytest.fixture
@@ -69,7 +23,9 @@ def reset(mocker):
 
 
 def test_importerror_when_httpx_missing(mock_module_absent, reset):
-    mock_module_absent("httpx", modname="smartutils.infra.client.http")
+    import smartutils.infra.client.http as mod
+
+    mock_module_absent("httpx", mod=mod)
 
     with pytest.raises(LibraryUsageError) as exc:
         from smartutils.infra.client.http import HttpClient
@@ -79,7 +35,9 @@ def test_importerror_when_httpx_missing(mock_module_absent, reset):
 
 
 def test_tokenhelper_missing_jwt(mock_module_absent, reset):
-    mock_module_absent("jwt", modname="smartutils.app.auth.token")
+    import smartutils.app.auth.token as mod
+
+    mock_module_absent("jwt", mod=mod)
 
     with pytest.raises(LibraryUsageError) as exc:
         from smartutils.app.auth.token import TokenHelper
@@ -89,7 +47,9 @@ def test_tokenhelper_missing_jwt(mock_module_absent, reset):
 
 
 def test_redis_missing_redis(mock_module_absent, reset):
-    mock_module_absent("redis", "redis.asyncio", modname="smartutils.infra.cache.redis")
+    import smartutils.infra.cache.redis as mod
+
+    mock_module_absent("redis", "redis.asyncio", mod=mod)
 
     with pytest.raises(LibraryUsageError) as e:
         from smartutils.infra.cache.redis import AsyncRedisCli
@@ -99,9 +59,9 @@ def test_redis_missing_redis(mock_module_absent, reset):
 
 
 def test_assert_mongo_missing_motor(mock_module_absent, reset):
-    mock_module_absent(
-        "motor", "motor.motor_asyncio", modname="smartutils.infra.db.mongo"
-    )
+    import smartutils.infra.db.mongo as mod
+
+    mock_module_absent("motor", "motor.motor_asyncio", mod=mod)
 
     with pytest.raises(LibraryUsageError) as e:
         from smartutils.infra.db.mongo import AsyncMongoCli

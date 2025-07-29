@@ -1,3 +1,4 @@
+import builtins
 import importlib
 import importlib.util
 import inspect
@@ -68,3 +69,31 @@ def mock_dbcli(mocker, patch_target):
     instance.close = mocker.AsyncMock()
 
     yield MockDBCli, fake_session, instance
+
+
+def mock_module_absent(mocker):
+    """
+    让 import 指定模块时真正触发 ImportError，而不是 sys.modules[name] = None
+    """
+
+    def _mock(*module_names, mod):
+        real_import = builtins.__import__
+
+        def fake_import(name, *args, **kwargs):
+            if name in module_names:
+                raise ImportError(f"No module named '{name}'")
+            return real_import(name, *args, **kwargs)
+
+        mocker.patch("builtins.__import__", side_effect=fake_import)
+        mocker.patch(
+            "importlib.util.find_spec",
+            side_effect=lambda name, *a, **kw: (
+                None
+                if name in module_names
+                else importlib.util.find_spec(name, *a, **kw)
+            ),
+        )
+        if mod:
+            importlib.reload(mod)
+
+    return _mock
