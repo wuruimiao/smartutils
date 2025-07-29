@@ -1,5 +1,5 @@
 import pytest
-from fastapi import Request
+from fastapi import Request, Response
 from fastapi.testclient import TestClient
 
 from smartutils.app import AppHook
@@ -42,7 +42,13 @@ project:
         @app.get("/endpoint-plugin")
         @mgr.init_endpoint("apikey")
         async def endpoint_plugin(req: Request):
-            return ResponseModel(data={"name": "endpoint-plugin"})
+            return ResponseModel(msg="ok endpoint", data={"name": "endpoint-plugin"})
+
+        @app.get("/endpoint-plugin-response")
+        @mgr.init_endpoint("apikey")
+        async def endpoint_plugin_response(req: Request):
+            raw_data = '{"code": 0, "msg": "ok endpoint response"}'
+            return Response(content=raw_data, media_type="application/json")
 
     from smartutils.app.main.fastapi import create_app
 
@@ -63,7 +69,18 @@ async def test_endpoint_api_key_success(client):
     data = resp.json()
     assert resp.status_code == 200
     assert data["code"] == 0
+    assert data["msg"] == "ok endpoint"
     assert data["data"]["name"] == "endpoint-plugin"
+
+
+async def test_endpoint_response_api_key_success(client):
+    resp = client.get(
+        "/endpoint-plugin-response", headers={"test-X-API-Key": "test-api-key1"}
+    )
+    data = resp.json()
+    assert resp.status_code == 200
+    assert data["code"] == 0
+    assert data["msg"] == "ok endpoint response"
 
 
 async def test_endpoint_api_key_fail_no_request(client):
