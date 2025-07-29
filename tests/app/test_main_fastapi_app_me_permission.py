@@ -69,10 +69,6 @@ project:
     with TestClient(app) as c:
         yield c
 
-    from smartutils.init import reset_all
-
-    await reset_all()
-
 
 @pytest.fixture
 async def fake_me_permission(mocker):

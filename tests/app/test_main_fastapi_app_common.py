@@ -45,10 +45,6 @@ project:
     with TestClient(app) as c:
         yield c
 
-    from smartutils.init import reset_all
-
-    await reset_all()
-
 
 async def test_root(client):
     resp = client.get("/")

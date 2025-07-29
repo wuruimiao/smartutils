@@ -58,10 +58,6 @@ project:
     with TestClient(app) as c:
         yield c
 
-    from smartutils.init import reset_all
-
-    await reset_all()
-
 
 async def test_me_local_middleware_success(client, mocker):
     from smartutils.app import TokenHelper, User

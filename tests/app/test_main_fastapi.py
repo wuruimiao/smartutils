@@ -45,10 +45,6 @@ async def client():
     with TestClient(app) as c:
         yield c
 
-    from smartutils.init import reset_all
-
-    await reset_all()
-
 
 async def test_main_fastapi_root(client):
     resp = client.get("/")

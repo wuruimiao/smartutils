@@ -53,10 +53,6 @@ middleware:
     with TestClient(app) as c:
         yield c
 
-    from smartutils.init import reset_all
-
-    await reset_all()
-
 
 async def test_custom_plugin_set_500(client):
     resp = client.get("/info")

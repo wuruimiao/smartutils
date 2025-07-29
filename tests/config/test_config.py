@@ -81,10 +81,6 @@ project:
         f.write(config_str)
     yield config_file
 
-    from smartutils.init import reset_all
-
-    await reset_all()
-
 
 @pytest.fixture(scope="function")
 async def setup_no_conf_class_config(tmp_path_factory):
@@ -101,10 +97,6 @@ project:
     with open(config_file, "w") as f:
         f.write(config_str)
     yield config_file
-
-    from smartutils.init import reset_all
-
-    await reset_all()
 
 
 @pytest.fixture(scope="function")
@@ -134,10 +126,6 @@ project:
         f.write(config_str)
     yield config_file
 
-    from smartutils.init import reset_all
-
-    await reset_all()
-
 
 @pytest.fixture(scope="function")
 async def setup_conf_empty(tmp_path_factory):
@@ -148,10 +136,6 @@ async def setup_conf_empty(tmp_path_factory):
     with open(config_file, "w") as f:
         f.write(config_str)
     yield config_file
-
-    from smartutils.init import reset_all
-
-    await reset_all()
 
 
 def test_config_loads_all(setup_config: str):

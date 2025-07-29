@@ -35,10 +35,6 @@ project:
     with TestClient(app) as c:
         yield c
 
-    from smartutils.init import reset_all
-
-    await reset_all()
-
 
 async def test_routes_app_exception_fail(client):
     resp = client.get("/info")

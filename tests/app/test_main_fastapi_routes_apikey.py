@@ -59,10 +59,6 @@ project:
     with TestClient(app) as c:
         yield c
 
-    from smartutils.init import reset_all
-
-    await reset_all()
-
 
 @pytest.fixture
 async def client_secret(tmp_path_factory):
@@ -114,10 +110,6 @@ project:
 
     with TestClient(app) as c:
         yield c
-
-    from smartutils.init import reset_all
-
-    await reset_all()
 
 
 async def test_routes_api_key_no_plugin_success(client):

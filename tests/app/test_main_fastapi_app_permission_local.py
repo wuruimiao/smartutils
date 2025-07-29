@@ -44,10 +44,6 @@ project:
     with TestClient(app) as c:
         yield c
 
-    from smartutils.init import reset_all
-
-    await reset_all()
-
 
 async def test_permission_local_middleware_fail(client, mocker):
     resp = client.get("/info", cookies={"access_token": "fake"})
