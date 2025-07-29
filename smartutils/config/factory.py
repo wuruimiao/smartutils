@@ -13,7 +13,7 @@ __all__ = ["ConfFactory"]
 
 class ConfFactory(MyBase, BaseFactory[ConfKey, Tuple[Type, bool, bool]]):
     @classmethod
-    def register(cls, name: ConfKey, multi: bool = False, require: bool = True):  # type: ignore
+    def register(cls, name: ConfKey, multi: bool = False, require: bool = False):  # type: ignore
         def decorator(conf_cls: Type):
             super(ConfFactory, cls).register(name, only_register_once=False)(
                 (conf_cls, multi, require)
