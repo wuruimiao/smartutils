@@ -22,7 +22,7 @@ def reset(mocker):
     mocker.patch.object(BaseFactory, "register", classmethod(mocked_register))
 
 
-def test_client_http_missing(mock_module_absent, reset):
+def test_missing_httpx(mock_module_absent, reset):
     import smartutils.infra.client.http as mod
 
     mock_module_absent("httpx", mod=mod)
@@ -30,6 +30,10 @@ def test_client_http_missing(mock_module_absent, reset):
     with pytest.raises(LibraryUsageError) as exc:
         mod.HttpClient(conf=1, name="demo")
     assert str(exc.value) == "[HttpClient] depend on httpx, install first!"
+
+    import smartutils.app.plugin.me as mod
+
+    mock_module_absent("httpx", mod=mod)
 
 
 def test_tokenhelper_missing(mock_module_absent, reset):

@@ -33,7 +33,7 @@ if TYPE_CHECKING:  # pragma: no cover
     ConfKey.PLACEHOLDER, deps=[ConfKey.TOKEN], only_register_once=False
 )
 def _(*args):
-    pass
+    pass  # pragma: no cover
 
 
 @MiddlewarePluginFactory.register(
