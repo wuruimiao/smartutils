@@ -29,30 +29,35 @@ class Config(MyBase, Generic[BaseModelT], metaclass=SingletonMeta):
             logger.warning(
                 "{name} no {conf_path}, ignore.", name=self.name, conf_path=conf_path
             )
-            return
+        else:
 
-        self._config = load_yaml(conf_path)
+            self._config = load_yaml(conf_path)
 
-        if not self._config:
-            raise ConfigError(f"{self.name} {conf_path} load emtpy, please check it.")
+            if not self._config:
+                raise ConfigError(
+                    f"{self.name} {conf_path} load emtpy, please check it."
+                )
 
-        logger.info("{name} init by {conf_path}.", name=self.name, conf_path=conf_path)
+            logger.info(
+                "{name} init by {conf_path}.", name=self.name, conf_path=conf_path
+            )
 
-        for key, _ in ConfFactory.all():
-            conf = ConfFactory.create(key, self._config.get(key, {}))
-            if not conf:
-                continue
-            self._instances[key] = conf  # type: ignore
+            for key, _ in ConfFactory.all():
+                conf = ConfFactory.create(key, self._config.get(key, {}))
+                if not conf:
+                    continue
+                self._instances[key] = conf  # type: ignore
+
+        if ConfKey.PROJECT not in self._instances:
+            logger.debug("{name} project init default.", name=self.name)
+            self._instances[ConfKey.PROJECT] = ProjectConf()
 
     def get(self, name: str) -> Union[BaseModelT, Dict[str, BaseModelT], None]:
         return self._instances.get(name)
 
     @property
     def project(self) -> PT:  # type: ignore
-        conf = self.get(ConfKey.PROJECT)
-        if not conf:
-            raise LibraryUsageError(f"{self.name} project must in config.yaml")
-        return conf  # type: ignore
+        return self._instances[ConfKey.PROJECT]  # type: ignore
 
     @classmethod
     def init(cls, conf_path: str) -> Config:
