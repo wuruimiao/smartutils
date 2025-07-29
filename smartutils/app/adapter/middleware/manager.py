@@ -12,18 +12,21 @@ from smartutils.app.plugin.factory import MiddlewarePluginFactory
 from smartutils.app.plugin.log import LogPlugin
 from smartutils.config.const import ConfKey
 from smartutils.config.schema.middleware import MiddlewareConf
-from smartutils.design import SingletonMeta
+from smartutils.design import MyBase, SingletonMeta
 from smartutils.error.sys import LibraryUsageError
 from smartutils.init.factory import InitByConfFactory
-from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
 
 
-class MiddlewareManager(LibraryCheckMixin, metaclass=SingletonMeta):
+class MiddlewareManager(MyBase, metaclass=SingletonMeta):
     ROUTE_APP_KEY = "app"
 
     def __init__(self, conf: Optional[MiddlewareConf] = None):
-        self.check(conf=conf)
+        if not conf:
+            logger.info(
+                "{name} get none conf, no middleware will be added.", name=self.name
+            )
+            conf = MiddlewareConf()
 
         self._app_key: AppKey = RunEnv.get_app()
         assert self._app_key, f"{self.name} should call RunEnv.set_app() first."
