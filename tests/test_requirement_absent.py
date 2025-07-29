@@ -104,6 +104,22 @@ def test_missing_fastapi(mock_module_absent, reset):
     mock_module_absent("fastapi", mod=mod)
 
 
+def test_missing_django(mock_module_absent, reset):
+    import smartutils.app.adapter.json_resp.django as mod
+
+    mock_module_absent("django.http", mod=mod)
+
+
+def test_missing_flask(mock_module_absent, reset):
+    import smartutils.app.adapter.json_resp.flask as mod
+
+    mock_module_absent("flask", mod=mod)
+
+    import smartutils.app.adapter.middleware.flask as mod
+
+    mock_module_absent("flask", mod=mod)
+
+
 def test_missing_sqlalchemy(mock_module_absent, reset):
     import smartutils.app.history.model as mod
 
