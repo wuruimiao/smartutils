@@ -35,6 +35,26 @@
 poetry install
 ```
 
+依赖配置
+```
+[project]
+dependencies = [
+    # "smartutils-py[fastapi,mysql,kafka,redis,client-http] @ git+https://github.com/wuruimiao/smartutils.git@main",
+    "smartutils-py[fastapi,mysql,kafka,redis,client-http]==0.0.7",
+]
+```
+或
+```
+[tool.poetry.dependencies]
+# smartutils-py = { git = "https://github.com/wuruimiao/smartutils.git", branch = "main", extras = [
+#     "fastapi",
+#     "mysql",
+#     "redis",
+#     "auth",
+# ] }
+smartutils-py = { version = "0.0.7", extras = ["fastapi", "mysql", "redis", "auth"] }
+```
+
 ## 快速开始
 
 ```python
