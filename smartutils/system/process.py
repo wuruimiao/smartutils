@@ -107,7 +107,7 @@ def run_with_timeout(command, timeout, env=None) -> tuple[str, str, BaseError]:
     :return:
     """
 
-    def _run_command(cmd, e, q):
+    def _run_command(cmd, e, q):  # pragma: no cover
         result = subprocess.run(cmd, capture_output=True, env=e)
         q.put((result.stdout, result.stderr, result.returncode))
 
@@ -117,7 +117,7 @@ def run_with_timeout(command, timeout, env=None) -> tuple[str, str, BaseError]:
     proc.join(timeout)
 
     if proc.is_alive():
-        if is_win():
+        if is_win():  # pragma: no cover
             import psutil
 
             parent = psutil.Process(proc.pid)
