@@ -71,6 +71,24 @@ def mock_dbcli(mocker, patch_target):
     yield MockDBCli, fake_session, instance
 
 
+def recursive_reload(mod):
+    """
+    递归 reload 祖先，从叶子到父包，能让父包的 from ... import ... 重新绑定到“最新实例”。
+    :param mod: 目标module对象
+    """
+    if not hasattr(mod, "__name__"):
+        raise ValueError(f"{mod} is not a module")
+    names = mod.__name__.split(".")
+    mods = []
+    # build modules from top到叶子
+    for i in range(1, len(names) + 1):
+        part = ".".join(names[:i])
+        mods.append(importlib.import_module(part))
+    # 从叶子到顶依次 reload
+    for m in reversed(mods):
+        importlib.reload(m)
+
+
 def mock_module_absent(mocker):
     """
     让 import 指定模块时真正触发 ImportError，而不是 sys.modules[name] = None
@@ -94,6 +112,7 @@ def mock_module_absent(mocker):
             ),
         )
         if mod:
-            importlib.reload(mod)
+            # 若不递归reload，顶包中A和叶子中A id不同，单例中存叶子A，外部用顶包A，会走__init__逻辑，导致失败
+            recursive_reload(mod)
 
     return _mock

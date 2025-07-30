@@ -1,3 +1,4 @@
+import asyncio
 import os
 import sys
 from pathlib import Path
@@ -28,4 +29,5 @@ async def ensure_smartutils_init():
     finally:
         from smartutils.init import release
 
+        asyncio.sleep(1)
         await release()
