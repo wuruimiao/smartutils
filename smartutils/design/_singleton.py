@@ -39,8 +39,7 @@ class _SingleTonData:
 
     @classmethod
     def reset_all(cls):
-        for instance_cls in cls.LOCKS.keys():
-            cls.reset(instance_cls)
+        cls.REGISTRY.clear()
 
 
 def singleton(cls):
