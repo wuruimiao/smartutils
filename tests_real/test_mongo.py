@@ -11,11 +11,6 @@ def test_coll():
 
 
 @pytest.fixture
-def valid_mongo():
-    yield
-
-
-@pytest.fixture
 async def unreachable_mongo(tmp_path_factory):
     mongo_config_unreachable_str = """
 mongo:
@@ -58,7 +53,7 @@ async def test_mongo_manager_no_confs():
         MongoManager()
 
 
-async def test_mongo_client_ping(valid_mongo):
+async def test_mongo_client_ping():
     from smartutils.infra import MongoManager
 
     mgr = MongoManager()
@@ -66,7 +61,7 @@ async def test_mongo_client_ping(valid_mongo):
     assert await cli.ping() is True
 
 
-async def test_mongo_insert(valid_mongo, test_coll):
+async def test_mongo_insert(test_coll):
     from smartutils.infra import MongoManager
 
     mgr = MongoManager()
@@ -82,12 +77,12 @@ async def test_mongo_insert(valid_mongo, test_coll):
     return inserted_id
 
 
-async def test_mongo_find(valid_mongo, test_coll):
+async def test_mongo_find(test_coll):
     from smartutils.infra import MongoManager
 
     mgr = MongoManager()
     doc = {"name": "testdoc", "value": 1024}
-    inserted_id = await test_mongo_insert(valid_mongo, test_coll)
+    inserted_id = await test_mongo_insert(test_coll)
 
     @mgr.use
     async def find_one():
@@ -100,11 +95,11 @@ async def test_mongo_find(valid_mongo, test_coll):
     return inserted_id, found
 
 
-async def test_mongo_update(valid_mongo, test_coll):
+async def test_mongo_update(test_coll):
     from smartutils.infra import MongoManager
 
     mgr = MongoManager()
-    inserted_id, _ = await test_mongo_find(valid_mongo, test_coll)
+    inserted_id, _ = await test_mongo_find(test_coll)
 
     @mgr.use
     async def update_one():
@@ -124,11 +119,11 @@ async def test_mongo_update(valid_mongo, test_coll):
     return inserted_id
 
 
-async def test_mongo_delete(valid_mongo, test_coll):
+async def test_mongo_delete(test_coll):
     from smartutils.infra import MongoManager
 
     mgr = MongoManager()
-    inserted_id = await test_mongo_update(valid_mongo, test_coll)
+    inserted_id = await test_mongo_update(test_coll)
 
     @mgr.use()
     async def delete_one():
@@ -166,7 +161,7 @@ async def test_mongo_manager_use_unreachable(unreachable_mongo, test_coll):
         await try_insert()
 
 
-async def test_mongo_manager_session(valid_mongo, test_coll):
+async def test_mongo_manager_session(test_coll):
     from smartutils.infra import MongoManager
 
     mgr = MongoManager()
@@ -183,7 +178,7 @@ async def test_mongo_manager_session(valid_mongo, test_coll):
         assert found["name"] == "tx_test"
 
 
-async def test_mongo_use_transaction(valid_mongo, test_coll):
+async def test_mongo_use_transaction(test_coll):
     from smartutils.infra import MongoManager
 
     mgr = MongoManager()
@@ -197,7 +192,7 @@ async def test_mongo_use_transaction(valid_mongo, test_coll):
         await fail_in_transaction()
 
 
-async def test_mongo_use_transaction_auto_rollback(valid_mongo, test_coll):
+async def test_mongo_use_transaction_auto_rollback(test_coll):
     from smartutils.infra import MongoManager
 
     mgr = MongoManager()
