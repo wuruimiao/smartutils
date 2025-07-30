@@ -49,12 +49,11 @@ class LoggerCli(AbstractResource):
         return record
 
     def _init(self):
-        logger.remove()
-
         if not self._conf:
             logger.debug("LoggerCli init, config no loguru key, ignore.")
             return
 
+        logger.remove()
         logger.configure(patcher=self._inject)
 
         if self._conf.stream:

@@ -1,6 +1,6 @@
 loguru:
   level: INFO
-  logdir: ""
+  logdir: "./"
   stream: true
 
 kafka:
