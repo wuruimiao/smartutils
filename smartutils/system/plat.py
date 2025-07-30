@@ -3,7 +3,7 @@ import platform
 __all__ = ["is_win", "is_linux", "fix_win_focus"]
 
 
-def is_win() -> bool:
+def is_win() -> bool:  # pragma: no cover
     """
     是否运行在windows下
     :return:
@@ -11,7 +11,7 @@ def is_win() -> bool:
     return platform.system().lower() == "windows"
 
 
-def is_linux() -> bool:
+def is_linux() -> bool:  # pragma: no cover
     """
     是否运行在linux下
     :return:
@@ -19,7 +19,7 @@ def is_linux() -> bool:
     return platform.system().lower() == "linux"
 
 
-def fix_win_focus():
+def fix_win_focus():  # pragma: no cover
     """
     防止鼠标误触导致阻塞，但也会导致不响应ctrl+c
     :return:

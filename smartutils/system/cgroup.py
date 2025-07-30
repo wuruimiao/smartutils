@@ -6,7 +6,7 @@ from smartutils.log import logger
 
 try:
     import psutil
-except ImportError:
+except ImportError:  # pragma: no cover
     pass
 if TYPE_CHECKING:  # pragma: no cover
     import psutil
@@ -14,7 +14,7 @@ if TYPE_CHECKING:  # pragma: no cover
 msg = "smartutils.system.cgroup.IOController depend on psutil, install before use."
 
 
-class IOController:
+class IOController:  # pragma: no cover
     def __init__(
         self,
         name: str,
