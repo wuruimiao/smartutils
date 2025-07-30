@@ -4,6 +4,7 @@
 install:
 	poetry install
 
+# 更新虚拟环境依赖
 update:
 	poetry lock
 	poetry update
