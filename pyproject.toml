@@ -119,7 +119,6 @@ all = [
     "zstandard",
     "fastapi",
     "starlette",
-    "pydantic",
     "uvicorn",
     "django",
     "flask",
