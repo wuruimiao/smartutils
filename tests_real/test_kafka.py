@@ -3,7 +3,8 @@ import json
 import time
 
 import pytest
-from fastapi.logger import logger
+
+from smartutils.log import logger
 
 TEST_TOPIC = "pytest-test-topic"
 GROUP_ID = "pytest-group"

@@ -2,8 +2,6 @@ import pytest
 
 from smartutils.error.sys import DatabaseError, LibraryUsageError
 
-pytestmark = pytest.mark.asyncio
-
 
 @pytest.fixture
 def test_coll():
