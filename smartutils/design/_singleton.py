@@ -3,6 +3,8 @@ from abc import ABCMeta
 from functools import wraps
 from typing import Callable, Dict
 
+from smartutils.log import logger
+
 """
 此单例不可直接/间接在构造中做异步IO或 await 操作。
 """
@@ -18,6 +20,10 @@ class _SingleTonData:
 
     @classmethod
     def get_instance(cls, instance_cls: type, new_instance: Callable):
+        # cls.print_all()
+        # logger.debug(
+        #     f"SingleTonData the {instance_cls}-{id(instance_cls)} {instance_cls in cls.REGISTRY}"
+        # )
         if instance_cls not in cls.LOCKS:
             with cls.LOCKS_LOCK:
                 if instance_cls not in cls.LOCKS:
@@ -40,6 +46,13 @@ class _SingleTonData:
     @classmethod
     def reset_all(cls):
         cls.REGISTRY.clear()
+
+    @classmethod
+    def print_all(cls):
+        for instance_cls, instance in cls.REGISTRY.items():
+            logger.debug(
+                f"SingleTonData all {instance_cls}-{id(instance_cls)}: {id(instance)}"
+            )
 
 
 def singleton(cls):
@@ -126,4 +139,6 @@ class SingletonBase(metaclass=SingletonMeta):
 
 def reset_all():
     # 全部清空
+    logger.info("Resetting all singletons...")
     _SingleTonData.reset_all()
+    logger.info("All singletons have been reset.")
