@@ -59,9 +59,9 @@ class AsyncMongoCli(LibraryCheckMixin, AbstractAsyncResource):
         else:
             yield self._db, None
 
-    @property
-    def client(self):
-        return self._client
+    # @property
+    # def client(self):
+    #     return self._client
 
 
 async def db_commit(

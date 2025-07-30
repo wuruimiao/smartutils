@@ -44,12 +44,12 @@ class MySQLManager(LibraryCheckMixin, CTXResourceManager[AsyncDBCli]):
     def curr(self) -> AsyncSession:
         return super().curr[0]
 
-    @asynccontextmanager
-    async def session(
-        self, key: ConfKey = ConfKey.GROUP_DEFAULT, use_transaction: bool = False
-    ) -> AsyncGenerator[Tuple[AsyncSession, Optional[AsyncSessionTransaction]], None]:
-        async with self._resources[key].db(use_transaction) as session:
-            yield session
+    # @asynccontextmanager
+    # async def session(
+    #     self, key: ConfKey = ConfKey.GROUP_DEFAULT, use_transaction: bool = False
+    # ) -> AsyncGenerator[Tuple[AsyncSession, Optional[AsyncSessionTransaction]], None]:
+    #     async with self._resources[key].db(use_transaction) as session:
+    #         yield session
 
 
 @InitByConfFactory.register(ConfKey.MYSQL)

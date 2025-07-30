@@ -75,3 +75,48 @@ async def test_sqlalchemy_db_commit_and_rollback(mocker):
 
     await dbmod.db_rollback(session_tuple)
     transaction.rollback.assert_awaited_once()
+
+
+def make_base():
+    class DummyMeta:
+        async def create_all(self, *args, **kwargs):
+            return "created"
+
+    class DummyBase:
+        metadata = DummyMeta()
+
+    return DummyBase
+
+
+async def test_create_tables(dbcli, mocker):
+    # 模拟 engine.begin 上下文管理器
+    mgr = mocker.AsyncMock()
+
+    async def dummy_run_sync(func):
+        return await func(make_base().metadata)
+
+    # mock engine.begin 返回管理器
+    mgr.__aenter__.return_value = mocker.MagicMock(run_sync=dummy_run_sync)
+    mgr.__aexit__.return_value = None
+    dbcli.engine.begin = mocker.MagicMock(return_value=mgr)
+    Base = make_base()
+    await dbcli.create_tables([Base])
+
+
+async def test_db_use_transaction(dbcli, mocker):
+    """
+    针对 use_transaction=True 的覆盖测试，保证事务 begin 流程被走到。
+    """
+    sess = mocker.AsyncMock()
+    trans = mocker.AsyncMock()
+    mgr = mocker.AsyncMock()
+    # session.__aenter__ 返回 sess
+    mgr.__aenter__.return_value = sess
+    mgr.__aexit__.return_value = None
+    # session.begin 返回 trans
+    sess.begin = mocker.AsyncMock(return_value=trans)
+    dbcli._session.return_value = mgr
+
+    # mock session.begin 流程
+    async with dbcli.db(use_transaction=True) as ctx:
+        assert ctx == (sess, trans)

@@ -6,7 +6,7 @@ from smartutils.error.sys import DatabaseError, LibraryUsageError
 # from smartutils.infra import MySQLManager
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 async def setup_config(tmp_path_factory, mocker):
     config_str = """
 mysql:

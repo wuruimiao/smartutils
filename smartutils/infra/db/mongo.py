@@ -48,14 +48,14 @@ class MongoManager(LibraryCheckMixin, CTXResourceManager[AsyncMongoCli]):
     def curr_session(self) -> AsyncIOMotorClientSession:
         return super().curr[1]
 
-    @asynccontextmanager
-    async def session(
-        self, key: ConfKey = ConfKey.GROUP_DEFAULT, use_transaction: bool = False
-    ) -> AsyncGenerator[
-        Tuple[AsyncIOMotorDatabase, Optional[AsyncIOMotorClientSession]], None
-    ]:
-        async with self._resources[key].db(use_transaction) as session:
-            yield session
+    # @asynccontextmanager
+    # async def session(
+    #     self, key: ConfKey = ConfKey.GROUP_DEFAULT, use_transaction: bool = False
+    # ) -> AsyncGenerator[
+    #     Tuple[AsyncIOMotorDatabase, Optional[AsyncIOMotorClientSession]], None
+    # ]:
+    #     async with self._resources[key].db(use_transaction) as session:
+    #         yield session
 
 
 @InitByConfFactory.register(ConfKey.MONGO)
