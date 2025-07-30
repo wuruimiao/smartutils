@@ -68,6 +68,8 @@ class CTXResourceManager(MyBase, Generic[T], ABC):
         ResourceManagerRegistry.register(self)
         super().__init__(**kwargs)
 
+        logger.info("Initialized {name}.", name=self.name)
+
     def __str__(self) -> str:
         return self.name
 

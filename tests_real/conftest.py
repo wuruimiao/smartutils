@@ -23,7 +23,9 @@ async def ensure_smartutils_init():
     from smartutils.init import init
 
     init(test_conf_path)
-    yield
-    from smartutils.init import release
+    try:
+        yield
+    finally:
+        from smartutils.init import release
 
-    await release()
+        await release()
