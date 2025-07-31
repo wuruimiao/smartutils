@@ -4,8 +4,8 @@ from pydantic import Field
 
 from smartutils.config.const import ConfKey
 from smartutils.config.factory import ConfFactory
-from smartutils.config.schema.db import PoolConf
 from smartutils.config.schema.host import HostConf
+from smartutils.config.schema.pool import PoolConf
 from smartutils.model.field import StrippedBaseModel
 
 __all__ = ["MongoConf"]

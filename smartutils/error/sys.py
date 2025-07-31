@@ -117,3 +117,9 @@ class UnauthorizedError(SysError):
     code = 1019
     msg = "Unauthorized Error"
     status_code = 401
+
+
+class PoolOverflowError(SysError):
+    code = 1020
+    msg = "Pool Overflow Error"
+    status_code = 500
