@@ -1,4 +1,4 @@
-.PHONY: publish
+.PHONY: install update activate publish checktest covweb test updatepyproject
 
 # 安装虚拟环境及依赖
 install:
