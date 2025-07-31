@@ -9,7 +9,7 @@ import orjson
 
 from smartutils.config.schema.client import ApiConf, ClientConf
 from smartutils.infra.client.breaker import Breaker
-from smartutils.infra.resource_manager.abstract import AbstractResource
+from smartutils.infra.resource.abstract import AbstractResource
 from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
 

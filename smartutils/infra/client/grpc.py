@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Awaitable, Callable, Optional
 
 from smartutils.config.schema.client import ClientConf
 from smartutils.infra.client.breaker import Breaker
-from smartutils.infra.resource_manager.abstract import AbstractResource
+from smartutils.infra.resource.abstract import AbstractResource
 from smartutils.init.mixin import LibraryCheckMixin
 
 try:

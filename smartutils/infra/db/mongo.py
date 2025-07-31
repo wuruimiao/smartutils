@@ -9,7 +9,7 @@ from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.design import singleton
 from smartutils.error.sys import DatabaseError
 from smartutils.infra.db.mongo_cli import AsyncMongoCli, db_commit, db_rollback
-from smartutils.infra.resource_manager.manager import CTXResourceManager
+from smartutils.infra.resource.manager.manager import CTXResourceManager
 from smartutils.init.factory import InitByConfFactory
 from smartutils.init.mixin import LibraryCheckMixin
 

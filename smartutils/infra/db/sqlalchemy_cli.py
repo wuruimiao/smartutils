@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Optional, Tuple, Union
 
 from smartutils.config.schema.mysql import MySQLConf
 from smartutils.config.schema.postgresql import PostgreSQLConf
-from smartutils.infra.resource_manager.abstract import AbstractResource
+from smartutils.infra.resource.abstract import AbstractResource
 from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
 

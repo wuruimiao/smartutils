@@ -7,8 +7,14 @@ from smartutils.infra.db.postgresql import PostgresqlManager
 from smartutils.infra.log.loguru import LoggerManager
 from smartutils.infra.mq.cli import KafkaBatchConsumer
 from smartutils.infra.mq.kafka import KafkaManager
+from smartutils.infra.resource.manager.manager import (
+    CTXResourceManager,
+    ResourceManagerRegistry,
+)
 
 __all__ = [
+    "ResourceManagerRegistry",
+    "CTXResourceManager",
     "RedisManager",
     "MySQLManager",
     "PostgresqlManager",

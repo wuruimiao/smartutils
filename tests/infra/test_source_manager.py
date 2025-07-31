@@ -3,8 +3,8 @@ import pytest
 from smartutils.config.const import ConfKey
 from smartutils.ctx import CTXVarManager
 from smartutils.error.sys import LibraryUsageError
-from smartutils.infra.resource_manager.abstract import AbstractResource
-from smartutils.infra.resource_manager.manager import (
+from smartutils.infra.resource.abstract import AbstractResource
+from smartutils.infra.resource.manager.manager import (
     CTXResourceManager,
     ResourceManagerRegistry,
 )
@@ -115,7 +115,7 @@ async def test_close_should_handle_exception(mocker, dummy_manager):
         close=mocker.AsyncMock(side_effect=RuntimeError("fail"))
     )
     logger_exc = mocker.patch(
-        "smartutils.infra.resource_manager.manager.logger.exception"
+        "smartutils.infra.resource.manager.manager.logger.exception"
     )
     await dummy_manager.close()
     assert logger_exc.call_count >= 1
