@@ -10,7 +10,7 @@ from smartutils.config.schema.kafka import KafkaConf
 from smartutils.design import MyBase
 from smartutils.error.factory import ExcDetailFactory
 from smartutils.error.sys import MQError
-from smartutils.infra.source_manager.abstract import AbstractResource
+from smartutils.infra.resource_manager.abstract import AbstractResource
 from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
 

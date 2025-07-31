@@ -9,8 +9,8 @@ from smartutils.ctx.const import CTXKey
 from smartutils.ctx.manager import CTXVarManager
 from smartutils.design import singleton
 from smartutils.infra.client.http import HttpClient
-from smartutils.infra.source_manager.abstract import AbstractResource
-from smartutils.infra.source_manager.manager import CTXResourceManager
+from smartutils.infra.resource_manager.abstract import AbstractResource
+from smartutils.infra.resource_manager.manager import CTXResourceManager
 from smartutils.init.factory import InitByConfFactory
 from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger

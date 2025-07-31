@@ -8,7 +8,7 @@ from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.design import singleton
 from smartutils.error.sys import MQError
 from smartutils.infra.mq.cli import AsyncKafkaCli
-from smartutils.infra.source_manager.manager import CTXResourceManager
+from smartutils.infra.resource_manager.manager import CTXResourceManager
 from smartutils.init.factory import InitByConfFactory
 from smartutils.init.mixin import LibraryCheckMixin
 

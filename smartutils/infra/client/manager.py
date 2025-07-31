@@ -10,7 +10,7 @@ from smartutils.design import singleton
 from smartutils.error.sys import ClientError
 from smartutils.infra.client.grpc import GrpcClient
 from smartutils.infra.client.http import HttpClient
-from smartutils.infra.source_manager.manager import CTXResourceManager
+from smartutils.infra.resource_manager.manager import CTXResourceManager
 from smartutils.init.factory import InitByConfFactory
 from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger

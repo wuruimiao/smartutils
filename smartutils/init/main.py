@@ -25,7 +25,7 @@ def init(conf_path: str = "config.yaml"):
 
 
 async def release():
-    from smartutils.infra.source_manager.manager import ResourceManagerRegistry
+    from smartutils.infra.resource_manager.manager import ResourceManagerRegistry
 
     await ResourceManagerRegistry.close_all()
 
@@ -50,7 +50,7 @@ async def reset_all():
 
     # CTXVarManager.reset()
 
-    from smartutils.infra.source_manager.manager import ResourceManagerRegistry
+    from smartutils.infra.resource_manager.manager import ResourceManagerRegistry
 
     await ResourceManagerRegistry.close_all()
     ResourceManagerRegistry.reset_all()
