@@ -19,7 +19,7 @@ from smartutils.error.sys import UnauthorizedError
 try:
     from httpx import Response
 except ImportError:
-    pass
+    ...
 
 if TYPE_CHECKING:  # pragma: no cover
     from httpx import Response

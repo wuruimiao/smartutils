@@ -7,4 +7,4 @@
 #
 # @ConfFactory.register(ConfKey.OPEN_TELEMETRY, require=False)
 # class OpenTelemetryConf(HostConf):
-#     pass
+#     ...

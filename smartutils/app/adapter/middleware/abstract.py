@@ -31,8 +31,7 @@ class AbstractMiddlewarePlugin(LibraryCheckMixin, ABC):
         self,
         req: RequestAdapter,
         next_adapter: Callable[[], Awaitable[ResponseAdapter]],
-    ) -> ResponseAdapter:
-        pass
+    ) -> ResponseAdapter: ...
 
 
 class AbstractMiddleware(ABC):

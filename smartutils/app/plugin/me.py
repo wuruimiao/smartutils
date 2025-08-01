@@ -22,7 +22,7 @@ from smartutils.init.factory import InitByConfFactory
 try:
     from httpx import Response
 except ImportError:
-    pass
+    ...
 
 if TYPE_CHECKING:  # pragma: no cover
     from httpx import Response
@@ -32,8 +32,7 @@ if TYPE_CHECKING:  # pragma: no cover
 @InitByConfFactory.register(
     ConfKey.PLACEHOLDER, deps=[ConfKey.TOKEN], only_register_once=False
 )
-def _(*args):
-    pass  # pragma: no cover
+def _(*args): ...  # pragma: no cover
 
 
 @MiddlewarePluginFactory.register(

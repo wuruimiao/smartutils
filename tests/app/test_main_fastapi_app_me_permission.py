@@ -87,8 +87,7 @@ async def fake_me_permission(mocker):
 
                     return dumps(self.json()).encode("utf-8")
 
-                async def aclose(self):
-                    pass
+                async def aclose(self): ...
 
             return FakeResp()
         elif url.endswith("/permission"):
@@ -111,8 +110,7 @@ async def fake_me_permission(mocker):
 
                     return dumps(self.json()).encode("utf-8")
 
-                async def aclose(self):
-                    pass
+                async def aclose(self): ...
 
             return FakeResp()
         else:
@@ -162,8 +160,7 @@ class FakeAsyncResponse:
     async def aread(self):
         return json.dumps(self.json()).encode()
 
-    async def aclose(self):
-        pass
+    async def aclose(self): ...
 
 
 @pytest.fixture

@@ -7,5 +7,4 @@ from smartutils.design import BaseFactory
 __all__ = ["RequestAdapterFactory"]
 
 
-class RequestAdapterFactory(BaseFactory[AppKey, Type[RequestAdapter]]):
-    pass
+class RequestAdapterFactory(BaseFactory[AppKey, Type[RequestAdapter]]): ...

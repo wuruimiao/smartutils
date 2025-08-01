@@ -24,14 +24,12 @@ def test_cur_tid():
 def test_get_host_ip(monkeypatch):
     # mock socket，返回一个假IP
     class DummySocket:
-        def connect(self, addr):
-            pass
+        def connect(self, addr): ...
 
         def getsockname(self):
             return ("123.123.123.123", 12345)
 
-        def close(self):
-            pass
+        def close(self): ...
 
     monkeypatch.setattr("socket.socket", lambda *a, **kw: DummySocket())
     ip = process.get_host_ip()
@@ -128,8 +126,7 @@ def test_run_with_timeout_timeout(mocker):
             self._alive = True
             self.pid = 88888
 
-        def start(self):
-            pass
+        def start(self): ...
 
         def join(self, timeout=None):
             time.sleep(0.01)

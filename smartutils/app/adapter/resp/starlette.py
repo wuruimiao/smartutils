@@ -9,7 +9,7 @@ from smartutils.app.const import AppKey, HeaderKey
 try:
     from fastapi import Response
 except ImportError:
-    pass
+    ...
 
 if TYPE_CHECKING:  # pragma: no cover
     from fastapi import Response

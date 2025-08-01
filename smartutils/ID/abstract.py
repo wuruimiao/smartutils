@@ -9,7 +9,7 @@ class AbstractIDGenerator(ABC):
         """
         获取下一个ID
         """
-        pass
+        ...
 
     def __iter__(self):
         """
@@ -24,5 +24,4 @@ class AbstractIDGenerator(ABC):
         return next(self)
 
     @abstractmethod
-    def __repr__(self) -> str:
-        pass
+    def __repr__(self) -> str: ...

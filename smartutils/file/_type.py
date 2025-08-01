@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 try:
     import filetype
 except ImportError:
-    pass
+    ...
 if TYPE_CHECKING:  # pragma: no cover
     import filetype
 

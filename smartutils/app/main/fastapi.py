@@ -11,7 +11,7 @@ from smartutils.error.base import BaseData, BaseError
 try:
     from fastapi import APIRouter, FastAPI, Request
 except ImportError:
-    pass
+    ...
 
 if TYPE_CHECKING:  # pragma: no cover
     from fastapi import APIRouter, FastAPI, Request

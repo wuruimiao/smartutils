@@ -19,7 +19,7 @@ try:
     )
     from starlette.exceptions import HTTPException
 except ImportError:
-    pass
+    ...
 
 if TYPE_CHECKING:  # pragma: no cover
     from fastapi.exceptions import (

@@ -7,7 +7,7 @@ from smartutils.log import logger
 try:
     import psutil
 except ImportError:  # pragma: no cover
-    pass
+    ...
 if TYPE_CHECKING:  # pragma: no cover
     import psutil
 

@@ -11,7 +11,7 @@ from smartutils.time import get_stamp_after
 try:
     import jwt
 except ImportError:
-    pass
+    ...
 
 if TYPE_CHECKING:  # pragma: no cover
     import jwt

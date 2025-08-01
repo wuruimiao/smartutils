@@ -1,8 +1,7 @@
 from smartutils.error.base import BaseError
 
 
-class SysError(BaseError):
-    pass
+class SysError(BaseError): ...
 
 
 class NotFoundError(SysError):

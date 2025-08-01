@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 try:
     from flask import jsonify
 except ImportError:
-    pass
+    ...
 
 if TYPE_CHECKING:  # pragma: no cover
     from flask import jsonify

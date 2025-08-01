@@ -7,7 +7,7 @@ try:
     from sqlalchemy.ext.asyncio import AsyncSession
     from sqlalchemy.orm import aliased
 except ImportError:
-    pass
+    ...
 if TYPE_CHECKING:  # pragma: no cover
     from sqlalchemy import Column, select
     from sqlalchemy.ext.asyncio import AsyncSession

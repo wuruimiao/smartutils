@@ -11,7 +11,7 @@ from smartutils.infra import MySQLManager
 try:
     from sqlalchemy import asc, desc, func, or_, select
 except ImportError:
-    pass
+    ...
 if TYPE_CHECKING:  # pragma: no cover
     from sqlalchemy import asc, desc, func, or_, select
 

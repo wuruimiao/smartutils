@@ -43,12 +43,10 @@ MAX_INSTANCE = 0b1111111111
 MAX_SEQ = 0b111111111111
 
 
-class SnowflakeClockMovedBackwards(Exception):
-    pass
+class SnowflakeClockMovedBackwards(Exception): ...
 
 
-class SnowflakeTimestampOverflow(Exception):
-    pass
+class SnowflakeTimestampOverflow(Exception): ...
 
 
 @dataclass(frozen=True)
@@ -209,7 +207,7 @@ class SnowflakeGenerator(AbstractIDGenerator):
             if self._seq == MAX_SEQ:
                 # 若序列号溢出，自动等待下一毫秒
                 while int(time() * 1000) - self._epo <= current:
-                    pass  # busy wait
+                    ...  # busy wait
                 self._seq = 0
                 self._ts = int(time() * 1000) - self._epo
             else:

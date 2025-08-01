@@ -8,5 +8,6 @@ from smartutils.error.base import BaseDataDict
 __all__ = ["JsonRespFactory"]
 
 
-class JsonRespFactory(BaseFactory[AppKey, Callable[[BaseDataDict], ResponseAdapter]]):
-    pass
+class JsonRespFactory(
+    BaseFactory[AppKey, Callable[[BaseDataDict], ResponseAdapter]]
+): ...

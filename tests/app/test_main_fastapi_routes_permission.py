@@ -110,8 +110,7 @@ async def fake_permission(mocker):
 
                     return dumps(self.json()).encode("utf-8")
 
-                async def aclose(self):
-                    pass
+                async def aclose(self): ...
 
             return FakeResp()
         else:
@@ -165,8 +164,7 @@ async def test_routes_permission_middleware_no_data(client, mocker):
 
             return dumps(self.json()).encode("utf-8")
 
-        async def aclose(self):
-            pass
+        async def aclose(self): ...
 
     mocker.patch.object(AsyncClient, "request", return_value=FakeResp())
     resp = client.get("/test-permission", cookies={"access_token": "fake"})

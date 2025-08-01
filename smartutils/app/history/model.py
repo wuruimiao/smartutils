@@ -8,7 +8,7 @@ try:
     from sqlalchemy import JSON, Column, Integer, String, func
     from sqlalchemy.orm import declarative_base
 except ImportError:
-    pass
+    ...
 if TYPE_CHECKING:  # pragma: no cover
     from sqlalchemy import JSON, Column, Integer, String, func
     from sqlalchemy.orm import declarative_base

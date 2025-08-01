@@ -24,8 +24,7 @@ class UUIDGenerator(AbstractIDGenerator):
     UUID生成器，支持迭代和直接调用，每次生成一个新的UUID字符串
     """
 
-    def __init__(self, **kwargs):
-        pass
+    def __init__(self, **kwargs): ...
 
     def __next__(self):  # type: ignore
         return str(uuid.uuid4())

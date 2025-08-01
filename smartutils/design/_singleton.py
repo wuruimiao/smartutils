@@ -123,8 +123,7 @@ class SingletonBase(metaclass=SingletonMeta):
     #         cls, lambda: super(SingletonBase, cls).__new__(cls, *args, **kwargs)
     #     )
 
-    def _init_once(self, *args, **kwargs):
-        pass
+    def _init_once(self, *args, **kwargs): ...
 
     def __init__(self, *args, **kwargs):
         if getattr(self, "_initialized", False):

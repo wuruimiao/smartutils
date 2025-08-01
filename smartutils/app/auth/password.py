@@ -6,7 +6,7 @@ from smartutils.init.mixin import LibraryCheckMixin
 try:
     import bcrypt
 except ImportError:
-    pass
+    ...
 
 if TYPE_CHECKING:  # pragma: no cover
     import bcrypt

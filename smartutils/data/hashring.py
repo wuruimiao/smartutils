@@ -7,7 +7,7 @@ from smartutils.log import logger
 try:
     from uhashring import HashRing as _HashRing
 except ImportError:
-    pass
+    ...
 if TYPE_CHECKING:  # pragma: no cover
     from uhashring import HashRing as _HashRing
 

@@ -21,15 +21,14 @@ def test_requireattrs_missing_attr():
         class Bar(metaclass=RequireAttrs):
             required_attrs = ("x",)
             # 没有定义x
-            pass
+            ...
 
     assert "x" in str(excinfo.value)
     assert "Bar" in str(excinfo.value)
 
 
 def test_requireattrs_default_empty():
-    class Baz(metaclass=RequireAttrs):
-        pass
+    class Baz(metaclass=RequireAttrs): ...
 
     assert Baz
 

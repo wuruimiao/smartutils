@@ -50,7 +50,7 @@ def test_csv_edge_cases():
     try:
         list(csv_mod.csv_data("not_exist.csv"))
     except Exception:
-        pass
+        ...
 
 
 def test_increase_csv_limit_overflow(mocker):

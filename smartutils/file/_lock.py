@@ -4,7 +4,6 @@ import threading
 
 # from fcntl import LOCK_EX, LOCK_UN, LOCK_SH, flock
 # import portalocker
-
 from smartutils.log import logger
 
 
@@ -35,11 +34,10 @@ class Lock:
         # flock(self._fd, LOCK_EX)
         # self._record()
 
-    def lock(self):
-        pass
+    def lock(self): ...
 
     def unlock(self):
-        pass
+        ...
         # flock(self._fd, LOCK_UN)
         # self._fd.write("")
         # self._fd.close()

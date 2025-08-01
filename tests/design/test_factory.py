@@ -4,8 +4,7 @@ from smartutils.design.factory import BaseFactory
 from smartutils.error.sys import LibraryError, LibraryUsageError
 
 
-class CustomTestFactory(BaseFactory[str, int]):
-    pass
+class CustomTestFactory(BaseFactory[str, int]): ...
 
 
 def test_factory_with_deps_no_dep():

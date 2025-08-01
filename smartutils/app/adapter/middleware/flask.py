@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 try:
     import flask
 except ImportError:
-    pass
+    ...
 
 if TYPE_CHECKING:  # pragma: no cover
     import flask

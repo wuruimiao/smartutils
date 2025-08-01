@@ -318,7 +318,7 @@ async def test_async_methods_exception_branches(mocker, setup_cache):
     try:
         await cli.close()
     except Exception:
-        pass
+        ...
 
 
 # 针对 safe_rpop_zadd 及 xread_xack、safe_zpop_zadd 的 yield None/异常分支

@@ -44,11 +44,11 @@ def test_type_edge_cases():
     try:
         BadEnum.A.zh
     except NotImplementedError:
-        pass
+        ...
     try:
         BadEnum.from_zh("甲")
     except NotImplementedError:
-        pass
+        ...
     assert LowStr("ABC") == "abc"
 
 

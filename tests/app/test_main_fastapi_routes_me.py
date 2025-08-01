@@ -103,8 +103,7 @@ async def fake_me(mocker):
 
                     return dumps(self.json()).encode("utf-8")
 
-                async def aclose(self):
-                    pass
+                async def aclose(self): ...
 
             return FakeResp()
         else:

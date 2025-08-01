@@ -46,8 +46,8 @@
 #     try:
 #         cnnum_mod.cn2num("不是数字")
 #     except ValueError:
-#         pass
+#         ...
 #     try:
 #         cnnum_mod.cn2num("")
 #     except ValueError:
-#         pass
+#         ...

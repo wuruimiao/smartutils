@@ -74,7 +74,7 @@
 #         sys.modules["smartutils_auto_urls"] = urls
 #     else:
 #         # 已有 ROOT_URLCONF，建议在主 urls.py 里加健康检查
-#         pass
+#         ...
 
 #     # 4. 创建并返回 WSGI app
 #     return get_wsgi_application()

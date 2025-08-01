@@ -14,8 +14,7 @@ def mock_hashring(mocker):
                 _ring={1: "a", 2: "b", 3: "b"},
             )
 
-        def __init_subclass__(cls):
-            pass
+        def __init_subclass__(cls): ...
 
     mocker.patch.object(hashring_mod, "_HashRing", DummyHashRing)
     return DummyHashRing

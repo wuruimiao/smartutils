@@ -23,7 +23,7 @@ def test_lock_write_and_read_lock(tmp_path):
     # write_lock上下文
     with lock.write_lock():
         # _record会写pid和thread ident
-        pass
+        ...
 
 
 def test_lock_del_ioerror(tmp_path, mocker):

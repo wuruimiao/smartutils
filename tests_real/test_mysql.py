@@ -327,7 +327,7 @@ async def test_mysql_use_with_transaction_auto_rollback(setup_db: None):
     try:
         await insert_but_raise()
     except DatabaseError:
-        pass
+        ...
 
     # 检查数据应不存在
     @mgr.use()
