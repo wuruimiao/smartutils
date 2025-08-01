@@ -10,21 +10,21 @@ from smartutils.config.schema.kafka import KafkaConf
 from smartutils.design import MyBase
 from smartutils.error.factory import ExcDetailFactory
 from smartutils.error.sys import MQError
-from smartutils.infra.resource.abstract import AbstractResource
+from smartutils.infra.resource.abstract import AbstractAsyncResource
 from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
 
 try:
     from aiokafka import AIOKafkaConsumer, AIOKafkaProducer, TopicPartition, errors
 except ImportError:
-    pass
+    ...
 if TYPE_CHECKING:  # pragma: no cover
     from aiokafka import AIOKafkaConsumer, AIOKafkaProducer, TopicPartition, errors
 
 __all__ = ["AsyncKafkaCli", "KafkaBatchConsumer"]
 
 
-class AsyncKafkaCli(LibraryCheckMixin, AbstractResource):
+class AsyncKafkaCli(LibraryCheckMixin, AbstractAsyncResource):
     def __init__(self, conf: KafkaConf, name: str):
         self.check(conf=conf, libs=["aiokafka"])
 

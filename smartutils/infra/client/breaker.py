@@ -8,7 +8,7 @@ from smartutils.init.mixin import LibraryCheckMixin
 try:
     from aiobreaker import CircuitBreaker, CircuitBreakerError
 except ImportError:
-    pass
+    ...
 
 if TYPE_CHECKING:  # pragma: no cover
     from aiobreaker import CircuitBreaker, CircuitBreakerError

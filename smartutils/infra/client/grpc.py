@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Awaitable, Callable, Optional
 
 from smartutils.config.schema.client import ClientConf
 from smartutils.infra.client.breaker import Breaker
-from smartutils.infra.resource.abstract import AbstractResource
+from smartutils.infra.resource.abstract import AbstractAsyncResource
 from smartutils.init.mixin import LibraryCheckMixin
 
 try:
@@ -16,7 +16,7 @@ try:
     import grpc.aio
     from google.protobuf.message import Message
 except ImportError:
-    pass
+    ...
 
 if TYPE_CHECKING:  # pragma: no cover
     import grpc
@@ -35,7 +35,7 @@ def only_grpc_unavailable_or_timeout(exc):
     return True
 
 
-class GrpcClient(LibraryCheckMixin, AbstractResource):
+class GrpcClient(LibraryCheckMixin, AbstractAsyncResource):
     def __init__(self, conf: ClientConf, name: str):
         self.check(conf=conf, libs=["grpc"])
 

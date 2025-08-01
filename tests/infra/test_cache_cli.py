@@ -208,12 +208,11 @@ async def test_close_error(async_cli):
     try:
         await async_cli.close()
     except Exception:
-        pass
+        ...
 
 
 async def test_ensure_stream_and_group_raises(async_cli, mocker):
-    class DummyErr(Exception):
-        pass
+    class DummyErr(Exception): ...
 
     class DummyRespErr(Exception):
         def __str__(self):

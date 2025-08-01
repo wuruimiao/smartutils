@@ -16,7 +16,7 @@ from smartutils.init.mixin import LibraryCheckMixin
 try:
     from motor.motor_asyncio import AsyncIOMotorClientSession, AsyncIOMotorDatabase
 except ImportError:
-    pass
+    ...
 
 if TYPE_CHECKING:  # pragma: no cover
     from motor.motor_asyncio import AsyncIOMotorClientSession, AsyncIOMotorDatabase

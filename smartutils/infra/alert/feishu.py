@@ -9,7 +9,7 @@ from smartutils.ctx.const import CTXKey
 from smartutils.ctx.manager import CTXVarManager
 from smartutils.design import singleton
 from smartutils.infra.client.http import HttpClient
-from smartutils.infra.resource.abstract import AbstractResource
+from smartutils.infra.resource.abstract import AbstractAsyncResource
 from smartutils.infra.resource.manager.manager import CTXResourceManager
 from smartutils.init.factory import InitByConfFactory
 from smartutils.init.mixin import LibraryCheckMixin
@@ -17,7 +17,7 @@ from smartutils.log import logger
 from smartutils.time import get_now_str
 
 
-class AlertFeishu(AbstractResource):
+class AlertFeishu(AbstractAsyncResource):
     def __init__(self, conf: AlertFeishuConf):
         self._conf = conf
         self._clients = []

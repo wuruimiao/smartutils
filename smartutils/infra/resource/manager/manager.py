@@ -22,7 +22,7 @@ from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.design import MyBase
 from smartutils.error.base import BaseError
 from smartutils.error.sys import LibraryUsageError, SysError
-from smartutils.infra.resource.abstract import AbstractResourceT
+from smartutils.infra.resource.abstract import AbstractAsyncResourceT
 from smartutils.log import logger
 
 __all__ = ["ResourceManagerRegistry", "CTXResourceManager"]
@@ -49,11 +49,11 @@ class ResourceManagerRegistry:
             mgr.reset()
 
 
-class CTXResourceManager(MyBase, Generic[AbstractResourceT], ABC):
+class CTXResourceManager(MyBase, Generic[AbstractAsyncResourceT], ABC):
     def __init__(
         self,
         *,
-        resources: Dict[str, AbstractResourceT],
+        resources: Dict[str, AbstractAsyncResourceT],
         ctx_key: CTXKey,
         success: Optional[Callable[..., Any]] = None,
         fail: Optional[Callable[..., Any]] = None,
@@ -144,7 +144,7 @@ class CTXResourceManager(MyBase, Generic[AbstractResourceT], ABC):
         except LibraryUsageError:
             raise LibraryUsageError(f"Must call {self.name}.use(...) first.") from None
 
-    def client(self, key: str = ConfKey.GROUP_DEFAULT) -> AbstractResourceT:
+    def client(self, key: str = ConfKey.GROUP_DEFAULT) -> AbstractAsyncResourceT:
         self._check_key(key)
         return self._resources[key]
 

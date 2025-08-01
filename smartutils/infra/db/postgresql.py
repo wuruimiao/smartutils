@@ -15,7 +15,7 @@ from smartutils.init.mixin import LibraryCheckMixin
 try:
     from sqlalchemy.ext.asyncio import AsyncSession
 except ImportError:
-    pass
+    ...
 if TYPE_CHECKING:  # pragma: no cover
     from sqlalchemy.ext.asyncio import AsyncSession
 

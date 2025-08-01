@@ -1,23 +1,41 @@
 from abc import ABC, abstractmethod
+from contextlib import AbstractContextManager
 from typing import Any, AsyncContextManager, TypeVar
 
-__all__ = ["AbstractResource", "AbstractResourceT"]
+__all__ = ["AbstractAsyncResource", "AbstractAsyncResourceT"]
 
 
-class AbstractResource(ABC):
+class AbstractAsyncResource(ABC):
     @abstractmethod
     async def close(self):
         """关闭资源"""
-        pass
+        ...
 
     @abstractmethod
     async def ping(self) -> bool:
         """健康检查，返回True/False"""
-        pass
+        ...
 
     @abstractmethod
-    def db(self, use_transaction: bool) -> AsyncContextManager[Any]:
-        pass
+    def db(self, use_transaction: bool) -> AsyncContextManager[Any]: ...
 
 
-AbstractResourceT = TypeVar("AbstractResourceT", bound=AbstractResource)
+AbstractAsyncResourceT = TypeVar("AbstractAsyncResourceT", bound=AbstractAsyncResource)
+
+
+class AbstractSyncResource(ABC):
+    @abstractmethod
+    def close(self):
+        """关闭资源"""
+        ...
+
+    @abstractmethod
+    def ping(self) -> bool:
+        """健康检查，返回True/False"""
+        ...
+
+    @abstractmethod
+    def db(self, use_transaction: bool) -> AbstractContextManager[Any]: ...
+
+
+AbstractSyncResourceT = TypeVar("AbstractSyncResourceT", bound=AbstractSyncResource)

@@ -8,8 +8,7 @@ class DummyLogger:
         # 记录异常行为
         DummyLogger.last = (msg, kwargs)
 
-    def debug(self, *args, **kwargs):
-        pass
+    def debug(self, *args, **kwargs): ...
 
 
 DummyLogger.last = None
@@ -54,8 +53,7 @@ class DummyClient:
         return DummyDB()
 
 
-class DummyDB:
-    pass
+class DummyDB: ...
 
 
 class DummyConf:

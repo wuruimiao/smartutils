@@ -7,7 +7,7 @@ from smartutils.config.const import ConfKey
 from smartutils.config.schema.loguru import LoguruConfig
 from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.design import singleton
-from smartutils.infra.resource.abstract import AbstractResource
+from smartutils.infra.resource.abstract import AbstractAsyncResource
 from smartutils.infra.resource.manager.manager import CTXResourceManager
 from smartutils.init.factory import InitByConfFactory
 from smartutils.log import logger
@@ -21,11 +21,11 @@ class PrintToLogger:
         if message:
             logger.debug(message)
 
-    def flush(self):
-        pass  # pragma: no cover
+    def flush(self): ...  # pragma: no cover
 
 
-class LoggerCli(AbstractResource):
+# TODO: 应该使用同步资源标识
+class LoggerCli(AbstractAsyncResource):
     """loguru.logger线程安全、协程安全"""
 
     def __init__(self, conf: Optional[LoguruConfig] = None, name: str = "logur_cli"):

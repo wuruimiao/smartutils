@@ -10,7 +10,7 @@ from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.design import singleton
 from smartutils.error.factory import ExcDetailFactory
 from smartutils.error.sys import CacheError
-from smartutils.infra.resource.abstract import AbstractResource
+from smartutils.infra.resource.abstract import AbstractAsyncResource
 from smartutils.infra.resource.manager.manager import CTXResourceManager
 from smartutils.init.factory import InitByConfFactory
 from smartutils.init.mixin import LibraryCheckMixin
@@ -20,14 +20,14 @@ from smartutils.time import get_now_stamp
 try:
     from redis.asyncio import ConnectionPool, Redis, ResponseError
 except ImportError:
-    pass
+    ...
 if TYPE_CHECKING:  # pragma: no cover
     from redis.asyncio import ConnectionPool, Redis, ResponseError
 
 __all__ = ["AsyncRedisCli", "RedisManager"]
 
 
-class AsyncRedisCli(LibraryCheckMixin, AbstractResource):
+class AsyncRedisCli(LibraryCheckMixin, AbstractAsyncResource):
     """异步 Redis 客户端封装，线程安全、协程安全。"""
 
     def __init__(self, conf: RedisConf, name: str):

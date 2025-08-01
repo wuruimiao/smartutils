@@ -3,14 +3,14 @@ import pytest
 from smartutils.config.const import ConfKey
 from smartutils.ctx import CTXVarManager
 from smartutils.error.sys import LibraryUsageError
-from smartutils.infra.resource.abstract import AbstractResource
+from smartutils.infra.resource.abstract import AbstractAsyncResource
 from smartutils.infra.resource.manager.manager import (
     CTXResourceManager,
     ResourceManagerRegistry,
 )
 
 
-class DummyResource(AbstractResource):
+class DummyResource(AbstractAsyncResource):
     def __init__(self, name):
         self.name = name
         self.closed = False
@@ -22,8 +22,7 @@ class DummyResource(AbstractResource):
     async def __aenter__(self):
         return self
 
-    async def __aexit__(self, *a):
-        pass
+    async def __aexit__(self, *a): ...
 
     async def close(self):
         await super().close()
@@ -34,8 +33,7 @@ class DummyResource(AbstractResource):
         return True
 
 
-class DummyManager(CTXResourceManager[DummyResource]):
-    pass
+class DummyManager(CTXResourceManager[DummyResource]): ...
 
 
 @pytest.fixture
@@ -130,8 +128,7 @@ async def test_health_check_all_ok(dummy_manager):
 async def test_use_decorator_catch_baseerror(dummy_manager):
     from smartutils.error.base import BaseError
 
-    class DummyErr(BaseError):
-        pass
+    class DummyErr(BaseError): ...
 
     @dummy_manager.use
     async def err_func():
