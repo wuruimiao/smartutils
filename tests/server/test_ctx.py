@@ -1,4 +1,8 @@
-from smartutils.error.sys import TimeOutError
+import sys
+
+import pytest
+
+from smartutils.error.sys import LibraryUsageError, TimeOutError
 from smartutils.server.ctx import Context, timeoutd
 
 
@@ -32,7 +36,7 @@ def test_context_remain_sec_clipped(mocker):
     )
     ctx = Context(1)
     # 时间已超限
-    assert ctx.remain_sec(ctx._deadline + 1) == 0
+    assert ctx.remain_sec(ctx._deadline + 1) == 0  # type: ignore
 
 
 def test_timeoutd_decorator_default_ret():
@@ -49,14 +53,14 @@ def test_timeoutd_decorator_default_ret():
     def foo(ctx=None):
         return "NOTCALLED"
 
-    result = foo(ctx=ctx)
+    result = foo(ctx)
     assert result == ("X", TimeOutError)
 
     @timeoutd()
     def bar(ctx=None):
         return "NOTCALLED"
 
-    result2 = bar(ctx=ctx)
+    result2 = bar(ctx)
     assert result2 == TimeOutError
 
 
@@ -66,10 +70,10 @@ def test_timeoutd_decorator_success():
     ctx.timeoutd = lambda now=None: False
 
     @timeoutd(default_ret="Z")
-    def foo(x, ctx=None):
+    def foo(ctx, x):
         return "CALLED" + str(x)
 
-    assert foo(1, ctx=ctx) == "CALLED1"
+    assert foo(ctx, 1) == "CALLED1"
 
     # 支持把Context放第一个参数
     def foo2(ctx, y):
@@ -84,5 +88,13 @@ def test_timeoutd_decorator_no_ctx():
     def foo(x):
         return x
 
-    # 无ctx参数时，直接执行被装饰函数
-    assert foo(5) == 5
+    with pytest.raises(LibraryUsageError):
+        foo(1)
+
+
+def test_context_no_deadline():
+    ctx = Context()
+    # deadline 为 None 时 remain_sec 应该返回 sys.maxsize
+    assert ctx.remain_sec() == sys.maxsize
+    # deadline 为 None 时 timeoutd 应该永远返回 False
+    assert ctx.timeoutd() is False

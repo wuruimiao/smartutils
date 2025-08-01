@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from time import time
-from typing import Tuple
+from typing import Optional, Tuple, Union
 from zoneinfo import ZoneInfo
 
 __all__ = [
@@ -79,7 +79,11 @@ def get_now_stamp_str() -> str:
 
 
 def get_stamp_after(
-    stamp: float = 0, day: int = 0, hour: int = 0, minute: int = 0, second: int = 0
+    stamp: Optional[float] = None,
+    day: Union[int, float] = 0,
+    hour: Union[int, float] = 0,
+    minute: Union[int, float] = 0,
+    second: Union[int, float] = 0,
 ) -> float:
     """
     获取一段时间后的时间戳
@@ -90,7 +94,7 @@ def get_stamp_after(
     :param second:
     :return:
     """
-    if not stamp:
+    if stamp is None:
         stamp = get_now_stamp_float()
     if day:
         hour += day * 24

@@ -22,6 +22,7 @@ async def call_hook(hook, *args, **kwargs):
     result = hook(*args, **kwargs)
     if inspect.isawaitable(result):
         await result
+    return result
 
 
 def register_package(package: types.ModuleType):
