@@ -134,5 +134,5 @@ class HttpClient(LibraryCheckMixin, AbstractAsyncResource):
             return False
 
     @asynccontextmanager
-    async def db(self, use_transaction: bool) -> AsyncGenerator["HttpClient", None]:
+    async def db(self, use_transaction: bool) -> AsyncGenerator[HttpClient, None]:
         yield self

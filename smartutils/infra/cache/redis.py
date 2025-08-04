@@ -63,7 +63,7 @@ class AsyncRedisCli(LibraryCheckMixin, AbstractAsyncResource):
     @asynccontextmanager
     async def db(
         self, use_transaction: bool = False
-    ) -> AsyncGenerator["AsyncRedisCli", None]:
+    ) -> AsyncGenerator[AsyncRedisCli, None]:
         yield self
 
     async def _eval(self, *args, **kwargs):
