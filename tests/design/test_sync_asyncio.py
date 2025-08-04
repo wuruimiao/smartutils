@@ -86,22 +86,20 @@ async def test_asyncio_sync_lock_wrong_usage_sync():
     with pytest.raises(LibraryUsageError) as e:
         lock.wait(1)
     assert (
-        str(e.value)
-        == "Only asynchronous interface is supported, please use async_wait."
+        str(e.value) == "Only asynchronous interface is supported, please use a_wait."
     )
 
     with pytest.raises(LibraryUsageError) as e:
         lock.notify(1)
     assert (
-        str(e.value)
-        == "Only asynchronous interface is supported, please use async_notify."
+        str(e.value) == "Only asynchronous interface is supported, please use anotify."
     )
 
     with pytest.raises(LibraryUsageError) as e:
         lock.notify_all()
     assert (
         str(e.value)
-        == "Only asynchronous interface is supported, please use async_notify_all."
+        == "Only asynchronous interface is supported, please use anotify_all."
     )
 
     with pytest.raises(LibraryUsageError) as e:

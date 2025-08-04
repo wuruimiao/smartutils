@@ -92,17 +92,17 @@ class AsyncioSyncLock(ISyncLock):
 
     def wait(self, timeout: Union[float, int]) -> bool:
         raise LibraryUsageError(
-            "Only asynchronous interface is supported, please use async_wait."
+            "Only asynchronous interface is supported, please use a_wait."
         )
 
     def notify(self, n: int = 1) -> None:
         raise LibraryUsageError(
-            "Only asynchronous interface is supported, please use async_notify."
+            "Only asynchronous interface is supported, please use anotify."
         )
 
     def notify_all(self) -> None:
         raise LibraryUsageError(
-            "Only asynchronous interface is supported, please use async_notify_all."
+            "Only asynchronous interface is supported, please use anotify_all."
         )
 
     def __enter__(self):

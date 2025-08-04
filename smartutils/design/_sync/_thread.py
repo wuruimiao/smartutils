@@ -74,17 +74,17 @@ class ThreadSyncLock(ISyncLock):
             "ThreadSyncLock does not support coroutine/asynchronous interfaces."
         )
 
-    async def async_wait(self, timeout: float | int) -> bool:
+    async def a_wait(self, timeout: float | int) -> bool:
         raise LibraryUsageError(
             "ThreadSyncLock does not support coroutine/asynchronous interfaces."
         )
 
-    async def async_notify(self, n: int = 1) -> None:
+    async def anotify(self, n: int = 1) -> None:
         raise LibraryUsageError(
             "ThreadSyncLock does not support coroutine/asynchronous interfaces."
         )
 
-    async def async_notify_all(self) -> None:
+    async def anotify_all(self) -> None:
         raise LibraryUsageError(
             "ThreadSyncLock does not support coroutine/asynchronous interfaces."
         )

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import Any, AsyncContextManager, Union
+from typing import Any, AsyncContextManager, Protocol, Union
 
 
-class ISyncLock:
+class ISyncLock(Protocol):
     """
     方法说明:
     ---------
@@ -18,9 +18,9 @@ class ISyncLock:
     异步环境（协程/asyncio）:
         - aacquire(timeout):        异步获取锁
         - arelease():              异步释放锁
-        - async_wait(timeout):     条件异步等待
-        - async_notify(n):         唤醒n个协程
-        - async_notify_all():      唤醒全部协程
+        - a_wait(timeout):     条件异步等待
+        - anotify(n):         唤醒n个协程
+        - anotify_all():      唤醒全部协程
         - async with 上下文管理器
     """
 

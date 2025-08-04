@@ -2,6 +2,7 @@ from multiprocessing import Manager, Process, Queue
 
 import pytest
 
+from smartutils.design.container.abstract import AbstractPriorityContainer
 from smartutils.design.container.priority_dict_list import DictListPriorityContainer
 
 
@@ -12,10 +13,14 @@ def container(request):
     """
     proc_manager = None
     if request.param is None:
-        yield DictListPriorityContainer()
+        c = DictListPriorityContainer()
+        assert isinstance(c, AbstractPriorityContainer)
+        yield c
     else:
         proc_manager = Manager()
-        yield DictListPriorityContainer(manager=proc_manager)
+        c = DictListPriorityContainer(manager=proc_manager)
+        assert isinstance(c, AbstractPriorityContainer)
+        yield c
         proc_manager.shutdown()
 
 

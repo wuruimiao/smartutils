@@ -122,21 +122,21 @@ async def test_process_sync_lock_wrong_usage_async():
     )
 
     with pytest.raises(LibraryUsageError) as e:
-        await lock.async_wait(1)
+        await lock.a_wait(1)
     assert (
         str(e.value)
         == "ProcessSyncLock does not support coroutine/asynchronous interfaces."
     )
 
     with pytest.raises(LibraryUsageError) as e:
-        await lock.async_notify(1)
+        await lock.anotify(1)
     assert (
         str(e.value)
         == "ProcessSyncLock does not support coroutine/asynchronous interfaces."
     )
 
     with pytest.raises(LibraryUsageError) as e:
-        await lock.async_notify_all()
+        await lock.anotify_all()
     assert (
         str(e.value)
         == "ProcessSyncLock does not support coroutine/asynchronous interfaces."
