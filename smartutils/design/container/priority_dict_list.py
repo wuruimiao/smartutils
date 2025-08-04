@@ -1,13 +1,13 @@
 import uuid
 from multiprocessing.managers import DictProxy, ListProxy, SyncManager
-from typing import Dict, Generic, List, Optional, Tuple, TypeVar, Union
+from typing import Dict, List, Optional, Tuple, TypeVar, Union
 
 from smartutils.design.container.abstract import AbstractPriorityContainer
 
 T = TypeVar("T")
 
 
-class DictListPriorityContainer(AbstractPriorityContainer[T], Generic[T]):
+class DictListPriorityContainer(AbstractPriorityContainer[T]):
     """
     基于 dict+list 实现的优先级容器，支持如下功能：
         - O(1) 取出/删除优先级最小或最大元素。
