@@ -3,15 +3,15 @@ from typing import Dict, List, Optional, Union
 
 from smartutils.design._class import MyBase
 from smartutils.design.container.abstract import (
-    AbstractPriorityContainer,
-    PriorityItemWrap,
+    AbstractPriContainer,
+    PriItemWrap,
     PriorityItemWrapT,
 )
 from smartutils.error.sys import LibraryUsageError
 from smartutils.log import logger
 
 
-class DictListPriorityContainer(AbstractPriorityContainer[PriorityItemWrapT], MyBase):
+class PriContainerDictList(AbstractPriContainer[PriorityItemWrapT], MyBase):
     """
     基于 dict+list 实现的优先级容器，支持如下功能：
         - O(1) 取出/删除优先级最小或最大元素。
@@ -29,7 +29,7 @@ class DictListPriorityContainer(AbstractPriorityContainer[PriorityItemWrapT], My
         # 有序保存全部优先级，便于O(1)访问最小/最大。
         self._all_pris: Union[List[int], ListProxy]
         # 实例ID -> PriorityItemWrap
-        self._id_item_map: Union[Dict[str, PriorityItemWrap], DictProxy]
+        self._id_item_map: Union[Dict[str, PriItemWrap], DictProxy]
         self._value2id: Union[Dict[object, str], DictProxy]
 
         self._manager = manager
@@ -73,7 +73,7 @@ class DictListPriorityContainer(AbstractPriorityContainer[PriorityItemWrapT], My
             self._all_pris.insert(idx, priority)
             self._add_priority(priority)
 
-        item: PriorityItemWrap = PriorityItemWrap(
+        item: PriItemWrap = PriItemWrap(
             value=value, priority=priority, inst_id=self._value2id.get(value)
         )
         if self._reuse:

@@ -1,8 +1,8 @@
 from smartutils.design._class import MyBase
 from smartutils.design._singleton import SingletonBase, SingletonMeta, singleton
 from smartutils.design.attr import RequireAttrs
-from smartutils.design.container.abstract import AbstractPriorityContainer
-from smartutils.design.container.priority_dict_list import DictListPriorityContainer
+from smartutils.design.container.abstract import AbstractPriContainer
+from smartutils.design.container.pri_dict_list import PriContainerDictList
 from smartutils.design.deprecated import deprecated
 from smartutils.design.factory import BaseFactory
 from smartutils.design.module import require_modules
@@ -16,6 +16,6 @@ __all__ = [
     "RequireAttrs",
     "require_modules",
     "MyBase",
-    "AbstractPriorityContainer",
-    "DictListPriorityContainer",
+    "AbstractPriContainer",
+    "PriContainerDictList",
 ]

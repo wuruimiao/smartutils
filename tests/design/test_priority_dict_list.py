@@ -3,10 +3,10 @@ from multiprocessing import Manager
 import pytest
 
 from smartutils.design.container.abstract import (
-    AbstractPriorityContainer,
-    PriorityItemWrap,
+    AbstractPriContainer,
+    PriItemWrap,
 )
-from smartutils.design.container.priority_dict_list import DictListPriorityContainer
+from smartutils.design.container.pri_dict_list import PriContainerDictList
 from smartutils.error.sys import LibraryUsageError
 
 
@@ -17,13 +17,13 @@ def container(request):
     """
     proc_manager = None
     if request.param is None:
-        c = DictListPriorityContainer()
-        assert isinstance(c, AbstractPriorityContainer)
+        c = PriContainerDictList()
+        assert isinstance(c, AbstractPriContainer)
         yield c
     else:
         proc_manager = Manager()
-        c = DictListPriorityContainer(manager=proc_manager)
-        assert isinstance(c, AbstractPriorityContainer)
+        c = PriContainerDictList(manager=proc_manager)
+        assert isinstance(c, AbstractPriContainer)
         yield c
         proc_manager.shutdown()
 
@@ -35,13 +35,13 @@ def reuse_container(request):
     """
     proc_manager = None
     if request.param is None:
-        c = DictListPriorityContainer(reuse=True)
-        assert isinstance(c, AbstractPriorityContainer)
+        c = PriContainerDictList(reuse=True)
+        assert isinstance(c, AbstractPriContainer)
         yield c
     else:
         proc_manager = Manager()
-        c = DictListPriorityContainer(manager=proc_manager, reuse=True)
-        assert isinstance(c, AbstractPriorityContainer)
+        c = PriContainerDictList(manager=proc_manager, reuse=True)
+        assert isinstance(c, AbstractPriContainer)
         yield c
         proc_manager.shutdown()
 
@@ -76,7 +76,7 @@ def test_cant_remove(container):
     with pytest.raises(LibraryUsageError) as e:
         container.put("valx", 5)
         container.remove("valx")
-    assert str(e.value) == "[DictListPriorityContainer] not in reuse mode, cant remove."
+    assert str(e.value) == "[PriContainerDictList] not in reuse mode, cant remove."
 
 
 def test_repeated_priority(container):
@@ -97,8 +97,8 @@ def test_empty_behavior(container):
 
 
 def test_priority_item_str():
-    item = PriorityItemWrap(value=1, priority=2, inst_id="3")
-    assert str(item) == "<[PriorityItemWrap] id=3 cnt=0 val=1> priority=2"
+    item = PriItemWrap(value=1, priority=2, inst_id="3")
+    assert str(item) == "<[PriItemWrap] id=3 cnt=0 val=1> priority=2"
     assert item.inst_id == "3"
     assert item.value == 1
 
