@@ -4,7 +4,6 @@ from typing import Optional
 from smartutils.config.const import ConfKey
 from smartutils.config.schema.alert_feishu import AlertFeishuConf
 from smartutils.config.schema.client import ApiConf, ClientConf, ClientType
-from smartutils.ctx.const import CTXKey
 from smartutils.design import singleton
 from smartutils.infra.client.http import HttpClient
 from smartutils.infra.resource.abstract import AsyncHealthClosable

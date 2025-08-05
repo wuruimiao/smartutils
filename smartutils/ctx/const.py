@@ -14,13 +14,7 @@ class CTXKey(str, Enum):
 
     CLIENT = "client"
 
-    ALERT_FEISHU = "alert_feishu"
-
     TRACE_ID = "traceid"
     USERID = "userid"
     USERNAME = "username"
     PERMISSION_USER_IDS = "permission_user_ids"
-
-    LOGGER_LOGURU = "logger_loguru"
-
-    TIMER = "timer"
