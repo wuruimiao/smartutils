@@ -1,4 +1,4 @@
-from multiprocessing import Manager, Process, Queue
+from multiprocessing import Manager
 
 import pytest
 
