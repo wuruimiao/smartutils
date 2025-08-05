@@ -1,13 +1,17 @@
-import uuid
 from multiprocessing.managers import DictProxy, ListProxy, SyncManager
-from typing import Dict, List, Optional, Tuple, TypeVar, Union
+from typing import Dict, List, Optional, Union
 
-from smartutils.design.container.abstract import AbstractPriorityContainer
+from smartutils.design._class import MyBase
+from smartutils.design.container.abstract import (
+    AbstractPriorityContainer,
+    PriorityItemWrap,
+    PriorityItemWrapT,
+)
+from smartutils.error.sys import LibraryUsageError
+from smartutils.log import logger
 
-T = TypeVar("T")
 
-
-class DictListPriorityContainer(AbstractPriorityContainer[T]):
+class DictListPriorityContainer(AbstractPriorityContainer[PriorityItemWrapT], MyBase):
     """
     基于 dict+list 实现的优先级容器，支持如下功能：
         - O(1) 取出/删除优先级最小或最大元素。
@@ -19,122 +23,147 @@ class DictListPriorityContainer(AbstractPriorityContainer[T]):
     适合内存中中小规模数据的高性能优先级任务或对象排队场景。
     """
 
-    def __init__(self, manager: Optional[SyncManager] = None):
-        # _pri_map: 记录每个优先级（int）对应的实例ID列表（先进先出顺序）。
-        self._pri_map: Union[Dict[int, List[str]], DictProxy]
-        # _all_pris: 有序保存当前所有已存在的优先级，便于O(1)访问最小/最大。
+    def __init__(self, manager: Optional[SyncManager] = None, reuse: bool = False):
+        # 优先级->实例ID列表
+        self._pri_ids_map: Union[Dict[int, List[str]], DictProxy]
+        # 有序保存全部优先级，便于O(1)访问最小/最大。
         self._all_pris: Union[List[int], ListProxy]
-        # _inst_map: 存储每个实例ID对应的(优先级, 在pri_map优先级列表下标, 实例对象)。
-        self._inst_map: Union[Dict[str, Tuple[int, int, T]], DictProxy]
+        # 实例ID -> PriorityItemWrap
+        self._id_item_map: Union[Dict[str, PriorityItemWrap], DictProxy]
+        self._value2id: Union[Dict[object, str], DictProxy]
 
         self._manager = manager
+        self._reuse = reuse
         if manager is not None:
             # 使用manager生成可进程间共享的dict和list
-            self._pri_map = manager.dict()
+            self._pri_ids_map = manager.dict()
             self._all_pris = manager.list()
-            self._inst_map = manager.dict()
+            self._id_item_map = manager.dict()
+            self._value2id = manager.dict()
         else:
-            self._pri_map = {}
+            self._pri_ids_map = {}
             self._all_pris = []
-            self._inst_map = {}
+            self._id_item_map = {}
+            self._value2id = {}
+
+        super().__init__()
 
     def _add_priority(self, priority: int) -> None:
         """
         为指定优先级新增一条空列表，自动判断是否用 manager.list()
         """
         if self._manager is not None:
-            self._pri_map[priority] = self._manager.list()  # type: ignore
+            self._pri_ids_map[priority] = self._manager.list()  # type: ignore
         else:
-            self._pri_map[priority] = []
+            self._pri_ids_map[priority] = []
 
-    def put(self, priority: int, value: T) -> str:
+    def put(self, value: object, priority: int):
         """
-        添加一个元素到指定优先级队列，并返回其实例ID。
+        添加一个元素
 
         参数：
             priority: 定义元素优先级，优先级数字越小，优先级越高。
             value: 元素本身。
-        返回：
-            唯一实例ID，可用于后续删除。
         """
-        if priority not in self._pri_map:
-            # 若新优先级，则按顺序插入_all_pris，保持优先级有序
+        if priority not in self._pri_ids_map:
+            # 考虑bitsect
             idx = 0
             while idx < len(self._all_pris) and self._all_pris[idx] < priority:
                 idx += 1
             self._all_pris.insert(idx, priority)
             self._add_priority(priority)
 
-        inst_id = str(uuid.uuid4())
-        pri_list = self._pri_map[priority]
-        pri_list.append(inst_id)
-        self._inst_map[inst_id] = (priority, len(pri_list) - 1, value)
-        return inst_id
+        item: PriorityItemWrap = PriorityItemWrap(
+            value=value, priority=priority, inst_id=self._value2id.get(value)
+        )
+        if self._reuse:
+            self._value2id[value] = item.inst_id
 
-    def _pop_end(self, from_min: bool) -> Optional[Tuple[str, T]]:
+        self._pri_ids_map[priority].append(item.inst_id)
+        self._id_item_map[item.inst_id] = item
+
+    def _pop_end(self, from_min: bool) -> Optional[object]:
         """
-        内部通用弹出方法。
+        内部通用弹出方法，同优先级，LIFO
         参数:
             from_min: True 取出最小优先级，False 取出最大优先级。
         返回:
             (实例ID, 实例对象)；若队列为空返回 None。
         """
         if not self._all_pris:
+            if self._value2id:
+                logger.error(
+                    "{name} {ids} all in use.",
+                    name=self.name,
+                    ids=self._value2id.values(),
+                )
+            else:
+                logger.error("{name} no instance, call put first.", name=self.name)
             return None
-        # 根据参数选择首或尾
+
         pos = 0 if from_min else -1
         pri = self._all_pris[pos]
-        pri_list = self._pri_map[pri]
-        inst_id = pri_list.pop(0 if from_min else -1)
-        _, _, value = self._inst_map.pop(inst_id)
-        if not pri_list:
-            del self._pri_map[pri]
+        ids = self._pri_ids_map[pri]
+        inst_id = ids.pop(-1)
+        item = self._id_item_map.pop(inst_id)
+        if not ids:
+            # 该优先级没有实例了
+            self._pri_ids_map.pop(pri, None)
             self._all_pris.pop(pos)
-        return inst_id, value
 
-    def pop_min(self) -> Optional[Tuple[str, T]]:
+        return item.value
+
+    def pop_min(self) -> Optional[object]:
         """
         取出并删除优先级最小的实例。
         """
         return self._pop_end(True)
 
-    def pop_max(self) -> Optional[Tuple[str, T]]:
+    def pop_max(self) -> Optional[object]:
         """
         取出并删除优先级最大的实例。
         """
         return self._pop_end(False)
 
-    def remove(self, inst_id: str) -> Optional[T]:
+    def remove(self, value: object) -> Optional[object]:
         """
-        按实例ID删除对象。
+        删除对象。
         返回：
             被删除的实例对象；未找到返回None。
         """
-        if inst_id not in self._inst_map:
+        if not self._reuse:
+            raise LibraryUsageError(f"{self.name} not in reuse mode, cant remove.")
+        if value not in self._value2id:
             return None
-        priority, idx, value = self._inst_map.pop(inst_id)
-        pri_list = self._pri_map[priority]
-        # 优化：如果idx失效（并发或外部操作），依然可fallback到remove
-        if idx < len(pri_list) and pri_list[idx] == inst_id:
-            pri_list.pop(idx)
-        else:
-            try:
-                pri_list.remove(inst_id)
-            except ValueError:
-                pass
-        if not pri_list:
-            del self._pri_map[priority]
-            self._all_pris.remove(priority)
-        return value
+
+        inst_id = self._value2id.pop(value)
+        item = self._id_item_map.pop(inst_id, None)
+        if item is None:
+            return None
+
+        priority = item.priority
+        ids = self._pri_ids_map.get(priority)
+        if ids is not None:
+            if inst_id in ids:
+                ids.remove(inst_id)
+
+            if not ids:
+                # 该优先级已经无元素，彻底移除
+                self._pri_ids_map.pop(priority, None)
+                if priority in self._all_pris:
+                    self._all_pris.remove(priority)
+
+        return item.value
+
+    def clear(self) -> None:
+        self._pri_ids_map.clear()
+        self._all_pris.clear()
+        self._id_item_map.clear()
+        self._value2id.clear()
+        self._manager = None
 
     def __len__(self) -> int:
         """
-        当前容器内元素总数。
+        获取容器内元素数量。
         """
-        return len(self._inst_map)
-
-    def __contains__(self, inst_id: str) -> bool:
-        """
-        是否包含指定实例ID。
-        """
-        return inst_id in self._inst_map
+        return len(self._id_item_map)

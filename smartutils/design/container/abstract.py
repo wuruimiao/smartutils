@@ -1,38 +1,85 @@
-from typing import Optional, Protocol, Tuple, TypeVar, runtime_checkable
+import uuid
+from typing import Optional, Protocol, TypeVar, runtime_checkable
 
-T = TypeVar("T")
+from smartutils.design._class import MyBase
+
+
+class ContainerItemWrap(MyBase):
+    """
+    优先级容器内部存储元素，绑定唯一ID、实例对象。
+    """
+
+    def __init__(self, *, value: object, inst_id: Optional[str] = None):
+        self._inst_id = inst_id or str(uuid.uuid4())
+        self._value = value
+        self.count = 0
+
+    @property
+    def inst_id(self) -> str:
+        return self._inst_id
+
+    @property
+    def value(self) -> object:
+        return self._value
+
+    def __str__(self) -> str:
+        return f"<{self.name} id={self.inst_id} cnt={self.count} val={self.value!r}>"
+
+
+class PriorityItemWrap(ContainerItemWrap):
+    """
+    优先级容器的内部数据结构。每个value仅由一个PriorityItemWrap对象包装，保证外部任何操作（如插入、弹出、删除、查找）
+    时value与其inst_id不变。inst_id只限内部追踪，外部接口始终只暴露实际的value对象。
+    """
+
+    def __init__(self, *, value: object, priority: int, inst_id: Optional[str] = None):
+        super().__init__(value=value, inst_id=inst_id)
+        self.priority = priority
+
+    def __str__(self) -> str:
+        return f"{super().__str__()} priority={self.priority}"
+
+
+PriorityItemWrapT = TypeVar("PriorityItemWrapT", bound=PriorityItemWrap, covariant=True)
 
 
 @runtime_checkable
-class AbstractPriorityContainer(Protocol[T]):
+class AbstractPriorityContainer(Protocol[PriorityItemWrapT]):
     """
-    抽象优先级容器的统一接口，方便扩展其他数据结构与算法实现。
+    优先级容器的通用抽象协议。所有外部增删查改均只操作value实例，不暴露任何内部存储结构。
+    设计目标：任何put、pop、remove等操作后，value实例的inst_id全生命周期内保持不变。
+    子类实现内部应以PriorityItemWrap为唯一挂载元素。
     """
 
-    def put(self, priority: int, value: T) -> str:
+    def put(self, value: object, priority: int):
         """
-        插入元素，返回实例ID。
-        """
-        ...
-
-    def pop_min(self) -> Optional[Tuple[str, T]]:
-        """
-        O(1)或O(logN)取并删除优先级最小实例。
+        :param value: 任意对象，只要其可正确哈希。
+        :param priority: 优先级。数值越小，优先级越高。
         """
         ...
 
-    def pop_max(self) -> Optional[Tuple[str, T]]:
+    def pop_min(self) -> Optional[object]:
         """
-        O(1)或O(logN)取并删除优先级最大实例。
+        弹出并返回优先级最小的元素（即value），若无元素则返回None。
         """
         ...
 
-    def remove(self, inst_id: str) -> Optional[T]:
+    def pop_max(self) -> Optional[object]:
         """
-        O(1)或O(logN)按实例ID删除
+        弹出并返回优先级最大的元素（value）。无元素返回None。
+        """
+        ...
+
+    def remove(self, value: object) -> Optional[object]:
+        """
+        删除一个指定value的元素。若存在多个相同value，只删除其中一个。若未找到，返回None。
+        """
+        ...
+
+    def clear(self) -> None:
+        """
+        清空所有元素。
         """
         ...
 
     def __len__(self) -> int: ...
-
-    def __contains__(self, inst_id: str) -> bool: ...
