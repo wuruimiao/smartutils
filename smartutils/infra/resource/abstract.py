@@ -1,16 +1,25 @@
 from abc import ABC, abstractmethod
 from contextlib import AbstractContextManager
-from typing import Any, AsyncContextManager, TypeVar
+from typing import Any, AsyncContextManager, Protocol, TypeVar
 
 __all__ = ["AbstractAsyncResource", "AbstractAsyncResourceT"]
 
 
-class AbstractAsyncResource(ABC):
-    @abstractmethod
-    async def close(self):
-        """关闭资源"""
-        ...
+class Closable(Protocol):
+    def close(self) -> None: ...
 
+
+ClosableT = TypeVar("ClosableT", bound=Closable)
+
+
+class AsyncClosable(Protocol):
+    async def close(self) -> None: ...
+
+
+AsyncClosableT = TypeVar("AsyncClosableT", bound=AsyncClosable)
+
+
+class AbstractAsyncResource(AsyncClosable, ABC):
     @abstractmethod
     async def ping(self) -> bool:
         """健康检查，返回True/False"""
@@ -23,12 +32,7 @@ class AbstractAsyncResource(ABC):
 AbstractAsyncResourceT = TypeVar("AbstractAsyncResourceT", bound=AbstractAsyncResource)
 
 
-class AbstractSyncResource(ABC):
-    @abstractmethod
-    def close(self):
-        """关闭资源"""
-        ...
-
+class AbstractSyncResource(Closable, ABC):
     @abstractmethod
     def ping(self) -> bool:
         """健康检查，返回True/False"""

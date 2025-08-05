@@ -22,7 +22,11 @@ from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.design import MyBase
 from smartutils.error.base import BaseError
 from smartutils.error.sys import LibraryUsageError, SysError
-from smartutils.infra.resource.abstract import AbstractAsyncResourceT
+from smartutils.infra.resource.abstract import (
+    AbstractAsyncResourceT,
+    AsyncClosable,
+    AsyncClosableT,
+)
 from smartutils.log import logger
 
 __all__ = ["ResourceManagerRegistry", "CTXResourceManager"]
@@ -49,22 +53,14 @@ class ResourceManagerRegistry:
             mgr.reset()
 
 
-class CTXResourceManager(MyBase, Generic[AbstractAsyncResourceT], ABC):
+class ResourceManager(MyBase, Generic[AsyncClosableT], ABC):
     def __init__(
         self,
         *,
-        resources: Dict[str, AbstractAsyncResourceT],
-        ctx_key: CTXKey,
-        success: Optional[Callable[..., Any]] = None,
-        fail: Optional[Callable[..., Any]] = None,
-        error: Optional[Type[SysError]] = None,
+        resources: Dict[str, AsyncClosableT],
         **kwargs,
     ):
-        self._ctx_key: CTXKey = ctx_key
         self._resources = resources
-        self._success = success
-        self._fail = fail
-        self._error = error if error else SysError
         ResourceManagerRegistry.register(self)
         super().__init__(**kwargs)
 
@@ -76,6 +72,37 @@ class CTXResourceManager(MyBase, Generic[AbstractAsyncResourceT], ABC):
     def _check_key(self, key):
         if key not in self._resources:
             raise LibraryUsageError(f"{self.name} require {key} in config.yaml.")
+
+    async def close(self):
+        for key, cli in self._resources.items():
+            try:
+                await cli.close()
+            except:  # noqa
+                logger.exception(f"{self.name} Failed to close {self} {key}")
+
+    def reset(self):
+        self._resources = {}
+
+
+class CTXResourceManager(ResourceManager[AbstractAsyncResourceT]):
+    def __init__(
+        self,
+        *,
+        resources: Dict[str, AbstractAsyncResourceT],
+        ctx_key: CTXKey,
+        success: Optional[Callable[..., Any]] = None,
+        fail: Optional[Callable[..., Any]] = None,
+        error: Optional[Type[SysError]] = None,
+        **kwargs,
+    ):
+        self._ctx_key: CTXKey = ctx_key
+        self._success = success
+        self._fail = fail
+        self._error = error if error else SysError
+        ResourceManagerRegistry.register(self)
+        super().__init__(resources=resources, **kwargs)
+
+        logger.info("Initialized {name}.", name=self.name)
 
     def _build_wrapper(self, func, key, use_transaction: bool = False):
         @functools.wraps(func)
@@ -148,18 +175,8 @@ class CTXResourceManager(MyBase, Generic[AbstractAsyncResourceT], ABC):
         self._check_key(key)
         return self._resources[key]
 
-    async def close(self):
-        for key, cli in self._resources.items():
-            try:
-                await cli.close()
-            except:  # noqa
-                logger.exception(f"{self.name} Failed to close {self} {key}")
-
     async def health_check(self) -> Dict[str, bool]:
         result = {}
         for key, cli in self._resources.items():
             result[key] = await cli.ping()
         return result
-
-    def reset(self):
-        self._resources = {}

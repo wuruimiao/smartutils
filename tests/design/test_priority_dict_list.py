@@ -116,7 +116,7 @@ def test_pop_max(reuse_container):
     assert reuse_container.pop_max() is None
 
 
-def test_clear(container):
-    container.clear()
+def test_pri_dict_list_close(container):
+    container.close()
     assert len(container) == 0
     assert container.pop_max() is None
