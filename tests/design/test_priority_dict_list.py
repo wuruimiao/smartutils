@@ -2,7 +2,10 @@ from multiprocessing import Manager, Process, Queue
 
 import pytest
 
-from smartutils.design.container.abstract import AbstractPriorityContainer
+from smartutils.design.container.abstract import (
+    AbstractPriorityContainer,
+    PriorityItemWrap,
+)
 from smartutils.design.container.priority_dict_list import DictListPriorityContainer
 from smartutils.error.sys import LibraryUsageError
 
@@ -20,6 +23,24 @@ def container(request):
     else:
         proc_manager = Manager()
         c = DictListPriorityContainer(manager=proc_manager)
+        assert isinstance(c, AbstractPriorityContainer)
+        yield c
+        proc_manager.shutdown()
+
+
+@pytest.fixture(params=[None, Manager])
+def reuse_container(request):
+    """
+    分别测试单进程与多进程容器（后者用 multiprocessing.Manager）
+    """
+    proc_manager = None
+    if request.param is None:
+        c = DictListPriorityContainer(reuse=True)
+        assert isinstance(c, AbstractPriorityContainer)
+        yield c
+    else:
+        proc_manager = Manager()
+        c = DictListPriorityContainer(manager=proc_manager, reuse=True)
         assert isinstance(c, AbstractPriorityContainer)
         yield c
         proc_manager.shutdown()
@@ -54,7 +75,7 @@ def test_pop_min_max(container):
 def test_cant_remove(container):
     with pytest.raises(LibraryUsageError) as e:
         container.put("valx", 5)
-        v = container.remove("valx")
+        container.remove("valx")
     assert str(e.value) == "[DictListPriorityContainer] not in reuse mode, cant remove."
 
 
@@ -75,14 +96,27 @@ def test_empty_behavior(container):
     assert container.pop_max() is None
 
 
-def worker_put_pop(container, q, actions):
-    for act in actions:
-        if act[0] == "put":
-            inst_id = container.put(act[1], act[2])
-            q.put(("put", inst_id, act[1], act[2]))
-        elif act[0] == "pop_min":
-            result = container.pop_min()
-            q.put(("pop", result))
-        elif act[0] == "remove":
-            result = container.remove(act[1])
-            q.put(("remove", act[1], result))
+def test_priority_item_str():
+    item = PriorityItemWrap(value=1, priority=2, inst_id="3")
+    assert str(item) == "<[PriorityItemWrap] id=3 cnt=0 val=1> priority=2"
+    assert item.inst_id == "3"
+    assert item.value == 1
+
+
+def test_remove(reuse_container):
+    reuse_container.put("valx", 5)
+    assert reuse_container.remove("valx") == "valx"
+    assert reuse_container.pop_max() is None
+    assert reuse_container.remove("valx") is None
+
+
+def test_pop_max(reuse_container):
+    reuse_container.put("valx", 5)
+    assert reuse_container.pop_max() == "valx"
+    assert reuse_container.pop_max() is None
+
+
+def test_clear(container):
+    container.clear()
+    assert len(container) == 0
+    assert container.pop_max() is None

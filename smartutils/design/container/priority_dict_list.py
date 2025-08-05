@@ -138,7 +138,7 @@ class DictListPriorityContainer(AbstractPriorityContainer[PriorityItemWrapT], My
 
         inst_id = self._value2id.pop(value)
         item = self._id_item_map.pop(inst_id, None)
-        if item is None:
+        if item is None:  # pragma: no cover
             return None
 
         priority = item.priority
@@ -157,7 +157,7 @@ class DictListPriorityContainer(AbstractPriorityContainer[PriorityItemWrapT], My
 
     def clear(self) -> None:
         self._pri_ids_map.clear()
-        self._all_pris.clear()
+        del self._all_pris[:]
         self._id_item_map.clear()
         self._value2id.clear()
         self._manager = None
