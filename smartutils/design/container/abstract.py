@@ -15,7 +15,7 @@ class ContainerBase(MyBase):
         if self._closed:
             raise LibraryUsageError(f"{self.name} closed, no operations allowed.")
 
-    def close(self) -> None:
+    def set_closed(self) -> None:
         """
         关闭容器
         """

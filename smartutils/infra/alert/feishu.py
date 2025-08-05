@@ -5,8 +5,8 @@ from smartutils.config.const import ConfKey
 from smartutils.config.schema.alert_feishu import AlertFeishuConf
 from smartutils.config.schema.client import ApiConf, ClientConf, ClientType
 from smartutils.design import singleton
+from smartutils.design.abstract import AsyncHealthClosable
 from smartutils.infra.client.http import HttpClient
-from smartutils.infra.resource.abstract import AsyncHealthClosable
 from smartutils.infra.resource.manager.manager import ResourceManager
 from smartutils.init.factory import InitByConfFactory
 from smartutils.init.mixin import LibraryCheckMixin

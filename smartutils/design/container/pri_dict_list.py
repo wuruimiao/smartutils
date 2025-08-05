@@ -166,7 +166,7 @@ class PriContainerDictList(ContainerBase, PriContainer[T]):
         return item.value
 
     def close(self) -> None:
-        super().close()
+        self.set_closed()
         self._pri_ids_map.clear()
         del self._all_pris[:]
         self._id_item_map.clear()

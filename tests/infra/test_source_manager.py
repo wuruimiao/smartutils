@@ -2,8 +2,8 @@ import pytest
 
 from smartutils.config.const import ConfKey
 from smartutils.ctx import CTXVarManager
+from smartutils.design.abstract import AsyncTransactional
 from smartutils.error.sys import LibraryUsageError
-from smartutils.infra.resource.abstract import AsyncTransactional
 from smartutils.infra.resource.manager.manager import (
     CTXResourceManager,
     ResourceManagerRegistry,

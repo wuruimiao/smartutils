@@ -6,7 +6,7 @@ from smartutils.config.const import ConfKey
 from smartutils.config.schema.loguru import LoguruConfig
 from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.design import singleton
-from smartutils.infra.resource.abstract import AsyncHealthClosable
+from smartutils.design.abstract import AsyncHealthClosable
 from smartutils.infra.resource.manager.manager import ResourceManager
 from smartutils.init.factory import InitByConfFactory
 from smartutils.log import logger

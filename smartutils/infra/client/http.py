@@ -8,8 +8,8 @@ from typing import TYPE_CHECKING, Awaitable, Callable, Dict, Optional, Tuple
 import orjson
 
 from smartutils.config.schema.client import ApiConf, ClientConf
+from smartutils.design.abstract import AsyncTransactional
 from smartutils.infra.client.breaker import Breaker
-from smartutils.infra.resource.abstract import AsyncTransactional
 from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
 

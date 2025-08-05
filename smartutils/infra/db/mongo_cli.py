@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, AsyncGenerator, Optional, Tuple
 
 from smartutils.config.schema.mongo import MongoConf
-from smartutils.infra.resource.abstract import AsyncTransactional
+from smartutils.design.abstract import AsyncTransactional
 from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
 

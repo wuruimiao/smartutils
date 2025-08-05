@@ -20,12 +20,12 @@ from smartutils.call import call_hook
 from smartutils.config.const import ConfKey
 from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.design import MyBase
-from smartutils.error.base import BaseError
-from smartutils.error.sys import LibraryUsageError, SysError
-from smartutils.infra.resource.abstract import (
+from smartutils.design.abstract import (
     AsyncHealthClosableT,
     AsyncTransactionalT,
 )
+from smartutils.error.base import BaseError
+from smartutils.error.sys import LibraryUsageError, SysError
 from smartutils.log import logger
 
 __all__ = ["ResourceManagerRegistry", "CTXResourceManager"]
@@ -82,6 +82,12 @@ class ResourceManager(MyBase, Generic[AsyncHealthClosableT], ABC):
                 await cli.close()
             except:  # noqa
                 logger.exception(f"{self.name} Failed to close {self} {key}")
+
+    async def health_check(self) -> Dict[str, bool]:
+        result = {}
+        for key, cli in self._resources.items():
+            result[key] = await cli.ping()
+        return result
 
     def reset(self):
         self._resources = {}
@@ -172,9 +178,3 @@ class CTXResourceManager(ResourceManager[AsyncTransactionalT]):
             return CTXVarManager.get(self._ctx_key)
         except LibraryUsageError:
             raise LibraryUsageError(f"Must call {self.name}.use(...) first.") from None
-
-    async def health_check(self) -> Dict[str, bool]:
-        result = {}
-        for key, cli in self._resources.items():
-            result[key] = await cli.ping()
-        return result
