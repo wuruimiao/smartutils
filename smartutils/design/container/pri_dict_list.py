@@ -165,13 +165,15 @@ class PriContainerDictList(ContainerBase, PriContainer[T]):
 
         return item.value
 
-    def close(self) -> None:
+    def close(self) -> List[T]:
         self.set_closed()
+        items = [item.value for item in self._id_item_map.values()]
         self._pri_ids_map.clear()
         del self._all_pris[:]
         self._id_item_map.clear()
         self._value2id.clear()
         self._manager = None
+        return items
 
     def __len__(self) -> int:
         """

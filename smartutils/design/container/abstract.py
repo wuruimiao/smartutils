@@ -1,4 +1,5 @@
-from typing import Optional, Protocol, TypeVar, Union, runtime_checkable
+from abc import abstractmethod
+from typing import Generic, List, Optional, Protocol, TypeVar, Union, runtime_checkable
 
 from smartutils.design._class import MyBase
 from smartutils.error.sys import LibraryUsageError
@@ -6,7 +7,7 @@ from smartutils.error.sys import LibraryUsageError
 T = TypeVar("T")
 
 
-class ContainerBase(MyBase):
+class ContainerBase(MyBase, Generic[T]):
     def __init__(self, *args, **kwargs) -> None:
         self._closed: bool = False
         super().__init__(*args, **kwargs)
@@ -20,6 +21,13 @@ class ContainerBase(MyBase):
         关闭容器
         """
         self._closed = True
+
+    @abstractmethod
+    def close(self) -> List[T]:
+        """
+        关闭容器，容器内元素的关闭应由外部处理
+        """
+        ...
 
 
 @runtime_checkable
