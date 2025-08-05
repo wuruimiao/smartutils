@@ -1,17 +1,18 @@
 from multiprocessing.managers import DictProxy, ListProxy, SyncManager
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, TypeVar, Union
 
 from smartutils.design._class import MyBase
 from smartutils.design.container.abstract import (
     AbstractPriContainer,
     PriItemWrap,
-    PriorityItemWrapT,
 )
 from smartutils.error.sys import LibraryUsageError
 from smartutils.log import logger
 
+T = TypeVar("T")
 
-class PriContainerDictList(AbstractPriContainer[PriorityItemWrapT], MyBase):
+
+class PriContainerDictList(AbstractPriContainer[T], MyBase):
     """
     基于 dict+list 实现的优先级容器，支持如下功能：
         - O(1) 取出/删除优先级最小或最大元素。
@@ -30,7 +31,7 @@ class PriContainerDictList(AbstractPriContainer[PriorityItemWrapT], MyBase):
         self._all_pris: Union[List[Union[float, int]], ListProxy]
         # 实例ID -> PriorityItemWrap
         self._id_item_map: Union[Dict[str, PriItemWrap], DictProxy]
-        self._value2id: Union[Dict[object, str], DictProxy]
+        self._value2id: Union[Dict[T, str], DictProxy]
 
         self._manager = manager
         self._reuse = reuse
@@ -57,7 +58,7 @@ class PriContainerDictList(AbstractPriContainer[PriorityItemWrapT], MyBase):
         else:
             self._pri_ids_map[priority] = []
 
-    def put(self, value: object, priority: Union[float, int]):
+    def put(self, value: T, priority: Union[float, int]):
         """
         添加一个元素
 
@@ -82,7 +83,7 @@ class PriContainerDictList(AbstractPriContainer[PriorityItemWrapT], MyBase):
         self._pri_ids_map[priority].append(item.inst_id)
         self._id_item_map[item.inst_id] = item
 
-    def _pop_end(self, from_min: bool) -> Optional[object]:
+    def _pop_end(self, from_min: bool) -> Optional[T]:
         """
         内部通用弹出方法，同优先级，LIFO
         参数:
@@ -113,19 +114,19 @@ class PriContainerDictList(AbstractPriContainer[PriorityItemWrapT], MyBase):
 
         return item.value
 
-    def pop_min(self) -> Optional[object]:
+    def pop_min(self) -> Optional[T]:
         """
         取出并删除优先级最小的实例。
         """
         return self._pop_end(True)
 
-    def pop_max(self) -> Optional[object]:
+    def pop_max(self) -> Optional[T]:
         """
         取出并删除优先级最大的实例。
         """
         return self._pop_end(False)
 
-    def remove(self, value: object) -> Optional[object]:
+    def remove(self, value: T) -> Optional[T]:
         """
         删除对象。
         返回：
