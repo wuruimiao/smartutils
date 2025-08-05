@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from typing import Any, AsyncContextManager, Protocol, Union
+from typing import Any, AsyncContextManager, Protocol, Union, runtime_checkable
 
 
+@runtime_checkable
 class ISyncLock(Protocol):
     """
     方法说明:
