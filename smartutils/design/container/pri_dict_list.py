@@ -25,9 +25,9 @@ class PriContainerDictList(AbstractPriContainer[PriorityItemWrapT], MyBase):
 
     def __init__(self, manager: Optional[SyncManager] = None, reuse: bool = False):
         # 优先级->实例ID列表
-        self._pri_ids_map: Union[Dict[int, List[str]], DictProxy]
+        self._pri_ids_map: Union[Dict[Union[float, int], List[str]], DictProxy]
         # 有序保存全部优先级，便于O(1)访问最小/最大。
-        self._all_pris: Union[List[int], ListProxy]
+        self._all_pris: Union[List[Union[float, int]], ListProxy]
         # 实例ID -> PriorityItemWrap
         self._id_item_map: Union[Dict[str, PriItemWrap], DictProxy]
         self._value2id: Union[Dict[object, str], DictProxy]
@@ -48,7 +48,7 @@ class PriContainerDictList(AbstractPriContainer[PriorityItemWrapT], MyBase):
 
         super().__init__()
 
-    def _add_priority(self, priority: int) -> None:
+    def _add_priority(self, priority: Union[float, int]) -> None:
         """
         为指定优先级新增一条空列表，自动判断是否用 manager.list()
         """
@@ -57,7 +57,7 @@ class PriContainerDictList(AbstractPriContainer[PriorityItemWrapT], MyBase):
         else:
             self._pri_ids_map[priority] = []
 
-    def put(self, value: object, priority: int):
+    def put(self, value: object, priority: Union[float, int]):
         """
         添加一个元素
 

@@ -1,5 +1,5 @@
 import uuid
-from typing import Optional, Protocol, TypeVar, runtime_checkable
+from typing import Optional, Protocol, TypeVar, Union, runtime_checkable
 
 from smartutils.design._class import MyBase
 
@@ -32,7 +32,13 @@ class PriItemWrap(ContainerItemWrap):
     时value与其inst_id不变。inst_id只限内部追踪，外部接口始终只暴露实际的value对象。
     """
 
-    def __init__(self, *, value: object, priority: int, inst_id: Optional[str] = None):
+    def __init__(
+        self,
+        *,
+        value: object,
+        priority: Union[float, int],
+        inst_id: Optional[str] = None,
+    ):
         super().__init__(value=value, inst_id=inst_id)
         self.priority = priority
 
@@ -51,7 +57,7 @@ class AbstractPriContainer(Protocol[PriorityItemWrapT]):
     子类实现内部应以PriorityItemWrap为唯一挂载元素。
     """
 
-    def put(self, value: object, priority: int):
+    def put(self, value: object, priority: Union[float, int]):
         """
         :param value: 任意对象，只要其可正确哈希。
         :param priority: 优先级。数值越小，优先级越高。
