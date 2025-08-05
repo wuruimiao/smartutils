@@ -3,9 +3,9 @@ from multiprocessing import Manager
 import pytest
 
 from smartutils.design.container.abstract import (
-    AbstractPriContainer,
-    PriItemWrap,
+    PriContainer,
 )
+from smartutils.design.container.item import PriItemWrap
 from smartutils.design.container.pri_dict_list import PriContainerDictList
 from smartutils.error.sys import LibraryUsageError
 
@@ -18,12 +18,12 @@ def container(request):
     proc_manager = None
     if request.param is None:
         c = PriContainerDictList()
-        assert isinstance(c, AbstractPriContainer)
+        assert isinstance(c, PriContainer)
         yield c
     else:
         proc_manager = Manager()
         c = PriContainerDictList(manager=proc_manager)
-        assert isinstance(c, AbstractPriContainer)
+        assert isinstance(c, PriContainer)
         yield c
         proc_manager.shutdown()
 
@@ -36,12 +36,12 @@ def reuse_container(request):
     proc_manager = None
     if request.param is None:
         c = PriContainerDictList(reuse=True)
-        assert isinstance(c, AbstractPriContainer)
+        assert isinstance(c, PriContainer)
         yield c
     else:
         proc_manager = Manager()
         c = PriContainerDictList(manager=proc_manager, reuse=True)
-        assert isinstance(c, AbstractPriContainer)
+        assert isinstance(c, PriContainer)
         yield c
         proc_manager.shutdown()
 
@@ -119,4 +119,7 @@ def test_pop_max(reuse_container):
 def test_pri_dict_list_close(container):
     container.close()
     assert len(container) == 0
-    assert container.pop_max() is None
+
+    with pytest.raises(LibraryUsageError) as e:
+        assert container.pop_max() is None
+    assert str(e.value) == "[PriContainerDictList] closed, no operations allowed."

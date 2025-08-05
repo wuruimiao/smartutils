@@ -1,18 +1,18 @@
 from multiprocessing.managers import DictProxy, ListProxy, SyncManager
 from typing import Dict, List, Optional, TypeVar, Union
 
-from smartutils.design._class import MyBase
 from smartutils.design.container.abstract import (
-    AbstractPriContainer,
-    PriItemWrap,
+    ContainerBase,
+    PriContainer,
 )
+from smartutils.design.container.item import PriItemWrap
 from smartutils.error.sys import LibraryUsageError
 from smartutils.log import logger
 
 T = TypeVar("T")
 
 
-class PriContainerDictList(AbstractPriContainer[T], MyBase):
+class PriContainerDictList(ContainerBase, PriContainer[T]):
     """
     基于 dict+list 实现的优先级容器，支持如下功能：
         - O(1) 取出/删除优先级最小或最大元素。
@@ -35,6 +35,7 @@ class PriContainerDictList(AbstractPriContainer[T], MyBase):
 
         self._manager = manager
         self._reuse = reuse
+
         if manager is not None:
             # 使用manager生成可进程间共享的dict和list
             self._pri_ids_map = manager.dict()
@@ -66,6 +67,8 @@ class PriContainerDictList(AbstractPriContainer[T], MyBase):
             priority: 定义元素优先级，优先级数字越小，优先级越高。
             value: 元素本身。
         """
+        self.check_closed()
+
         if priority not in self._pri_ids_map:
             # 考虑bitsect
             idx = 0
@@ -118,12 +121,16 @@ class PriContainerDictList(AbstractPriContainer[T], MyBase):
         """
         取出并删除优先级最小的实例。
         """
+        self.check_closed()
+
         return self._pop_end(True)
 
     def pop_max(self) -> Optional[T]:
         """
         取出并删除优先级最大的实例。
         """
+        self.check_closed()
+
         return self._pop_end(False)
 
     def remove(self, value: T) -> Optional[T]:
@@ -132,6 +139,8 @@ class PriContainerDictList(AbstractPriContainer[T], MyBase):
         返回：
             被删除的实例对象；未找到返回None。
         """
+        self.check_closed()
+
         if not self._reuse:
             raise LibraryUsageError(f"{self.name} not in reuse mode, cant remove.")
         if value not in self._value2id:
@@ -156,7 +165,8 @@ class PriContainerDictList(AbstractPriContainer[T], MyBase):
 
         return item.value
 
-    def clear(self) -> None:
+    def close(self) -> None:
+        super().close()
         self._pri_ids_map.clear()
         del self._all_pris[:]
         self._id_item_map.clear()
