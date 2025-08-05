@@ -9,7 +9,7 @@ import orjson
 
 from smartutils.config.schema.client import ApiConf, ClientConf
 from smartutils.infra.client.breaker import Breaker
-from smartutils.infra.resource.abstract import AbstractAsyncResource
+from smartutils.infra.resource.abstract import AsyncTransactional
 from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
 
@@ -38,7 +38,7 @@ async def mock_response(api_conf: ApiConf, *args, **kwargs) -> Response:
     )
 
 
-class HttpClient(LibraryCheckMixin, AbstractAsyncResource):
+class HttpClient(LibraryCheckMixin, AsyncTransactional):
     def __init__(self, conf: ClientConf, name: str):
         self.check(conf=conf, libs=["httpx"])
 

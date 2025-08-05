@@ -1,23 +1,21 @@
 import asyncio
-from contextlib import asynccontextmanager
 from typing import Optional
 
 from smartutils.config.const import ConfKey
 from smartutils.config.schema.alert_feishu import AlertFeishuConf
 from smartutils.config.schema.client import ApiConf, ClientConf, ClientType
 from smartutils.ctx.const import CTXKey
-from smartutils.ctx.manager import CTXVarManager
 from smartutils.design import singleton
 from smartutils.infra.client.http import HttpClient
-from smartutils.infra.resource.abstract import AbstractAsyncResource
-from smartutils.infra.resource.manager.manager import CTXResourceManager
+from smartutils.infra.resource.abstract import AsyncHealthClosable
+from smartutils.infra.resource.manager.manager import ResourceManager
 from smartutils.init.factory import InitByConfFactory
 from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
 from smartutils.time import get_now_str
 
 
-class AlertFeishu(AbstractAsyncResource):
+class AlertFeishu(AsyncHealthClosable):
     def __init__(self, conf: AlertFeishuConf):
         self._conf = conf
         self._clients = []
@@ -81,23 +79,14 @@ class AlertFeishu(AbstractAsyncResource):
     async def ping(self) -> bool:
         return True
 
-    @asynccontextmanager
-    async def db(self, use_transaction: bool):
-        yield self
-
 
 @singleton
-@CTXVarManager.register(CTXKey.ALERT_FEISHU)
-class AlertFeishuManager(LibraryCheckMixin, CTXResourceManager[AlertFeishu]):
+class AlertFeishuManager(LibraryCheckMixin, ResourceManager[AlertFeishu]):
     def __init__(self, conf: Optional[AlertFeishuConf] = None):
         self.check(conf=conf)
 
         resources = {ConfKey.GROUP_DEFAULT.value: AlertFeishu(conf)}
-        super().__init__(resources=resources, ctx_key=CTXKey.ALERT_FEISHU)
-
-    @property
-    def curr(self) -> AlertFeishu:
-        return super().curr
+        super().__init__(resources=resources)
 
 
 @InitByConfFactory.register(ConfKey.ALERT_FEISHU)

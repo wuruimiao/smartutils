@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Awaitable, Callable, Optional
 
 from smartutils.config.schema.client import ClientConf
 from smartutils.infra.client.breaker import Breaker
-from smartutils.infra.resource.abstract import AbstractAsyncResource
+from smartutils.infra.resource.abstract import AsyncTransactional
 from smartutils.init.mixin import LibraryCheckMixin
 
 try:
@@ -35,7 +35,7 @@ def only_grpc_unavailable_or_timeout(exc):
     return True
 
 
-class GrpcClient(LibraryCheckMixin, AbstractAsyncResource):
+class GrpcClient(LibraryCheckMixin, AsyncTransactional):
     def __init__(self, conf: ClientConf, name: str):
         self.check(conf=conf, libs=["grpc"])
 

@@ -1,5 +1,4 @@
 import sys
-from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Optional
 
@@ -7,8 +6,8 @@ from smartutils.config.const import ConfKey
 from smartutils.config.schema.loguru import LoguruConfig
 from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.design import singleton
-from smartutils.infra.resource.abstract import AbstractAsyncResource
-from smartutils.infra.resource.manager.manager import CTXResourceManager
+from smartutils.infra.resource.abstract import AsyncHealthClosable
+from smartutils.infra.resource.manager.manager import ResourceManager
 from smartutils.init.factory import InitByConfFactory
 from smartutils.log import logger
 
@@ -25,7 +24,7 @@ class PrintToLogger:
 
 
 # TODO: 应该使用同步资源标识
-class LoggerCli(AbstractAsyncResource):
+class LoggerCli(AsyncHealthClosable):
     """loguru.logger线程安全、协程安全"""
 
     def __init__(self, conf: Optional[LoguruConfig] = None, name: str = "logur_cli"):
@@ -82,19 +81,14 @@ class LoggerCli(AbstractAsyncResource):
         logger.remove()
 
     async def ping(self) -> bool:
-        return True  # pragma: no cover
-
-    @asynccontextmanager
-    async def db(self, use_transaction: bool = False):
-        yield logger  # pragma: no cover
+        return True
 
 
 @singleton
-@CTXVarManager.register(CTXKey.LOGGER_LOGURU)
-class LoggerManager(CTXResourceManager[LoggerCli]):
+class LoggerManager(ResourceManager[LoggerCli]):
     def __init__(self, conf: Optional[LoguruConfig] = None):
         resources = {ConfKey.GROUP_DEFAULT.value: LoggerCli(conf, "logger_loguru")}
-        super().__init__(resources=resources, ctx_key=CTXKey.LOGGER_LOGURU)
+        super().__init__(resources=resources)
 
 
 @InitByConfFactory.register(ConfKey.LOGURU)

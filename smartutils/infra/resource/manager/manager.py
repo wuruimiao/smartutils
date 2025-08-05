@@ -23,9 +23,8 @@ from smartutils.design import MyBase
 from smartutils.error.base import BaseError
 from smartutils.error.sys import LibraryUsageError, SysError
 from smartutils.infra.resource.abstract import (
-    AbstractAsyncResourceT,
-    AsyncClosable,
-    AsyncClosableT,
+    AsyncHealthClosableT,
+    AsyncTransactionalT,
 )
 from smartutils.log import logger
 
@@ -53,11 +52,11 @@ class ResourceManagerRegistry:
             mgr.reset()
 
 
-class ResourceManager(MyBase, Generic[AsyncClosableT], ABC):
+class ResourceManager(MyBase, Generic[AsyncHealthClosableT], ABC):
     def __init__(
         self,
         *,
-        resources: Dict[str, AsyncClosableT],
+        resources: Dict[str, AsyncHealthClosableT],
         **kwargs,
     ):
         self._resources = resources
@@ -73,6 +72,10 @@ class ResourceManager(MyBase, Generic[AsyncClosableT], ABC):
         if key not in self._resources:
             raise LibraryUsageError(f"{self.name} require {key} in config.yaml.")
 
+    def client(self, key: str = ConfKey.GROUP_DEFAULT) -> AsyncHealthClosableT:
+        self._check_key(key)
+        return self._resources[key]
+
     async def close(self):
         for key, cli in self._resources.items():
             try:
@@ -84,11 +87,11 @@ class ResourceManager(MyBase, Generic[AsyncClosableT], ABC):
         self._resources = {}
 
 
-class CTXResourceManager(ResourceManager[AbstractAsyncResourceT]):
+class CTXResourceManager(ResourceManager[AsyncTransactionalT]):
     def __init__(
         self,
         *,
-        resources: Dict[str, AbstractAsyncResourceT],
+        resources: Dict[str, AsyncTransactionalT],
         ctx_key: CTXKey,
         success: Optional[Callable[..., Any]] = None,
         fail: Optional[Callable[..., Any]] = None,
@@ -99,7 +102,6 @@ class CTXResourceManager(ResourceManager[AbstractAsyncResourceT]):
         self._success = success
         self._fail = fail
         self._error = error if error else SysError
-        ResourceManagerRegistry.register(self)
         super().__init__(resources=resources, **kwargs)
 
         logger.info("Initialized {name}.", name=self.name)
@@ -170,10 +172,6 @@ class CTXResourceManager(ResourceManager[AbstractAsyncResourceT]):
             return CTXVarManager.get(self._ctx_key)
         except LibraryUsageError:
             raise LibraryUsageError(f"Must call {self.name}.use(...) first.") from None
-
-    def client(self, key: str = ConfKey.GROUP_DEFAULT) -> AbstractAsyncResourceT:
-        self._check_key(key)
-        return self._resources[key]
 
     async def health_check(self) -> Dict[str, bool]:
         result = {}

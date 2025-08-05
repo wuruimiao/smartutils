@@ -1,45 +1,45 @@
-from abc import ABC, abstractmethod
 from contextlib import AbstractContextManager
 from typing import Any, AsyncContextManager, Protocol, TypeVar
 
-__all__ = ["AbstractAsyncResource", "AbstractAsyncResourceT"]
+__all__ = [
+    "HealthClosable",
+    "HealthClosableT",
+    "Transactional",
+    "TransactionalT",
+    "AsyncHealthClosable",
+    "AsyncHealthClosableT",
+    "AsyncTransactional",
+    "AsyncTransactionalT",
+]
 
 
-class Closable(Protocol):
+# 同步
+class HealthClosable(Protocol):
     def close(self) -> None: ...
+    def ping(self) -> bool: ...
 
 
-ClosableT = TypeVar("ClosableT", bound=Closable)
+HealthClosableT = TypeVar("HealthClosableT", bound=HealthClosable)
 
 
-class AsyncClosable(Protocol):
-    async def close(self) -> None: ...
-
-
-AsyncClosableT = TypeVar("AsyncClosableT", bound=AsyncClosable)
-
-
-class AbstractAsyncResource(AsyncClosable, ABC):
-    @abstractmethod
-    async def ping(self) -> bool:
-        """健康检查，返回True/False"""
-        ...
-
-    @abstractmethod
-    def db(self, use_transaction: bool) -> AsyncContextManager[Any]: ...
-
-
-AbstractAsyncResourceT = TypeVar("AbstractAsyncResourceT", bound=AbstractAsyncResource)
-
-
-class AbstractSyncResource(Closable, ABC):
-    @abstractmethod
-    def ping(self) -> bool:
-        """健康检查，返回True/False"""
-        ...
-
-    @abstractmethod
+class Transactional(HealthClosable, Protocol):
     def db(self, use_transaction: bool) -> AbstractContextManager[Any]: ...
 
 
-AbstractSyncResourceT = TypeVar("AbstractSyncResourceT", bound=AbstractSyncResource)
+TransactionalT = TypeVar("TransactionalT", bound=Transactional)
+
+
+# 异步
+class AsyncHealthClosable(Protocol):
+    async def close(self) -> None: ...
+    async def ping(self) -> bool: ...
+
+
+AsyncHealthClosableT = TypeVar("AsyncHealthClosableT", bound=AsyncHealthClosable)
+
+
+class AsyncTransactional(AsyncHealthClosable, Protocol):
+    def db(self, use_transaction: bool) -> AsyncContextManager[Any]: ...
+
+
+AsyncTransactionalT = TypeVar("AsyncTransactionalT", bound=AsyncTransactional)
