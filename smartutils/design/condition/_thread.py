@@ -31,3 +31,10 @@ class ThreadCondition(ConditionProtocol):
 
 _proxy_method(ThreadCondition, ["acquire", "release", "wait", "notify", "notify_all"])
 # print(isinstance(ThreadCondition(), ConditionProtocol))
+
+# cond = ThreadCondition()
+# t = threading.Thread(target=lambda: cond.acquire(timeout=3))
+# t.start()
+# print(1111)
+# cond.acquire(timeout=3)
+# t.join()
