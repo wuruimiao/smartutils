@@ -2,7 +2,8 @@ import sys
 from multiprocessing.managers import DictProxy, ListProxy, SyncManager
 from typing import Dict, Iterator, List, Optional, TypeVar, Union
 
-from smartutils.design.container.abstract_pri import MyPriContainer
+from smartutils.design.container.abstract import AbstractContainer
+from smartutils.design.container.abstract_pri import PriContainerProtocol
 from smartutils.design.container.item import PriItemWrap
 from smartutils.error.sys import LibraryUsageError
 from smartutils.log import logger
@@ -10,7 +11,7 @@ from smartutils.log import logger
 T = TypeVar("T")
 
 
-class PriContainerDictList(MyPriContainer[T]):
+class PriContainerDictList(AbstractContainer[T], PriContainerProtocol[T]):
     """
     基于 dict+list 实现的优先级容器，支持如下功能：
         - O(1) 取出/删除优先级最小或最大元素。

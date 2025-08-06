@@ -1,7 +1,5 @@
 from typing import Optional, Protocol, TypeVar, Union, runtime_checkable
 
-from smartutils.design.container.abstract import AbstractContainer
-
 T = TypeVar("T")
 
 
@@ -31,6 +29,3 @@ class PriContainerProtocol(Protocol[T]):
         弹出并返回优先级最大的元素（value）。无元素返回None。
         """
         ...
-
-
-class MyPriContainer(AbstractContainer[T], PriContainerProtocol[T]): ...
