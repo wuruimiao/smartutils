@@ -29,6 +29,9 @@ class AbstractContainer(MyBase, ABC, Generic[T]):
         """
         ...
 
+    @abstractmethod
+    def __len__(self) -> int: ...
+
     def __enter__(self):
         self.check_closed()
         return self
@@ -58,6 +61,9 @@ class AbstractAsyncContainer(MyBase, ABC, Generic[T]):
         关闭容器，容器内元素的关闭应由外部处理
         """
         ...
+
+    @abstractmethod
+    def __len__(self) -> int: ...
 
     async def __aenter__(self):
         self.check_closed()
