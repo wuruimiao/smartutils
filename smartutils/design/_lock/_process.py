@@ -5,7 +5,7 @@ from multiprocessing.managers import SyncManager
 from multiprocessing.synchronize import Condition
 from typing import Optional, Union
 
-from smartutils.design._sync.abstract import ILock
+from smartutils.design._lock.abstract import ILock
 
 
 class ProcessSyncLock(ILock):

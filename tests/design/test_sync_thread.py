@@ -3,7 +3,7 @@ import time
 
 import pytest
 
-from smartutils.design._sync._thread import ThreadSyncLock
+from smartutils.design._lock._thread import ThreadSyncLock
 
 
 def test_thread_lock_basic():

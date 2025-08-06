@@ -2,7 +2,7 @@ import asyncio
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator, Union
 
-from smartutils.design._sync.abstract import IAsyncLock
+from smartutils.design._lock.abstract import IAsyncLock
 
 
 class AsyncioSyncLock(IAsyncLock):

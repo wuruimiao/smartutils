@@ -3,7 +3,7 @@ from __future__ import annotations
 import threading
 from typing import Union
 
-from smartutils.design._sync.abstract import ILock
+from smartutils.design._lock.abstract import ILock
 
 
 class ThreadSyncLock(ILock):

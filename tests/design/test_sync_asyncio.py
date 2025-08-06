@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-from smartutils.design._sync._async import AsyncioSyncLock
+from smartutils.design._lock._async import AsyncioSyncLock
 
 
 async def test_asyncio_lock_basic():
