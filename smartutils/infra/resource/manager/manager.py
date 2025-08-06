@@ -21,7 +21,7 @@ from smartutils.config.const import ConfKey
 from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.design import MyBase
 from smartutils.design.abstract import (
-    AsyncHealthClosableT,
+    AsyncClosableT,
     AsyncTransactionalT,
 )
 from smartutils.error.base import BaseError
@@ -52,11 +52,11 @@ class ResourceManagerRegistry:
             mgr.reset()
 
 
-class ResourceManager(MyBase, Generic[AsyncHealthClosableT], ABC):
+class ResourceManager(MyBase, Generic[AsyncClosableT], ABC):
     def __init__(
         self,
         *,
-        resources: Dict[str, AsyncHealthClosableT],
+        resources: Dict[str, AsyncClosableT],
         **kwargs,
     ):
         self._resources = resources
@@ -72,7 +72,7 @@ class ResourceManager(MyBase, Generic[AsyncHealthClosableT], ABC):
         if key not in self._resources:
             raise LibraryUsageError(f"{self.name} require {key} in config.yaml.")
 
-    def client(self, key: str = ConfKey.GROUP_DEFAULT) -> AsyncHealthClosableT:
+    def client(self, key: str = ConfKey.GROUP_DEFAULT) -> AsyncClosableT:
         self._check_key(key)
         return self._resources[key]
 
@@ -82,12 +82,6 @@ class ResourceManager(MyBase, Generic[AsyncHealthClosableT], ABC):
                 await cli.close()
             except:  # noqa
                 logger.exception(f"{self.name} Failed to close {self} {key}")
-
-    async def health_check(self) -> Dict[str, bool]:
-        result = {}
-        for key, cli in self._resources.items():
-            result[key] = await cli.ping()
-        return result
 
     def reset(self):
         self._resources = {}
@@ -178,3 +172,9 @@ class CTXResourceManager(ResourceManager[AsyncTransactionalT]):
             return CTXVarManager.get(self._ctx_key)
         except LibraryUsageError:
             raise LibraryUsageError(f"Must call {self.name}.use(...) first.") from None
+
+    # async def health_check(self) -> Dict[str, bool]:
+    #     result = {}
+    #     for key, cli in self._resources.items():
+    #         result[key] = await cli.ping()
+    #     return result

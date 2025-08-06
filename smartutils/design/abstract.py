@@ -2,48 +2,71 @@ from contextlib import AbstractContextManager
 from typing import Any, AsyncContextManager, Protocol, TypeVar, runtime_checkable
 
 __all__ = [
-    "HealthClosable",
-    "HealthClosableT",
-    "Transactional",
+    "ClosableProtocol",
+    "HealthCheckProtocol",
+    "HealthCheckClosableProtocol",
+    "TransactionalProtocol",
+    "ClosableT",
     "TransactionalT",
-    "AsyncHealthClosable",
-    "AsyncHealthClosableT",
-    "AsyncTransactional",
+    "AsyncClosableProtocol",
+    "AsyncHealthCheckProtocol",
+    "AsyncHealthCheckClosableProtocol",
+    "AsyncTransactionalProtocol",
+    "AsyncClosableT",
     "AsyncTransactionalT",
 ]
 
 
-# 同步
 @runtime_checkable
-class HealthClosable(Protocol):
+class ClosableProtocol(Protocol):
     def close(self) -> None: ...
+
+
+@runtime_checkable
+class HealthCheckProtocol(Protocol):
     def ping(self) -> bool: ...
 
 
-HealthClosableT = TypeVar("HealthClosableT", bound=HealthClosable)
+@runtime_checkable
+class HealthCheckClosableProtocol(ClosableProtocol, HealthCheckProtocol, Protocol):
+    pass
+
+
+ClosableT = TypeVar("ClosableT", bound=ClosableProtocol)
 
 
 @runtime_checkable
-class Transactional(HealthClosable, Protocol):
+class TransactionalProtocol(ClosableProtocol, Protocol):
     def db(self, use_transaction: bool) -> AbstractContextManager[Any]: ...
 
 
-TransactionalT = TypeVar("TransactionalT", bound=Transactional)
+TransactionalT = TypeVar("TransactionalT", bound=TransactionalProtocol)
 
 
 # 异步
 @runtime_checkable
-class AsyncHealthClosable(Protocol):
+class AsyncClosableProtocol(Protocol):
     async def close(self) -> None: ...
-    async def ping(self) -> bool: ...
-
-
-AsyncHealthClosableT = TypeVar("AsyncHealthClosableT", bound=AsyncHealthClosable)
 
 
 @runtime_checkable
-class AsyncTransactional(AsyncHealthClosable, Protocol):
+class AsyncHealthCheckProtocol(Protocol):
+    async def ping(self) -> bool: ...
+
+
+@runtime_checkable
+class AsyncHealthCheckClosableProtocol(
+    AsyncClosableProtocol, AsyncHealthCheckProtocol, Protocol
+):
+    pass
+
+
+AsyncClosableT = TypeVar("AsyncClosableT", bound=AsyncClosableProtocol)
+
+
+@runtime_checkable
+class AsyncTransactionalProtocol(AsyncClosableProtocol, Protocol):
     def db(self, use_transaction: bool) -> AsyncContextManager[Any]: ...
 
 
-AsyncTransactionalT = TypeVar("AsyncTransactionalT", bound=AsyncTransactional)
+AsyncTransactionalT = TypeVar("AsyncTransactionalT", bound=AsyncTransactionalProtocol)

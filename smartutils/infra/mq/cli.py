@@ -8,7 +8,7 @@ import orjson
 
 from smartutils.config.schema.kafka import KafkaConf
 from smartutils.design import MyBase
-from smartutils.design.abstract import AsyncTransactional
+from smartutils.design.abstract import AsyncTransactionalProtocol
 from smartutils.error.factory import ExcDetailFactory
 from smartutils.error.sys import MQError
 from smartutils.init.mixin import LibraryCheckMixin
@@ -24,7 +24,7 @@ if TYPE_CHECKING:  # pragma: no cover
 __all__ = ["AsyncKafkaCli", "KafkaBatchConsumer"]
 
 
-class AsyncKafkaCli(LibraryCheckMixin, AsyncTransactional):
+class AsyncKafkaCli(LibraryCheckMixin, AsyncTransactionalProtocol):
     def __init__(self, conf: KafkaConf, name: str):
         self.check(conf=conf, libs=["aiokafka"])
 

@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Awaitable, Callable, Dict, Optional, Tuple
 import orjson
 
 from smartutils.config.schema.client import ApiConf, ClientConf
-from smartutils.design.abstract import AsyncTransactional
+from smartutils.design.abstract import AsyncTransactionalProtocol
 from smartutils.infra.client.breaker import Breaker
 from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
@@ -38,7 +38,7 @@ async def mock_response(api_conf: ApiConf, *args, **kwargs) -> Response:
     )
 
 
-class HttpClient(LibraryCheckMixin, AsyncTransactional):
+class HttpClient(LibraryCheckMixin, AsyncTransactionalProtocol):
     def __init__(self, conf: ClientConf, name: str):
         self.check(conf=conf, libs=["httpx"])
 

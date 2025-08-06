@@ -3,10 +3,10 @@ from __future__ import annotations
 import threading
 from typing import Union
 
-from smartutils.design._lock.abstract import ILock
+from smartutils.design._lock.abstract import ConditionProtocol
 
 
-class ThreadSyncLock(ILock):
+class ThreadCondition(ConditionProtocol):
     """
     线程环境专用的同步锁与条件变量实现。
 
@@ -55,7 +55,7 @@ class ThreadSyncLock(ILock):
         """
         self._cond.notify_all()
 
-    def __enter__(self) -> ThreadSyncLock:
+    def __enter__(self) -> ThreadCondition:
         self.acquire(timeout=self._timeout)
         return self
 

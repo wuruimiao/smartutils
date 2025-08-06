@@ -6,7 +6,7 @@ from smartutils.config.const import ConfKey
 from smartutils.config.schema.loguru import LoguruConfig
 from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.design import singleton
-from smartutils.design.abstract import AsyncHealthClosable
+from smartutils.design.abstract import AsyncClosableProtocol
 from smartutils.infra.resource.manager.manager import ResourceManager
 from smartutils.init.factory import InitByConfFactory
 from smartutils.log import logger
@@ -24,7 +24,7 @@ class PrintToLogger:
 
 
 # TODO: 应该使用同步资源标识
-class LoggerCli(AsyncHealthClosable):
+class LoggerCli(AsyncClosableProtocol):
     """loguru.logger线程安全、协程安全"""
 
     def __init__(self, conf: Optional[LoguruConfig] = None, name: str = "logur_cli"):
@@ -79,9 +79,6 @@ class LoggerCli(AsyncHealthClosable):
 
     async def close(self):
         logger.remove()
-
-    async def ping(self) -> bool:
-        return True
 
 
 @singleton

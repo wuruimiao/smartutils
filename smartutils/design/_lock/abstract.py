@@ -4,7 +4,7 @@ from typing import Any, AsyncContextManager, Protocol, Union, runtime_checkable
 
 
 @runtime_checkable
-class ILock(Protocol):
+class ConditionProtocol(Protocol):
     """
     方法说明:
     ---------
@@ -27,13 +27,13 @@ class ILock(Protocol):
 
     def notify_all(self) -> None: ...
 
-    def __enter__(self) -> ILock: ...
+    def __enter__(self) -> ConditionProtocol: ...
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None: ...
 
 
 @runtime_checkable
-class IAsyncLock(Protocol):
+class AsyncConditionProtocol(Protocol):
     """
     异步环境（协程/asyncio）:
     - aacquire(timeout):        异步获取锁

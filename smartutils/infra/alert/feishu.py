@@ -5,7 +5,7 @@ from smartutils.config.const import ConfKey
 from smartutils.config.schema.alert_feishu import AlertFeishuConf
 from smartutils.config.schema.client import ApiConf, ClientConf, ClientType
 from smartutils.design import singleton
-from smartutils.design.abstract import AsyncHealthClosable
+from smartutils.design.abstract import AsyncClosableProtocol
 from smartutils.infra.client.http import HttpClient
 from smartutils.infra.resource.manager.manager import ResourceManager
 from smartutils.init.factory import InitByConfFactory
@@ -14,7 +14,7 @@ from smartutils.log import logger
 from smartutils.time import get_now_str
 
 
-class AlertFeishu(AsyncHealthClosable):
+class AlertFeishu(AsyncClosableProtocol):
     def __init__(self, conf: AlertFeishuConf):
         self._conf = conf
         self._clients = []

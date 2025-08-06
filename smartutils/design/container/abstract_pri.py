@@ -6,7 +6,7 @@ T = TypeVar("T")
 
 
 @runtime_checkable
-class PriContainer(Protocol[T]):
+class PriContainerProtocol(Protocol[T]):
     """
     优先级容器的通用抽象协议。所有外部增删查改均只操作value实例，不暴露任何内部存储结构。
     设计目标：任何put、pop、remove等操作后，value实例的inst_id全生命周期内保持不变。
@@ -33,4 +33,4 @@ class PriContainer(Protocol[T]):
         ...
 
 
-class MyPriContainer(AbstractContainer[T], PriContainer[T]): ...
+class MyPriContainer(AbstractContainer[T], PriContainerProtocol[T]): ...

@@ -2,10 +2,10 @@ import asyncio
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator, Union
 
-from smartutils.design._lock.abstract import IAsyncLock
+from smartutils.design._lock.abstract import AsyncConditionProtocol
 
 
-class AsyncioSyncLock(IAsyncLock):
+class AsyncioCondition(AsyncConditionProtocol):
     """
     基于 asyncio 的协程环境同步锁实现。
     使用 asyncio.Condition 实现互斥锁、条件等待、唤醒、多协程安全。

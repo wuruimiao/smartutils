@@ -3,7 +3,7 @@ import time
 
 import pytest
 
-from smartutils.design._lock._process import ProcessSyncLock
+from smartutils.design._lock._process import ProcessCondition
 
 
 def test_process_lock_basic():
@@ -11,7 +11,7 @@ def test_process_lock_basic():
     ProcessSyncLock多进程功能测试。
     """
     manager = multiprocessing.Manager()
-    lock = ProcessSyncLock(manager=manager)
+    lock = ProcessCondition(manager=manager)
 
     def child(queue):
         ok = lock.acquire(1)
@@ -40,7 +40,7 @@ def test_process_lock_notify():
     多进程条件变量wait/notify。
     """
     manager = multiprocessing.Manager()
-    lock = ProcessSyncLock(manager=manager)
+    lock = ProcessCondition(manager=manager)
     result_q = multiprocessing.Queue()
 
     def waiter_task(q):
@@ -62,7 +62,7 @@ def test_process_lock_notify_all_cover():
     覆盖 ProcessSyncLock.notify_all 的正常路径和错误分支。
     """
     manager = multiprocessing.Manager()
-    lock = ProcessSyncLock(manager=manager)
+    lock = ProcessCondition(manager=manager)
     result_q = multiprocessing.Queue()
 
     def waiter_task(q):
@@ -87,7 +87,7 @@ def test_process_lock_notify_all_cover():
     assert all(result)
 
     # ——异常分支：未持锁直接调用notify_all应抛错（标准库实现为RuntimeError）
-    lock2 = ProcessSyncLock(manager=manager)
+    lock2 = ProcessCondition(manager=manager)
     with pytest.raises(RuntimeError):
         lock2.notify_all()
 
@@ -97,7 +97,7 @@ def test_process_lock_exit_shutdown_cover():
     覆盖ProcessSyncLock自带Manager情况下__exit__分支，即资源回收分支。
     """
     # 不指定manager,让内部自动创建与关闭
-    lock = ProcessSyncLock()
+    lock = ProcessCondition()
     # 模拟 with 执行完关闭
     lock.acquire(0.1)
     lock.__exit__(None, None, None)

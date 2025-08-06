@@ -5,10 +5,10 @@ from multiprocessing.managers import SyncManager
 from multiprocessing.synchronize import Condition
 from typing import Optional, Union
 
-from smartutils.design._lock.abstract import ILock
+from smartutils.design._lock.abstract import ConditionProtocol
 
 
-class ProcessSyncLock(ILock):
+class ProcessCondition(ConditionProtocol):
     """
     适用于多进程环境的同步锁/条件变量实现，基于 multiprocessing.Manager.Condition。
     线程和进程安全。支持互斥锁、阻塞条件等待和唤醒。
@@ -70,7 +70,7 @@ class ProcessSyncLock(ILock):
         """
         self._condition.notify_all()
 
-    def __enter__(self) -> ProcessSyncLock:
+    def __enter__(self) -> ProcessCondition:
         self.acquire(timeout=self._timeout)
         return self
 

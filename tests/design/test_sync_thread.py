@@ -3,14 +3,14 @@ import time
 
 import pytest
 
-from smartutils.design._lock._thread import ThreadSyncLock
+from smartutils.design._lock._thread import ThreadCondition
 
 
 def test_thread_lock_basic():
     """
     ThreadSyncLock基本功能测试：加锁、超时、wait/notify。
     """
-    lock = ThreadSyncLock()
+    lock = ThreadCondition()
     result = []
 
     def worker():
@@ -46,7 +46,7 @@ def test_thread_lock_basic():
 
 
 def test_thread_lock_notify_all_cover():
-    lock = ThreadSyncLock()
+    lock = ThreadCondition()
     data = {}
 
     def waiter():
@@ -63,7 +63,7 @@ def test_thread_lock_notify_all_cover():
     assert data["ret"] is True
 
     # 覆盖未持锁直接调用 notify_all 时的异常分支
-    lock2 = ThreadSyncLock()
+    lock2 = ThreadCondition()
     with pytest.raises(RuntimeError):
         lock2.notify_all()
 
@@ -72,7 +72,7 @@ def test_thread_lock_timeout():
     """
     加锁超时：先获得锁不释放，然后尝试再次acquire应超时返回False。
     """
-    lock = ThreadSyncLock()
+    lock = ThreadCondition()
     assert lock.acquire(0.5)
     t1 = threading.Thread(target=lambda: lock.acquire(0.3))
     t1.start()
@@ -81,6 +81,6 @@ def test_thread_lock_timeout():
 
 
 def test_thread_lock_exit_without_acquire():
-    lock = ThreadSyncLock()
+    lock = ThreadCondition()
     with pytest.raises(RuntimeError):
         lock.__exit__(None, None, None)

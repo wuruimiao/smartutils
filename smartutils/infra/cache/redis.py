@@ -8,7 +8,7 @@ from smartutils.config.const import ConfKey
 from smartutils.config.schema.redis import RedisConf
 from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.design import singleton
-from smartutils.design.abstract import AsyncTransactional
+from smartutils.design.abstract import AsyncTransactionalProtocol
 from smartutils.error.factory import ExcDetailFactory
 from smartutils.error.sys import CacheError
 from smartutils.infra.resource.manager.manager import CTXResourceManager
@@ -27,7 +27,7 @@ if TYPE_CHECKING:  # pragma: no cover
 __all__ = ["AsyncRedisCli", "RedisManager"]
 
 
-class AsyncRedisCli(LibraryCheckMixin, AsyncTransactional):
+class AsyncRedisCli(LibraryCheckMixin, AsyncTransactionalProtocol):
     """异步 Redis 客户端封装，线程安全、协程安全。"""
 
     def __init__(self, conf: RedisConf, name: str):

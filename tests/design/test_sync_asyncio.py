@@ -2,14 +2,14 @@ import asyncio
 
 import pytest
 
-from smartutils.design._lock._async import AsyncioSyncLock
+from smartutils.design._lock._async import AsyncioCondition
 
 
 async def test_asyncio_lock_basic():
     """
     AsyncioSyncLock基本加锁/超时/condition测试。
     """
-    lock = AsyncioSyncLock()
+    lock = AsyncioCondition()
     assert await lock.aacquire(1)
     await lock.arelease()
 
@@ -32,7 +32,7 @@ async def test_asyncio_a_wait_timeout():
     """
     AsyncioSyncLock：wait超时分支。
     """
-    lock = AsyncioSyncLock()
+    lock = AsyncioCondition()
     async with lock.acontext():
         ok = await lock.a_wait(0.01)
         assert ok is False
@@ -42,14 +42,14 @@ async def test_asyncio_acquire_timeout():
     """
     AsyncioSyncLock：wait超时分支。
     """
-    lock = AsyncioSyncLock()
+    lock = AsyncioCondition()
     async with lock.acontext():
         ok = await lock.aacquire(0.01)
         assert ok is False
 
 
 async def test_asyncio_lock_notify_and_notify_all_cover():
-    lock = AsyncioSyncLock()
+    lock = AsyncioCondition()
     # notify/notify_all 在未持有锁时会引发RuntimeError
     with pytest.raises(RuntimeError):
         await lock.anotify()
@@ -58,7 +58,7 @@ async def test_asyncio_lock_notify_and_notify_all_cover():
 
 
 async def test_asyncio_lock_acontext_finally_cover():
-    lock = AsyncioSyncLock()
+    lock = AsyncioCondition()
 
     class MyError(Exception):
         pass

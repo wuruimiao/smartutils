@@ -7,7 +7,7 @@ from functools import partial
 from typing import TYPE_CHECKING, Awaitable, Callable, Optional
 
 from smartutils.config.schema.client import ClientConf
-from smartutils.design.abstract import AsyncTransactional
+from smartutils.design.abstract import AsyncTransactionalProtocol
 from smartutils.infra.client.breaker import Breaker
 from smartutils.init.mixin import LibraryCheckMixin
 
@@ -35,7 +35,7 @@ def only_grpc_unavailable_or_timeout(exc):
     return True
 
 
-class GrpcClient(LibraryCheckMixin, AsyncTransactional):
+class GrpcClient(LibraryCheckMixin, AsyncTransactionalProtocol):
     def __init__(self, conf: ClientConf, name: str):
         self.check(conf=conf, libs=["grpc"])
 

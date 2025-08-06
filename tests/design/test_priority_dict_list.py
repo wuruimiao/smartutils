@@ -3,7 +3,7 @@ from multiprocessing import Manager
 import pytest
 
 from smartutils.design.container.abstract_pri import (
-    PriContainer,
+    PriContainerProtocol,
 )
 from smartutils.design.container.item import PriItemWrap
 from smartutils.design.container.pri_dict_list import PriContainerDictList
@@ -18,12 +18,12 @@ def container(request):
     proc_manager = None
     if request.param is None:
         c = PriContainerDictList()
-        assert isinstance(c, PriContainer)
+        assert isinstance(c, PriContainerProtocol)
         yield c
     else:
         proc_manager = Manager()
         c = PriContainerDictList(manager=proc_manager)
-        assert isinstance(c, PriContainer)
+        assert isinstance(c, PriContainerProtocol)
         yield c
         proc_manager.shutdown()
 
@@ -36,12 +36,12 @@ def reuse_container(request):
     proc_manager = None
     if request.param is None:
         c = PriContainerDictList(reuse=True)
-        assert isinstance(c, PriContainer)
+        assert isinstance(c, PriContainerProtocol)
         yield c
     else:
         proc_manager = Manager()
         c = PriContainerDictList(manager=proc_manager, reuse=True)
-        assert isinstance(c, PriContainer)
+        assert isinstance(c, PriContainerProtocol)
         yield c
         proc_manager.shutdown()
 
