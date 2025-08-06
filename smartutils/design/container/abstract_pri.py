@@ -13,7 +13,7 @@ class PriContainer(Protocol[T]):
     子类实现内部应以PriorityItemWrap为唯一挂载元素。
     """
 
-    def put(self, value: T, priority: Union[float, int]):
+    def push(self, value: T, priority: Union[float, int]):
         """
         :param value: 任意对象，只要其可正确哈希。
         :param priority: 优先级。数值越小，优先级越高。

@@ -47,11 +47,11 @@ def reuse_container(request):
 
 
 def test_put_and_len(container):
-    container.put("v1", 10)
+    container.push("v1", 10)
     assert len(container) == 1
-    container.put("v2", 5)
+    container.push("v2", 5)
     assert len(container) == 2
-    container.put("v3", 10)
+    container.push("v3", 10)
     assert len(container) == 3
 
     assert "v1" in container
@@ -66,11 +66,11 @@ def test_put_and_len(container):
 
 def test_with_auto_close():
     with PriContainerDictList() as container:
-        container.put("v1", 10)
+        container.push("v1", 10)
         assert len(container) == 1
-        container.put("v2", 5)
+        container.push("v2", 5)
         assert len(container) == 2
-        container.put("v3", 10)
+        container.push("v3", 10)
         assert len(container) == 3
 
         assert "v1" in container
@@ -87,7 +87,7 @@ def test_with_auto_close():
 
 def test_pop_min_max(container):
     v = [("a", 5), ("b", 1), ("c", 10)]
-    [container.put(val, pri) for val, pri in v]
+    [container.push(val, pri) for val, pri in v]
     # 先2,0,1输入
     pop_val = container.pop_min()
     # 最小优先级是1，对应"b"
@@ -102,16 +102,36 @@ def test_pop_min_max(container):
     assert container.pop_max() is None
 
 
+def test_get(container):
+    v = [("a", 5), ("b", 1), ("c", 10)]
+    [container.push(val, pri) for val, pri in v]
+    pop_val = container.get()
+    # 最大优先级是"c"
+    assert pop_val == "c"
+    # 最大优先级是"a"
+    pop_val = container.get()
+    assert pop_val == "a"
+    assert container.pop_min() == "b"
+    assert container.pop_max() is None
+
+
+def test_put(container):
+    container.put("a")
+    container.put("b")
+    container.put("c")
+    assert len(container) == 3
+
+
 def test_cant_remove(container):
     with pytest.raises(LibraryUsageError) as e:
-        container.put("valx", 5)
+        container.push("valx", 5)
         container.remove("valx")
     assert str(e.value) == "[PriContainerDictList] not in reuse mode, cant remove."
 
 
 def test_repeated_priority(container):
     # 同一优先级多数据，应LIFO弹出
-    [container.put(f"x{i}", 7) for i in range(3)]
+    [container.push(f"x{i}", 7) for i in range(3)]
     pop1 = container.pop_min()
     pop2 = container.pop_min()
     pop3 = container.pop_min()
@@ -134,21 +154,21 @@ def test_priority_item_str():
 
 
 def test_remove(reuse_container):
-    reuse_container.put("valx", 5)
+    reuse_container.push("valx", 5)
     assert reuse_container.remove("valx") == "valx"
     assert reuse_container.pop_max() is None
     assert reuse_container.remove("valx") is None
 
 
 def test_pop_max(reuse_container):
-    reuse_container.put("valx", 5)
+    reuse_container.push("valx", 5)
     assert "valx" in reuse_container
     assert reuse_container.pop_max() == "valx"
     assert reuse_container.pop_max() is None
 
 
 def test_pri_dict_list_close(container):
-    container.put(1, 2)
+    container.push(1, 2)
     assert container.close() == [1]
     assert len(container) == 0
 

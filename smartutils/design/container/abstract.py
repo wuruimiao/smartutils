@@ -44,6 +44,20 @@ class _AbstractContainerBase(MyBase, ABC, Generic[T]):
 
 class AbstractContainer(_AbstractContainerBase[T]):
     @abstractmethod
+    def put(self, value: T):
+        """
+        :param value: 任意对象，只要其可正确哈希。
+        """
+        ...
+
+    @abstractmethod
+    def get(self) -> Optional[T]:
+        """
+        弹出元素（即value），若无元素则返回None。
+        """
+        ...
+
+    @abstractmethod
     def close(self) -> List[T]:
         """
         关闭容器，容器内元素的关闭应由外部处理
@@ -66,6 +80,20 @@ class AbstractContainer(_AbstractContainerBase[T]):
 
 
 class AbstractAsyncContainer(_AbstractContainerBase[T]):
+    @abstractmethod
+    async def put(self, value: T):
+        """
+        :param value: 任意对象，只要其可正确哈希。
+        """
+        ...
+
+    @abstractmethod
+    async def get(self) -> Optional[T]:
+        """
+        弹出元素（即value），若无元素则返回None。
+        """
+        ...
+
     @abstractmethod
     async def close(self) -> List[T]:
         """

@@ -1,3 +1,4 @@
+import sys
 from multiprocessing.managers import DictProxy, ListProxy, SyncManager
 from typing import Dict, Iterator, List, Optional, TypeVar, Union
 
@@ -47,6 +48,12 @@ class PriContainerDictList(MyPriContainer[T]):
 
         super().__init__()
 
+    def put(self, value: T):
+        self.push(value, sys.maxsize)
+
+    def get(self) -> Optional[T]:
+        return self.pop_max()
+
     def _add_priority(self, priority: Union[float, int]) -> None:
         """
         为指定优先级新增一条空列表，自动判断是否用 manager.list()
@@ -56,7 +63,7 @@ class PriContainerDictList(MyPriContainer[T]):
         else:
             self._pri_ids_map[priority] = []
 
-    def put(self, value: T, priority: Union[float, int]):
+    def push(self, value: T, priority: Union[float, int]):
         self.check_closed()
 
         if priority not in self._pri_ids_map:
