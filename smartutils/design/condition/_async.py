@@ -1,79 +1,39 @@
 import asyncio
-from contextlib import asynccontextmanager
-from typing import AsyncGenerator, Union
+from typing import Union
 
-from smartutils.design.condition.abstract import AsyncConditionProtocol
+from smartutils.design.condition.abstract import AsyncConditionProtocol, _proxy_method
 
 
 class AsyncioCondition(AsyncConditionProtocol):
-    """
-    基于 asyncio 的协程环境同步锁实现。
-    使用 asyncio.Condition 实现互斥锁、条件等待、唤醒、多协程安全。
-
-    安全说明：
-    ---------------
-    - 仅适用于 asyncio 事件循环环境。
-    - 支持并发多协程安全，适合 async 生产者-消费者、信号量、队列等场景。
-    - 所有超时参数 timeout 必须指定，单位为秒，支持 float/int。
-    - 不建议与多线程/多进程同步原语混用。
-    """
-
-    def __init__(self, timeout: Union[float, int] = 60 * 60 * 1) -> None:
-        self._lock = asyncio.Lock()
-        self._cond = asyncio.Condition(self._lock)
+    def __init__(self, timeout: Union[float, int] = 30 * 60) -> None:
         self._timeout = timeout
+        self._cond = asyncio.Condition()
+        super().__init__()
 
-    async def aacquire(self, timeout: Union[float, int]) -> bool:
-        """
-        异步方式获取锁，支持超时。
-        :param timeout: 超时时间（秒），float 或 int。
-        :return: 成功返回 True，超时返回 False。
-        """
+    async def acquire(self, *, timeout: Union[float, int]) -> bool:
         try:
             await asyncio.wait_for(self._cond.acquire(), timeout)
             return True
         except asyncio.TimeoutError:
             return False
 
-    async def arelease(self) -> None:
-        """
-        异步释放锁，仅限在已持有锁情况下调用。
-        """
-        self._cond.release()
-
-    async def a_wait(self, timeout: Union[float, int]) -> bool:
-        """
-        异步条件等待，支持超时。
-        :param timeout: 最长等待秒数。
-        :return: 被唤醒则 True，超时则 False。
-        """
+    async def wait(self, *, timeout: Union[float, int]) -> bool:
         try:
             await asyncio.wait_for(self._cond.wait(), timeout)
             return True
         except asyncio.TimeoutError:
             return False
 
-    async def anotify(self, n: int = 1) -> None:
-        """
-        唤醒等待队列中的 n 个协程。
-        :param n: 唤醒数量。
-        """
-        self._cond.notify(n)
+    async def __aenter__(self):
+        await self.acquire(timeout=self._timeout)
 
-    async def anotify_all(self) -> None:
-        """
-        唤醒所有等待队列中的协程。
-        """
-        self._cond.notify_all()
+    async def __aexit__(self, exc_type, exc, tb):
+        self._cond.release()
 
-    @asynccontextmanager
-    async def acontext(self) -> AsyncGenerator[None, None]:
-        """
-        异步上下文管理器，用于 async with。
-        自动加锁/解锁。
-        """
-        await self.aacquire(timeout=self._timeout)
-        try:
-            yield
-        finally:
-            await self.arelease()
+    def release(self) -> None: ...
+    def notify(self, n: int = 1) -> None: ...
+    def notify_all(self) -> None: ...
+
+
+_proxy_method(AsyncioCondition, ["release", "notify", "notify_all"])
+# print(isinstance(AsyncioCondition(), AsyncConditionProtocol))

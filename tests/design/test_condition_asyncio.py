@@ -10,20 +10,20 @@ async def test_asyncio_lock_basic():
     AsyncioSyncLock基本加锁/超时/condition测试。
     """
     lock = AsyncioCondition()
-    assert await lock.aacquire(1)
-    await lock.arelease()
+    assert await lock.acquire(timeout=1)
+    lock.release()
 
     result = {}
 
     async def waiter():
-        async with lock.acontext():
-            ret = await lock.a_wait(0.5)
+        async with lock:
+            ret = await lock.wait(timeout=0.5)
             result["got"] = ret
 
     w = asyncio.create_task(waiter())
     await asyncio.sleep(0.1)
-    async with lock.acontext():
-        await lock.anotify()
+    async with lock:
+        lock.notify()
     await w
     assert result["got"] is True
 
@@ -33,8 +33,8 @@ async def test_asyncio_a_wait_timeout():
     AsyncioSyncLock：wait超时分支。
     """
     lock = AsyncioCondition()
-    async with lock.acontext():
-        ok = await lock.a_wait(0.01)
+    async with lock:
+        ok = await lock.wait(timeout=0.01)
         assert ok is False
 
 
@@ -43,8 +43,8 @@ async def test_asyncio_acquire_timeout():
     AsyncioSyncLock：wait超时分支。
     """
     lock = AsyncioCondition()
-    async with lock.acontext():
-        ok = await lock.aacquire(0.01)
+    async with lock:
+        ok = await lock.acquire(timeout=0.01)
         assert ok is False
 
 
@@ -52,9 +52,9 @@ async def test_asyncio_lock_notify_and_notify_all_cover():
     lock = AsyncioCondition()
     # notify/notify_all 在未持有锁时会引发RuntimeError
     with pytest.raises(RuntimeError):
-        await lock.anotify()
+        lock.notify()
     with pytest.raises(RuntimeError):
-        await lock.anotify_all()
+        lock.notify_all()
 
 
 async def test_asyncio_lock_acontext_finally_cover():
@@ -64,5 +64,5 @@ async def test_asyncio_lock_acontext_finally_cover():
         pass
 
     with pytest.raises(MyError):
-        async with lock.acontext():
+        async with lock:
             raise MyError("cover finally branch")

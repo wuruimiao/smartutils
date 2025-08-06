@@ -14,7 +14,7 @@ def test_process_lock_basic():
     lock = ProcessCondition(manager=manager)
 
     def child(queue):
-        ok = lock.acquire(1)
+        ok = lock.acquire(timeout=1)
         if ok:
             queue.put("child-lock")
             time.sleep(1)  # hold the lock a bit
@@ -25,12 +25,12 @@ def test_process_lock_basic():
     p.start()
     # 等待子进程持锁，然后主进程尝试acquire，会等待
     time.sleep(0.1)
-    got = lock.acquire(0.5)
+    got = lock.acquire(timeout=0.5)
     assert not got  # 应超时
     # 释放
     p.join()
     # 再次acquire应能拿到
-    assert lock.acquire(1)
+    assert lock.acquire(timeout=1)
     lock.release()
     assert result_q.get() == "child-lock"
 
@@ -45,7 +45,7 @@ def test_process_lock_notify():
 
     def waiter_task(q):
         with lock:
-            ok = lock.wait(0.5)
+            ok = lock.wait(timeout=0.5)
             q.put(ok)
 
     waiter = multiprocessing.Process(target=waiter_task, args=(result_q,))
@@ -67,7 +67,7 @@ def test_process_lock_notify_all_cover():
 
     def waiter_task(q):
         with lock:
-            ok = lock.wait(0.5)
+            ok = lock.wait(timeout=0.5)
             q.put(ok)
 
     # 一次性唤醒所有等待者
@@ -79,7 +79,7 @@ def test_process_lock_notify_all_cover():
 
     with lock:
         # 多进程环境下，wait的测试无法统计，在这里覆盖下
-        assert not lock.wait(0.1)
+        assert not lock.wait(timeout=0.1)
         lock.notify_all()
     for w in waiters:
         w.join()
@@ -99,5 +99,5 @@ def test_process_lock_exit_shutdown_cover():
     # 不指定manager,让内部自动创建与关闭
     lock = ProcessCondition()
     # 模拟 with 执行完关闭
-    lock.acquire(0.1)
+    lock.acquire(timeout=0.1)
     lock.__exit__(None, None, None)

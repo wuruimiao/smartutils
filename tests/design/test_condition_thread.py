@@ -73,8 +73,8 @@ def test_thread_lock_timeout():
     加锁超时：先获得锁不释放，然后尝试再次acquire应超时返回False。
     """
     lock = ThreadCondition()
-    assert lock.acquire(0.5)
-    t1 = threading.Thread(target=lambda: lock.acquire(0.3))
+    assert lock.acquire(timeout=0.5)
+    t1 = threading.Thread(target=lambda: lock.acquire(timeout=0.3))
     t1.start()
     t1.join()
     lock.release()
