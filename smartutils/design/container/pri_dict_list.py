@@ -1,10 +1,7 @@
 from multiprocessing.managers import DictProxy, ListProxy, SyncManager
-from typing import Dict, List, Optional, TypeVar, Union
+from typing import Dict, Iterator, List, Optional, TypeVar, Union
 
-from smartutils.design.container.abstract import (
-    AbstractContainer,
-)
-from smartutils.design.container.abstract_pri import PriContainer
+from smartutils.design.container.abstract_pri import MyPriContainer
 from smartutils.design.container.item import PriItemWrap
 from smartutils.error.sys import LibraryUsageError
 from smartutils.log import logger
@@ -12,7 +9,7 @@ from smartutils.log import logger
 T = TypeVar("T")
 
 
-class PriContainerDictList(AbstractContainer, PriContainer[T]):
+class PriContainerDictList(MyPriContainer[T]):
     """
     基于 dict+list 实现的优先级容器，支持如下功能：
         - O(1) 取出/删除优先级最小或最大元素。
@@ -60,13 +57,6 @@ class PriContainerDictList(AbstractContainer, PriContainer[T]):
             self._pri_ids_map[priority] = []
 
     def put(self, value: T, priority: Union[float, int]):
-        """
-        添加一个元素
-
-        参数：
-            priority: 定义元素优先级，优先级数字越小，优先级越高。
-            value: 元素本身。
-        """
         self.check_closed()
 
         if priority not in self._pri_ids_map:
@@ -118,27 +108,16 @@ class PriContainerDictList(AbstractContainer, PriContainer[T]):
         return item.value
 
     def pop_min(self) -> Optional[T]:
-        """
-        取出并删除优先级最小的实例。
-        """
         self.check_closed()
 
         return self._pop_end(True)
 
     def pop_max(self) -> Optional[T]:
-        """
-        取出并删除优先级最大的实例。
-        """
         self.check_closed()
 
         return self._pop_end(False)
 
     def remove(self, value: T) -> Optional[T]:
-        """
-        删除对象。
-        返回：
-            被删除的实例对象；未找到返回None。
-        """
         self.check_closed()
 
         if not self._reuse:
@@ -176,7 +155,14 @@ class PriContainerDictList(AbstractContainer, PriContainer[T]):
         return items
 
     def __len__(self) -> int:
-        """
-        获取容器内元素数量。
-        """
         return len(self._id_item_map)
+
+    def __contains__(self, item: T) -> bool:
+        if self._reuse:
+            return item in self._value2id
+        else:
+            return any(iw.value == item for iw in self._id_item_map.values())
+
+    def __iter__(self) -> Iterator[T]:
+        for item in self._id_item_map.values():
+            yield item.value

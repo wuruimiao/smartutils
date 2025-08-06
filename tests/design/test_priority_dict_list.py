@@ -47,12 +47,42 @@ def reuse_container(request):
 
 
 def test_put_and_len(container):
-    container.put(10, "v1")
+    container.put("v1", 10)
     assert len(container) == 1
-    container.put(5, "v2")
+    container.put("v2", 5)
     assert len(container) == 2
-    container.put(10, "v3")
+    container.put("v3", 10)
     assert len(container) == 3
+
+    assert "v1" in container
+    assert "v2" in container
+    assert "v3" in container
+
+    assert container.is_empty() is False
+
+    for value in container:
+        assert value in {"v1", "v2", "v3"}
+
+
+def test_with_auto_close():
+    with PriContainerDictList() as container:
+        container.put("v1", 10)
+        assert len(container) == 1
+        container.put("v2", 5)
+        assert len(container) == 2
+        container.put("v3", 10)
+        assert len(container) == 3
+
+        assert "v1" in container
+        assert "v2" in container
+        assert "v3" in container
+
+        assert container.is_empty() is False
+
+        for value in container:
+            assert value in {"v1", "v2", "v3"}
+
+    assert container.is_empty() is True
 
 
 def test_pop_min_max(container):
@@ -112,12 +142,13 @@ def test_remove(reuse_container):
 
 def test_pop_max(reuse_container):
     reuse_container.put("valx", 5)
+    assert "valx" in reuse_container
     assert reuse_container.pop_max() == "valx"
     assert reuse_container.pop_max() is None
 
 
 def test_pri_dict_list_close(container):
-    container.put(1, 1)
+    container.put(1, 2)
     assert container.close() == [1]
     assert len(container) == 0
 
