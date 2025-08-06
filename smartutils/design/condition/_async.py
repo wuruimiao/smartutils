@@ -2,7 +2,7 @@ import asyncio
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator, Union
 
-from smartutils.design._lock.abstract import AsyncConditionProtocol
+from smartutils.design.condition.abstract import AsyncConditionProtocol
 
 
 class AsyncioCondition(AsyncConditionProtocol):

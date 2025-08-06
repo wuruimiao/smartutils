@@ -3,7 +3,7 @@ import time
 
 import pytest
 
-from smartutils.design._lock._process import ProcessCondition
+from smartutils.design.condition._process import ProcessCondition
 
 
 def test_process_lock_basic():

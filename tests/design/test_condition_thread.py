@@ -3,7 +3,7 @@ import time
 
 import pytest
 
-from smartutils.design._lock._thread import ThreadCondition
+from smartutils.design.condition._thread import ThreadCondition
 
 
 def test_thread_lock_basic():

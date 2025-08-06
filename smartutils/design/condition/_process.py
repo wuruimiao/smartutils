@@ -5,7 +5,7 @@ from multiprocessing.managers import SyncManager
 from multiprocessing.synchronize import Condition
 from typing import Optional, Union
 
-from smartutils.design._lock.abstract import ConditionProtocol
+from smartutils.design.condition.abstract import ConditionProtocol
 
 
 class ProcessCondition(ConditionProtocol):

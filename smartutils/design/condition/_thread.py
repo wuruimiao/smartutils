@@ -3,7 +3,7 @@ from __future__ import annotations
 import threading
 from typing import Union
 
-from smartutils.design._lock.abstract import ConditionProtocol
+from smartutils.design.condition.abstract import ConditionProtocol
 
 
 class ThreadCondition(ConditionProtocol):
