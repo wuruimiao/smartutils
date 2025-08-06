@@ -4,7 +4,7 @@ from typing import Any, AsyncContextManager, Protocol, Union, runtime_checkable
 
 
 @runtime_checkable
-class ISyncLock(Protocol):
+class ILock(Protocol):
     """
     方法说明:
     ---------
@@ -15,14 +15,6 @@ class ISyncLock(Protocol):
         - notify(n):      唤醒n个等待者
         - notify_all():   唤醒所有等待者
         - with 上下文管理器
-
-    异步环境（协程/asyncio）:
-        - aacquire(timeout):        异步获取锁
-        - arelease():              异步释放锁
-        - a_wait(timeout):     条件异步等待
-        - anotify(n):         唤醒n个协程
-        - anotify_all():      唤醒全部协程
-        - async with 上下文管理器
     """
 
     def acquire(self, timeout: Union[float, int]) -> bool: ...
@@ -35,9 +27,22 @@ class ISyncLock(Protocol):
 
     def notify_all(self) -> None: ...
 
-    def __enter__(self) -> ISyncLock: ...
+    def __enter__(self) -> ILock: ...
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None: ...
+
+
+@runtime_checkable
+class IAsyncLock(Protocol):
+    """
+    异步环境（协程/asyncio）:
+    - aacquire(timeout):        异步获取锁
+    - arelease():              异步释放锁
+    - a_wait(timeout):     条件异步等待
+    - anotify(n):         唤醒n个协程
+    - anotify_all():      唤醒全部协程
+    - async with 上下文管理器
+    """
 
     async def aacquire(self, timeout: Union[float, int]) -> bool: ...
 

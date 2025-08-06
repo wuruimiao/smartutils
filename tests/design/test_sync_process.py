@@ -4,7 +4,6 @@ import time
 import pytest
 
 from smartutils.design._sync._process import ProcessSyncLock
-from smartutils.error.sys import LibraryUsageError
 
 
 def test_process_lock_basic():
@@ -102,49 +101,3 @@ def test_process_lock_exit_shutdown_cover():
     # 模拟 with 执行完关闭
     lock.acquire(0.1)
     lock.__exit__(None, None, None)
-
-
-async def test_process_sync_lock_wrong_usage_async():
-    manager = multiprocessing.Manager()
-    lock = ProcessSyncLock(manager=manager)
-    with pytest.raises(LibraryUsageError) as e:
-        await lock.aacquire(1)
-    assert (
-        str(e.value)
-        == "ProcessSyncLock does not support coroutine/asynchronous interfaces."
-    )
-
-    with pytest.raises(LibraryUsageError) as e:
-        await lock.arelease()
-    assert (
-        str(e.value)
-        == "ProcessSyncLock does not support coroutine/asynchronous interfaces."
-    )
-
-    with pytest.raises(LibraryUsageError) as e:
-        await lock.a_wait(1)
-    assert (
-        str(e.value)
-        == "ProcessSyncLock does not support coroutine/asynchronous interfaces."
-    )
-
-    with pytest.raises(LibraryUsageError) as e:
-        await lock.anotify(1)
-    assert (
-        str(e.value)
-        == "ProcessSyncLock does not support coroutine/asynchronous interfaces."
-    )
-
-    with pytest.raises(LibraryUsageError) as e:
-        await lock.anotify_all()
-    assert (
-        str(e.value)
-        == "ProcessSyncLock does not support coroutine/asynchronous interfaces."
-    )
-
-    with pytest.raises(LibraryUsageError) as e:
-        lock.acontext()
-    assert (
-        str(e.value)
-        == "ProcessSyncLock does not support coroutine/asynchronous interfaces."
-    )

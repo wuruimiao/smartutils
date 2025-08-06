@@ -2,11 +2,10 @@ import asyncio
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator, Union
 
-from smartutils.design._sync.abstract import ISyncLock
-from smartutils.error.sys import LibraryUsageError
+from smartutils.design._sync.abstract import IAsyncLock
 
 
-class AsyncioSyncLock(ISyncLock):
+class AsyncioSyncLock(IAsyncLock):
     """
     基于 asyncio 的协程环境同步锁实现。
     使用 asyncio.Condition 实现互斥锁、条件等待、唤醒、多协程安全。
@@ -78,35 +77,3 @@ class AsyncioSyncLock(ISyncLock):
             yield
         finally:
             await self.arelease()
-
-    # ===== 以下为同步接口，协程环境下均不支持，抛 LibraryUsageError =====
-    def acquire(self, timeout: Union[float, int]) -> bool:
-        raise LibraryUsageError(
-            "Only asynchronous interface is supported, please use aacquire."
-        )
-
-    def release(self) -> None:
-        raise LibraryUsageError(
-            "Only asynchronous interface is supported, please use arelease."
-        )
-
-    def wait(self, timeout: Union[float, int]) -> bool:
-        raise LibraryUsageError(
-            "Only asynchronous interface is supported, please use a_wait."
-        )
-
-    def notify(self, n: int = 1) -> None:
-        raise LibraryUsageError(
-            "Only asynchronous interface is supported, please use anotify."
-        )
-
-    def notify_all(self) -> None:
-        raise LibraryUsageError(
-            "Only asynchronous interface is supported, please use anotify_all."
-        )
-
-    def __enter__(self):
-        raise LibraryUsageError("Please use 'async with' in asyncio environment.")
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        raise LibraryUsageError("Please use 'async with' in asyncio environment.")

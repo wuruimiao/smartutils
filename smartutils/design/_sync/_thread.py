@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 import threading
-from typing import AsyncContextManager, Union
+from typing import Union
 
-from smartutils.design._sync.abstract import ISyncLock
-from smartutils.error.sys import LibraryUsageError
+from smartutils.design._sync.abstract import ILock
 
 
-class ThreadSyncLock(ISyncLock):
+class ThreadSyncLock(ILock):
     """
     线程环境专用的同步锁与条件变量实现。
 
@@ -62,34 +61,3 @@ class ThreadSyncLock(ISyncLock):
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         self.release()
-
-    # ==== 以下异步接口全部抛异常，提示请勿错用 ====
-    async def aacquire(self, timeout: float | int) -> bool:
-        raise LibraryUsageError(
-            "ThreadSyncLock does not support coroutine/asynchronous interfaces."
-        )
-
-    async def arelease(self) -> None:
-        raise LibraryUsageError(
-            "ThreadSyncLock does not support coroutine/asynchronous interfaces."
-        )
-
-    async def a_wait(self, timeout: float | int) -> bool:
-        raise LibraryUsageError(
-            "ThreadSyncLock does not support coroutine/asynchronous interfaces."
-        )
-
-    async def anotify(self, n: int = 1) -> None:
-        raise LibraryUsageError(
-            "ThreadSyncLock does not support coroutine/asynchronous interfaces."
-        )
-
-    async def anotify_all(self) -> None:
-        raise LibraryUsageError(
-            "ThreadSyncLock does not support coroutine/asynchronous interfaces."
-        )
-
-    def acontext(self) -> AsyncContextManager[None]:
-        raise LibraryUsageError(
-            "ThreadSyncLock does not support coroutine/asynchronous interfaces."
-        )

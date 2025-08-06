@@ -4,7 +4,6 @@ import time
 import pytest
 
 from smartutils.design._sync._thread import ThreadSyncLock
-from smartutils.error.sys import LibraryUsageError
 
 
 def test_thread_lock_basic():
@@ -85,48 +84,3 @@ def test_thread_lock_exit_without_acquire():
     lock = ThreadSyncLock()
     with pytest.raises(RuntimeError):
         lock.__exit__(None, None, None)
-
-
-async def test_thread_sync_lock_wrong_usage_async():
-    lock = ThreadSyncLock()
-    with pytest.raises(LibraryUsageError) as e:
-        await lock.aacquire(1)
-    assert (
-        str(e.value)
-        == "ThreadSyncLock does not support coroutine/asynchronous interfaces."
-    )
-
-    with pytest.raises(LibraryUsageError) as e:
-        await lock.arelease()
-    assert (
-        str(e.value)
-        == "ThreadSyncLock does not support coroutine/asynchronous interfaces."
-    )
-
-    with pytest.raises(LibraryUsageError) as e:
-        await lock.a_wait(1)
-    assert (
-        str(e.value)
-        == "ThreadSyncLock does not support coroutine/asynchronous interfaces."
-    )
-
-    with pytest.raises(LibraryUsageError) as e:
-        await lock.anotify(1)
-    assert (
-        str(e.value)
-        == "ThreadSyncLock does not support coroutine/asynchronous interfaces."
-    )
-
-    with pytest.raises(LibraryUsageError) as e:
-        await lock.anotify_all()
-    assert (
-        str(e.value)
-        == "ThreadSyncLock does not support coroutine/asynchronous interfaces."
-    )
-
-    with pytest.raises(LibraryUsageError) as e:
-        lock.acontext()
-    assert (
-        str(e.value)
-        == "ThreadSyncLock does not support coroutine/asynchronous interfaces."
-    )

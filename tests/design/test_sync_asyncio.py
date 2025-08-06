@@ -3,7 +3,6 @@ import asyncio
 import pytest
 
 from smartutils.design._sync._async import AsyncioSyncLock
-from smartutils.error.sys import LibraryUsageError
 
 
 async def test_asyncio_lock_basic():
@@ -67,46 +66,3 @@ async def test_asyncio_lock_acontext_finally_cover():
     with pytest.raises(MyError):
         async with lock.acontext():
             raise MyError("cover finally branch")
-
-
-async def test_asyncio_sync_lock_wrong_usage_sync():
-    lock = AsyncioSyncLock()
-    with pytest.raises(LibraryUsageError) as e:
-        lock.acquire(1)
-    assert (
-        str(e.value) == "Only asynchronous interface is supported, please use aacquire."
-    )
-
-    with pytest.raises(LibraryUsageError) as e:
-        lock.release()
-    assert (
-        str(e.value) == "Only asynchronous interface is supported, please use arelease."
-    )
-
-    with pytest.raises(LibraryUsageError) as e:
-        lock.wait(1)
-    assert (
-        str(e.value) == "Only asynchronous interface is supported, please use a_wait."
-    )
-
-    with pytest.raises(LibraryUsageError) as e:
-        lock.notify(1)
-    assert (
-        str(e.value) == "Only asynchronous interface is supported, please use anotify."
-    )
-
-    with pytest.raises(LibraryUsageError) as e:
-        lock.notify_all()
-    assert (
-        str(e.value)
-        == "Only asynchronous interface is supported, please use anotify_all."
-    )
-
-    with pytest.raises(LibraryUsageError) as e:
-        with lock:
-            pass
-    assert str(e.value) == "Please use 'async with' in asyncio environment."
-
-    with pytest.raises(LibraryUsageError) as e:
-        lock.__exit__(None, None, None)
-    assert str(e.value) == "Please use 'async with' in asyncio environment."

@@ -3,13 +3,12 @@ from __future__ import annotations
 from multiprocessing import Manager
 from multiprocessing.managers import SyncManager
 from multiprocessing.synchronize import Condition
-from typing import AsyncContextManager, Optional, Union
+from typing import Optional, Union
 
-from smartutils.design._sync.abstract import ISyncLock
-from smartutils.error.sys import LibraryUsageError
+from smartutils.design._sync.abstract import ILock
 
 
-class ProcessSyncLock(ISyncLock):
+class ProcessSyncLock(ILock):
     """
     适用于多进程环境的同步锁/条件变量实现，基于 multiprocessing.Manager.Condition。
     线程和进程安全。支持互斥锁、阻塞条件等待和唤醒。
@@ -80,34 +79,3 @@ class ProcessSyncLock(ISyncLock):
         # 若本类创建了 Manager，自动关闭资源
         if self._manager_owner:
             self._manager.shutdown()
-
-    # ==== 异步接口：进程锁不支持 ====
-    async def aacquire(self, timeout: float | int) -> bool:
-        raise LibraryUsageError(
-            "ProcessSyncLock does not support coroutine/asynchronous interfaces."
-        )
-
-    async def arelease(self) -> None:
-        raise LibraryUsageError(
-            "ProcessSyncLock does not support coroutine/asynchronous interfaces."
-        )
-
-    async def a_wait(self, timeout: float | int) -> bool:
-        raise LibraryUsageError(
-            "ProcessSyncLock does not support coroutine/asynchronous interfaces."
-        )
-
-    async def anotify(self, n: int = 1) -> None:
-        raise LibraryUsageError(
-            "ProcessSyncLock does not support coroutine/asynchronous interfaces."
-        )
-
-    async def anotify_all(self) -> None:
-        raise LibraryUsageError(
-            "ProcessSyncLock does not support coroutine/asynchronous interfaces."
-        )
-
-    def acontext(self) -> AsyncContextManager[None]:
-        raise LibraryUsageError(
-            "ProcessSyncLock does not support coroutine/asynchronous interfaces."
-        )
