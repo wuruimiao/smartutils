@@ -2,7 +2,7 @@ from multiprocessing import Manager
 
 import pytest
 
-from smartutils.design.container.abstract import (
+from smartutils.design.container.abstract_pri import (
     PriContainer,
 )
 from smartutils.design.container.item import PriItemWrap
