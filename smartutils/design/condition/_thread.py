@@ -27,8 +27,8 @@ class ThreadCondition(ConditionProtocol):
     def acquire(
         self, *, block: bool = True, timeout: Optional[Union[float, int]] = None
     ) -> bool:
-        timeout = timeout if block else None
-        return self._proxy.acquire(block=block, timeout=timeout)  # type: ignore
+        timeout = timeout if block else -1
+        return self._proxy.acquire(blocking=block, timeout=timeout)  # type: ignore
 
     def release(self) -> None: ...
     def wait(self, *, timeout: Optional[Union[float, int]] = None) -> bool: ...

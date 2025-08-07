@@ -39,8 +39,8 @@ class ProcessCondition(ConditionProtocol):
     def acquire(
         self, *, block: bool = True, timeout: Optional[Union[float, int]] = None
     ) -> bool:
-        timeout = timeout if block else None
-        return self._proxy.acquire(block=block, timeout=timeout)
+        timeout = timeout if block else 0
+        return self._proxy.acquire(timeout=timeout)
 
     def release(self) -> None: ...
     def wait(self, *, timeout: Optional[Union[float, int]] = None) -> bool: ...

@@ -20,9 +20,9 @@ async def test_async_cond_container_put_and_get(cond_container):
     assert await cond_container.put("hello1", timeout=1) is True
     assert await cond_container.put("hello2", timeout=1) is True
     assert await cond_container.get(timeout=1) == "hello2"
-    assert await cond_container.get(timeout=1, blocking=False) == "hello1"
+    assert await cond_container.get(timeout=1, block=False) == "hello1"
     # 取空，再get应返回None
-    assert await cond_container.get(timeout=1, blocking=False) is None
+    assert await cond_container.get(timeout=1, block=False) is None
     assert cond_container.empty()
 
 
