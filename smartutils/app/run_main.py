@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 import uvicorn
@@ -42,6 +41,7 @@ def run():
     args = parser.parse_args()
 
     RunEnv.set_conf_path(args.conf)
+    # TODO: 这里是否需要？后续create_app会自动设置
     RunEnv.set_app(AppKey(args.app))
 
     uvicorn.run(
