@@ -15,7 +15,7 @@ class ThreadCondition(ConditionProtocol):
         self._cond = threading.Condition()
         super().__init__()
 
-    def __enter__(self) -> ThreadCondition:  # type: ignore
+    def __enter__(self) -> ThreadCondition:
         self.acquire(timeout=self._timeout)
         return self
 

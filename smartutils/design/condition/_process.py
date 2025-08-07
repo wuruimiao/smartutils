@@ -3,7 +3,7 @@ from __future__ import annotations
 from multiprocessing import Manager
 from multiprocessing.managers import SyncManager
 from multiprocessing.synchronize import Condition
-from typing import Callable, Optional, Union
+from typing import Optional, Union
 
 from smartutils.design.condition.abstract import ConditionProtocol, _proxy_method
 
