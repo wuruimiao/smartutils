@@ -170,6 +170,7 @@ def test_pop_max(reuse_container):
 def test_pri_dict_list_close(container):
     container.push(1, 2)
     assert container.close() is None
+    assert container.closed
     assert len(container) == 0
 
     with pytest.raises(LibraryUsageError) as e:

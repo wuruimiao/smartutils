@@ -153,7 +153,7 @@ class PriContainerDictList(AbstractContainer[T], PriContainerProtocol[T]):
         return item.value
 
     def close(self):
-        self._set_closed()
+        super().close()
         self._pri_ids_map.clear()
         del self._all_pris[:]
         self._id_item_map.clear()

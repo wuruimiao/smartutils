@@ -23,6 +23,7 @@ def test_put_and_get(cond_container):
     assert cond_container.get(timeout=1, block=False) == "hello1"
     # 取空，再get应返回None
     assert cond_container.get(timeout=1, block=False) is None
+    assert cond_container.empty()
 
 
 def test_put_multithread(cond_container):
