@@ -1,8 +1,9 @@
 import asyncio
-from typing import Union
+from typing import Optional, Union
 
 from smartutils.design.abstract import proxy_method
 from smartutils.design.condition.abstract import AsyncConditionProtocol
+from smartutils.design.const import DEFAULT_TIMEOUT
 
 
 class AsyncioCondition(AsyncConditionProtocol):
@@ -11,14 +12,20 @@ class AsyncioCondition(AsyncConditionProtocol):
         self._proxy = asyncio.Condition()
         super().__init__()
 
-    async def acquire(self, *, timeout: Union[float, int]) -> bool:
+    async def acquire(
+        self, *, blocking: bool = True, timeout: Optional[Union[float, int]] = None
+    ) -> bool:
+        if not blocking:
+            return await self._proxy.acquire()
+        timeout = timeout or DEFAULT_TIMEOUT
         try:
             await asyncio.wait_for(self._proxy.acquire(), timeout)
             return True
         except asyncio.TimeoutError:
             return False
 
-    async def wait(self, *, timeout: Union[float, int]) -> bool:
+    async def wait(self, *, timeout: Optional[Union[float, int]] = None) -> bool:
+        timeout = timeout or DEFAULT_TIMEOUT
         try:
             await asyncio.wait_for(self._proxy.wait(), timeout)
             return True
