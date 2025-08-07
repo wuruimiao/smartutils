@@ -7,7 +7,7 @@ from smartutils.design.const import DEFAULT_TIMEOUT
 
 
 class AsyncioCondition(AsyncConditionProtocol):
-    def __init__(self, timeout: Union[float, int] = 30 * 60) -> None:
+    def __init__(self, timeout: Union[float, int] = DEFAULT_TIMEOUT) -> None:
         self._timeout = timeout
         self._proxy = asyncio.Condition()
         super().__init__()
@@ -17,7 +17,7 @@ class AsyncioCondition(AsyncConditionProtocol):
     ) -> bool:
         if not blocking:
             return await self._proxy.acquire()
-        timeout = timeout or DEFAULT_TIMEOUT
+        timeout = timeout or self._timeout
         try:
             await asyncio.wait_for(self._proxy.acquire(), timeout)
             return True

@@ -7,6 +7,7 @@ from typing import Optional, Union
 
 from smartutils.design.abstract import proxy_method
 from smartutils.design.condition.abstract import ConditionProtocol
+from smartutils.design.const import DEFAULT_TIMEOUT
 
 
 class ProcessCondition(ConditionProtocol):
@@ -14,7 +15,7 @@ class ProcessCondition(ConditionProtocol):
         self,
         *,
         manager: Optional[SyncManager] = None,
-        timeout: Union[float, int] = 30 * 60,
+        timeout: Union[float, int] = DEFAULT_TIMEOUT,
     ):
         if manager is None:
             manager = Manager()
@@ -26,7 +27,7 @@ class ProcessCondition(ConditionProtocol):
         self._timeout = timeout
 
     def __enter__(self) -> ProcessCondition:
-        self.acquire(timeout=self._timeout)
+        self.acquire(blocking=True, timeout=self._timeout)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):

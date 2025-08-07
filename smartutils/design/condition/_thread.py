@@ -5,10 +5,11 @@ from typing import Optional, Union
 
 from smartutils.design.abstract import proxy_method
 from smartutils.design.condition.abstract import ConditionProtocol
+from smartutils.design.const import DEFAULT_TIMEOUT
 
 
 class ThreadCondition(ConditionProtocol):
-    def __init__(self, *, timeout: Union[float, int] = 30 * 60) -> None:
+    def __init__(self, *, timeout: Union[float, int] = DEFAULT_TIMEOUT) -> None:
         """
         初始化线程同步锁。
         """
@@ -17,7 +18,7 @@ class ThreadCondition(ConditionProtocol):
         super().__init__()
 
     def __enter__(self) -> ThreadCondition:
-        self.acquire(timeout=self._timeout)
+        self.acquire(blocking=True, timeout=self._timeout)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
