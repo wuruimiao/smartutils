@@ -29,3 +29,8 @@ class AsyncConditionContainerProtocol(Protocol[T]):
 
 # print(isinstance(Queue(), ConditionContainerProtocol))
 # print(isinstance(Queue(), AsyncConditionContainerProtocol))
+
+# from asyncio import Queue
+
+# print(isinstance(Queue(), ConditionContainerProtocol))
+# print(isinstance(Queue(), AsyncConditionContainerProtocol))
