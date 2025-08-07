@@ -81,6 +81,7 @@ class _AbstractContainerBase(MyBase, ABC, IterableProtocol[T]):
         return len(self) == 0
 
 
+# 原生基础数据类型，没有异步操作，自定义容器只使用基础数据类型
 class AbstractContainer(_AbstractContainerBase[T], ClosableProtocol):
     """
     同步容器抽象类。
@@ -134,55 +135,3 @@ class AbstractContainer(_AbstractContainerBase[T], ClosableProtocol):
     def __exit__(self, exc_type, exc_val, exc_tb):
         # 建议子类重写 close 时始终调用 super().close()
         self.close()
-
-
-class AbstractAsyncContainer(_AbstractContainerBase[T], AsyncClosableProtocol):
-    """
-    异步容器抽象类。接口定义全部为协程函数。
-    """
-
-    @abstractmethod
-    async def put(self, value: T) -> bool:
-        """
-        异步插入元素。
-
-        参数:
-            value (T): 任意可被哈希的对象。
-        """
-        ...
-
-    @abstractmethod
-    async def get(self) -> Optional[T]:
-        """
-        异步弹出元素。若无元素返回 None。
-
-        返回:
-            Optional[T]: 取出的元素，或无元素返回 None。
-        """
-        ...
-
-    @abstractmethod
-    async def close(self) -> None:
-        """
-        异步关闭容器。子类应先释放资源再调用 super().close()。
-        """
-        self._set_closed()
-
-    @abstractmethod
-    async def remove(self, value: T) -> Optional[T]:
-        """
-        异步删除指定元素，若有重复仅删一个。未找到返回 None。
-
-        参数:
-            value (T): 要删除的元素。
-
-        返回:
-            Optional[T]: 删除的元素，未找到返回 None。
-        """
-        ...
-
-    async def __aenter__(self):
-        return self
-
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        await self.close()
