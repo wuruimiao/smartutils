@@ -7,7 +7,6 @@ from smartutils.design.abstract import (
     ClosableProtocol,
     IterableProtocol,
 )
-from smartutils.error.sys import LibraryUsageError
 
 T = TypeVar("T")
 
@@ -25,13 +24,6 @@ class _AbstractContainerBase(MyBase, ABC, IterableProtocol[T]):
     def __init__(self, *args, **kwargs) -> None:
         self._closed: bool = False
         super().__init__(*args, **kwargs)
-
-    def check_closed(self) -> None:
-        """
-        检查容器是否已关闭，是则抛出异常。建议所有修改操作前调用。
-        """
-        if self._closed:
-            raise LibraryUsageError(f"{self.name} closed, no operations allowed.")
 
     def _set_closed(self) -> None:
         """
@@ -97,7 +89,7 @@ class AbstractContainer(_AbstractContainerBase[T], ClosableProtocol):
     """
 
     @abstractmethod
-    def put(self, value: T) -> None:
+    def put(self, value: T) -> bool:
         """
         插入元素。
 
@@ -137,7 +129,6 @@ class AbstractContainer(_AbstractContainerBase[T], ClosableProtocol):
         ...
 
     def __enter__(self):
-        self.check_closed()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -151,7 +142,7 @@ class AbstractAsyncContainer(_AbstractContainerBase[T], AsyncClosableProtocol):
     """
 
     @abstractmethod
-    async def put(self, value: T) -> None:
+    async def put(self, value: T) -> bool:
         """
         异步插入元素。
 
@@ -191,7 +182,6 @@ class AbstractAsyncContainer(_AbstractContainerBase[T], AsyncClosableProtocol):
         ...
 
     async def __aenter__(self):
-        self.check_closed()
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):

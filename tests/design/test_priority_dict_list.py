@@ -47,11 +47,11 @@ def reuse_container(request):
 
 
 def test_put_and_len(container):
-    container.push("v1", 10)
+    assert container.push("v1", 10)
     assert len(container) == 1
-    container.push("v2", 5)
+    assert container.push("v2", 5)
     assert len(container) == 2
-    container.push("v3", 10)
+    assert container.push("v3", 10)
     assert len(container) == 3
 
     assert "v1" in container
@@ -66,11 +66,11 @@ def test_put_and_len(container):
 
 def test_with_auto_close():
     with PriContainerDictList() as container:
-        container.push("v1", 10)
+        assert container.push("v1", 10)
         assert len(container) == 1
-        container.push("v2", 5)
+        assert container.push("v2", 5)
         assert len(container) == 2
-        container.push("v3", 10)
+        assert container.push("v3", 10)
         assert len(container) == 3
 
         assert "v1" in container
@@ -173,6 +173,7 @@ def test_pri_dict_list_close(container):
     assert container.closed
     assert len(container) == 0
 
-    with pytest.raises(LibraryUsageError) as e:
-        assert container.pop_max() is None
-    assert str(e.value) == "[PriContainerDictList] closed, no operations allowed."
+    assert container.push(2, 10) is False
+    assert container.put(3) is False
+    assert container.pop_max() is None
+    assert container.remove(1) is None

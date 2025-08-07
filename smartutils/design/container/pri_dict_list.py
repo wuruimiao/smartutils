@@ -49,8 +49,8 @@ class PriContainerDictList(AbstractContainer[T], PriContainerProtocol[T]):
 
         super().__init__()
 
-    def put(self, value: T):
-        self.push(value, sys.maxsize)
+    def put(self, value: T) -> bool:
+        return self.push(value, sys.maxsize)
 
     def get(self) -> Optional[T]:
         return self.pop_max()
@@ -64,8 +64,9 @@ class PriContainerDictList(AbstractContainer[T], PriContainerProtocol[T]):
         else:
             self._pri_ids_map[priority] = []
 
-    def push(self, value: T, priority: Union[float, int]):
-        self.check_closed()
+    def push(self, value: T, priority: Union[float, int]) -> bool:
+        if self.closed:
+            return False
 
         if priority not in self._pri_ids_map:
             # 考虑bitsect
@@ -83,6 +84,7 @@ class PriContainerDictList(AbstractContainer[T], PriContainerProtocol[T]):
 
         self._pri_ids_map[priority].append(item.inst_id)
         self._id_item_map[item.inst_id] = item
+        return True
 
     def _pop_end(self, from_min: bool) -> Optional[T]:
         """
@@ -92,6 +94,9 @@ class PriContainerDictList(AbstractContainer[T], PriContainerProtocol[T]):
         返回:
             (实例ID, 实例对象)；若队列为空返回 None。
         """
+        if self.closed:
+            return None
+
         if not self._all_pris:
             if self._value2id:
                 logger.error(
@@ -116,17 +121,14 @@ class PriContainerDictList(AbstractContainer[T], PriContainerProtocol[T]):
         return item.value
 
     def pop_min(self) -> Optional[T]:
-        self.check_closed()
-
         return self._pop_end(True)
 
     def pop_max(self) -> Optional[T]:
-        self.check_closed()
-
         return self._pop_end(False)
 
     def remove(self, value: T) -> Optional[T]:
-        self.check_closed()
+        if self.closed:
+            return None
 
         if not self._reuse:
             raise LibraryUsageError(f"{self.name} not in reuse mode, cant remove.")
