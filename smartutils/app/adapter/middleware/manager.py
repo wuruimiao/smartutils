@@ -28,8 +28,6 @@ class MiddlewareManager(MyBase, metaclass=SingletonMeta):
             )
             conf = MiddlewareConf()
 
-        self._app_key: AppKey = RunEnv.get_app()
-        assert self._app_key, f"{self.name} should call RunEnv.set_app() first."
         self._conf: MiddlewareConf = conf
         self._route_ps: Dict[str, List[AbstractMiddlewarePlugin]] = {}
         self._route_inited: bool = False
@@ -38,6 +36,9 @@ class MiddlewareManager(MyBase, metaclass=SingletonMeta):
     def _init_route(self) -> None:
         if self._route_inited:
             return
+
+        self._app_key: AppKey = RunEnv.get_app()
+        assert self._app_key, f"{self.name} should call RunEnv.set_app() first."
 
         self._route_inited = True
         if not self._conf.routes:
@@ -93,7 +94,8 @@ class MiddlewareManager(MyBase, metaclass=SingletonMeta):
         AddMiddlewareFactory.get(self._app_key)(app, ps)
 
     def init_route(self, route_key: str):
-        return RouteMiddlewareFactory.get(self._app_key)(self._get_ps(route_key))
+        ps = self._get_ps(route_key)
+        return RouteMiddlewareFactory.get(self._app_key)(ps)
 
     def init_endpoint(self, route_key: str):
         logger.info(
@@ -101,7 +103,8 @@ class MiddlewareManager(MyBase, metaclass=SingletonMeta):
             name=self.name,
             route_key=route_key,
         )
-        return EndpointMiddlewareFactory.get(self._app_key)(self._get_ps(route_key))
+        ps = self._get_ps(route_key)
+        return EndpointMiddlewareFactory.get(self._app_key)(ps)
 
     def init_default_route(self):
         logger.info("{name} init default route.", name=self.name)
