@@ -152,15 +152,13 @@ class PriContainerDictList(AbstractContainer[T], PriContainerProtocol[T]):
 
         return item.value
 
-    def close(self) -> List[T]:
+    def close(self):
         self._set_closed()
-        items = [item.value for item in self._id_item_map.values()]
         self._pri_ids_map.clear()
         del self._all_pris[:]
         self._id_item_map.clear()
         self._value2id.clear()
         self._manager = None
-        return items
 
     def __len__(self) -> int:
         return len(self._id_item_map)

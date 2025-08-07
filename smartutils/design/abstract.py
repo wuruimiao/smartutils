@@ -1,5 +1,12 @@
 from contextlib import AbstractContextManager
-from typing import Any, AsyncContextManager, Protocol, TypeVar, runtime_checkable
+from typing import (
+    Any,
+    AsyncContextManager,
+    Iterator,
+    Protocol,
+    TypeVar,
+    runtime_checkable,
+)
 
 __all__ = [
     "ClosableProtocol",
@@ -16,10 +23,23 @@ __all__ = [
     "AsyncTransactionalT",
 ]
 
+T = TypeVar("T")
+
+
+@runtime_checkable
+class IterableProtocol(Protocol[T]):  # type: ignore
+    def __iter__(self) -> Iterator[T]: ...
+
+
+IterableT = TypeVar("IterableT", bound=IterableProtocol)
+
 
 @runtime_checkable
 class ClosableProtocol(Protocol):
     def close(self) -> None: ...
+
+
+ClosableT = TypeVar("ClosableT", bound=ClosableProtocol)
 
 
 @runtime_checkable
@@ -30,9 +50,6 @@ class HealthCheckProtocol(Protocol):
 @runtime_checkable
 class HealthCheckClosableProtocol(ClosableProtocol, HealthCheckProtocol, Protocol):
     pass
-
-
-ClosableT = TypeVar("ClosableT", bound=ClosableProtocol)
 
 
 @runtime_checkable
@@ -49,6 +66,9 @@ class AsyncClosableProtocol(Protocol):
     async def close(self) -> None: ...
 
 
+AsyncClosableT = TypeVar("AsyncClosableT", bound=AsyncClosableProtocol)
+
+
 @runtime_checkable
 class AsyncHealthCheckProtocol(Protocol):
     async def ping(self) -> bool: ...
@@ -59,9 +79,6 @@ class AsyncHealthCheckClosableProtocol(
     AsyncClosableProtocol, AsyncHealthCheckProtocol, Protocol
 ):
     pass
-
-
-AsyncClosableT = TypeVar("AsyncClosableT", bound=AsyncClosableProtocol)
 
 
 @runtime_checkable

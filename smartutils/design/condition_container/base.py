@@ -1,5 +1,5 @@
 import time
-from typing import TypeVar, Union
+from typing import Optional, TypeVar, Union
 
 from smartutils.design.condition.abstract import ConditionProtocol
 from smartutils.design.condition_container.abstract import ConditionContainerProtocol
@@ -8,9 +8,10 @@ from smartutils.design.container.abstract import AbstractContainer
 T = TypeVar("T")
 
 
+# 类比queue.Queue()
 class ConditionContainer(ConditionContainerProtocol[T]):
     def __init__(
-        self, container: AbstractContainer[T], condition: ConditionProtocol
+        self, *, container: AbstractContainer[T], condition: ConditionProtocol
     ) -> None:
         self._container = container
         self._cond = condition
@@ -19,18 +20,18 @@ class ConditionContainer(ConditionContainerProtocol[T]):
     def __getattr__(self, name):
         return getattr(self._container, name)
 
-    def get(self, timeout: Union[float, int], block: bool = True) -> T | None:
+    def get(self, timeout: Union[float, int], block: bool = True) -> Optional[T]:
         start = time.monotonic()
         if not self._cond.acquire(timeout=timeout):
             return None
 
         try:
             if not block:
-                if self._container.is_empty():
+                if self._container.empty():
                     return None
                 return self._container.get()
 
-            while self._container.is_empty():
+            while self._container.empty():
                 remaining = timeout - (time.monotonic() - start)
                 if remaining <= 0:  # pragma: no cover
                     return None

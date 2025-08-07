@@ -58,7 +58,7 @@ def test_put_and_len(container):
     assert "v2" in container
     assert "v3" in container
 
-    assert container.is_empty() is False
+    assert container.empty() is False
 
     for value in container:
         assert value in {"v1", "v2", "v3"}
@@ -77,12 +77,12 @@ def test_with_auto_close():
         assert "v2" in container
         assert "v3" in container
 
-        assert container.is_empty() is False
+        assert container.empty() is False
 
         for value in container:
             assert value in {"v1", "v2", "v3"}
 
-    assert container.is_empty() is True
+    assert container.empty() is True
 
 
 def test_pop_min_max(container):
@@ -169,7 +169,7 @@ def test_pop_max(reuse_container):
 
 def test_pri_dict_list_close(container):
     container.push(1, 2)
-    assert container.close() == [1]
+    assert container.close() is None
     assert len(container) == 0
 
     with pytest.raises(LibraryUsageError) as e:

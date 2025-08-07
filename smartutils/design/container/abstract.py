@@ -1,13 +1,18 @@
 from abc import ABC, abstractmethod
-from typing import Generic, Iterator, List, Optional, TypeVar
+from typing import Iterator, Optional, TypeVar
 
 from smartutils.design._class import MyBase
+from smartutils.design.abstract import (
+    AsyncClosableProtocol,
+    ClosableProtocol,
+    IterableProtocol,
+)
 from smartutils.error.sys import LibraryUsageError
 
 T = TypeVar("T")
 
 
-class _AbstractContainerBase(MyBase, ABC, Generic[T]):
+class _AbstractContainerBase(MyBase, ABC, IterableProtocol[T]):
     def __init__(self, *args, **kwargs) -> None:
         self._closed: bool = False
         super().__init__(*args, **kwargs)
@@ -37,12 +42,12 @@ class _AbstractContainerBase(MyBase, ABC, Generic[T]):
         """返回容器中的元素数量"""
         ...
 
-    def is_empty(self) -> bool:
+    def empty(self) -> bool:
         """容器是否为空"""
         return len(self) == 0
 
 
-class AbstractContainer(_AbstractContainerBase[T]):
+class AbstractContainer(_AbstractContainerBase[T], ClosableProtocol):
     @abstractmethod
     def put(self, value: T):
         """
@@ -58,7 +63,7 @@ class AbstractContainer(_AbstractContainerBase[T]):
         ...
 
     @abstractmethod
-    def close(self) -> List[T]:
+    def close(self):
         """
         关闭容器，容器内元素的关闭应由外部处理
         """
@@ -79,7 +84,7 @@ class AbstractContainer(_AbstractContainerBase[T]):
         self.close()
 
 
-class AbstractAsyncContainer(_AbstractContainerBase[T]):
+class AbstractAsyncContainer(_AbstractContainerBase[T], AsyncClosableProtocol):
     @abstractmethod
     async def put(self, value: T):
         """
@@ -95,7 +100,7 @@ class AbstractAsyncContainer(_AbstractContainerBase[T]):
         ...
 
     @abstractmethod
-    async def close(self) -> List[T]:
+    async def close(self):
         """
         关闭容器，容器内元素的关闭应由外部处理
         """

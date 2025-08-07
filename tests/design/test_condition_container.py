@@ -10,7 +10,9 @@ from smartutils.design.container.pri_timestamp import PriTSContainerDictList
 
 @pytest.fixture
 def cond_container():
-    return ConditionContainer(PriTSContainerDictList(), ThreadCondition())
+    return ConditionContainer(
+        container=PriTSContainerDictList(), condition=ThreadCondition()
+    )
 
 
 def test_put_and_get(cond_container):
