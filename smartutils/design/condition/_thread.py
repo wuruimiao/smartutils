@@ -3,7 +3,8 @@ from __future__ import annotations
 import threading
 from typing import Union
 
-from smartutils.design.condition.abstract import ConditionProtocol, _proxy_method
+from smartutils.design.abstract import proxy_method
+from smartutils.design.condition.abstract import ConditionProtocol
 
 
 class ThreadCondition(ConditionProtocol):
@@ -12,7 +13,7 @@ class ThreadCondition(ConditionProtocol):
         初始化线程同步锁。
         """
         self._timeout = timeout
-        self._cond = threading.Condition()
+        self._proxy = threading.Condition()
         super().__init__()
 
     def __enter__(self) -> ThreadCondition:
@@ -29,7 +30,7 @@ class ThreadCondition(ConditionProtocol):
     def notify_all(self) -> None: ...
 
 
-_proxy_method(ThreadCondition, ["acquire", "release", "wait", "notify", "notify_all"])
+proxy_method(ThreadCondition, ["acquire", "release", "wait", "notify", "notify_all"])
 # print(isinstance(ThreadCondition(), ConditionProtocol))
 
 # cond = ThreadCondition()

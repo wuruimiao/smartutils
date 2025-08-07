@@ -2,7 +2,9 @@ from contextlib import AbstractContextManager
 from typing import (
     Any,
     AsyncContextManager,
+    Callable,
     Iterator,
+    List,
     Protocol,
     TypeVar,
     runtime_checkable,
@@ -87,3 +89,17 @@ class AsyncTransactionalProtocol(AsyncClosableProtocol, Protocol):
 
 
 AsyncTransactionalT = TypeVar("AsyncTransactionalT", bound=AsyncTransactionalProtocol)
+
+
+def _gen_method(name: str) -> Callable:
+    def method(self, *args, **kwargs):
+        return getattr(self._proxy, name)(*args, **kwargs)
+
+    return method
+
+
+def proxy_method(cls: type, methods: List[str]):
+    # === 批量自动转发体(仅实现, 不影响类型提示) ===
+
+    for _name in methods:
+        setattr(cls, _name, _gen_method(_name))

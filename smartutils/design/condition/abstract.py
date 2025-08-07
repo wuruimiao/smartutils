@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable, List, Optional, Protocol, Union, runtime_checkable
+from typing import Optional, Protocol, Union, runtime_checkable
 
 
 @runtime_checkable
@@ -57,17 +57,3 @@ class AsyncConditionProtocol(Protocol):
     async def __aenter__(self): ...
 
     async def __aexit__(self, exc_type, exc, tb): ...
-
-
-def _gen_method(name: str) -> Callable:
-    def method(self, *args, **kwargs):
-        return getattr(self._cond, name)(*args, **kwargs)
-
-    return method
-
-
-def _proxy_method(cls: type, methods: List[str]):
-    # === 批量自动转发体(仅实现, 不影响类型提示) ===
-
-    for _name in methods:
-        setattr(cls, _name, _gen_method(_name))

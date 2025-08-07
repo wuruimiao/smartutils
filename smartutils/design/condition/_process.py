@@ -5,7 +5,8 @@ from multiprocessing.managers import SyncManager
 from multiprocessing.synchronize import Condition
 from typing import Optional, Union
 
-from smartutils.design.condition.abstract import ConditionProtocol, _proxy_method
+from smartutils.design.abstract import proxy_method
+from smartutils.design.condition.abstract import ConditionProtocol
 
 
 class ProcessCondition(ConditionProtocol):
@@ -20,7 +21,7 @@ class ProcessCondition(ConditionProtocol):
             self._manager_owner = True
         else:
             self._manager_owner = False
-        self._cond: Condition = manager.Condition()  # type: ignore
+        self._proxy: Condition = manager.Condition()  # type: ignore
         self._manager = manager
         self._timeout = timeout
 
@@ -41,6 +42,6 @@ class ProcessCondition(ConditionProtocol):
     def notify_all(self) -> None: ...
 
 
-_proxy_method(ProcessCondition, ["acquire", "release", "wait", "notify", "notify_all"])
+proxy_method(ProcessCondition, ["acquire", "release", "wait", "notify", "notify_all"])
 
 # print(isinstance(ProcessCondition(), ConditionProtocol))
