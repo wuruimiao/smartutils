@@ -52,3 +52,6 @@ class ConditionContainer(ConditionContainerProtocol[T]):
         finally:
             self._cond.release()
         return True
+
+    def empty(self) -> bool:
+        return self._container.empty()

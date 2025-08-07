@@ -9,6 +9,8 @@ class ConditionContainerProtocol(Protocol[T]):
 
     def put(self, value: T, timeout: Union[float, int], block: bool = True) -> bool: ...
 
+    def empty(self) -> bool: ...
+
 
 @runtime_checkable
 class AsyncConditionContainerProtocol(Protocol[T]):
@@ -20,8 +22,10 @@ class AsyncConditionContainerProtocol(Protocol[T]):
         self, value: T, timeout: Union[float, int], block: bool = True
     ) -> bool: ...
 
+    def empty(self) -> bool: ...
 
-# import queue
 
-# print(isinstance(queue.Queue(), ConditionContainerProtocol))
-# print(isinstance(queue.Queue(), AsyncConditionContainerProtocol))
+# from queue import Queue
+
+# print(isinstance(Queue(), ConditionContainerProtocol))
+# print(isinstance(Queue(), AsyncConditionContainerProtocol))
