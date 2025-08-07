@@ -3,12 +3,13 @@ from typing import Iterator, Optional, TypeVar
 
 from smartutils.design._class import MyBase
 from smartutils.design.abstract import (
-    AsyncClosableProtocol,
     ClosableProtocol,
     IterableProtocol,
 )
 
 T = TypeVar("T")
+
+# 原生基础数据类型，没有异步操作，自定义容器只使用基础数据类型
 
 
 class _AbstractContainerBase(MyBase, ABC, IterableProtocol[T]):
@@ -81,7 +82,6 @@ class _AbstractContainerBase(MyBase, ABC, IterableProtocol[T]):
         return len(self) == 0
 
 
-# 原生基础数据类型，没有异步操作，自定义容器只使用基础数据类型
 class AbstractContainer(_AbstractContainerBase[T], ClosableProtocol):
     """
     同步容器抽象类。
