@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Dict, Generic, Optional, TypeVar, Union
 
-from smartutils.config.const import BaseModelT, ConfKey
+from smartutils.config.const import ConfKey, TBaseModel
 from smartutils.config.factory import ConfFactory
 from smartutils.config.schema.project import ProjectConf
 from smartutils.design import MyBase, SingletonMeta
@@ -14,14 +14,14 @@ from smartutils.log import logger
 __all__ = ["Config"]
 
 
-PT = TypeVar("PT", bound=ProjectConf)
+TProject = TypeVar("TProject", bound=ProjectConf)
 _config: Optional[Config] = None
 
 
-class Config(MyBase, Generic[BaseModelT], metaclass=SingletonMeta):
+class Config(MyBase, Generic[TBaseModel], metaclass=SingletonMeta):
     def __init__(self, conf_path: str):
         self._instances: Union[
-            Dict[str, BaseModelT], Dict[str, Dict[str, BaseModelT]]
+            Dict[str, TBaseModel], Dict[str, Dict[str, TBaseModel]]
         ] = {}
         self._config: Dict[str, Dict] = {}
 
@@ -52,11 +52,11 @@ class Config(MyBase, Generic[BaseModelT], metaclass=SingletonMeta):
             logger.debug("{name} project init default.", name=self.name)
             self._instances[ConfKey.PROJECT] = ProjectConf()
 
-    def get(self, name: str) -> Union[BaseModelT, Dict[str, BaseModelT], None]:
+    def get(self, name: str) -> Union[TBaseModel, Dict[str, TBaseModel], None]:
         return self._instances.get(name)
 
     @property
-    def project(self) -> PT:  # type: ignore
+    def project(self) -> TProject:  # type: ignore
         return self._instances[ConfKey.PROJECT]  # type: ignore
 
     @classmethod

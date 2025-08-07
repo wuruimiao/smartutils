@@ -2,7 +2,7 @@ from typing import Dict, Tuple, Type, Union
 
 from pydantic import ValidationError
 
-from smartutils.config.const import BaseModelT, ConfKey
+from smartutils.config.const import ConfKey, TBaseModel
 from smartutils.design import BaseFactory, MyBase
 from smartutils.error.factory import ExcDetailFactory
 from smartutils.error.sys import ConfigError
@@ -34,7 +34,7 @@ class ConfFactory(MyBase, BaseFactory[ConfKey, Tuple[Type, bool, bool]]):
     @classmethod
     def create(
         cls, name: ConfKey, conf: Dict
-    ) -> Union[BaseModelT, dict[str, BaseModelT], None]:
+    ) -> Union[TBaseModel, dict[str, TBaseModel], None]:
         info = cls.get(name)
 
         conf_cls, multi, require = info

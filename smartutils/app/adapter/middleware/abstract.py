@@ -48,19 +48,19 @@ class AbstractMiddleware(ABC):
         return self._resp_adapter(response)
 
 
-RequestT = TypeVar("RequestT")
-ResponseT = TypeVar("ResponseT")
+TRequest = TypeVar("TRequest")
+TResponse = TypeVar("TResponse")
 
 
 def chain_dispatch(
     plugins: Tuple[AbstractMiddlewarePlugin, ...],
-    handler: Callable[[RequestT], Awaitable[ResponseT]],
-) -> Callable[[RequestT], Awaitable[ResponseT]]:
+    handler: Callable[[TRequest], Awaitable[TResponse]],
+) -> Callable[[TRequest], Awaitable[TResponse]]:
 
     req_adapter = RequestAdapterFactory.get(RunEnv.get_app())
     resp_adapter = ResponseAdapterFactory.get(RunEnv.get_app())
 
-    async def dispatch_from(i: int, request: RequestT) -> ResponseT:
+    async def dispatch_from(i: int, request: TRequest) -> TResponse:
         if i >= len(plugins):
             return await handler(request)
 
@@ -75,7 +75,7 @@ def chain_dispatch(
         resp: ResponseAdapter = await plugin.dispatch(req, next_call)
         return resp.response
 
-    async def entry(request: RequestT) -> ResponseT:
+    async def entry(request: TRequest) -> TResponse:
         return await dispatch_from(0, request)
 
     return entry

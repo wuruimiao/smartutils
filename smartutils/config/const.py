@@ -3,9 +3,9 @@ from typing import TypeVar
 
 from pydantic import BaseModel
 
-__all__ = ["ConfKey", "BaseModelT"]
+__all__ = ["ConfKey", "TBaseModel"]
 
-BaseModelT = TypeVar("BaseModelT", bound=BaseModel)
+TBaseModel = TypeVar("TBaseModel", bound=BaseModel)
 
 
 class ConfKey(str, Enum):

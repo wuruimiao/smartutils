@@ -1,4 +1,6 @@
+from abc import ABC, abstractmethod
 from contextlib import AbstractContextManager
+from functools import total_ordering
 from typing import (
     Any,
     AsyncContextManager,
@@ -15,17 +17,29 @@ __all__ = [
     "HealthCheckProtocol",
     "HealthCheckClosableProtocol",
     "TransactionalProtocol",
-    "ClosableT",
-    "TransactionalT",
+    "TClosable",
+    "TTransactional",
     "AsyncClosableProtocol",
     "AsyncHealthCheckProtocol",
     "AsyncHealthCheckClosableProtocol",
     "AsyncTransactionalProtocol",
-    "AsyncClosableT",
-    "AsyncTransactionalT",
+    "TAsyncClosable",
+    "TAsyncTransactional",
 ]
 
 T = TypeVar("T")
+
+
+@total_ordering
+class AbstractComparable(ABC):
+    @abstractmethod
+    def __eq__(self, other) -> bool: ...
+
+    @abstractmethod
+    def __lt__(self, other) -> bool: ...
+
+
+TAbstractComparable = TypeVar("TAbstractComparable", bound=AbstractComparable)
 
 
 @runtime_checkable
@@ -33,7 +47,7 @@ class IterableProtocol(Protocol[T]):  # type: ignore
     def __iter__(self) -> Iterator[T]: ...
 
 
-IterableT = TypeVar("IterableT", bound=IterableProtocol)
+TIterable = TypeVar("TIterable", bound=IterableProtocol)
 
 
 @runtime_checkable
@@ -41,7 +55,7 @@ class ClosableProtocol(Protocol):
     def close(self) -> None: ...
 
 
-ClosableT = TypeVar("ClosableT", bound=ClosableProtocol)
+TClosable = TypeVar("TClosable", bound=ClosableProtocol)
 
 
 @runtime_checkable
@@ -59,7 +73,7 @@ class TransactionalProtocol(ClosableProtocol, Protocol):
     def db(self, use_transaction: bool) -> AbstractContextManager[Any]: ...
 
 
-TransactionalT = TypeVar("TransactionalT", bound=TransactionalProtocol)
+TTransactional = TypeVar("TTransactional", bound=TransactionalProtocol)
 
 
 # 异步
@@ -68,7 +82,7 @@ class AsyncClosableProtocol(Protocol):
     async def close(self) -> None: ...
 
 
-AsyncClosableT = TypeVar("AsyncClosableT", bound=AsyncClosableProtocol)
+TAsyncClosable = TypeVar("TAsyncClosable", bound=AsyncClosableProtocol)
 
 
 @runtime_checkable
@@ -88,7 +102,7 @@ class AsyncTransactionalProtocol(AsyncClosableProtocol, Protocol):
     def db(self, use_transaction: bool) -> AsyncContextManager[Any]: ...
 
 
-AsyncTransactionalT = TypeVar("AsyncTransactionalT", bound=AsyncTransactionalProtocol)
+TAsyncTransactional = TypeVar("TAsyncTransactional", bound=AsyncTransactionalProtocol)
 
 
 def _gen_method(name: str) -> Callable:

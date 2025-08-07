@@ -21,8 +21,8 @@ from smartutils.config.const import ConfKey
 from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.design import MyBase
 from smartutils.design.abstract import (
-    AsyncClosableT,
-    AsyncTransactionalT,
+    TAsyncClosable,
+    TAsyncTransactional,
 )
 from smartutils.error.base import BaseError
 from smartutils.error.sys import LibraryUsageError, SysError
@@ -52,11 +52,11 @@ class ResourceManagerRegistry:
             mgr.reset()
 
 
-class ResourceManager(MyBase, Generic[AsyncClosableT], ABC):
+class ResourceManager(MyBase, Generic[TAsyncClosable], ABC):
     def __init__(
         self,
         *,
-        resources: Dict[str, AsyncClosableT],
+        resources: Dict[str, TAsyncClosable],
         **kwargs,
     ):
         self._resources = resources
@@ -72,7 +72,7 @@ class ResourceManager(MyBase, Generic[AsyncClosableT], ABC):
         if key not in self._resources:
             raise LibraryUsageError(f"{self.name} require {key} in config.yaml.")
 
-    def client(self, key: str = ConfKey.GROUP_DEFAULT) -> AsyncClosableT:
+    def client(self, key: str = ConfKey.GROUP_DEFAULT) -> TAsyncClosable:
         self._check_key(key)
         return self._resources[key]
 
@@ -87,11 +87,11 @@ class ResourceManager(MyBase, Generic[AsyncClosableT], ABC):
         self._resources = {}
 
 
-class CTXResourceManager(ResourceManager[AsyncTransactionalT]):
+class CTXResourceManager(ResourceManager[TAsyncTransactional]):
     def __init__(
         self,
         *,
-        resources: Dict[str, AsyncTransactionalT],
+        resources: Dict[str, TAsyncTransactional],
         ctx_key: CTXKey,
         success: Optional[Callable[..., Any]] = None,
         fail: Optional[Callable[..., Any]] = None,
