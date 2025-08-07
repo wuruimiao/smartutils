@@ -27,7 +27,7 @@ class ProcessCondition(ConditionProtocol):
         self._timeout = timeout
 
     def __enter__(self) -> ProcessCondition:
-        self.acquire(blocking=True, timeout=self._timeout)
+        self.acquire(block=True, timeout=self._timeout)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -37,10 +37,10 @@ class ProcessCondition(ConditionProtocol):
             self._manager.shutdown()
 
     def acquire(
-        self, *, blocking: bool = True, timeout: Optional[Union[float, int]] = None
+        self, *, block: bool = True, timeout: Optional[Union[float, int]] = None
     ) -> bool:
-        timeout = timeout if blocking else None
-        return self._proxy.acquire(block=blocking, timeout=timeout)
+        timeout = timeout if block else None
+        return self._proxy.acquire(block=block, timeout=timeout)
 
     def release(self) -> None: ...
     def wait(self, *, timeout: Optional[Union[float, int]] = None) -> bool: ...

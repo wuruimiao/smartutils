@@ -23,16 +23,16 @@ class AsyncConditionContainer(AsyncConditionContainerProtocol[T]):
         return getattr(self._container, name)
 
     async def get(
-        self, blocking: bool = True, timeout: Optional[Union[float, int]] = None
+        self, block: bool = True, timeout: Optional[Union[float, int]] = None
     ) -> Optional[T]:
         start = time.monotonic()
-        if not await self._cond.acquire(blocking=blocking, timeout=timeout):
+        if not await self._cond.acquire(block=block, timeout=timeout):
             return None
 
         timeout = timeout or DEFAULT_TIMEOUT
 
         try:
-            if not blocking:
+            if not block:
                 if self._container.empty():
                     return None
                 return self._container.get()
@@ -51,10 +51,10 @@ class AsyncConditionContainer(AsyncConditionContainerProtocol[T]):
     async def put(
         self,
         value: T,
-        blocking: bool = True,
+        block: bool = True,
         timeout: Optional[Union[float, int]] = None,
     ) -> bool:
-        if not await self._cond.acquire(blocking=blocking, timeout=timeout):
+        if not await self._cond.acquire(block=block, timeout=timeout):
             return False
 
         try:

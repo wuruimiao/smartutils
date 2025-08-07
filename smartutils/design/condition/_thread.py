@@ -18,17 +18,17 @@ class ThreadCondition(ConditionProtocol):
         super().__init__()
 
     def __enter__(self) -> ThreadCondition:
-        self.acquire(blocking=True, timeout=self._timeout)
+        self.acquire(block=True, timeout=self._timeout)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         self.release()
 
     def acquire(
-        self, *, blocking: bool = True, timeout: Optional[Union[float, int]] = None
+        self, *, block: bool = True, timeout: Optional[Union[float, int]] = None
     ) -> bool:
-        timeout = timeout if blocking else None
-        return self._proxy.acquire(blocking=blocking, timeout=timeout)  # type: ignore
+        timeout = timeout if block else None
+        return self._proxy.acquire(block=block, timeout=timeout)  # type: ignore
 
     def release(self) -> None: ...
     def wait(self, *, timeout: Optional[Union[float, int]] = None) -> bool: ...

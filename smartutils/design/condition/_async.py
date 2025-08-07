@@ -13,9 +13,9 @@ class AsyncioCondition(AsyncConditionProtocol):
         super().__init__()
 
     async def acquire(
-        self, *, blocking: bool = True, timeout: Optional[Union[float, int]] = None
+        self, *, block: bool = True, timeout: Optional[Union[float, int]] = None
     ) -> bool:
-        if not blocking:
+        if not block:
             return await self._proxy.acquire()
         timeout = timeout or self._timeout
         try:

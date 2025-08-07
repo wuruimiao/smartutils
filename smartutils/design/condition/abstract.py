@@ -18,7 +18,7 @@ class ConditionProtocol(Protocol):
     """
 
     def acquire(
-        self, *, blocking: bool = True, timeout: Optional[Union[float, int]] = None
+        self, *, block: bool = True, timeout: Optional[Union[float, int]] = None
     ) -> bool: ...
 
     def release(self) -> None: ...
@@ -47,7 +47,7 @@ class AsyncConditionProtocol(Protocol):
     """
 
     async def acquire(
-        self, *, blocking: bool = True, timeout: Optional[Union[float, int]] = None
+        self, *, block: bool = True, timeout: Optional[Union[float, int]] = None
     ) -> bool: ...
 
     def release(self) -> None: ...
