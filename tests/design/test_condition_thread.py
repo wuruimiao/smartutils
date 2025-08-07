@@ -14,7 +14,7 @@ def test_thread_lock_basic():
     result = []
 
     def worker():
-        assert lock.acquire(1)
+        assert lock.acquire(timeout=1)
         result.append("got lock")
         lock.release()
 
@@ -29,7 +29,7 @@ def test_thread_lock_basic():
 
     def wait_thread():
         with lock:
-            ok = lock.wait(0.5)
+            ok = lock.wait(timeout=0.5)
             if ok:
                 data["flag"] = "notified"
             else:
@@ -51,7 +51,7 @@ def test_thread_lock_notify_all_cover():
 
     def waiter():
         with lock:
-            ok = lock.wait(0.5)
+            ok = lock.wait(timeout=0.5)
             data["ret"] = ok
 
     t = threading.Thread(target=waiter)
