@@ -5,9 +5,16 @@ T = TypeVar("T")
 
 @runtime_checkable
 class ConditionContainerProtocol(Protocol[T]):
-    def get(self, timeout: Union[float, int], block: bool = True) -> Optional[T]: ...
+    def get(
+        self, blocking: bool = True, timeout: Optional[Union[float, int]] = None
+    ) -> Optional[T]: ...
 
-    def put(self, value: T, timeout: Union[float, int], block: bool = True) -> bool: ...
+    def put(
+        self,
+        value: T,
+        blocking: bool = True,
+        timeout: Optional[Union[float, int]] = None,
+    ) -> bool: ...
 
     def empty(self) -> bool: ...
 
@@ -15,11 +22,14 @@ class ConditionContainerProtocol(Protocol[T]):
 @runtime_checkable
 class AsyncConditionContainerProtocol(Protocol[T]):
     async def get(
-        self, timeout: Union[float, int], block: bool = True
+        self, blocking: bool = True, timeout: Optional[Union[float, int]] = None
     ) -> Optional[T]: ...
 
     async def put(
-        self, value: T, timeout: Union[float, int], block: bool = True
+        self,
+        value: T,
+        blocking: bool = True,
+        timeout: Optional[Union[float, int]] = None,
     ) -> bool: ...
 
     def empty(self) -> bool: ...

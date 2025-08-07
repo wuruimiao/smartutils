@@ -9,6 +9,7 @@ from smartutils.design.condition_container.abstract import (
     AsyncConditionContainerProtocol,
     ConditionContainerProtocol,
 )
+from smartutils.design.const import DEFAULT_TIMEOUT
 from smartutils.design.container.abstract import AbstractContainer
 
 T = TypeVar("T")
@@ -26,13 +27,17 @@ class ConditionContainer(ConditionContainerProtocol[T]):
     def __getattr__(self, name):
         return getattr(self._container, name)
 
-    def get(self, timeout: Union[float, int], block: bool = True) -> Optional[T]:
+    def get(
+        self, blocking: bool = True, timeout: Optional[Union[float, int]] = None
+    ) -> Optional[T]:
         start = time.monotonic()
-        if not self._cond.acquire(timeout=timeout):
+        if not self._cond.acquire(blocking=blocking, timeout=timeout):
             return None
 
+        timeout = timeout or DEFAULT_TIMEOUT
+
         try:
-            if not block:
+            if not blocking:
                 if self._container.empty():
                     return None
                 return self._container.get()
@@ -48,8 +53,13 @@ class ConditionContainer(ConditionContainerProtocol[T]):
         finally:
             self._cond.release()
 
-    def put(self, value: T, timeout: Union[float, int], block: bool = True) -> bool:
-        if not self._cond.acquire(timeout=timeout):
+    def put(
+        self,
+        value: T,
+        blocking: bool = True,
+        timeout: Optional[Union[float, int]] = None,
+    ) -> bool:
+        if not self._cond.acquire(blocking=blocking, timeout=timeout):
             return False
 
         try:
@@ -74,13 +84,17 @@ class AsyncConditionContainer(AsyncConditionContainerProtocol[T]):
     def __getattr__(self, name):
         return getattr(self._container, name)
 
-    async def get(self, timeout: Union[float, int], block: bool = True) -> Optional[T]:
+    async def get(
+        self, blocking: bool = True, timeout: Optional[Union[float, int]] = None
+    ) -> Optional[T]:
         start = time.monotonic()
-        if not await self._cond.acquire(timeout=timeout):
+        if not await self._cond.acquire(blocking=blocking, timeout=timeout):
             return None
 
+        timeout = timeout or DEFAULT_TIMEOUT
+
         try:
-            if not block:
+            if not blocking:
                 if self._container.empty():
                     return None
                 return self._container.get()
@@ -97,9 +111,12 @@ class AsyncConditionContainer(AsyncConditionContainerProtocol[T]):
             self._cond.release()
 
     async def put(
-        self, value: T, timeout: Union[float, int], block: bool = True
+        self,
+        value: T,
+        blocking: bool = True,
+        timeout: Optional[Union[float, int]] = None,
     ) -> bool:
-        if not await self._cond.acquire(timeout=timeout):
+        if not await self._cond.acquire(blocking=blocking, timeout=timeout):
             return False
 
         try:
