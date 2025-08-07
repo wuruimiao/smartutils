@@ -1,6 +1,7 @@
 import time
-from typing import Optional, TypeVar, Union
+from typing import Iterator, Optional, TypeVar, Union
 
+from smartutils.design.abstract import IterableProtocol
 from smartutils.design.condition.abstract import AsyncConditionProtocol
 from smartutils.design.condition_container.abstract import (
     AsyncConditionContainerProtocol,
@@ -11,16 +12,16 @@ from smartutils.design.container.abstract import AbstractContainer
 T = TypeVar("T")
 
 
-class AsyncConditionContainer(AsyncConditionContainerProtocol[T]):
+class AsyncConditionContainer(AsyncConditionContainerProtocol[T], IterableProtocol[T]):
     def __init__(
         self, *, container: AbstractContainer[T], condition: AsyncConditionProtocol
     ) -> None:
-        self._container = container
+        self._proxy = container
         self._cond = condition
         super().__init__()
 
     def __getattr__(self, name):
-        return getattr(self._container, name)
+        return getattr(self._proxy, name)
 
     async def get(
         self, block: bool = True, timeout: Optional[Union[float, int]] = None
@@ -33,18 +34,18 @@ class AsyncConditionContainer(AsyncConditionContainerProtocol[T]):
 
         try:
             if not block:
-                if self._container.empty():
+                if self._proxy.empty():
                     return None
-                return self._container.get()
+                return self._proxy.get()
 
-            while self._container.empty():
+            while self._proxy.empty():
                 remaining = timeout - (time.monotonic() - start)
                 if remaining <= 0:  # pragma: no cover
                     return None
                 notified = await self._cond.wait(timeout=remaining)
                 if not notified:
                     return None
-            return self._container.get()
+            return self._proxy.get()
         finally:
             self._cond.release()
 
@@ -58,11 +59,14 @@ class AsyncConditionContainer(AsyncConditionContainerProtocol[T]):
             return False
 
         try:
-            self._container.put(value)
+            self._proxy.put(value)
             self._cond.notify()
         finally:
             self._cond.release()
         return True
 
     def empty(self) -> bool:
-        return self._container.empty()
+        return self._proxy.empty()
+
+    def __iter__(self) -> Iterator[T]:
+        return iter(self._proxy)

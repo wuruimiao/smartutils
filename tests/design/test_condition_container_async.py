@@ -131,6 +131,6 @@ def test_async_cond_container_getattr(cond_container):
     with pytest.raises(TypeError) as e:
         assert len(cond_container) == 1
     assert str(e.value) == "object of type 'AsyncConditionContainer' has no len()"
-    with pytest.raises(TypeError) as e:
-        assert "b" in cond_container
-    assert str(e.value) == "argument of type 'AsyncConditionContainer' is not iterable"
+    assert "b" in cond_container
+    for item in cond_container:
+        assert item == "b"
