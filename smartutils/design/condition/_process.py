@@ -38,13 +38,16 @@ class ProcessCondition(ConditionProtocol):
 
     def acquire(
         self, *, blocking: bool = True, timeout: Optional[Union[float, int]] = None
-    ) -> bool: ...
+    ) -> bool:
+        timeout = timeout if blocking else None
+        return self._proxy.acquire(block=blocking, timeout=timeout)
+
     def release(self) -> None: ...
     def wait(self, *, timeout: Optional[Union[float, int]] = None) -> bool: ...
     def notify(self, n: int = 1) -> None: ...
     def notify_all(self) -> None: ...
 
 
-proxy_method(ProcessCondition, ["acquire", "release", "wait", "notify", "notify_all"])
+proxy_method(ProcessCondition, ["release", "wait", "notify", "notify_all"])
 
 # print(isinstance(ProcessCondition(), ConditionProtocol))

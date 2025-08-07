@@ -4,7 +4,7 @@ import time
 import pytest
 
 from smartutils.design.condition._async import AsyncioCondition
-from smartutils.design.condition_container.base import AsyncConditionContainer
+from smartutils.design.condition_container.base_async import AsyncConditionContainer
 from smartutils.design.container.pri_timestamp import PriTSContainerDictList
 
 

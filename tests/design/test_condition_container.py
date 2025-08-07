@@ -4,7 +4,7 @@ import time
 import pytest
 
 from smartutils.design.condition._thread import ThreadCondition
-from smartutils.design.condition_container.base import ConditionContainer
+from smartutils.design.condition_container.base_sync import ConditionContainer
 from smartutils.design.container.pri_timestamp import PriTSContainerDictList
 
 

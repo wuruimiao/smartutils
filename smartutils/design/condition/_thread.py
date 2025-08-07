@@ -26,14 +26,17 @@ class ThreadCondition(ConditionProtocol):
 
     def acquire(
         self, *, blocking: bool = True, timeout: Optional[Union[float, int]] = None
-    ) -> bool: ...
+    ) -> bool:
+        timeout = timeout if blocking else None
+        return self._proxy.acquire(blocking=blocking, timeout=timeout)  # type: ignore
+
     def release(self) -> None: ...
     def wait(self, *, timeout: Optional[Union[float, int]] = None) -> bool: ...
     def notify(self, n: int = 1) -> None: ...
     def notify_all(self) -> None: ...
 
 
-proxy_method(ThreadCondition, ["acquire", "release", "wait", "notify", "notify_all"])
+proxy_method(ThreadCondition, ["release", "wait", "notify", "notify_all"])
 # print(isinstance(ThreadCondition(), ConditionProtocol))
 
 # cond = ThreadCondition()
