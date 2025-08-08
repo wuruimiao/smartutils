@@ -10,6 +10,8 @@ from smartutils.design.abstract._sync import (
 )
 from smartutils.design.abstract.common import RemovableProtocol
 from smartutils.design.pri_container.abstract import (
+    InstPri,
+    PriContainerItemBase,
     PriContainerProtocol,
     TPriContainerItem,
 )
@@ -29,32 +31,50 @@ class PriContainerDictList(
 ):
     def __init__(self, manager: Optional[SyncManager] = None):
         # 升序排序
-        self._idles: Union[List[TPriContainerItem], ListProxy]
-        self._usings: Union[Dict[TPriContainerItem, bool], DictProxy]
+        self._idles: Union[Dict[str, TPriContainerItem], DictProxy]
+        self._usings: Union[Dict[str, TPriContainerItem], DictProxy]
+        self._idles_sort: Union[List[InstPri], ListProxy]
 
         self._manager = manager
 
         if manager is not None:
             # 使用manager生成可进程间共享的dict和list
-            self._idles = manager.list()
+            self._idles = manager.dict()
             self._usings = manager.dict()
+            self._idles_sort = manager.list()
         else:
-            self._idles = []
+            self._idles = {}
             self._usings = {}
+            self._idles_sort = []
 
         super().__init__()
 
     def put(self, item: TPriContainerItem) -> None:
         self.raise_for_closed()
-        if item in self._usings:
-            self._usings.pop(item)
+        if item.inst_id in self._idles:
+            logger.error("{name} exist {item} in idles.", name=self.name, item=item)
+            return
+
+        if item.inst_id in self._usings:
+            self._usings.pop(item.inst_id)
+
         item.before_put()
-        bisect.insort(self._idles, item)  # 必须升序
+        self._idles[item.inst_id] = item
+
+        bisect.insort(
+            self._idles_sort,
+            InstPri(priority=item.priority, inst_id=item.inst_id),
+            key=lambda x: x.priority,
+        )  # 必须升序
 
     def _get_end(self, from_min: bool) -> Optional[TPriContainerItem]:
         self.raise_for_closed()
-        item = self._idles.pop(0 if from_min else -1)
-        self._usings[item] = True
+        if not self._idles:
+            return None
+
+        inst_pri = self._idles_sort.pop(0 if from_min else -1)
+        item = self._idles.pop(inst_pri.inst_id)
+        self._usings[item.inst_id] = item
         return item
 
     def get_min(self) -> Optional[TPriContainerItem]:
@@ -65,18 +85,21 @@ class PriContainerDictList(
 
     def remove(self, item: TPriContainerItem) -> Optional[TPriContainerItem]:
         self.raise_for_closed()
-        if item in self._usings:
-            logger.error(
-                "{name} {item} in using, do nothing.", name=self.name, item=item
-            )
-            return None
-        i = None
 
-        for i, _item in enumerate(self._idles):
-            if _item == item:
-                break
-        if i is not None:
-            return self._idles.pop(i)
+        if item.inst_id in self._usings:
+            logger.error("{name} {item} in using, ignore.", name=self.name, item=item)
+            return None
+
+        if item.inst_id in self._idles:
+            i = None
+            for i, inst_pri in enumerate(self._idles_sort):
+                if inst_pri.inst_id == item.inst_id:
+                    break
+            if i is not None:
+                self._idles_sort.pop(i)
+
+            return self._idles.pop(item.inst_id)
+
         return None
 
     def close(self):
@@ -89,12 +112,14 @@ class PriContainerDictList(
         return len(self._usings) + len(self._idles)
 
     def __contains__(self, x: object) -> bool:
-        return x in self._usings or x in self._idles
+        if not isinstance(x, PriContainerItemBase):
+            return False
+        return x.inst_id in self._usings or x.inst_id in self._idles
 
     def __iter__(self) -> Iterator[TPriContainerItem]:
-        for item in self._idles:
+        for item in self._idles.values():
             yield item
-        for item in self._usings:
+        for item in self._usings.values():
             yield item
 
     def get(self) -> Optional[TPriContainerItem]:
