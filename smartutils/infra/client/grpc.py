@@ -7,8 +7,8 @@ from functools import partial
 from typing import TYPE_CHECKING, Awaitable, Callable, Optional
 
 from smartutils.config.schema.client import ClientConf
-from smartutils.design.abstract import AsyncTransactionalProtocol
 from smartutils.infra.client.breaker import Breaker
+from smartutils.infra.resource.manager.manager import AsyncTransactionalProtocol
 from smartutils.init.mixin import LibraryCheckMixin
 
 try:

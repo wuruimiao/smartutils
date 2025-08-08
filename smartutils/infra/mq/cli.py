@@ -8,9 +8,9 @@ import orjson
 
 from smartutils.config.schema.kafka import KafkaConf
 from smartutils.design import MyBase
-from smartutils.design.abstract import AsyncTransactionalProtocol
 from smartutils.error.factory import ExcDetailFactory
 from smartutils.error.sys import MQError
+from smartutils.infra.resource.manager.manager import AsyncTransactionalProtocol
 from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
 

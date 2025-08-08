@@ -8,10 +8,12 @@ from smartutils.config.const import ConfKey
 from smartutils.config.schema.redis import RedisConf
 from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.design import singleton
-from smartutils.design.abstract import AsyncTransactionalProtocol
 from smartutils.error.factory import ExcDetailFactory
 from smartutils.error.sys import CacheError
-from smartutils.infra.resource.manager.manager import CTXResourceManager
+from smartutils.infra.resource.manager.manager import (
+    AsyncTransactionalProtocol,
+    CTXResourceManager,
+)
 from smartutils.init.factory import InitByConfFactory
 from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger

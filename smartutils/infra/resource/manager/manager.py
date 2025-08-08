@@ -5,25 +5,26 @@ import functools
 from abc import ABC
 from typing import (
     Any,
+    AsyncContextManager,
     Awaitable,
     Callable,
     Dict,
     Generic,
     List,
     Optional,
+    Protocol,
     Type,
+    TypeVar,
     Union,
     overload,
+    runtime_checkable,
 )
 
 from smartutils.call import call_hook
 from smartutils.config.const import ConfKey
 from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.design import MyBase
-from smartutils.design.abstract import (
-    TAsyncClosable,
-    TAsyncTransactional,
-)
+from smartutils.design.abstract._async import AsyncClosableProtocol, TAsyncClosable
 from smartutils.error.base import BaseError
 from smartutils.error.sys import LibraryUsageError, SysError
 from smartutils.log import logger
@@ -85,6 +86,14 @@ class ResourceManager(MyBase, Generic[TAsyncClosable], ABC):
 
     def reset(self):
         self._resources = {}
+
+
+@runtime_checkable
+class AsyncTransactionalProtocol(AsyncClosableProtocol, Protocol):
+    def db(self, use_transaction: bool) -> AsyncContextManager[Any]: ...
+
+
+TAsyncTransactional = TypeVar("TAsyncTransactional", bound=AsyncTransactionalProtocol)
 
 
 class CTXResourceManager(ResourceManager[TAsyncTransactional]):
