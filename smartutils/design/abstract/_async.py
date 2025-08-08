@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Protocol, TypeVar, runtime_checkable
+from typing import Protocol, TypeVar, runtime_checkable
 
 from smartutils.design.abstract.common import ClosableBase
 
@@ -7,29 +7,11 @@ __all__ = [
     "AbstractAsyncClosable",
     "AsyncClosableProtocol",
     "AsyncHealthCheckProtocol",
-    "AsyncQueueContainerProtocol",
     "TAsyncClosable",
     "TAsyncHealthCheck",
 ]
 
 T = TypeVar("T")
-
-
-@runtime_checkable
-class AsyncQueueContainerProtocol(Protocol[T]):
-    """
-    通用异步队列协议，描述支持 async put/get 方法并可判空/判满的队列。
-    泛型参数T指定队列中存储的元素类型。
-    便于类型提示和鸭子类型约束，支持 isinstance 检查。
-    """
-
-    async def put(self, item: T) -> None: ...
-
-    async def get(self) -> Optional[T]: ...
-
-    def empty(self) -> bool: ...
-
-    def full(self) -> bool: ...
 
 
 class AbstractAsyncClosable(ClosableBase, ABC):

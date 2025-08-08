@@ -1,18 +1,20 @@
 import time
-from typing import Iterator, Optional, TypeVar, Union
+from typing import Iterable, Iterator, Optional, TypeVar, Union
 
-from smartutils.design.abstract import IterableProtocol
+from smartutils.design.abstract._sync import QueueContainerProtocol
 from smartutils.design.condition.abstract import ConditionProtocol
 from smartutils.design.condition_container.abstract import ConditionContainerProtocol
 from smartutils.design.const import DEFAULT_TIMEOUT
-from smartutils.design.container.abstract import AbstractContainer
 
 T = TypeVar("T")
 
 
-class ConditionContainer(ConditionContainerProtocol[T], IterableProtocol[T]):
+class _Container(QueueContainerProtocol[T], Iterable[T]): ...
+
+
+class ConditionContainer(ConditionContainerProtocol[T], Iterable[T]):
     def __init__(
-        self, *, container: AbstractContainer[T], condition: ConditionProtocol
+        self, *, container: _Container[T], condition: ConditionProtocol
     ) -> None:
         self._proxy = container
         self._cond = condition
