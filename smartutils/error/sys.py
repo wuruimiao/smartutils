@@ -118,7 +118,13 @@ class UnauthorizedError(SysError):
     status_code = 401
 
 
-class PoolOverflowError(SysError):
+class ContanierOverflowError(SysError):
     code = 1020
-    msg = "Pool Overflow Error"
+    msg = "Container Overflow Error"
+    status_code = 500
+
+
+class ContainerClosedError(SysError):
+    code = 1021
+    msg = "Container Closed Error"
     status_code = 500
