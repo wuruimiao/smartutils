@@ -7,7 +7,7 @@ __all__ = [
     "AbstractClosable",
     "ClosableProtocol",
     "HealthCheckProtocol",
-    "QueueProtocol",
+    "QueueContainerProtocol",
     "TClosable",
     "THealthCheck",
 ]
@@ -16,7 +16,7 @@ T = TypeVar("T")
 
 
 @runtime_checkable
-class QueueProtocol(Protocol[T]):
+class QueueContainerProtocol(Protocol[T]):
     """
     通用队列协议，描述支持 put/get/empty/full 方法的泛型队列类型（鸭子类型）。
     使用 @runtime_checkable 允许 isinstance 检查。
