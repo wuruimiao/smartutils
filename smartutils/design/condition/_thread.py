@@ -3,7 +3,7 @@ from __future__ import annotations
 import threading
 from typing import Optional, Union
 
-from smartutils.design.abstract import proxy_method
+from smartutils.design.abstract.common import Proxy
 from smartutils.design.condition.abstract import ConditionProtocol
 from smartutils.design.const import DEFAULT_TIMEOUT
 
@@ -36,7 +36,7 @@ class ThreadCondition(ConditionProtocol):
     def notify_all(self) -> None: ...
 
 
-proxy_method(ThreadCondition, ["release", "wait", "notify", "notify_all"])
+Proxy.method(ThreadCondition, ["release", "wait", "notify", "notify_all"])
 # print(isinstance(ThreadCondition(), ConditionProtocol))
 
 # cond = ThreadCondition()

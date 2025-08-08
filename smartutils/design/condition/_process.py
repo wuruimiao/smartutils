@@ -5,7 +5,7 @@ from multiprocessing.managers import SyncManager
 from multiprocessing.synchronize import Condition
 from typing import Optional, Union
 
-from smartutils.design.abstract import proxy_method
+from smartutils.design.abstract.common import Proxy
 from smartutils.design.condition.abstract import ConditionProtocol
 from smartutils.design.const import DEFAULT_TIMEOUT
 
@@ -48,6 +48,6 @@ class ProcessCondition(ConditionProtocol):
     def notify_all(self) -> None: ...
 
 
-proxy_method(ProcessCondition, ["release", "wait", "notify", "notify_all"])
+Proxy.method(ProcessCondition, ["release", "wait", "notify", "notify_all"])
 
 # print(isinstance(ProcessCondition(), ConditionProtocol))

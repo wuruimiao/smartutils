@@ -1,7 +1,7 @@
 import asyncio
 from typing import Optional, Union
 
-from smartutils.design.abstract import proxy_method
+from smartutils.design.abstract.common import Proxy
 from smartutils.design.condition.abstract import AsyncConditionProtocol
 from smartutils.design.const import DEFAULT_TIMEOUT
 
@@ -43,5 +43,5 @@ class AsyncioCondition(AsyncConditionProtocol):
     def notify_all(self) -> None: ...
 
 
-proxy_method(AsyncioCondition, ["release", "notify", "notify_all"])
+Proxy.method(AsyncioCondition, ["release", "notify", "notify_all"])
 # print(isinstance(AsyncioCondition(), AsyncConditionProtocol))

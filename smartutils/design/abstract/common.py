@@ -96,7 +96,7 @@ class Proxy:
         return method
 
     @classmethod
-    def proxy_method(cls, the_cls: type, methods: List[str]):
+    def method(cls, the_cls: type, methods: List[str]):
         """
         批量为 the_cls 类增加方法，将指定方法列表的方法全部代理到 self._proxy 对象上。
         仅实现行为代理，不影响类型提示。
