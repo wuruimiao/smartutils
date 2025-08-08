@@ -2,10 +2,13 @@ from abc import ABC, abstractmethod
 from functools import total_ordering
 from typing import Callable, List, Optional, Protocol, TypeVar, runtime_checkable
 
+from smartutils.error.sys import ContainerClosedError
+
 __all__ = [
     "AbstractComparable",
     "ClosableBase",
     "Proxy",
+    "ContainerItemProtocol",
     "RemovableProtocol",
     "TAbstractComparable",
 ]
@@ -21,9 +24,9 @@ class RemovableProtocol(Protocol[T]):
     通用于自定义容器、缓存、池等对象能力约束。
     """
 
-    def remove(self, value: T) -> Optional[T]:
+    def remove(self, item: T) -> Optional[T]:
         """
-        移除一个元素 value，返回被移除的对象或 None。
+        移除一个元素 item，返回被移除的对象或 None。
         """
         ...
 
@@ -44,6 +47,10 @@ class ClosableBase:
         外部只读属性，表示对象是否已关闭。
         """
         return self._closed
+
+    def raise_for_closed(self) -> None:
+        if self.closed:
+            raise ContainerClosedError()
 
     def _set_closed(self):
         """
@@ -76,6 +83,13 @@ class AbstractComparable(ABC):
 
 # 用于泛型约束“可比较对象”的 TypeVar
 TAbstractComparable = TypeVar("TAbstractComparable", bound=AbstractComparable)
+
+
+@runtime_checkable
+class ContainerItemProtocol(Protocol):
+    def before_put(self): ...
+
+    def after_get(self): ...
 
 
 class Proxy:

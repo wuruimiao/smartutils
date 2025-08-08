@@ -7,7 +7,7 @@ __all__ = [
     "AbstractAsyncClosable",
     "AsyncClosableProtocol",
     "AsyncHealthCheckProtocol",
-    "AsyncQueueProtocol",
+    "AsyncQueueContainerProtocol",
     "TAsyncClosable",
     "TAsyncHealthCheck",
 ]
@@ -16,7 +16,7 @@ T = TypeVar("T")
 
 
 @runtime_checkable
-class AsyncQueueProtocol(Protocol[T]):
+class AsyncQueueContainerProtocol(Protocol[T]):
     """
     通用异步队列协议，描述支持 async put/get 方法并可判空/判满的队列。
     泛型参数T指定队列中存储的元素类型。
