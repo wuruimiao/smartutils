@@ -14,10 +14,10 @@ def test_cur_pid(mocker):
 
 def test_cur_tid():
     tid = process.cur_tid()
-    # threading.currentThread().ident 必定不为 None
+    # threading.current_thread().ident 必定不为 None
     import threading
 
-    assert tid == threading.currentThread().ident
+    assert tid == threading.current_thread().ident
     assert isinstance(tid, int)
 
 
