@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import TypeVar
+
 from smartutils.design.pri_container.abstract import PriContainerItemBase
 from smartutils.design.pri_container.dict_list import PriContainerDictList
 from smartutils.time import get_now_stamp_float
@@ -12,7 +14,10 @@ class PriTSItem(PriContainerItemBase):
     def after_get(self): ...
 
 
-class PriTSContainerDictList(PriContainerDictList[PriTSItem]): ...
+TPriTSItem = TypeVar("TPriTSItem", bound=PriTSItem)
+
+
+class PriTSContainerDictList(PriContainerDictList[TPriTSItem]): ...
 
 
 class PriUseNoItem(PriContainerItemBase):
@@ -22,4 +27,7 @@ class PriUseNoItem(PriContainerItemBase):
         self._priority += 1
 
 
-class PriUseNoContainerDictList(PriContainerDictList[PriUseNoItem]): ...
+TPriUseNoItem = TypeVar("TPriUseNoItem", bound=PriUseNoItem)
+
+
+class PriUseNoContainerDictList(PriContainerDictList[TPriUseNoItem]): ...

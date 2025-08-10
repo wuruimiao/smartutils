@@ -1,13 +1,14 @@
 from multiprocessing import Manager
+from typing import List
 
 import pytest
 
-from smartutils.design.container.abstract_pri import (
+from smartutils.design.pri_container.abstract import (
+    PriContainerItemBase,
     PriContainerProtocol,
 )
-from smartutils.design.container.item import PriItemWrap
-from smartutils.design.container.pri_dict_list import PriContainerDictList
-from smartutils.error.sys import LibraryUsageError
+from smartutils.design.pri_container.dict_list import PriContainerDictList
+from smartutils.error.sys import ContainerClosedError
 
 
 @pytest.fixture(params=[None, Manager])
@@ -28,152 +29,77 @@ def container(request):
         proc_manager.shutdown()
 
 
-@pytest.fixture(params=[None, Manager])
-def reuse_container(request):
-    """
-    分别测试单进程与多进程容器（后者用 multiprocessing.Manager）
-    """
-    proc_manager = None
-    if request.param is None:
-        c = PriContainerDictList(reuse=True)
-        assert isinstance(c, PriContainerProtocol)
-        yield c
-    else:
-        proc_manager = Manager()
-        c = PriContainerDictList(manager=proc_manager, reuse=True)
-        assert isinstance(c, PriContainerProtocol)
-        yield c
-        proc_manager.shutdown()
+class Item(PriContainerItemBase):
+    def before_put(self):
+        self._priority = self.value
+
+    def after_get(self): ...
 
 
 def test_put_and_len(container):
-    assert container.push("v1", 10)
-    assert len(container) == 1
-    assert container.push("v2", 5)
-    assert len(container) == 2
-    assert container.push("v3", 10)
+    items = []
+    for i in [3, 2, 1]:
+        item = Item(i)
+        container.put(item)
+        items.append(item)
+
     assert len(container) == 3
 
-    assert "v1" in container
-    assert "v2" in container
-    assert "v3" in container
+    for item in items:
+        assert item in container
 
     assert container.empty() is False
 
-    for value in container:
-        assert value in {"v1", "v2", "v3"}
-
-
-def test_with_auto_close():
-    with PriContainerDictList() as container:
-        assert container.push("v1", 10)
-        assert len(container) == 1
-        assert container.push("v2", 5)
-        assert len(container) == 2
-        assert container.push("v3", 10)
-        assert len(container) == 3
-
-        assert "v1" in container
-        assert "v2" in container
-        assert "v3" in container
-
-        assert container.empty() is False
-
-        for value in container:
-            assert value in {"v1", "v2", "v3"}
-
-    assert container.empty() is True
+    ids = [item.inst_id for item in items]
+    for item in container:
+        assert item.inst_id in ids
 
 
 def test_pop_min_max(container):
-    v = [("a", 5), ("b", 1), ("c", 10)]
-    [container.push(val, pri) for val, pri in v]
-    # 先2,0,1输入
-    pop_val = container.pop_min()
-    # 最小优先级是1，对应"b"
-    assert pop_val == "b"
-    # 最大优先级是10，对应"c"
-    pop_val = container.pop_max()
-    assert pop_val == "c"
-    # 剩下"5"
-    pop_val = container.pop_min()
-    assert pop_val == "a"
-    assert container.pop_min() is None
-    assert container.pop_max() is None
+    items: List[Item] = []
+    for i in [3, 2, 1]:
+        item = Item(i)
+        container.put(item)
+        items.append(item)
+
+    item: Item = container.get_min()
+    assert item
+    assert item.value == 1
+    item = container.get_max()
+    assert item.value == 3
+    item = container.get_min()
+    assert item.value == 2
+    assert container.get_min() is None
+    assert container.get_max() is None
 
 
 def test_get(container):
-    v = [("a", 5), ("b", 1), ("c", 10)]
-    [container.push(val, pri) for val, pri in v]
-    pop_val = container.get()
-    # 最大优先级是"c"
-    assert pop_val == "c"
-    # 最大优先级是"a"
-    pop_val = container.get()
-    assert pop_val == "a"
-    assert container.pop_min() == "b"
-    assert container.pop_max() is None
+    items: List[Item] = []
+    for i in [3, 2, 1]:
+        item = Item(i)
+        container.put(item)
+        items.append(item)
 
-
-def test_put(container):
-    container.put("a")
-    container.put("b")
-    container.put("c")
-    assert len(container) == 3
-
-
-def test_cant_remove(container):
-    with pytest.raises(LibraryUsageError) as e:
-        container.push("valx", 5)
-        container.remove("valx")
-    assert str(e.value) == "[PriContainerDictList] not in reuse mode, cant remove."
-
-
-def test_repeated_priority(container):
-    # 同一优先级多数据，应LIFO弹出
-    [container.push(f"x{i}", 7) for i in range(3)]
-    pop1 = container.pop_min()
-    pop2 = container.pop_min()
-    pop3 = container.pop_min()
-    # 顺序一致
-    assert [pop1, pop2, pop3] == ["x2", "x1", "x0"]
-    # 空了
-    assert container.pop_min() is None
+    item: Item = container.get()
+    assert item.value == 3
+    item = container.get()
+    assert item.value == 2
+    assert container.get_min().value == 1
+    assert container.get_max() is None
 
 
 def test_empty_behavior(container):
-    assert container.pop_min() is None
-    assert container.pop_max() is None
-
-
-def test_priority_item_str():
-    item = PriItemWrap(value=1, priority=2, inst_id="3")
-    assert str(item) == "<[PriItemWrap] id=3 cnt=0 val=1> priority=2"
-    assert item.inst_id == "3"
-    assert item.value == 1
-
-
-def test_remove(reuse_container):
-    reuse_container.push("valx", 5)
-    assert reuse_container.remove("valx") == "valx"
-    assert reuse_container.pop_max() is None
-    assert reuse_container.remove("valx") is None
-
-
-def test_pop_max(reuse_container):
-    reuse_container.push("valx", 5)
-    assert "valx" in reuse_container
-    assert reuse_container.pop_max() == "valx"
-    assert reuse_container.pop_max() is None
+    assert container.get_min() is None
+    assert container.get_max() is None
 
 
 def test_pri_dict_list_close(container):
-    container.push(1, 2)
+    container.put(Item(1))
     assert container.close() is None
     assert container.closed
     assert len(container) == 0
 
-    assert container.push(2, 10) is False
-    assert container.put(3) is False
-    assert container.pop_max() is None
-    assert container.remove(1) is None
+    with pytest.raises(ContainerClosedError):
+        assert container.put(Item(2)) is False
+    with pytest.raises(ContainerClosedError):
+        assert container.get_max() is None

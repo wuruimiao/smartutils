@@ -1,16 +1,14 @@
-from abc import ABC, abstractmethod
-from functools import total_ordering
 from typing import Callable, List, Optional, Protocol, TypeVar, runtime_checkable
 
 from smartutils.error.sys import ContainerClosedError
 
 __all__ = [
-    "AbstractComparable",
+    "SortableProtocol",
     "ClosableBase",
     "Proxy",
     "ContainerItemProtocol",
     "RemovableProtocol",
-    "TAbstractComparable",
+    "TSortable",
 ]
 
 T = TypeVar("T")
@@ -59,30 +57,35 @@ class ClosableBase:
         self._closed = True
 
 
-@total_ordering
-class AbstractComparable(ABC):
-    """
-    可比较对象抽象基类，实现 __eq__ 和 __lt__ 即可自动推导全部大小比较方法。
-    子类需继承并实现 __eq__ 和 __lt__。
-    """
-
-    @abstractmethod
-    def __eq__(self, other) -> bool:
-        """
-        判断对象是否相等
-        """
-        ...
-
-    @abstractmethod
+class SortableProtocol(Protocol):
     def __lt__(self, other) -> bool:
         """
         判断对象小于 another
+        sorted/bisect/heapq 只关心 __lt__来比较谁优先。
         """
         ...
 
+    # @abstractmethod
+    # def __eq__(self, other) -> bool:
+    #     """
+    #     判断对象是否相等
+    #     __hash__一样的，__eq__也必须True
+    #     """
+    #     ...
+
+    # @abstractmethod
+    # def __hash__(self) -> int:
+    #     """
+    #     自定义了 __eq__，但又没有同步自定义 __hash__，Python（自 3.0 起）就会自动把 __hash__ 设为 None
+    #     防止 hash-collection 一致性错误。
+    #     必须实现__eq__的地方同步实现
+    #     __hash__一样的，__eq__也必须True
+    #     """
+    #     ...
+
 
 # 用于泛型约束“可比较对象”的 TypeVar
-TAbstractComparable = TypeVar("TAbstractComparable", bound=AbstractComparable)
+TSortable = TypeVar("TSortable", bound=SortableProtocol)
 
 
 @runtime_checkable

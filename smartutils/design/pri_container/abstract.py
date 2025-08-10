@@ -1,40 +1,60 @@
+from dataclasses import dataclass
 from typing import Optional, Protocol, TypeVar, runtime_checkable
 
-from smartutils.design.abstract.common import (
-    AbstractComparable,
-    ContainerItemProtocol,
-    TAbstractComparable,
-)
+import ulid
+
+from smartutils.design._class import MyBase
+from smartutils.design.abstract.common import ContainerItemProtocol
+
+T = TypeVar("T")
 
 
 @runtime_checkable
-class PriContainerProtocol(Protocol[TAbstractComparable]):
-    def put(self, item: TAbstractComparable) -> None: ...
+class PriContainerProtocol(Protocol[T]):
+    """
+    不要求TSortable，容器实现可能不直接比较实例大小，交由子类决定
+    """
 
-    def get_min(self) -> Optional[TAbstractComparable]:
+    def put(self, item: T) -> None: ...
+
+    def get_min(self) -> Optional[T]:
         """
         弹出并返回优先级最小的元素（即value），若无元素则返回None。
         """
         ...
 
-    def get_max(self) -> Optional[TAbstractComparable]:
+    def get_max(self) -> Optional[T]:
         """
         弹出并返回优先级最大的元素（value）。无元素返回None。
         """
         ...
 
 
-class PriContainerItemBase(AbstractComparable, ContainerItemProtocol):
+class PriContainerItemBase(MyBase, ContainerItemProtocol):
     def __init__(self, value) -> None:
         self.value = value
         self._priority = 0
+        # 在Manager模式下，序列化反序列化后，内存地址不同，默认id(self)无法判等
+        # 需要唯一ID
+        self._inst_id = str(ulid.new())
         super().__init__()
 
-    def __eq__(self, other) -> bool:
-        return self._priority == other._priority
+    @property
+    def inst_id(self) -> str:
+        return self._inst_id
 
-    def __lt__(self, other) -> bool:
-        return self._priority < other._priority
+    @property
+    def priority(self):
+        return self._priority
+
+    def __repr__(self) -> str:
+        return f"{self.name}<{self.inst_id}>"
 
 
 TPriContainerItem = TypeVar("TPriContainerItem", bound=PriContainerItemBase)
+
+
+@dataclass
+class InstPri:
+    priority: int
+    inst_id: str
