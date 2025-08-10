@@ -36,6 +36,8 @@ class ConfKey(str, Enum):
 
     PLACEHOLDER = "placeholder"
 
+    PROXY = "proxy"
+
     # 允许注册自定义Key供测试和灵活扩展
     TEST = "__test__"
     TEST2 = "__test2__"
