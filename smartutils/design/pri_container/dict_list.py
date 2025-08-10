@@ -51,10 +51,12 @@ class PriContainerDictList(
 
     def put(self, item: TPriContainerItem) -> None:
         self.raise_for_closed()
+        # 重复释放
         if item.inst_id in self._idles:
             logger.error("{name} exist {item} in idles.", name=self.name, item=item)
             return
 
+        # 释放回来
         if item.inst_id in self._usings:
             self._usings.pop(item.inst_id)
 
@@ -66,6 +68,9 @@ class PriContainerDictList(
             InstPri(priority=item.priority, inst_id=item.inst_id),
             key=lambda x: x.priority,
         )  # 必须升序
+
+    def get(self) -> Optional[TPriContainerItem]:
+        return self.get_max()
 
     def _get_end(self, from_min: bool) -> Optional[TPriContainerItem]:
         self.raise_for_closed()
@@ -121,9 +126,6 @@ class PriContainerDictList(
             yield item
         for item in self._usings.values():
             yield item
-
-    def get(self) -> Optional[TPriContainerItem]:
-        return self.get_max()
 
     def empty(self) -> bool:
         return len(self) == 0
