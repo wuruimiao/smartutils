@@ -68,6 +68,12 @@ def test_thread_lock_notify_all_cover():
         lock2.notify_all()
 
 
+async def test_thread_async_with():
+    lock = ThreadCondition()
+    async with lock:
+        lock.acquire()
+
+
 def test_thread_lock_timeout():
     """
     加锁超时：先获得锁不释放，然后尝试再次acquire应超时返回False。
@@ -78,6 +84,20 @@ def test_thread_lock_timeout():
     t1.start()
     t1.join()
     lock.release()
+
+
+def test_thread_lock_acquire_non_block():
+    """
+    加锁超时：先获得锁不释放，然后尝试再次acquire应超时返回False。
+    """
+    lock = ThreadCondition()
+    t1 = threading.Thread(
+        target=lambda: lock.acquire() and time.sleep(0.5) and lock.release()
+    )
+    t1.start()
+    time.sleep(0.1)
+    assert lock.acquire(block=False) is False
+    t1.join()
 
 
 def test_thread_lock_exit_without_acquire():

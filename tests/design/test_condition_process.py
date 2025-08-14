@@ -101,3 +101,9 @@ def test_process_lock_exit_shutdown_cover():
     # 模拟 with 执行完关闭
     lock.acquire(timeout=0.1)
     lock.__exit__(None, None, None)
+
+
+async def test_thread_async_with():
+    lock = ProcessCondition()
+    async with lock:
+        lock.acquire()

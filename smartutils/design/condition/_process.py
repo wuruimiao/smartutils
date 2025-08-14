@@ -36,6 +36,13 @@ class ProcessCondition(ConditionProtocol):
         if self._manager_owner:
             self._manager.shutdown()
 
+    async def __aenter__(self) -> ProcessCondition:
+        self.__enter__()
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        self.__exit__(exc_type, exc_val, exc_tb)
+
     def acquire(
         self, *, block: bool = True, timeout: Optional[Union[float, int]] = None
     ) -> bool:

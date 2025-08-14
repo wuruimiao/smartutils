@@ -3,6 +3,7 @@ import asyncio
 import pytest
 
 from smartutils.design.condition._async import AsyncioCondition
+from smartutils.error.sys import LibraryUsageError
 
 
 async def test_asyncio_lock_basic():
@@ -66,3 +67,24 @@ async def test_asyncio_lock_acontext_finally_cover():
     with pytest.raises(MyError):
         async with lock:
             raise MyError("cover finally branch")
+
+
+async def test_asyncio_lock_non_block():
+    lock = AsyncioCondition()
+    assert await lock.acquire(block=False)
+
+
+async def test_asyncio_lock_wait_non_lock():
+    lock = AsyncioCondition()
+    assert await lock.acquire()
+    with pytest.raises(asyncio.TimeoutError) as e:
+        await asyncio.wait_for(lock.wait(), 0.1)
+    assert str(e.value) == ""
+
+
+async def test_asyncio_lock_sync_with():
+    lock = AsyncioCondition()
+    with pytest.raises(LibraryUsageError) as e:
+        with lock:
+            ...
+    assert str(e.value) == "[AsyncioCondition] does not support sync with"
