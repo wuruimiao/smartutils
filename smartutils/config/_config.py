@@ -19,7 +19,11 @@ _config: Optional[Config] = None
 
 
 class Config(MyBase, Generic[TBaseModel], metaclass=SingletonMeta):
-    def __init__(self, conf_path: str):
+    def __init__(self, conf_path: Optional[str] = None):
+        super().__init__()
+
+        assert conf_path, f"{self.name} init need conf_path"
+
         self._instances: Union[
             Dict[str, TBaseModel], Dict[str, Dict[str, TBaseModel]]
         ] = {}
