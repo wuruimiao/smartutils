@@ -2,6 +2,7 @@ from typing import Any, Callable, Generator, Tuple
 
 
 def drive_steps(gen: Generator[Tuple[Callable[..., Any], dict], Any, Any]) -> Any:
+    gen = iter(gen)
     try:
         op = next(gen)  # 激活生成器，获得第一个操作步骤
         while True:
@@ -15,6 +16,7 @@ def drive_steps(gen: Generator[Tuple[Callable[..., Any], dict], Any, Any]) -> An
 async def adrive_steps(
     gen: Generator[Tuple[Callable[..., Any], dict], Any, Any],
 ) -> Any:
+    gen = iter(gen)
     try:
         op = next(gen)  # 激活生成器，获得第一个操作步骤
         while True:

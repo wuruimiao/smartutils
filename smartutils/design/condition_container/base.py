@@ -109,31 +109,21 @@ class ConditionContainer(ConditionContainerBase[T], ConditionContainerProtocol[T
     def get(
         self, block: bool = True, timeout: Optional[Union[float, int]] = None
     ) -> Optional[T]:
-        gen = iter(self._get_logic_driver(block, timeout))
-        return drive_steps(gen)
+        return drive_steps(self._get_logic_driver(block, timeout))
 
     def put(
-        self,
-        value: T,
-        block: bool = True,
-        timeout: Optional[Union[float, int]] = None,
+        self, value: T, block: bool = True, timeout: Optional[Union[float, int]] = None
     ) -> bool:
-        gen = iter(self._put_logic_driver(value, block, timeout))
-        return drive_steps(gen)
+        return drive_steps(self._put_logic_driver(value, block, timeout))
 
 
 class AsyncConditionContainer(ConditionContainerBase[T], ConditionContainerProtocol[T]):
     async def get(
         self, block: bool = True, timeout: Optional[Union[float, int]] = None
     ) -> Optional[T]:
-        gen = iter(self._get_logic_driver(block, timeout))
-        return await adrive_steps(gen)
+        return await adrive_steps(self._get_logic_driver(block, timeout))
 
     async def put(
-        self,
-        value: T,
-        block: bool = True,
-        timeout: Optional[Union[float, int]] = None,
+        self, value: T, block: bool = True, timeout: Optional[Union[float, int]] = None
     ) -> bool:
-        gen = iter(self._put_logic_driver(value, block, timeout))
-        return await adrive_steps(gen)
+        return await adrive_steps(self._put_logic_driver(value, block, timeout))
