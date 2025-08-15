@@ -190,3 +190,8 @@ def today_remain_sec(tz: ZoneInfo = _DefaultTZ) -> int:
     end_of_day = datetime(now.year, now.month, now.day, 23, 59, 59, tzinfo=tz)
     delta = end_of_day - now
     return int(delta.total_seconds())
+
+
+def get_current_hour(tz: ZoneInfo = _DefaultTZ) -> int:
+    now = get_now(tz)
+    return now.hour
