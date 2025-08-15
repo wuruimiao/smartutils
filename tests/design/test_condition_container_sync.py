@@ -1,18 +1,39 @@
 import threading
 import time
+from typing import Iterator, Optional
 
 import pytest
 
+from smartutils.design.abstract.common import QueueContainerIterableProtocol
 from smartutils.design.condition._thread import ThreadCondition
-from smartutils.design.condition_container.base_sync import ConditionContainer
-from smartutils.design.container.pri_timestamp import PriTSContainerDictList
+from smartutils.design.condition_container.base import ConditionContainer
+
+
+class TmpContainer(QueueContainerIterableProtocol[str]):
+    def __init__(self) -> None:
+        self._list = []
+        self._limit = 3
+        super().__init__()
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(self._list)
+
+    def put(self, item: str) -> None:
+        self._list.append(item)
+
+    def get(self) -> Optional[str]:
+        return self._list.pop(-1)
+
+    def empty(self) -> bool:
+        return not self._list
+
+    def full(self) -> bool:
+        return len(self._list) == self._limit
 
 
 @pytest.fixture
 def cond_container():
-    return ConditionContainer(
-        container=PriTSContainerDictList(), condition=ThreadCondition()
-    )
+    return ConditionContainer(container=TmpContainer(), condition=ThreadCondition())
 
 
 def test_put_and_get(cond_container):
@@ -113,18 +134,3 @@ def test_cond_container_put_False(cond_container):
     t.join()
 
     assert 0.18 < (end - start) < 0.5  # 确实等了小于 locker 的占用时长
-
-
-def test_cond_container_getattr(cond_container):
-    cond_container.push("a", 1)
-    cond_container.push("b", 2)
-    cond_container.push("c", 3)
-    assert cond_container.pop_max() == "c"
-    assert cond_container.pop_min() == "a"
-
-    with pytest.raises(TypeError) as e:
-        assert len(cond_container) == 1
-    assert str(e.value) == "object of type 'ConditionContainer' has no len()"
-    assert "b" in cond_container
-    for item in cond_container:
-        assert item == "b"

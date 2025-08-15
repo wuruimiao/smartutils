@@ -1,14 +1,16 @@
 import bisect
 from multiprocessing.managers import DictProxy, ListProxy, SyncManager
-from typing import Container, Dict, Iterable, Iterator, List, Optional, Sized, Union
+from typing import Container, Dict, Iterator, List, Optional, Sized, Union
 
 from smartutils.design._class import MyBase
 from smartutils.design.abstract._sync import (
     AbstractClosable,
     ClosableProtocol,
-    QueueContainerProtocol,
 )
-from smartutils.design.abstract.common import RemovableProtocol
+from smartutils.design.abstract.common import (
+    QueueContainerIterableProtocol,
+    RemovableProtocol,
+)
 from smartutils.design.pri_container.abstract import (
     InstPri,
     PriContainerItemBase,
@@ -24,8 +26,7 @@ class PriContainerDictList(
     ClosableProtocol,
     Sized,
     Container,
-    Iterable,
-    QueueContainerProtocol[TPriContainerItem],
+    QueueContainerIterableProtocol[TPriContainerItem],
     PriContainerProtocol[TPriContainerItem],
     RemovableProtocol[TPriContainerItem],
 ):

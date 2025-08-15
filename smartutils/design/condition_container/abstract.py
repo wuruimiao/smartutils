@@ -1,4 +1,11 @@
-from typing import Optional, Protocol, TypeVar, Union, runtime_checkable
+from typing import (
+    Awaitable,
+    Optional,
+    Protocol,
+    TypeVar,
+    Union,
+    runtime_checkable,
+)
 
 T = TypeVar("T")
 
@@ -7,30 +14,14 @@ T = TypeVar("T")
 class ConditionContainerProtocol(Protocol[T]):
     def get(
         self, block: bool = True, timeout: Optional[Union[float, int]] = None
-    ) -> Optional[T]: ...
+    ) -> Union[Optional[T], Awaitable[Optional[T]]]: ...
 
     def put(
         self,
         value: T,
         block: bool = True,
         timeout: Optional[Union[float, int]] = None,
-    ) -> bool: ...
-
-    def empty(self) -> bool: ...
-
-
-@runtime_checkable
-class AsyncConditionContainerProtocol(Protocol[T]):
-    async def get(
-        self, block: bool = True, timeout: Optional[Union[float, int]] = None
-    ) -> Optional[T]: ...
-
-    async def put(
-        self,
-        value: T,
-        block: bool = True,
-        timeout: Optional[Union[float, int]] = None,
-    ) -> bool: ...
+    ) -> Union[bool, Awaitable[bool]]: ...
 
     def empty(self) -> bool: ...
 
@@ -38,9 +29,7 @@ class AsyncConditionContainerProtocol(Protocol[T]):
 # from queue import Queue
 
 # print(isinstance(Queue(), ConditionContainerProtocol))
-# print(isinstance(Queue(), AsyncConditionContainerProtocol))
 
 # from asyncio import Queue
 
 # print(isinstance(Queue(), ConditionContainerProtocol))
-# print(isinstance(Queue(), AsyncConditionContainerProtocol))

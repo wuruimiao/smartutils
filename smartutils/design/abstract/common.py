@@ -1,4 +1,12 @@
-from typing import Callable, List, Optional, Protocol, TypeVar, runtime_checkable
+from typing import (
+    Callable,
+    Iterable,
+    List,
+    Optional,
+    Protocol,
+    TypeVar,
+    runtime_checkable,
+)
 
 from smartutils.error.sys import ContainerClosedError
 
@@ -12,6 +20,30 @@ __all__ = [
 ]
 
 T = TypeVar("T")
+
+
+@runtime_checkable
+class QueueContainerProtocol(Protocol[T]):
+    """
+    不涉及锁,实现并发安全,使用ConditionContainerProtocol
+    通用队列协议，描述支持 put/get/empty/full 方法的泛型队列类型（鸭子类型）。
+    使用 @runtime_checkable 允许 isinstance 检查。
+    T: 队列中元素类型。
+    """
+
+    def put(self, item: T) -> None: ...
+
+    def get(self) -> Optional[T]: ...
+
+    def empty(self) -> bool: ...
+
+    def full(self) -> bool: ...
+
+
+@runtime_checkable
+class QueueContainerIterableProtocol(
+    QueueContainerProtocol[T], Iterable[T], Protocol[T]
+): ...
 
 
 @runtime_checkable
