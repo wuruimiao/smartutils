@@ -39,11 +39,7 @@ class QueueContainerProtocol(Protocol[T]):
 
     def full(self) -> bool: ...
 
-
-@runtime_checkable
-class QueueContainerIterableProtocol(
-    QueueContainerProtocol[T], Iterable[T], Protocol[T]
-): ...
+    def qsize(self) -> int: ...
 
 
 @runtime_checkable

@@ -1,22 +1,19 @@
 import asyncio
 import time
-from typing import Iterator, Optional
+from typing import Optional
 
 import pytest
 
-from smartutils.design.abstract.common import QueueContainerIterableProtocol
+from smartutils.design.abstract.common import QueueContainerProtocol
 from smartutils.design.condition._async import AsyncioCondition
 from smartutils.design.condition_container.base import AsyncConditionContainer
 
 
-class TmpContainer(QueueContainerIterableProtocol[str]):
+class TmpContainer(QueueContainerProtocol[str]):
     def __init__(self) -> None:
         self._list = []
         self._limit = 3
         super().__init__()
-
-    def __iter__(self) -> Iterator[str]:
-        return iter(self._list)
 
     def put(self, item: str) -> None:
         self._list.append(item)
@@ -28,7 +25,10 @@ class TmpContainer(QueueContainerIterableProtocol[str]):
         return not self._list
 
     def full(self) -> bool:
-        return len(self._list) == self._limit
+        return self.qsize() >= self._limit
+
+    def qsize(self) -> int:
+        return len(self._list)
 
 
 @pytest.fixture
@@ -42,6 +42,7 @@ async def test_async_cond_container_put_and_get(cond_container):
     # put 应成功, get 应返回相同值
     assert await cond_container.put("hello1", timeout=1) is True
     assert await cond_container.put("hello2", timeout=1) is True
+    assert cond_container.full()
     assert await cond_container.get(timeout=1) == "hello2"
     assert await cond_container.get(timeout=1, block=False) == "hello1"
     # 取空，再get应返回None

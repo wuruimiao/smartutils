@@ -1,11 +1,4 @@
-from typing import (
-    Awaitable,
-    Optional,
-    Protocol,
-    TypeVar,
-    Union,
-    runtime_checkable,
-)
+from typing import Awaitable, Optional, Protocol, TypeVar, Union, runtime_checkable
 
 T = TypeVar("T")
 
@@ -24,6 +17,10 @@ class ConditionContainerProtocol(Protocol[T]):
     ) -> Union[bool, Awaitable[bool]]: ...
 
     def empty(self) -> bool: ...
+
+    def full(self) -> bool: ...
+
+    def qsize(self) -> int: ...
 
 
 # from queue import Queue

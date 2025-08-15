@@ -4,6 +4,7 @@ from typing import (
     Callable,
     Dict,
     Generator,
+    Generic,
     Iterable,
     Iterator,
     Optional,
@@ -15,19 +16,16 @@ from typing import (
 from email_validator import DEFAULT_TIMEOUT
 
 from smartutils.design._iter import adrive_steps, drive_steps
-from smartutils.design.abstract.common import QueueContainerIterableProtocol
+from smartutils.design.abstract.common import QueueContainerProtocol
 from smartutils.design.condition.abstract import ConditionProtocol
 from smartutils.design.condition_container.abstract import ConditionContainerProtocol
 
 T = TypeVar("T")
 
 
-class ConditionContainerBase(Iterable[T]):
+class ConditionContainerBase(Generic[T]):
     def __init__(
-        self,
-        *,
-        container: QueueContainerIterableProtocol[T],
-        condition: ConditionProtocol
+        self, *, container: QueueContainerProtocol[T], condition: ConditionProtocol
     ) -> None:
         self._proxy = container
         self._cond = condition
@@ -101,8 +99,11 @@ class ConditionContainerBase(Iterable[T]):
     def empty(self) -> bool:
         return self._proxy.empty()
 
-    def __iter__(self) -> Iterator[T]:
-        return iter(self._proxy)
+    def full(self) -> bool:
+        return self._proxy.full()
+
+    def qsize(self) -> int:
+        return self._proxy.qsize()
 
 
 class ConditionContainer(ConditionContainerBase[T], ConditionContainerProtocol[T]):
