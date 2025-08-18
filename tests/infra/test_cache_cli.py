@@ -1,6 +1,7 @@
 import pytest
 
-import smartutils.infra.cache.redis as cachemod
+# import smartutils.infra.cache.redis as cachemod
+import smartutils.infra.cache.redis_cli as cacheclimod
 
 
 @pytest.fixture
@@ -14,7 +15,7 @@ def redis_conf():
 
 @pytest.fixture
 def async_cli(mocker):
-    cli = cachemod.AsyncRedisCli.__new__(cachemod.AsyncRedisCli)
+    cli = cacheclimod.AsyncRedisCli.__new__(cacheclimod.AsyncRedisCli)
     cli._redis = mocker.AsyncMock()
     cli._pool = mocker.AsyncMock()
     cli._key = "test"
@@ -218,7 +219,7 @@ async def test_ensure_stream_and_group_raises(async_cli, mocker):
         def __str__(self):
             return "other error"
 
-    mocker.patch.object(cachemod, "ResponseError", DummyRespErr)
+    mocker.patch.object(cacheclimod, "ResponseError", DummyRespErr)
     async_cli._redis.xgroup_create = mocker.AsyncMock(side_effect=DummyRespErr())
     import smartutils.error.factory as ef
 
