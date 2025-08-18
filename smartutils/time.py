@@ -192,6 +192,6 @@ def today_remain_sec(tz: ZoneInfo = _DefaultTZ) -> int:
     return int(delta.total_seconds())
 
 
-def get_current_hour(tz: ZoneInfo = _DefaultTZ) -> int:
+def get_now_hour(tz: ZoneInfo = _DefaultTZ) -> int:
     now = get_now(tz)
     return now.hour
