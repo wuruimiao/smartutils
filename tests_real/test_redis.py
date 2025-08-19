@@ -1,5 +1,3 @@
-import asyncio
-
 import pytest
 
 from smartutils.error.sys import LibraryUsageError
