@@ -60,6 +60,7 @@ class AsyncRedisCli(LibraryCheckMixin, AbstractAsyncResource):
         yield self
 
     async def _eval(self, *args, **kwargs):
+        # 键值必须使用KEYS传递,集群分槽需要
         return await self._redis.eval(*args, **kwargs)  # type: ignore
 
     async def incr(self, key: str, ex: Optional[int] = None) -> str:
