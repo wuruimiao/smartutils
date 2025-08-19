@@ -37,6 +37,17 @@ class AsyncRedisCli(LibraryCheckMixin, AbstractAsyncResource):
         # 当访问 AsyncRedisCli 未定义的属性/方法时，由 _redis 处理
         return getattr(self._redis, name)
 
+    async def evalsha(self, sha: str, keys=None, args=None):
+        """
+        用sha1调用redis脚本（aioredlock分布式锁必需）。
+        redis-py要求 keys, args 分开传, aioredlock是keys/args分开。
+        """
+        keys = keys or []
+        args = args or []
+        # redis-py 7.0+: evalsha的签名为 evalsha(sha, numkeys, *keys_and_args)
+        # aioredlock调用方式为 evalsha(sha, keys=[...], args=[...])
+        return await self._redis.evalsha(sha, len(keys), *(keys + args))  # type: ignore
+
     async def ping(self) -> bool:
         try:
             pong = await self._redis.ping()

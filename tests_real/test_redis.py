@@ -1,3 +1,5 @@
+import asyncio
+
 import pytest
 
 from smartutils.error.sys import LibraryUsageError
@@ -38,6 +40,17 @@ project:
     init(str(config_file))
 
     yield
+
+
+async def test_manager_lock(setup_cache):
+    from smartutils.infra import RedisManager
+
+    mgr = RedisManager()
+    resource = "pytest:redlock:cover"
+    async with mgr.redlock(resource) as lock:
+        assert lock
+        # 被加锁后可以安全执行写操作; 这里测试能否获取锁
+    # 没有异常即为ok
 
 
 async def test_set_get(setup_cache):

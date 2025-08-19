@@ -39,6 +39,7 @@ motor = { version = "^3.7.1", optional = true }
 beanie = { version = "^1.30.0", optional = true }
 
 redis = { version = "~5.2.1", optional = true }
+aioredlock = { version = "0.7.3", optional = true }
 
 aiokafka = { version = "~0.12.0", optional = true }
 python-snappy = { version = "~0.7.3", optional = true }
@@ -92,7 +93,7 @@ grpcio-tools = "~1.73.1"
 mysql = ["sqlalchemy", "asyncmy"]
 pgsql = ["sqlalchemy", "asyncpg"]
 mongo = ["motor", "beanie"]
-redis = ["redis"]
+redis = ["redis", "aioredlock"]
 kafka = ["aiokafka", "python-snappy", "zstandard"]
 client-http = ["httpx", "aiobreaker"]
 client-grpc = ["grpcio", "aiobreaker"]
@@ -138,8 +139,8 @@ all = [
 ]
 
 [[tool.poetry.source]]
-name = "tsinghua"
-url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+name = "main"
+url = "https://mirrors.aliyun.com/pypi/simple"
 priority = "primary"
 
 [build-system]

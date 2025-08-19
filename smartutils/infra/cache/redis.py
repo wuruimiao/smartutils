@@ -9,12 +9,15 @@ from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.design import singleton
 from smartutils.error.sys import CacheError
 from smartutils.infra.cache.redis_cli import AsyncRedisCli
+from smartutils.infra.cache.redlock import SmartutilsInstance
 from smartutils.infra.resource.manager.manager import CTXResourceManager
 from smartutils.init.factory import InitByConfFactory
 from smartutils.init.mixin import LibraryCheckMixin
+from smartutils.log import logger
 
 try:
     import aioredlock
+    import aioredlock.redis
 except ImportError:
     ...
 if TYPE_CHECKING:  # pragma: no cover
@@ -97,15 +100,43 @@ class RedisManager(LibraryCheckMixin, CTXResourceManager[AsyncRedisCli]):
         assert confs
 
         resources = {k: AsyncRedisCli(conf, f"redis_{k}") for k, conf in confs.items()}
+        self._redlock = self._init_redlock(resources)
         super().__init__(
             resources=resources,
             ctx_key=CTXKey.CACHE_REDIS,
             error=CacheError,
         )
 
+    def _init_redlock(self, resources):
+        aioredlock.redis.Instance = SmartutilsInstance
+        instances = [SmartutilsInstance(r) for r in resources.values()]
+        return aioredlock.Aioredlock(instances)  # type: ignore
+
     @property
     def curr(self) -> AsyncRedisCli:
         return super().curr
+
+    @asynccontextmanager
+    async def redlock(self, resource: str):
+        """
+        Redlock分布式锁异步上下文.
+        用法: async with RedisManager().redlock(key):
+            # do something
+        """
+        lock = None
+        try:
+            try:
+                lock = await self._redlock.lock(resource)
+            except Exception as e:
+                logger.error(f"{self.name} redlock lock fail for {e}.")
+                lock = None
+            yield lock
+        finally:
+            if lock:
+                try:
+                    await self._redlock.unlock(lock)
+                except Exception as e:
+                    logger.exception(f"{self.name} redlock unlock fail for {e}.")
 
 
 @InitByConfFactory.register(ConfKey.REDIS)
