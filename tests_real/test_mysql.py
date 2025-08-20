@@ -77,7 +77,7 @@ async def test_mysql_session_insert_query(setup_db: None):
     from smartutils.infra import MySQLManager
 
     mgr = MySQLManager()
-    async with mgr.session() as session:
+    async with mgr.client().db() as session:
         session = session[0]
         stmt = insert(User).values(name="SessionUser1")
         result = await session.execute(stmt)
@@ -95,7 +95,7 @@ async def test_mysql_session_update_commit(setup_db: None):
     from smartutils.infra import MySQLManager
 
     mgr = MySQLManager()
-    async with mgr.session() as _session:
+    async with mgr.client().db() as _session:
         session = _session[0]
         result = await session.execute(insert(User).values(name="SessionUpdate"))
         await session.commit()
@@ -116,7 +116,7 @@ async def test_mysql_session_update_rollback(setup_db: None):
     from smartutils.infra import MySQLManager
 
     mgr = MySQLManager()
-    async with mgr.session() as _session:
+    async with mgr.client().db() as _session:
         session = _session[0]
         result = await session.execute(insert(User).values(name="RollbackTest"))
         await session.commit()
@@ -137,7 +137,7 @@ async def test_mysql_session_delete(setup_db: None):
     from smartutils.infra import MySQLManager
 
     mgr = MySQLManager()
-    async with mgr.session() as session:
+    async with mgr.client().db() as session:
         session = session[0]
         result = await session.execute(insert(User).values(name="DeleteTest"))
         await session.commit()
@@ -289,7 +289,7 @@ async def test_mysql_manager_session_unreachable(setup_unreachable_db: None):
 
     mgr = MySQLManager()
     with pytest.raises(Exception):
-        async with mgr.session() as session:
+        async with mgr.client().db() as session:
             session = session[0]
             # 实际执行一次SQL，才能确保抛出连接异常
             await session.execute(select(User))

@@ -91,8 +91,8 @@ class CTXResourceManager(MyBase, Generic[AbstractAsyncResourceT], ABC):
                     except BaseError as e:
                         raise e
                     except Exception as e:
-                        await call_hook(self._fail, session)
                         logger.exception(f"{self.name} fail")
+                        await call_hook(self._fail, session)
                         raise self._error(f"{self.name} fail: {e}") from None
 
         return wrapper
