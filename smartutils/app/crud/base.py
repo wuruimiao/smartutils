@@ -27,7 +27,7 @@ CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 
 
-class AsyncCRUDBase(MyBase, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
+class CRUDBase(MyBase, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     """
     异步通用CRUD基类（SQLAlchemy 2.x/async 版本）
     - 需要db.curr为 AsyncSession 对象
@@ -106,7 +106,7 @@ class AsyncCRUDBase(MyBase, Generic[ModelType, CreateSchemaType, UpdateSchemaTyp
         """
         if not filter_conditions:
             raise LibraryUsageError(
-                "{self.name} filter_conditions cannot be empty to prevent updating the entire table!"
+                f"{self.name} filter_conditions cannot be empty to prevent updating the entire table!"
             )
 
         session = self.db.curr
@@ -122,7 +122,7 @@ class AsyncCRUDBase(MyBase, Generic[ModelType, CreateSchemaType, UpdateSchemaTyp
     async def remove(self, filter_conditions: Sequence[ColumnElement[bool]]) -> int:
         if not filter_conditions:
             raise LibraryUsageError(
-                "{self.name} filter_conditions cannot be empty to prevent deleting the entire table!"
+                f"{self.name} filter_conditions cannot be empty to prevent deleting the entire table!"
             )
         session = self.db.curr
         stmt = delete(self.model).where(*filter_conditions)
