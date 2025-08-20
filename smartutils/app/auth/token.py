@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional, Tuple
+from typing import TYPE_CHECKING, Optional, Tuple, TypeAlias
 
 from smartutils.config import ConfKey
 from smartutils.config.schema.token import TokenConf
@@ -29,6 +29,10 @@ class User:
 class Token:
     token: str
     exp: int
+
+
+AccessToken: TypeAlias = Token
+RefreshToken: TypeAlias = Token
 
 
 class TokenHelper(LibraryCheckMixin, metaclass=SingletonMeta):
@@ -63,7 +67,7 @@ class TokenHelper(LibraryCheckMixin, metaclass=SingletonMeta):
         except jwt.InvalidTokenError:
             return None
 
-    def token(self, user: User) -> Tuple[Token, Token]:
+    def token(self, user: User) -> Tuple[AccessToken, RefreshToken]:
         access_t = self._generate_token(user, self._access_secret, self._access_exp_sec)
         refresh_t = self._generate_token(
             user, self._refresh_secret, self._refresh_exp_sec
@@ -76,7 +80,7 @@ class TokenHelper(LibraryCheckMixin, metaclass=SingletonMeta):
             return None
         return User(data[self._userid_key], data[self._username_key])
 
-    def refresh(self, refresh_token) -> Optional[Tuple[Token, Token]]:
+    def refresh(self, refresh_token) -> Optional[Tuple[AccessToken, RefreshToken]]:
         payload = self._verify_token(refresh_token, self._refresh_secret)
         if not payload:
             return None
