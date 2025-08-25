@@ -373,3 +373,45 @@ async def test_safe_context_none_branches(setup_cache):
     async with cli.xread_xack(stream, group, count=1) as msg:
         assert msg is None
     cli._redis.xreadgroup = orig_xreadgroup
+
+
+async def test_bitmap_util(setup_cache):
+    """
+    真正执行RedisBitmapUtil的端到端测试。
+    """
+    from smartutils.infra.cache.bitmap import RedisBitmapUtil
+
+    key = "pytest:bitmap:demo"
+    from smartutils.infra.cache.redis import RedisManager
+
+    mgr = RedisManager()
+
+    @mgr.use
+    async def biz():
+        await mgr.curr.delete(key)
+        assert await RedisBitmapUtil.get_all_set_bits(key) is None
+
+        # 清空，初始应无内容
+        await RedisBitmapUtil.set_bit(key, 3, True)
+        await RedisBitmapUtil.set_bit(key, 6, True)
+        ret3 = await RedisBitmapUtil.get_bit(key, 3)
+        ret6 = await RedisBitmapUtil.get_bit(key, 6)
+        ret2 = await RedisBitmapUtil.get_bit(key, 2)
+        assert ret3 is True
+        assert ret6 is True
+        assert ret2 is False
+        bits = await RedisBitmapUtil.get_all_set_bits(key, max_offset=7)
+        assert bits == {3, 6}
+        # 关闭一个bit
+        await RedisBitmapUtil.set_bit(key, 6, False)
+        bits2 = await RedisBitmapUtil.get_all_set_bits(key, max_offset=7)
+        assert bits2 == {3}
+        # 全部关闭
+        await RedisBitmapUtil.set_bit(key, 3, False)
+        bits3 = await RedisBitmapUtil.get_all_set_bits(key, max_offset=7)
+        assert bits3 == set() or bits3 is None
+
+        await RedisBitmapUtil.set_bit(key, 1, True)
+        assert await RedisBitmapUtil.get_all_set_bits(key, max_offset=0) == set()
+
+    await biz()
