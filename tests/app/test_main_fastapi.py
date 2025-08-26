@@ -4,7 +4,26 @@ from fastapi.testclient import TestClient
 from pydantic import BaseModel
 
 from smartutils.app import AppHook
-from smartutils.error.sys import SysError
+from smartutils.error.sys import LibraryUsageError, SysError
+
+
+async def test_fastapi_duplicate_route(mocker):
+    mocker.patch("smartutils.config.Config.in_debug", return_value=True)
+
+    from smartutils.app.main.fastapi import _check_app_routes, create_app
+
+    with pytest.raises(LibraryUsageError) as e:
+        app = create_app()
+
+        @app.get("/info")
+        async def _(): ...
+
+        @app.get("/info")
+        async def _(): ...
+
+        _check_app_routes(app)
+
+    assert str(e.value) == "Duplicate route detected: [('/info', 'GET')]"
 
 
 class Item(BaseModel):

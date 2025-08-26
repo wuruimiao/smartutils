@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 from smartutils.app.const import RunEnv
 from smartutils.error.base import BaseData, BaseError
+from smartutils.error.sys import LibraryUsageError
 
 try:
     from fastapi import APIRouter, FastAPI, Request
@@ -34,6 +35,29 @@ class ResponseModel(BaseModel, BaseData, Generic[T]):
         return ResponseModel(**error.as_dict)
 
 
+def _check_app_routes(app):
+    unique_routes = set()
+    duplicates = []
+    for route in app.routes:
+        path = getattr(route, "path", None)
+        methods = getattr(route, "methods", set())
+        # 只检查常见REST方法
+        if not path or not methods:
+            continue
+        for m in methods:
+            key = (path, m.upper())
+            if key in unique_routes:
+                duplicates.append(key)
+            else:
+                unique_routes.add(key)
+    if duplicates:
+        import warnings
+
+        msg = f"Duplicate route detected: {duplicates}"
+        warnings.warn(msg)
+        raise LibraryUsageError(msg)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     from smartutils.init import init
@@ -49,17 +73,16 @@ async def lifespan(app: FastAPI):
     app.title = conf.project.name
     app.version = conf.project.version
     app.description = conf.project.description
-    app.debug = conf.project.debug
-    BaseError.set_debug(conf.project.debug)
-    logger.info(
-        "!!!======run in {env}======!!!", env="prod" if conf.project.debug else "dev"
-    )
-    if not conf.project.debug:
+    app.debug = conf.in_debug
+    BaseError.set_debug(conf.in_debug)
+    logger.info("!!!======run in {}======!!!", "dev" if conf.in_debug else "prod")
+    if not conf.in_debug:
         app.docs_url = None
 
     from smartutils.app.hook import AppHook
 
     await AppHook.call_startup(app)
+    _check_app_routes(app)
 
     yield
 

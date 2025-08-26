@@ -63,6 +63,10 @@ class Config(MyBase, Generic[BaseModelT], metaclass=SingletonMeta):
     def project(self) -> PT:  # type: ignore
         return self._instances[ConfKey.PROJECT]  # type: ignore
 
+    @property
+    def in_debug(self) -> bool:
+        return self.project.debug
+
     @classmethod
     def init(cls, conf_path: str) -> Config:
         global _config
