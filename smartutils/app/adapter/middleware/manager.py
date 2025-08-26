@@ -1,3 +1,4 @@
+import uuid
 from collections import defaultdict
 from typing import Dict, List, Optional, OrderedDict, Tuple
 
@@ -11,7 +12,7 @@ from smartutils.app.const import AppKey, RunEnv
 from smartutils.app.plugin.factory import MiddlewarePluginFactory
 from smartutils.app.plugin.log import LogPlugin
 from smartutils.config.const import ConfKey
-from smartutils.config.schema.middleware import MiddlewareConf
+from smartutils.config.schema.middleware import MiddlewareConf, MiddlewarePluginKey
 from smartutils.design import MyBase, SingletonMeta
 from smartutils.error.sys import LibraryUsageError
 from smartutils.init.factory import InitByConfFactory
@@ -23,15 +24,14 @@ class MiddlewareManager(MyBase, metaclass=SingletonMeta):
 
     def __init__(self, conf: Optional[MiddlewareConf] = None):
         if not conf:
-            logger.info(
-                "{name} get none conf, no middleware will be added.", name=self.name
-            )
+            logger.info("{} no conf, only default init.", self.name)
             conf = MiddlewareConf()
 
         self._conf: MiddlewareConf = conf
         self._route_ps: Dict[str, List[AbstractMiddlewarePlugin]] = {}
         self._route_inited: bool = False
         self._app_inited: bool = False
+        self._default_route_id = f"smartutils:{str(uuid.uuid4())}"
 
     def _init_route(self) -> None:
         if self._route_inited:
@@ -41,10 +41,14 @@ class MiddlewareManager(MyBase, metaclass=SingletonMeta):
         assert self._app_key, f"{self.name} should call RunEnv.set_app() first."
 
         self._route_inited = True
-        if not self._conf.routes:
-            return
 
-        all_enables = {name for v in self._conf.routes.values() for name in v}
+        routes = self._conf.routes
+        routes[self._default_route_id] = [
+            MiddlewarePluginKey.LOG,
+            MiddlewarePluginKey.EXCEPTION,
+        ]
+
+        all_enables = {name for v in routes.values() for name in v}
         plugins = OrderedDict()  # 兼容3.7以下
         for plugin_name, plugin_cls in MiddlewarePluginFactory.all():
             if plugin_name in all_enables:
@@ -52,15 +56,11 @@ class MiddlewareManager(MyBase, metaclass=SingletonMeta):
 
         result = defaultdict(list)
         for plugin_name, plugin in plugins.items():
-            for key, enables in self._conf.routes.items():
-                if plugin_name in enables:
-                    logger.debug(
-                        "{name} enable plugin {p_key} for route {key}.",
-                        name=self.name,
-                        p_key=plugin.key,
-                        key=key,
-                    )
-                    result[key].append(plugin)
+            for key, enables in routes.items():
+                if plugin_name not in enables:
+                    continue
+                logger.debug("{} enable {} for route {}.", self.name, plugin.key, key)
+                result[key].append(plugin)
         self._route_ps = result
 
     def _get_ps(self, route_key: str) -> Tuple[AbstractMiddlewarePlugin, ...]:
@@ -84,13 +84,13 @@ class MiddlewareManager(MyBase, metaclass=SingletonMeta):
             ps = self._get_ps(self.ROUTE_APP_KEY)
         except LibraryUsageError:
             logger.debug(
-                "{name} no {key} below middleware.routes in config.yaml, ignore.",
-                name=self.name,
-                key=self.ROUTE_APP_KEY,
+                "{} no {} below middleware.routes in config.yaml, ignore.",
+                self.name,
+                self.ROUTE_APP_KEY,
             )
             return
 
-        logger.info("{name} inited in app.", name=self.name)
+        logger.info("{} inited in app.", self.name)
         AddMiddlewareFactory.get(self._app_key)(app, ps)
 
     def init_route(self, route_key: str):
@@ -98,18 +98,14 @@ class MiddlewareManager(MyBase, metaclass=SingletonMeta):
         return RouteMiddlewareFactory.get(self._app_key)(ps)
 
     def init_endpoint(self, route_key: str):
-        logger.info(
-            "{name} inited in endpoint {route_key}.",
-            name=self.name,
-            route_key=route_key,
-        )
+        logger.info("{} inited in endpoint {}.", self.name, route_key)
         ps = self._get_ps(route_key)
         return EndpointMiddlewareFactory.get(self._app_key)(ps)
 
     def init_default_route(self):
-        logger.info("{name} init default route.", name=self.name)
+        logger.info("{} init default route.", self.name)
         return RouteMiddlewareFactory.get(self._app_key)(
-            (LogPlugin(conf=self._conf.safe_setting),)
+            self._get_ps(self._default_route_id)
         )
 
 
