@@ -93,6 +93,14 @@ class EnumMapBase(Enum):
         return dict(cls._obj_map())
 
     @classmethod
+    def mapped_dict_str(cls) -> str:
+        """
+        以[基础类型: 映射值]形式美观打印全部映射。
+        例如：1: 未设置, 20: 全部, ...
+        """
+        return ", ".join(f"{m.value}: {v}" for m, v in cls.mapped_dict().items())
+
+    @classmethod
     def from_any(cls: Type[E], value: Any) -> E:
         """
         可接受Enum自身、映射值、字符串等，并返回Enum成员。
