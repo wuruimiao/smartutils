@@ -42,7 +42,7 @@ class MiddlewareManager(MyBase, metaclass=SingletonMeta):
 
         self._route_inited = True
 
-        routes = self._conf.routes
+        routes = self._conf.routes or {}
         routes[self._default_route_id] = [
             MiddlewarePluginKey.LOG,
             MiddlewarePluginKey.EXCEPTION,
