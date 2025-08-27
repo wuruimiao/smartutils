@@ -1,68 +1,108 @@
+from __future__ import annotations
+
 import difflib
 from enum import Enum
 from typing import Any, Dict, Optional, Type, TypeVar
 
-__all__ = ["ZhEnumBase", "LowStr"]
+from smartutils.error.sys import LibraryUsageError
+
+__all__ = ["LowStr", "EnumMapBase"]
 
 
-T = TypeVar("T", bound="ZhEnumBase")
+M = TypeVar("M")  # 映射类型（如bool、str、int等）
+E = TypeVar("E", bound="EnumMapBase")
 
 
-class ZhEnumBase(Enum):
+class EnumMapBase(Enum):
     """
-    支持变量-中文双向映射的通用枚举基类。
-    子类不要在类体里写映射字典，需在类外写。
+    支持与任意类型(如bool、str、int、对象等)的静态双向映射的抽象枚举基类。
     """
+
+    @classmethod
+    def _obj_map(cls: Type[E]) -> Dict[E, M]:  # type: ignore
+        """
+        返回 枚举成员对象 => 映射值 的静态映射表，需在子类实现
+        """
+        raise LibraryUsageError("Subclasses must implement _obj_map.")
+
+    @classmethod
+    def _mapped_obj_map(cls: Type[E]) -> Dict[M, E]:  # type: ignore
+        """
+        构造 映射值 => 枚举成员 的静态映射表（反向查找）
+        """
+        if not hasattr(cls, "_reverse_map_cache"):
+            forward = cls._obj_map()
+            reverse: Dict[M, E] = {v: k for k, v in forward.items()}
+            setattr(cls, "_reverse_map_cache", reverse)
+        return getattr(cls, "_reverse_map_cache")
 
     @property
-    def zh(self) -> str:
-        return self._obj_zh_map()[self]
+    def mapped(self: E) -> M:  # type: ignore
+        """
+        获取当前枚举成员对应的映射值，如True/False或其他类型。
+        """
+        return self._obj_map()[self]
 
     @classmethod
-    def from_zh(cls: Type[T], zh: str) -> T:
-        return cls._zh_obj_map()[zh]
+    def from_mapped(cls: Type[E], mapped_val: M) -> E:  # type: ignore
+        """
+        从映射值获取对应的枚举成员，若不存在则抛出KeyError
+        """
+        return cls._mapped_obj_map()[mapped_val]
 
     @classmethod
-    def from_zh_fuzzy(cls: Type[T], zh_fuzzy: str, cutoff: float = 0.6) -> Optional[T]:
+    def from_mapped_fuzzy(cls, mapped_fuzzy: str, cutoff: float = 0.6) -> Optional[E]:  # type: ignore
         """
-        从中文模糊匹配到Enum类型对象。
-        :param zh_fuzzy: 模糊中文字符串
-        :param cutoff: 匹配相似度阈值，0.0-1.0之间，越高匹配越严格
-        :return: 匹配到的Enum对象
+        支持映射值的模糊查找（如匹配类似的字符串/标签等），找到最接近的对应枚举成员。
+        适用于映射表的value为str类型。返回第一个高匹配度结果，否则None。
         """
-        zh_map = cls._zh_obj_map()
-        matches = difflib.get_close_matches(zh_fuzzy, zh_map.keys(), n=1, cutoff=cutoff)
+        mapped_map = cls._mapped_obj_map()
+        matches = difflib.get_close_matches(
+            mapped_fuzzy, mapped_map.keys(), n=1, cutoff=cutoff
+        )
         if not matches:
             return None
-        return zh_map[matches[0]]
+        return mapped_map[matches[0]]  # type: ignore
 
     @classmethod
-    def zh_from_value(cls: Type[T], value: Any) -> str:
-        return cls(value).zh
+    def try_from_mapped(cls: Type[E], mapped_val: M) -> Optional[E]:  # type: ignore
+        """
+        安全获取：从映射值返回枚举成员，若不存在则返回None
+        """
+        return cls._mapped_obj_map().get(mapped_val)
 
     @classmethod
-    def value_from_zh(cls: Type[T], zh: str) -> Any:
-        return cls.from_zh(zh).value
+    def mapped_list(cls: Type[E]) -> list[M]:  # type: ignore
+        """
+        返回所有的映射值列表
+        """
+        return [cls._obj_map()[m] for m in cls]
 
     @classmethod
-    def zh_choices(cls: Type[T]):
-        return [(e, e.zh) for e in cls]
+    def obj_list(cls: Type[E]) -> list[E]:
+        """
+        返回所有的枚举成员列表
+        """
+        return list(cls._obj_map().keys())
 
     @classmethod
-    def zh_choices_str(cls) -> str:
-        return " ".join(f"{item.value}: {item.zh}" for item in cls)
+    def mapped_dict(cls: Type[E]) -> Dict[E, M]:  # type: ignore
+        """
+        返回完整枚举成员到映射值的dict
+        """
+        return dict(cls._obj_map())
 
     @classmethod
-    def zh_list(cls: Type[T]):
-        return [e.zh for e in cls]
-
-    @staticmethod
-    def _obj_zh_map() -> Dict[Any, str]:
-        raise NotImplementedError("子类必须实现 _obj_zh_map 方法")
-
-    @staticmethod
-    def _zh_obj_map() -> Dict[str, Any]:
-        raise NotImplementedError("子类必须实现 _zh_obj_map 方法")
+    def from_any(cls: Type[E], value: Any) -> E:
+        """
+        可接受Enum自身、映射值、字符串等，并返回Enum成员。
+        """
+        if isinstance(value, cls):
+            return value
+        mapped_map = cls._mapped_obj_map()
+        if value in mapped_map:
+            return mapped_map[value]
+        raise ValueError(f"无法从{value}映射到{cls.__name__}")
 
 
 class LowStr(str):
