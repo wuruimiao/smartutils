@@ -1,8 +1,7 @@
 from __future__ import annotations
 
+from enum import Enum
 from typing import TYPE_CHECKING
-
-from smartutils.data.type import ZhEnumBase
 
 try:
     from sqlalchemy import JSON, Column, Integer, String, func
@@ -17,7 +16,7 @@ if TYPE_CHECKING:  # pragma: no cover
 Base = declarative_base()
 
 
-class OpType(ZhEnumBase):
+class OpType(int, Enum):
     ADD = 1
     DEL = 2
     UPDATE = 3
