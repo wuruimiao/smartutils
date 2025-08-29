@@ -4,10 +4,13 @@
 install:
 	poetry install
 
+init:
+	poetry lock
+	poetry install --all-extras
+
 # 更新虚拟环境依赖
 update:
 	poetry lock
-	poetry install --all-extras
 	poetry update
 
 # 激活虚拟环境

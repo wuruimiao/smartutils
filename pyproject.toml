@@ -88,6 +88,7 @@ pydeps = "~3.0.1"
 tomlkit = "~0.13.2"
 locust = "~2.37.5"
 grpcio-tools = "~1.73.1"
+sqlalchemy2-stubs = "~0.0.2a38"
 
 [tool.poetry.extras]
 mysql = ["sqlalchemy", "asyncmy"]
