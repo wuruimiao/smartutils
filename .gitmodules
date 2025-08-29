@@ -1,9 +1,0 @@
-[submodule "ref/redis-py"]
-	path = ref/redis-py
-	url = https://github.com/redis/redis-py.git
-[submodule "ref/aioredlock"]
-	path = ref/aioredlock
-	url = https://github.com/joanvila/aioredlock.git
-[submodule "ref/sqlalchemy"]
-	path = ref/sqlalchemy
-	url = https://github.com/sqlalchemy/sqlalchemy.git
