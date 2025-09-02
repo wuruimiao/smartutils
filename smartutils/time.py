@@ -37,7 +37,7 @@ def format_time(t: datetime, f: str = _DefaultFormat, tz: ZoneInfo = _DefaultTZ)
     return t.strftime(f)
 
 
-def format_timestamp(timestamp: int, tz: ZoneInfo = _DefaultTZ) -> str:
+def format_timestamp(timestamp: Union[int, float], tz: ZoneInfo = _DefaultTZ) -> str:
     dt = datetime.fromtimestamp(timestamp, tz)
     return format_time(dt, tz=tz)
 
