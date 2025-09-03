@@ -57,7 +57,7 @@ async def test_crud_create_and_get(crud, setup_test_table):
     async def biz():
         # 新增
         obj = await crud.create(TCreateSchema(name="foo"))
-        await crud.db.curr.commit()
+        await crud.db.curr.flush()
         assert obj.id > 0
         # get
         got = await crud.get(obj.id)
@@ -78,7 +78,7 @@ async def test_crud_get_multi(crud, setup_test_table):
     async def biz():
         # 插入多条
         created = [await crud.create(TCreateSchema(name=f"bar{i}")) for i in range(3)]
-        await crud.db.curr.commit()
+        await crud.db.curr.flush()
         # get_multi默认
         records = await crud.get_multi()
         assert len(records) >= 3
@@ -100,7 +100,7 @@ async def test_crud_update(crud, setup_test_table):
     @mgr.use
     async def biz():
         obj = await crud.create(TCreateSchema(name="update_me"))
-        await crud.db.curr.commit()
+        await crud.db.curr.flush()
         # update（指定字段，指定filter）
         n = await crud.update(
             TUpdateSchema(name="updated"),
@@ -108,7 +108,7 @@ async def test_crud_update(crud, setup_test_table):
             update_fields=[TModel.name],
         )
         assert n == 1
-        await crud.db.curr.commit()
+        await crud.db.curr.flush()
         got = await crud.get(obj.id)
         assert got.name == "updated"
 
@@ -123,10 +123,10 @@ async def test_crud_remove(crud, setup_test_table):
     @mgr.use
     async def biz():
         obj = await crud.create(TCreateSchema(name="for_remove"))
-        await crud.db.curr.commit()
+        await crud.db.curr.flush()
         n = await crud.remove([TModel.id == obj.id])
         assert n == 1
-        await crud.db.curr.commit()
+        await crud.db.curr.flush()
         got = await crud.get(obj.id)
         assert got is None
 
