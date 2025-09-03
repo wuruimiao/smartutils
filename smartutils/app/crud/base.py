@@ -103,8 +103,18 @@ class CRUDBase(MyBase, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         filter_conditions: Sequence[ColumnElement],
         update_fields: Optional[Sequence[InstrumentedAttribute]] = None,
     ) -> int:
-        """
-        不支持orm实例更新，建议直接修改字段后commit
+        """不支持orm实例更新，建议直接修改字段后commit
+
+        Args:
+            obj_in (UpdateSchemaType): 要更新的字段和值
+            filter_conditions (Sequence[ColumnElement]): where条件，必需防止全表更新
+            update_fields (Optional[Sequence[InstrumentedAttribute]], optional): 更新字段，可选，防止更新到意外字段. Defaults to None.
+
+        Raises:
+            LibraryUsageError: 参数使用错误
+
+        Returns:
+            int: 实际更新的行数
         """
         if not filter_conditions:
             raise LibraryUsageError(

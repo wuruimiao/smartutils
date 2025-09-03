@@ -77,7 +77,7 @@ async def test_crud_get_multi(crud, setup_test_table):
     @mgr.use
     async def biz():
         # 插入多条
-        created = [await crud.create(TCreateSchema(name=f"bar{i}")) for i in range(3)]
+        [await crud.create(TCreateSchema(name=f"bar{i}")) for i in range(3)]
         await crud.db.curr.flush()
         # get_multi默认
         records = await crud.get_multi()
