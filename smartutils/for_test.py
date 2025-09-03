@@ -16,18 +16,16 @@ class ForTest:
     def _patch_log(self):
         from smartutils import log
 
-        for level in ("info", "error", "debug"):
+        for level in ("info", "error", "debug", "warning"):
             ori = getattr(log.logger, level)
 
-            def _fake(msg, *args, **kwargs):
-                self._msgs.append((level, msg, args))
+            def _fake(msg, *args, _level=level, **kwargs):
+                self._msgs.append((_level, msg, args))
                 return ori(msg, *args, **kwargs)
 
             self.patch(log.logger, level, _fake)
 
-    def assert_log(
-        self, msg: str, *args, level: Optional[str] = None, **kwargs
-    ) -> bool:
+    def assert_log(self, msg: str, *args, level: Optional[str] = None, **kwargs):
         found = False
         for item in self._msgs:
             found = (
@@ -36,5 +34,5 @@ class ForTest:
                 and (level is None or level == item[0])
             )
             if found:
-                return True
-        return False
+                return
+        assert False, f"日志：{self._msgs}"

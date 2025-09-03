@@ -42,7 +42,7 @@ CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 
 
-class DAODBase(MyBase, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
+class DAOBase(MyBase, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     """
     异步通用CRUD基类（SQLAlchemy 2.x/async 版本）
     - 需要db.curr为 AsyncSession 对象
@@ -77,6 +77,8 @@ class DAODBase(MyBase, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self,
         skip: Optional[int] = ...,
         limit: Optional[int] = ...,
+        order_by: Optional[Sequence[ColumnElement]] = ...,
+        last_id: Optional[int] = ...,
         columns: None = None,
     ) -> List[ModelType]: ...
     @overload
@@ -84,21 +86,54 @@ class DAODBase(MyBase, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self,
         skip: Optional[int] = ...,
         limit: Optional[int] = ...,
+        order_by: Optional[Sequence[ColumnElement]] = ...,
+        last_id: Optional[int] = ...,
         columns: Sequence[InstrumentedAttribute] = ...,
     ) -> List[Tuple[Any, ...]]: ...
     async def get_multi(
         self,
         skip: Optional[int] = None,
         limit: Optional[int] = None,
+        order_by: Optional[Sequence[ColumnElement]] = None,
+        last_id: Optional[int] = None,
         columns: Optional[Sequence[InstrumentedAttribute]] = None,
     ) -> Union[List[ModelType], List[Tuple[Any, ...]]]:
+        """
+        异步方式批量获取数据，支持分页和多字段选择。
+
+        Args:
+            skip (Optional[int]): 偏移量，常用于分页，跳过前skip条记录。
+            limit (Optional[int]): 查询上限，返回最多limit条。
+            order_by (Optional[Sequence[ColumnElement]]): 排序字段，SQLAlchemy表达式，如 [Table.c.field1.desc()].
+            last_id (Optional[int]): 基于主键(id)的游标分页，last_id大于指定值的记录。
+            columns (Optional[Sequence[InstrumentedAttribute]]): 若指定，返回结构为tuple，仅包含这些字段；不指定则返回ORM对象列表。
+
+        Returns:
+            Union[List[ModelType], List[Tuple[Any, ...]]]:
+                - 若columns为None，返回ModelType实例列表；
+                - 若columns指定，返回字段tuple的列表。
+
+        注意：
+            skip与last_id若同时指定，只使用last_id并忽略skip。
+            推荐使用last_id配合order_by主键(desc)实现高性能分页。
+        """
         session = self.db.curr
         stmt = select(*columns) if columns else select(self.model)
+
+        # 支持基于主键递增的游标分页
+        if last_id is not None:
+            stmt = stmt.where(self.model.id > last_id)
         if skip is not None:
-            stmt = stmt.offset(skip)
+            if last_id is not None:
+                logger.warning("{} get_multi use last_id, ignore skip.", self.name)
+            else:
+                stmt = stmt.offset(skip)
         if limit is not None:
             stmt = stmt.limit(limit)
+        if order_by:
+            stmt = stmt.order_by(*order_by)
         result = await session.execute(stmt)
+
         if columns:
             return [tuple(row) for row in result.fetchall()]  # List[tuple]
         return list(result.scalars().all())  # List[ORM对象]
