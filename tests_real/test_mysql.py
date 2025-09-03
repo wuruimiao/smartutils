@@ -1,5 +1,5 @@
 import pytest
-from sqlalchemy import Column, Integer, String, insert, select
+from sqlalchemy import Column, Integer, String, insert, select, text
 from sqlalchemy import delete as sql_delete
 from sqlalchemy import update as sql_update
 from sqlalchemy.orm import declarative_base
@@ -23,6 +23,10 @@ async def setup_db():
     my_mgr = MySQLManager()
     await my_mgr.client().create_tables([Base])
     yield
+    async with my_mgr.client().db() as session_tuple:
+        session = session_tuple[0]
+        await session.execute(text(f"DELETE FROM {User.__tablename__}"))
+        await session.commit()
 
 
 @pytest.fixture

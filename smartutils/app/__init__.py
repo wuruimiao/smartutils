@@ -4,6 +4,8 @@ from smartutils.app.adapter.middleware.manager import MiddlewareManager
 from smartutils.app.auth.otp import OtpHelper
 from smartutils.app.auth.password import PasswordHelper
 from smartutils.app.auth.token import AccessToken, RefreshToken, TokenHelper, User
+from smartutils.app.dao.base import DAODBase
+from smartutils.app.dao.mixin import TimestampedMixin
 from smartutils.app.hook import AppHook
 from smartutils.app.main.fastapi import ResponseModel
 from smartutils.app.req_ctx import ReqCTX
@@ -31,4 +33,6 @@ __all__ = [
     "AccessToken",
     "RefreshToken",
     "MiddlewareManager",
+    "DAODBase",
+    "TimestampedMixin",
 ]

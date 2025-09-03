@@ -1,16 +1,27 @@
-from sqlalchemy import Integer, func
-from sqlalchemy.orm import (
-    Mapped,
-    mapped_column,  # pyright: ignore[reportAttributeAccessIssue]
-)
+from typing import TYPE_CHECKING
+
+try:
+    from sqlalchemy import Integer, func
+    from sqlalchemy.orm import Mapped, mapped_column
+except ImportError:
+    pass
+
+if TYPE_CHECKING:
+    from sqlalchemy import Integer, func
+    from sqlalchemy.orm import Mapped, mapped_column
 
 
-class TimestampedMixin:
+class IDMixin:
     __table__ = ""
 
     id: Mapped[int] = mapped_column(
         Integer, primary_key=True, autoincrement=True, comment="ID"
     )
+
+
+class TimestampedMixin(IDMixin):
+    __table__ = ""
+
     created_at: Mapped[int] = mapped_column(
         Integer,
         nullable=False,

@@ -1,18 +1,18 @@
 import pytest
 from pydantic import BaseModel
-from sqlalchemy import Column, Integer, String, text
+from sqlalchemy import Column, String, text
 from sqlalchemy.orm import declarative_base
 
-from smartutils.app.crud.base import CRUDBase
+from smartutils.app.dao.base import DAODBase
+from smartutils.app.dao.mixin import TimestampedMixin
 from smartutils.error.sys import LibraryUsageError
 
 # 定义SQLAlchemy基础模型
 Base = declarative_base()
 
 
-class TModel(Base):
+class TModel(Base, TimestampedMixin):
     __tablename__ = "test_crud_base"
-    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(64), nullable=False)
 
 
@@ -45,7 +45,7 @@ async def crud():
     from smartutils.infra import MySQLManager
 
     mgr = MySQLManager()
-    return CRUDBase[TModel, TCreateSchema, TUpdateSchema](TModel, mgr)
+    return DAODBase[TModel, TCreateSchema, TUpdateSchema](TModel, mgr)
 
 
 async def test_crud_create_and_get(crud, setup_test_table):
@@ -146,7 +146,7 @@ async def test_crud_update_no_filter_raises(crud, setup_test_table):
         await biz()
     assert (
         str(e.value)
-        == "[CRUDBase] filter_conditions cannot be empty to prevent updating the entire table!"
+        == "[DAODBase] filter_conditions cannot be empty to prevent updating the entire table!"
     )
 
 
@@ -163,5 +163,5 @@ async def test_crud_remove_no_filter_raises(crud, setup_test_table):
         await biz()
     assert (
         str(e.value)
-        == "[CRUDBase] filter_conditions cannot be empty to prevent deleting the entire table!"
+        == "[DAODBase] filter_conditions cannot be empty to prevent deleting the entire table!"
     )

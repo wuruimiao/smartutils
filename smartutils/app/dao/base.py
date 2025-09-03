@@ -1,4 +1,5 @@
 from typing import (
+    TYPE_CHECKING,
     Any,
     Generic,
     List,
@@ -13,23 +14,34 @@ from typing import (
 )
 
 from pydantic import BaseModel
-from sqlalchemy import delete, update
-from sqlalchemy.engine import CursorResult
-from sqlalchemy.future import select
-from sqlalchemy.orm.attributes import InstrumentedAttribute
-from sqlalchemy.sql.elements import ColumnElement
 
-from smartutils.app.crud.mixin import TimestampedMixin
+from smartutils.app.dao.mixin import IDMixin
 from smartutils.design import MyBase
 from smartutils.error.sys import LibraryUsageError
 from smartutils.infra.db.base import SQLAlchemyManager
 
-ModelType = TypeVar("ModelType", bound=TimestampedMixin)
+try:
+    from sqlalchemy import delete, update
+    from sqlalchemy.engine import CursorResult
+    from sqlalchemy.future import select
+    from sqlalchemy.orm.attributes import InstrumentedAttribute
+    from sqlalchemy.sql.elements import ColumnElement
+except ImportError:
+    ...
+
+if TYPE_CHECKING:
+    from sqlalchemy import delete, update
+    from sqlalchemy.engine import CursorResult
+    from sqlalchemy.future import select
+    from sqlalchemy.orm.attributes import InstrumentedAttribute
+    from sqlalchemy.sql.elements import ColumnElement
+
+ModelType = TypeVar("ModelType", bound=IDMixin)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 
 
-class CRUDBase(MyBase, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
+class DAODBase(MyBase, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     """
     异步通用CRUD基类（SQLAlchemy 2.x/async 版本）
     - 需要db.curr为 AsyncSession 对象
