@@ -8,11 +8,13 @@ from typing import (
     Type,
     TypeVar,
     Union,
+    cast,
     overload,
 )
 
 from pydantic import BaseModel
 from sqlalchemy import delete, update
+from sqlalchemy.engine import CursorResult
 from sqlalchemy.future import select
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.sql.elements import ColumnElement
@@ -98,7 +100,7 @@ class CRUDBase(MyBase, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     async def update(
         self,
         obj_in: UpdateSchemaType,
-        filter_conditions: Sequence[ColumnElement[bool]],
+        filter_conditions: Sequence[ColumnElement],
         update_fields: Optional[Sequence[InstrumentedAttribute]] = None,
     ) -> int:
         """
@@ -117,9 +119,9 @@ class CRUDBase(MyBase, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             data = {k: v for k, v in data.items() if k in allowed_names}
         stmt = update(self.model).where(*filter_conditions).values(**data)
         result = await session.execute(stmt)
-        return result.rowcount or 0
+        return cast(CursorResult, result).rowcount or 0
 
-    async def remove(self, filter_conditions: Sequence[ColumnElement[bool]]) -> int:
+    async def remove(self, filter_conditions: Sequence[ColumnElement]) -> int:
         if not filter_conditions:
             raise LibraryUsageError(
                 f"{self.name} filter_conditions cannot be empty to prevent deleting the entire table!"
@@ -127,4 +129,4 @@ class CRUDBase(MyBase, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         session = self.db.curr
         stmt = delete(self.model).where(*filter_conditions)
         result = await session.execute(stmt)
-        return result.rowcount or 0
+        return cast(CursorResult, result).rowcount or 0

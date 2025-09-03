@@ -10,18 +10,18 @@ from smartutils.error.sys import LibraryUsageError
 Base = declarative_base()
 
 
-class TestModel(Base):
+class TModel(Base):
     __tablename__ = "test_crud_base"
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(64), nullable=False)
 
 
 # 定义Pydantic schema
-class TestCreateSchema(BaseModel):
+class TCreateSchema(BaseModel):
     name: str
 
 
-class TestUpdateSchema(BaseModel):
+class TUpdateSchema(BaseModel):
     name: str
 
 
@@ -36,7 +36,7 @@ async def setup_test_table():
     mgr = MySQLManager()
     async with mgr.client().db() as session_tuple:
         session = session_tuple[0]
-        await session.execute(text(f"DELETE FROM {TestModel.__tablename__}"))
+        await session.execute(text(f"DELETE FROM {TModel.__tablename__}"))
         await session.commit()
 
 
@@ -45,7 +45,7 @@ async def crud():
     from smartutils.infra import MySQLManager
 
     mgr = MySQLManager()
-    return CRUDBase[TestModel, TestCreateSchema, TestUpdateSchema](TestModel, mgr)
+    return CRUDBase[TModel, TCreateSchema, TUpdateSchema](TModel, mgr)
 
 
 async def test_crud_create_and_get(crud, setup_test_table):
@@ -56,14 +56,14 @@ async def test_crud_create_and_get(crud, setup_test_table):
     @mgr.use
     async def biz():
         # 新增
-        obj = await crud.create(TestCreateSchema(name="foo"))
+        obj = await crud.create(TCreateSchema(name="foo"))
         await crud.db.curr.commit()
         assert obj.id > 0
         # get
         got = await crud.get(obj.id)
         assert got is not None and got.id == obj.id and got.name == "foo"
         # get(columns)
-        got_tuple = await crud.get(obj.id, columns=[TestModel.id, TestModel.name])
+        got_tuple = await crud.get(obj.id, columns=[TModel.id, TModel.name])
         assert got_tuple == (obj.id, "foo")
 
     await biz()
@@ -77,9 +77,7 @@ async def test_crud_get_multi(crud, setup_test_table):
     @mgr.use
     async def biz():
         # 插入多条
-        created = [
-            await crud.create(TestCreateSchema(name=f"bar{i}")) for i in range(3)
-        ]
+        created = [await crud.create(TCreateSchema(name=f"bar{i}")) for i in range(3)]
         await crud.db.curr.commit()
         # get_multi默认
         records = await crud.get_multi()
@@ -88,7 +86,7 @@ async def test_crud_get_multi(crud, setup_test_table):
         records_limit = await crud.get_multi(limit=2)
         assert len(records_limit) == 2
         # get_multi(columns)
-        tups = await crud.get_multi(columns=[TestModel.id, TestModel.name])
+        tups = await crud.get_multi(columns=[TModel.id, TModel.name])
         assert all(isinstance(t, tuple) and len(t) == 2 for t in tups)
 
     await biz()
@@ -101,13 +99,13 @@ async def test_crud_update(crud, setup_test_table):
 
     @mgr.use
     async def biz():
-        obj = await crud.create(TestCreateSchema(name="update_me"))
+        obj = await crud.create(TCreateSchema(name="update_me"))
         await crud.db.curr.commit()
         # update（指定字段，指定filter）
         n = await crud.update(
-            TestUpdateSchema(name="updated"),
-            [TestModel.id == obj.id],
-            update_fields=[TestModel.name],
+            TUpdateSchema(name="updated"),
+            [TModel.id == obj.id],
+            update_fields=[TModel.name],
         )
         assert n == 1
         await crud.db.curr.commit()
@@ -124,9 +122,9 @@ async def test_crud_remove(crud, setup_test_table):
 
     @mgr.use
     async def biz():
-        obj = await crud.create(TestCreateSchema(name="for_remove"))
+        obj = await crud.create(TCreateSchema(name="for_remove"))
         await crud.db.curr.commit()
-        n = await crud.remove([TestModel.id == obj.id])
+        n = await crud.remove([TModel.id == obj.id])
         assert n == 1
         await crud.db.curr.commit()
         got = await crud.get(obj.id)
@@ -142,7 +140,7 @@ async def test_crud_update_no_filter_raises(crud, setup_test_table):
 
     @mgr.use
     async def biz():
-        await crud.update(TestUpdateSchema(name="fail"), [])
+        await crud.update(TUpdateSchema(name="fail"), [])
 
     with pytest.raises(LibraryUsageError) as e:
         await biz()

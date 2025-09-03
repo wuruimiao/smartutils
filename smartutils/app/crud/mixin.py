@@ -1,5 +1,8 @@
 from sqlalchemy import Integer, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import (
+    Mapped,
+    mapped_column,  # pyright: ignore[reportAttributeAccessIssue]
+)
 
 
 class TimestampedMixin:
