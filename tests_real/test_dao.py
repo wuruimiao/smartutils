@@ -1,3 +1,5 @@
+from typing import Optional
+
 import pytest
 from pydantic import BaseModel
 from sqlalchemy import Column, String, text
@@ -6,6 +8,7 @@ from sqlalchemy.orm import declarative_base
 from smartutils.app.dao.base import DAODBase
 from smartutils.app.dao.mixin import TimestampedMixin
 from smartutils.error.sys import LibraryUsageError
+from smartutils.for_test import ForTest
 
 # 定义SQLAlchemy基础模型
 Base = declarative_base()
@@ -23,6 +26,8 @@ class TCreateSchema(BaseModel):
 
 class TUpdateSchema(BaseModel):
     name: str
+    foo: Optional[str] = None  # 用于测试 exclude_unset 行为，有默认但未提供时可被排除
+    bar: Optional[str] = None  # 用于测试exclude by field行为
 
 
 # DB初始化与销毁，由conftest或原有mysql fixture完成
@@ -113,6 +118,30 @@ async def test_crud_update(crud, setup_test_table):
         assert got.name == "updated"
 
     await biz()
+
+
+async def test_crud_update_unset_field_logger(mocker, crud, setup_test_table):
+    ft = ForTest(mocker)
+
+    from smartutils.infra import MySQLManager
+
+    mgr = MySQLManager()
+
+    @mgr.use
+    async def biz():
+        obj = await crud.create(TCreateSchema(name="to_update"))
+        await crud.db.curr.flush()
+        # 调用update，仅name字段，foo（显式为None）不传，触发dump_removed逻辑
+        await crud.update(
+            TUpdateSchema(name="newval", bar="test"),
+            [TModel.id == obj.id],
+            update_fields=[TModel.name],
+        )
+        return obj.id
+
+    _ = await biz()
+    assert ft.assert_log("{} filtered out by unset: {}", "[DAODBase]", {"foo"})
+    assert ft.assert_log("{} filtered out by fields: {}", "[DAODBase]", {"bar"})
 
 
 async def test_crud_remove(crud, setup_test_table):

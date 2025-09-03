@@ -19,6 +19,7 @@ from smartutils.app.dao.mixin import IDMixin
 from smartutils.design import MyBase
 from smartutils.error.sys import LibraryUsageError
 from smartutils.infra.db.base import SQLAlchemyManager
+from smartutils.log import logger
 
 try:
     from sqlalchemy import delete, update
@@ -136,8 +137,17 @@ class DAODBase(MyBase, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         session = self.db.curr
         data: dict = obj_in.model_dump(exclude_unset=True)
 
+        all_fields = set(obj_in.model_fields.keys())
+        dumped_fields = set(data.keys())
+        dump_removed = all_fields - dumped_fields
+        if dump_removed:
+            logger.info("{} filtered out by unset: {}", self.name, dump_removed)
+
         if update_fields:
             allowed_names = {attr.key for attr in update_fields}
+            fields_removed = set(data.keys()) - allowed_names
+            if fields_removed:
+                logger.error("{} filtered out by fields: {}", self.name, fields_removed)
             data = {k: v for k, v in data.items() if k in allowed_names}
         stmt = update(self.model).where(*filter_conditions).values(**data)
         result = await session.execute(stmt)
