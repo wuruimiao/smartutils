@@ -2,9 +2,6 @@
 
 # 安装虚拟环境及依赖
 install:
-	poetry install
-
-init:
 	poetry lock
 	poetry install --all-extras
 

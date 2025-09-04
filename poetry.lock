@@ -4342,26 +4342,6 @@ url = "https://mirrors.aliyun.com/pypi/simple"
 reference = "main"
 
 [[package]]
-name = "sqlalchemy2-stubs"
-version = "0.0.2a38"
-description = "Typing Stubs for SQLAlchemy 1.4"
-optional = false
-python-versions = ">=3.6"
-groups = ["dev"]
-files = [
-    {file = "sqlalchemy2-stubs-0.0.2a38.tar.gz", hash = "sha256:861d722abeb12f13eacd775a9f09379b11a5a9076f469ccd4099961b95800f9e"},
-    {file = "sqlalchemy2_stubs-0.0.2a38-py3-none-any.whl", hash = "sha256:b62aa46943807287550e2033dafe07564b33b6a815fbaa3c144e396f9cc53bcb"},
-]
-
-[package.dependencies]
-typing-extensions = ">=3.7.4"
-
-[package.source]
-type = "legacy"
-url = "https://mirrors.aliyun.com/pypi/simple"
-reference = "main"
-
-[[package]]
 name = "sqlparse"
 version = "0.5.3"
 description = "A non-validating SQL parser."
@@ -5322,4 +5302,4 @@ redis = ["aioredlock", "redis"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "0f37f20fb97b198d8fdb784c2eaa8eb2f7054832fca0085cd6021fb64d21f9eb"
+content-hash = "8926ddf407ac668210ac0d12f50ecb749a9ab5e6b12a8c84590082a12cd88a9c"
