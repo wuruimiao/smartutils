@@ -26,6 +26,7 @@ class LoguruConfig(StrippedBaseModel):
     stream: bool = False
     backtrace: bool = False
     diagnose: bool = False
+    colorize: bool = True
 
     @property
     def stream_kw(self) -> dict:

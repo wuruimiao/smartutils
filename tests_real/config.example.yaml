@@ -2,6 +2,7 @@ loguru:
   level: INFO
   logdir: "logs"
   stream: true
+  colorize: false
 
 kafka:
   default:

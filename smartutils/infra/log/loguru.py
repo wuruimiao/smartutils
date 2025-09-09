@@ -59,7 +59,6 @@ class LoggerCli(AbstractAsyncResource):
         if self._conf.stream:
             kw = self._conf.stream_kw
             kw["format"] = self._format
-            kw["colorize"] = True
             logger.add(sys.stdout, **kw)
 
         if self._conf.logdir:
@@ -71,7 +70,6 @@ class LoggerCli(AbstractAsyncResource):
 
             kw = self._conf.file_kw
             kw["format"] = self._format
-            kw["colorize"] = False
             logger.add(file_path, **kw)
 
         if not self._conf.stream and self._conf.logdir:
