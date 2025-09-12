@@ -36,4 +36,6 @@ class LoguruConfig(StrippedBaseModel):
 
     @property
     def file_kw(self) -> dict:
-        return self.model_dump(exclude={"logdir", "stream"})
+        data = self.model_dump(exclude={"logdir", "stream"})
+        data["colorize"] = False
+        return data
