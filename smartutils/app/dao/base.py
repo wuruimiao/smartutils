@@ -14,6 +14,7 @@ from typing import (
 )
 
 from pydantic import BaseModel
+from sqlalchemy.orm import DeclarativeMeta, declarative_base
 
 from smartutils.app.dao.mixin import IDMixin
 from smartutils.design import MyBase
@@ -197,3 +198,20 @@ class DAOBase(MyBase, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         stmt = delete(self.model).where(*filter_conditions)
         result = await session.execute(stmt)
         return cast(CursorResult, result).rowcount or 0
+
+
+class CommentMeta(DeclarativeMeta):
+    def __init__(cls, name, bases, dict_):
+        super().__init__(name, bases, dict_)
+        pydantic_cls: Optional[Type[BaseModel]] = getattr(cls, "__pydantic__", None)
+        if not pydantic_cls:
+            return
+
+        desc_map = {
+            k: v.description
+            for k, v in pydantic_cls.model_fields.items()
+            if v.description
+        }
+        for col in cls.__table__.columns:  # type: ignore
+            if not col.comment and col.name in desc_map:
+                col.comment = desc_map[col.name]
