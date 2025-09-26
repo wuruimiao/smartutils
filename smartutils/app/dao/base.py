@@ -14,7 +14,7 @@ from typing import (
 )
 
 from pydantic import BaseModel
-from sqlalchemy.orm import DeclarativeMeta, declarative_base
+from sqlalchemy.orm import DeclarativeMeta
 
 from smartutils.app.dao.mixin import IDMixin
 from smartutils.design import MyBase
