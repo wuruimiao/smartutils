@@ -38,6 +38,7 @@ def run():
         choices=AppKey.list(),
         help=f"App type, choices: {AppKey.list()}",
     )
+    parser.add_argument("--workers", type=int, default=1, help="workers")
     args = parser.parse_args()
 
     RunEnv.set_conf_path(args.conf)
@@ -49,7 +50,7 @@ def run():
         host=args.host,
         port=args.port,
         reload=args.reload,
-        workers=1,
+        workers=args.workers,
         factory=True,
         access_log=False,
     )
