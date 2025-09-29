@@ -181,6 +181,8 @@ class DAOBase(MyBase, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         obj_in: UpdateSchemaType,
         filter_conditions: Sequence[ColumnElement],
         update_fields: Optional[Sequence[InstrumentedAttribute]] = None,
+        create_on_none: bool = False,
+        trans_create_schema=None,
     ) -> int:
         """不支持orm实例更新，建议直接修改字段后commit
 
@@ -200,12 +202,30 @@ class DAOBase(MyBase, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 f"{self.name} filter_conditions cannot be empty to prevent updating the entire table!"
             )
 
+        if create_on_none:
+            exist = await self.get(
+                columns=[self.model.id], filter_conditions=filter_conditions
+            )
+            if not exist:
+                if not trans_create_schema:
+                    logger.error(
+                        "update {} by {} no trans_create_schema, cant create",
+                        obj_in,
+                        filter_conditions,
+                    )
+                    return 0
+                await self.create(trans_create_schema(obj_in))
+                return 1
+
         session = self.db.curr
         data: dict = obj_in.model_dump(exclude_unset=True)
+        if not data:
+            logger.info(
+                "{} update by {} empty, do nothing.", self.name, filter_conditions
+            )
+            return 0
 
-        all_fields = set(obj_in.model_fields.keys())
-        dumped_fields = set(data.keys())
-        dump_removed = all_fields - dumped_fields
+        dump_removed = set(obj_in.model_fields.keys()) - set(data.keys())
         if dump_removed:
             logger.info("{} filtered out by unset: {}", self.name, dump_removed)
 
