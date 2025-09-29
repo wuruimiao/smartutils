@@ -55,18 +55,44 @@ class DAOBase(MyBase, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self.db = db
 
     @overload
-    async def get(self, id: int, columns: None = None) -> Optional[ModelType]: ...
+    async def get(
+        self,
+        columns: None = None,
+        id: Optional[int] = None,
+        filter_conditions: Optional[Sequence[ColumnElement]] = None,
+    ) -> Optional[ModelType]: ...
     @overload
     async def get(
-        self, id: int, columns: Sequence[InstrumentedAttribute]
+        self,
+        columns: Sequence[InstrumentedAttribute],
+        id: Optional[int] = None,
+        filter_conditions: Optional[Sequence[ColumnElement]] = None,
     ) -> Optional[Tuple[Any, ...]]: ...
     async def get(
-        self, id: int, columns: Optional[Sequence[InstrumentedAttribute]] = None
+        self,
+        columns: Optional[Sequence[InstrumentedAttribute]] = None,
+        id: Optional[int] = None,
+        filter_conditions: Optional[Sequence[ColumnElement]] = None,
     ) -> Union[Optional[ModelType], Optional[Tuple[Any, ...]]]:
+        """
+        获取单条记录：优先id查找，其次使用filter_conditions查找。
+        id为None时只返回filter_conditions查到的第一条数据。
+
+        Args:
+            columns: 查询字段。
+            id (Optional[int]): 主键id，优先条件。
+            filter_conditions: 过滤条件。
+
+        Returns:
+            ORM对象或指定字段元组。未查到则返回None。
+        """
         session = self.db.curr
-        stmt = (select(*columns) if columns else select(self.model)).where(
-            self.model.id == id
-        )
+        stmt = select(*columns) if columns else select(self.model)
+        # 优先用id作为查询条件
+        if id is not None:
+            stmt = stmt.where(self.model.id == id)
+        elif filter_conditions:
+            stmt = stmt.where(*filter_conditions)
         result = await session.execute(stmt)
         if columns:
             row = result.first()
@@ -76,6 +102,7 @@ class DAOBase(MyBase, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     @overload
     async def get_multi(
         self,
+        filter_conditions: Sequence[ColumnElement],
         skip: Optional[int] = ...,
         limit: Optional[int] = ...,
         order_by: Optional[Sequence[ColumnElement]] = ...,
@@ -85,6 +112,7 @@ class DAOBase(MyBase, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     @overload
     async def get_multi(
         self,
+        filter_conditions: Sequence[ColumnElement],
         skip: Optional[int] = ...,
         limit: Optional[int] = ...,
         order_by: Optional[Sequence[ColumnElement]] = ...,
@@ -93,6 +121,7 @@ class DAOBase(MyBase, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     ) -> List[Tuple[Any, ...]]: ...
     async def get_multi(
         self,
+        filter_conditions: Sequence[ColumnElement],
         skip: Optional[int] = None,
         limit: Optional[int] = None,
         order_by: Optional[Sequence[ColumnElement]] = None,
@@ -120,7 +149,8 @@ class DAOBase(MyBase, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         """
         session = self.db.curr
         stmt = select(*columns) if columns else select(self.model)
-
+        if filter_conditions:
+            stmt = stmt.where(*filter_conditions)
         # 支持基于主键递增的游标分页
         if last_id is not None:
             stmt = stmt.where(self.model.id > last_id)
