@@ -1,13 +1,22 @@
 import traceback
+from typing import Optional
+
+from smartutils.config.schema.project import ProjectConf
 
 
-def init(conf_path: str = "config.yaml"):
+def init(
+    conf_path: str = "config.yaml", project_conf_cls: Optional[type[ProjectConf]] = None
+):
+    from smartutils.config import ConfFactory, Config, ConfKey
+    from smartutils.init.factory import InitByConfFactory
+
+    if project_conf_cls:
+        ConfFactory.register(ConfKey.PROJECT, multi=False, require=False)(
+            project_conf_cls
+        )
+
     try:
-        from smartutils.config import Config, ConfKey
-
         Config.init(conf_path)
-
-        from smartutils.init.factory import InitByConfFactory
 
         InitByConfFactory.init(Config.get_config())
 
