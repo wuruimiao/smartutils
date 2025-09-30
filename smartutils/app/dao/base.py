@@ -1,8 +1,10 @@
+from __future__ import annotations
+
+from enum import Enum
 from typing import (
     TYPE_CHECKING,
     Any,
     Generic,
-    List,
     Optional,
     Sequence,
     Tuple,
@@ -14,7 +16,6 @@ from typing import (
 )
 
 from pydantic import BaseModel
-from sqlalchemy.orm import DeclarativeMeta
 
 from smartutils.app.dao.mixin import IDMixin
 from smartutils.design import MyBase
@@ -23,24 +24,33 @@ from smartutils.infra.db.base import SQLAlchemyManager
 from smartutils.log import logger
 
 try:
-    from sqlalchemy import delete, update
+    from sqlalchemy import Select, delete, update
     from sqlalchemy.engine import CursorResult
     from sqlalchemy.future import select
+    from sqlalchemy.orm import DeclarativeMeta
     from sqlalchemy.orm.attributes import InstrumentedAttribute
     from sqlalchemy.sql.elements import ColumnElement
 except ImportError:
     ...
 
 if TYPE_CHECKING:
-    from sqlalchemy import delete, update
+    from sqlalchemy import Select, delete, update
     from sqlalchemy.engine import CursorResult
     from sqlalchemy.future import select
+    from sqlalchemy.orm import DeclarativeMeta
     from sqlalchemy.orm.attributes import InstrumentedAttribute
     from sqlalchemy.sql.elements import ColumnElement
+
 
 ModelType = TypeVar("ModelType", bound=IDMixin)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
+
+
+class ColumnsType(int, Enum):
+    MODEL = 1
+    TUPLE = 2
+    VALUE = 3
 
 
 class DAOBase(MyBase, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
@@ -54,101 +64,181 @@ class DAOBase(MyBase, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self.model = model
         self.db = db
 
+    def _columns_type(
+        self,
+        columns: Union[None, InstrumentedAttribute, Sequence[InstrumentedAttribute]],
+    ) -> ColumnsType:
+        if columns is None:
+            return ColumnsType.MODEL
+        if isinstance(columns, InstrumentedAttribute):
+            return ColumnsType.VALUE
+        if isinstance(columns, Sequence) and not isinstance(columns, str):
+            # 如果columns只包含一个元素，按单VALUE算
+            return ColumnsType.VALUE if len(columns) == 1 else ColumnsType.TUPLE
+
+        raise LibraryUsageError(f"columns {columns} invalid!")
+
+    def _build_select_stmt(self, columns) -> Tuple[ColumnsType, Select]:
+        columns_type = self._columns_type(columns)
+        if columns_type == ColumnsType.MODEL:
+            return columns_type, select(self.model)
+        if columns_type == ColumnsType.TUPLE:
+            return columns_type, select(*columns)
+        # 单字段
+        # if columns_type == ColumnsType.VALUE:
+        if isinstance(columns, InstrumentedAttribute):
+            return columns_type, select(columns)
+        else:
+            return columns_type, select(columns[0])
+
     @overload
     async def get(
         self,
         columns: None = None,
         id: Optional[int] = None,
         filter_conditions: Optional[Sequence[ColumnElement]] = None,
+        order_by: Optional[Sequence[ColumnElement]] = None,
     ) -> Optional[ModelType]: ...
+    @overload
+    async def get(
+        self,
+        columns: InstrumentedAttribute = ...,
+        id: Optional[int] = None,
+        filter_conditions: Optional[Sequence[ColumnElement]] = None,
+        order_by: Optional[Sequence[ColumnElement]] = None,
+    ) -> Optional[Any]: ...
     @overload
     async def get(
         self,
         columns: Sequence[InstrumentedAttribute],
         id: Optional[int] = None,
         filter_conditions: Optional[Sequence[ColumnElement]] = None,
-    ) -> Optional[Tuple[Any, ...]]: ...
+        order_by: Optional[Sequence[ColumnElement]] = None,
+    ) -> Union[None, Tuple[Any, ...], Any]: ...
     async def get(
         self,
-        columns: Optional[Sequence[InstrumentedAttribute]] = None,
+        columns: Union[
+            None, InstrumentedAttribute, Sequence[InstrumentedAttribute]
+        ] = None,
         id: Optional[int] = None,
         filter_conditions: Optional[Sequence[ColumnElement]] = None,
-    ) -> Union[Optional[ModelType], Optional[Tuple[Any, ...]]]:
+        order_by: Optional[Sequence[ColumnElement]] = None,
+    ) -> Union[None, ModelType, Tuple[Any, ...], Any]:
         """
-        获取单条记录：优先id查找，其次使用filter_conditions查找。
-        id为None时只返回filter_conditions查到的第一条数据。
+        获取单条数据，支持主键或自定义条件查询，并灵活指定返回字段。
 
-        Args:
-            columns: 查询字段。
-            id (Optional[int]): 主键id，优先条件。
-            filter_conditions: 过滤条件。
+        参数:
+        columns:
+        - None：返回 ORM 实体对象。
+        - InstrumentedAttribute（如 User.id）：返回该字段值。
+        - Sequence[InstrumentedAttribute]：返回指定字段元组，若只传一个字段则退化为单值。
+        id:
+        主键id，优先以此作为查询条件。
+        filter_conditions:
+        过滤条件，id为None时生效，可指定任意SQLAlchemy表达式列表。
 
-        Returns:
-            ORM对象或指定字段元组。未查到则返回None。
+        返回:
+        - columns为None：返回单个 ORM 实例或 None
+        - columns为单字段：直接返回该字段的值或 None
+        - columns为多字段：返回字段元组或 None
+
+        用法说明:
+        - 优先通过id查找，id为空时尝试用filter_conditions
+        - 同时传id和filter_conditions时，仅使用id - 查询无匹配时返回None
         """
         session = self.db.curr
-        stmt = select(*columns) if columns else select(self.model)
+        columns_type, stmt = self._build_select_stmt(columns)
+
         # 优先用id作为查询条件
         if id is not None:
             stmt = stmt.where(self.model.id == id)
         elif filter_conditions:
             stmt = stmt.where(*filter_conditions)
+        if order_by:
+            stmt = stmt.order_by(*order_by)
         result = await session.execute(stmt)
-        if columns:
-            row = result.first()
-            return tuple(row) if row else None  # 元组
-        return result.scalar_one_or_none()  # ORM对象
+
+        # 获取返回结果
+        row = result.first()
+        if columns_type in (ColumnsType.MODEL, ColumnsType.VALUE):
+            return row[0] if row else None  # scalar_one_or_none兼容写法
+        # if columns_type == ColumnsType.TUPLE:
+        return tuple(row) if row else None
 
     @overload
     async def get_multi(
         self,
-        filter_conditions: Sequence[ColumnElement],
+        columns: None = None,
+        filter_conditions: Sequence[ColumnElement] = ...,
         skip: Optional[int] = ...,
         limit: Optional[int] = ...,
         order_by: Optional[Sequence[ColumnElement]] = ...,
         last_id: Optional[int] = ...,
-        columns: None = None,
-    ) -> List[ModelType]: ...
+    ) -> Sequence[ModelType]: ...
     @overload
     async def get_multi(
         self,
-        filter_conditions: Sequence[ColumnElement],
+        columns: InstrumentedAttribute = ...,
+        filter_conditions: Sequence[ColumnElement] = ...,
         skip: Optional[int] = ...,
         limit: Optional[int] = ...,
         order_by: Optional[Sequence[ColumnElement]] = ...,
         last_id: Optional[int] = ...,
-        columns: Sequence[InstrumentedAttribute] = ...,
-    ) -> List[Tuple[Any, ...]]: ...
+    ) -> Sequence[Any]: ...
+    @overload
     async def get_multi(
         self,
-        filter_conditions: Sequence[ColumnElement],
+        columns: Sequence[InstrumentedAttribute] = ...,
+        filter_conditions: Sequence[ColumnElement] = ...,
+        skip: Optional[int] = ...,
+        limit: Optional[int] = ...,
+        order_by: Optional[Sequence[ColumnElement]] = ...,
+        last_id: Optional[int] = ...,
+    ) -> Union[Sequence[Tuple[Any, ...]], Sequence[Any]]: ...
+    async def get_multi(
+        self,
+        columns: Union[
+            None, Sequence[InstrumentedAttribute], InstrumentedAttribute
+        ] = None,
+        filter_conditions: Sequence[ColumnElement] = (),
         skip: Optional[int] = None,
         limit: Optional[int] = None,
         order_by: Optional[Sequence[ColumnElement]] = None,
         last_id: Optional[int] = None,
-        columns: Optional[Sequence[InstrumentedAttribute]] = None,
-    ) -> Union[List[ModelType], List[Tuple[Any, ...]]]:
+    ) -> Union[Sequence[ModelType], Sequence[Any], Sequence[Tuple[Any, ...]]]:
         """
-        异步方式批量获取数据，支持分页和多字段选择。
+        批量获取数据，支持条件过滤、字段选择和多样化分页方式。
 
-        Args:
-            skip (Optional[int]): 偏移量，常用于分页，跳过前skip条记录。
-            limit (Optional[int]): 查询上限，返回最多limit条。
-            order_by (Optional[Sequence[ColumnElement]]): 排序字段，SQLAlchemy表达式，如 [Table.c.field1.desc()].
-            last_id (Optional[int]): 基于主键(id)的游标分页，last_id大于指定值的记录。
-            columns (Optional[Sequence[InstrumentedAttribute]]): 若指定，返回结构为tuple，仅包含这些字段；不指定则返回ORM对象列表。
+        参数:
+        columns:
+        - None：返回 ORM 实体对象的序列。
+        - InstrumentedAttribute（如 User.id）：返回单字段值的序列。
+        - Sequence[InstrumentedAttribute]：返回元组（多字段）或单值（单字段）序列。
+        filter_conditions:
+        过滤条件，可为任意SQLAlchemy表达式组成的序列。
+        skip:
+        跳过前N项，常用于偏移式分页，若last_id非空则无效。
+        limit:
+        最大条数限制。
+        order_by:
+        排序条件，支持多条件排序。
+        last_id:
+        游标式分页主键，仅返回主键大于last_id的数据；优先于skip。
 
-        Returns:
-            Union[List[ModelType], List[Tuple[Any, ...]]]:
-                - 若columns为None，返回ModelType实例列表；
-                - 若columns指定，返回字段tuple的列表。
+        返回:
+        - columns为None：返回 ORM 实体对象序列
+        - columns为单字段：返回该字段值的序列
+        - columns为多字段：返回字段元组或（单字段时）值的序列
 
-        注意：
-            skip与last_id若同时指定，只使用last_id并忽略skip。
-            推荐使用last_id配合order_by主键(desc)实现高性能分页。
+        用法说明:
+        - 支持自定义where、limit、offset、order_by
+        - 推荐 last_id + order_by 配合主键分页以提升性能
+        - relation字段建议用序列方式传入以获得最佳类型支持
         """
         session = self.db.curr
-        stmt = select(*columns) if columns else select(self.model)
+        columns_type = self._columns_type(columns)
+        columns_type, stmt = self._build_select_stmt(columns)
+
         if filter_conditions:
             stmt = stmt.where(*filter_conditions)
         # 支持基于主键递增的游标分页
@@ -165,13 +255,18 @@ class DAOBase(MyBase, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             stmt = stmt.order_by(*order_by)
         result = await session.execute(stmt)
 
-        if columns:
-            return [tuple(row) for row in result.fetchall()]  # List[tuple]
-        return list(result.scalars().all())  # List[ORM对象]
+        # 获取返回结果
+        if columns_type == ColumnsType.MODEL:
+            return result.scalars().all()
+
+        rows = result.fetchall()
+        if columns_type == ColumnsType.TUPLE:
+            return [tuple(row) for row in rows]
+        return [row[0] for row in rows]
 
     async def create(self, obj_in: CreateSchemaType) -> ModelType:
         session = self.db.curr
-        obj = self.model(**obj_in.model_dump())
+        obj = self.model(**obj_in.model_dump(exclude_unset=True))
         session.add(obj)
         await session.flush()
         return obj
@@ -182,7 +277,7 @@ class DAOBase(MyBase, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         filter_conditions: Sequence[ColumnElement],
         update_fields: Optional[Sequence[InstrumentedAttribute]] = None,
         create_on_none: bool = False,
-        trans_create_schema=None,
+        trans_create_schema=lambda x: x,
     ) -> int:
         """不支持orm实例更新，建议直接修改字段后commit
 
@@ -207,13 +302,7 @@ class DAOBase(MyBase, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 columns=[self.model.id], filter_conditions=filter_conditions
             )
             if not exist:
-                if not trans_create_schema:
-                    logger.error(
-                        "update {} by {} no trans_create_schema, cant create",
-                        obj_in,
-                        filter_conditions,
-                    )
-                    return 0
+                logger.info("update auto use update schema to create.")
                 await self.create(trans_create_schema(obj_in))
                 return 1
 
