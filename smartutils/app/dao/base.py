@@ -278,6 +278,7 @@ class DAOBase(MyBase, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         update_fields: Optional[Sequence[InstrumentedAttribute]] = None,
         create_on_none: bool = False,
         trans_create_schema=lambda x: x,
+        exclude_none: bool = True,
     ) -> int:
         """不支持orm实例更新，建议直接修改字段后commit
 
@@ -307,7 +308,7 @@ class DAOBase(MyBase, Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 return 1
 
         session = self.db.curr
-        data: dict = obj_in.model_dump(exclude_unset=True)
+        data: dict = obj_in.model_dump(exclude_unset=True, exclude_none=exclude_none)
         if not data:
             logger.info(
                 "{} update by {} empty, do nothing.", self.name, filter_conditions
