@@ -135,7 +135,7 @@ async def test_BizOpInfo_all(mocker):
 
     class User:  # noqa
         def __init__(self, name):
-            self.real_name = name
+            self.realname = name
 
     userDict = {1: User("zh"), 2: User("xi")}
     handler.return_value = userDict

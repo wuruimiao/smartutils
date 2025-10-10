@@ -248,8 +248,8 @@ class BizOpInfo:
             return ""
         return getattr(self._user_infos[userid], op_id_attr)
 
-    def biz_creator_attr(self, biz_id: int, attr: str = "real_name") -> str:
+    def biz_creator_attr(self, biz_id: int, attr: str = "realname") -> str:
         return self._biz_op_attr(biz_id, "creator_id", attr)
 
-    def biz_updator_attr(self, biz_id: int, attr: str = "real_name") -> str:
+    def biz_updator_attr(self, biz_id: int, attr: str = "realname") -> str:
         return self._biz_op_attr(biz_id, "updator_id", attr)
