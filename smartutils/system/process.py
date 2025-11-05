@@ -24,7 +24,7 @@ def cur_pid() -> int:
 
 
 def cur_tid() -> Optional[int]:
-    return threading.currentThread().ident
+    return threading.current_thread().ident
 
 
 def get_host_ip() -> str:

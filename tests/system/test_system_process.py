@@ -17,7 +17,7 @@ def test_cur_tid():
     # threading.currentThread().ident 必定不为 None
     import threading
 
-    assert tid == threading.currentThread().ident
+    assert tid == threading.current_thread().ident
     assert isinstance(tid, int)
 
 
