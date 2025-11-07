@@ -1,5 +1,4 @@
 from smartutils.infra.alert.feishu import AlertFeishuManager
-from smartutils.infra.cache.bitmap import RedisBitmapUtil
 from smartutils.infra.cache.redis import RedisManager
 from smartutils.infra.client.manager import ClientManager
 from smartutils.infra.db.mongo import MongoManager
@@ -17,7 +16,6 @@ __all__ = [
     "ResourceManagerRegistry",
     "CTXResourceManager",
     "RedisManager",
-    "RedisBitmapUtil",
     "MySQLManager",
     "PostgresqlManager",
     "MongoManager",

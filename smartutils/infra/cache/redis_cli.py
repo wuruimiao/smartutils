@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Dict, Optional
 from smartutils.config.schema.redis import RedisConf
 from smartutils.error.factory import ExcDetailFactory
 from smartutils.error.sys import CacheError
+from smartutils.infra.cache.bitmap import RedisBitmap
 from smartutils.infra.resource.abstract import AbstractAsyncResource
 from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
@@ -32,6 +33,7 @@ class AsyncRedisCli(LibraryCheckMixin, AbstractAsyncResource):
         kw["decode_responses"] = True
         self._pool: ConnectionPool = ConnectionPool.from_url(conf.url, **kw)
         self._redis: Redis = Redis.from_pool(connection_pool=self._pool)
+        self.bitmap: RedisBitmap = RedisBitmap(self._redis)
 
     def __getattr__(self, name):
         # 当访问 AsyncRedisCli 未定义的属性/方法时，由 _redis 处理
@@ -52,7 +54,7 @@ class AsyncRedisCli(LibraryCheckMixin, AbstractAsyncResource):
         try:
             pong = await self._redis.ping()
             return pong is True
-        except:  # noqa
+        except:  # noqa: E722
             logger.exception(
                 "{cls_name} {name} health check  failed",
                 cls_name=self.name,
