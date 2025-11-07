@@ -48,7 +48,10 @@ class HttpClient(LibraryCheckMixin, AbstractAsyncResource):
             base_url=conf.endpoint,
             timeout=conf.timeout,
             verify=conf.verify_tls,
+            proxy=conf.proxy,
         )
+        if conf.proxy:
+            logger.info("{} using proxy {}", self.name, conf.proxy)
         self._breaker = Breaker(name, conf, only_connection_failures)
 
         self._make_apis()

@@ -27,4 +27,5 @@ class ClientConf(BreakerConf):
     timeout: int | float = 10
     tls: bool = False
     verify_tls: bool = True
+    proxy: Optional[str] = None
     apis: Optional[Dict[str, ApiConf]] = None

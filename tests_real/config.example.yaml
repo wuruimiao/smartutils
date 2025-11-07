@@ -88,6 +88,7 @@ client:
   auth:
     type: http
     endpoint: https://httpbin.org
+    proxy: http://127.0.0.1:7890
     timeout: 10
     verify_tls: true
     breaker_enabled: true
@@ -148,7 +149,8 @@ client:
   httpbin-ok:
     type: http
     endpoint: https://httpbin.org
-    timeout: 10
+    proxy: http://127.0.0.1:7890
+    timeout: 20
     verify_tls: true
     apis:
       get_ip:
@@ -163,7 +165,8 @@ client:
   httpbin-breaker:
     type: http
     endpoint: https://httpbin.org
-    timeout: 10
+    proxy: http://127.0.0.1:7890
+    timeout: 20
     verify_tls: true
     breaker_enabled: true
     breaker_fail_max: 1
@@ -181,6 +184,7 @@ client:
   httpbin-fail:
     type: http
     endpoint: https://httpbin.org
+    proxy: http://127.0.0.1:7890
     timeout: 1
     verify_tls: true
     apis:
@@ -190,6 +194,7 @@ client:
   httpbin-breaker-fail:
     type: http
     endpoint: https://httpbin.org
+    proxy: http://127.0.0.1:7890
     timeout: 1
     verify_tls: true
     breaker_enabled: true

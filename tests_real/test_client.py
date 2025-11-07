@@ -323,7 +323,7 @@ async def test_client_http_with_api_methods():
     conf = ClientConf(
         type="http",
         endpoint=HTTPBIN,
-        timeout=10,
+        timeout=20,
         apis=apis,
     )
     from smartutils.infra.client.http import HttpClient
