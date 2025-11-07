@@ -41,7 +41,8 @@ class AsyncRedisCli(LibraryCheckMixin, AbstractAsyncResource):
 
     async def evalsha(self, sha: str, keys=None, args=None):
         """
-        用sha1调用redis脚本（aioredlock分布式锁必需）。
+        用sha1调用redis脚本。
+        aioredlock分布式锁必需：用于适配AsyncRedisCli为aioredlock客户端实例
         redis-py要求 keys, args 分开传, aioredlock是keys/args分开。
         """
         keys = keys or []
