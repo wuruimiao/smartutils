@@ -150,7 +150,7 @@ async def test_xadd_and_ensure_stream_and_group(async_cli, mocker):
     assert ret == "id1"
 
     async_cli._redis.xgroup_create = mocker.AsyncMock()
-    await async_cli.ensure_stream_and_group("st", "gp")
+    await async_cli.safe_q_stream.ensure_stream_and_group("st", "gp")
     async_cli._redis.xgroup_create.assert_awaited()
 
     from redis.asyncio import ResponseError
@@ -160,14 +160,14 @@ async def test_xadd_and_ensure_stream_and_group(async_cli, mocker):
     async_cli._redis.xgroup_create = mocker.AsyncMock(
         side_effect=ResponseError("BUSYGROUP Consumer Group name already exists")
     )
-    await async_cli.ensure_stream_and_group("st", "gp")
+    await async_cli.safe_q_stream.ensure_stream_and_group("st", "gp")
 
     async_cli._redis.xgroup_create = mocker.AsyncMock(side_effect=ResponseError("xxx"))
     import smartutils.error.factory as fct
 
     fct.ExcDetailFactory.get = lambda e: "detail"  # type: ignore
     with pytest.raises(CacheError):
-        await async_cli.ensure_stream_and_group("st", "gp")
+        await async_cli.safe_q_stream.ensure_stream_and_group("st", "gp")
 
 
 async def test_xread_xack(async_cli, mocker):
@@ -179,19 +179,19 @@ async def test_xread_xack(async_cli, mocker):
     )
     async_cli._redis.xack = mocker.AsyncMock()
 
-    async with async_cli.xread_xack("stream", "gp", count=1) as msg:
+    async with async_cli.safe_q_stream.xread_xack("stream", "gp", count=1) as msg:
         assert msg == {"k": "v"}
     async_cli._redis.xack.assert_awaited_with("stream", "gp", "msgid")
 
     async_cli._redis.xreadgroup = mocker.AsyncMock(return_value=[])
     async_cli._redis.xack.reset_mock()
-    async with async_cli.xread_xack("stream", "gp", count=2) as msg:
+    async with async_cli.safe_q_stream.xread_xack("stream", "gp", count=2) as msg:
         assert msg is None
     async_cli._redis.xack.assert_not_awaited()
 
     async_cli._redis.xreadgroup = mocker.AsyncMock(side_effect=Exception("fail"))
     async_cli._redis.xack.reset_mock()
-    async with async_cli.xread_xack("stream", "gp", count=2) as msg:
+    async with async_cli.safe_q_stream.xread_xack("stream", "gp", count=2) as msg:
         assert msg is None
     async_cli._redis.xack.assert_not_awaited()
 
@@ -218,7 +218,9 @@ async def test_ensure_stream_and_group_raises(async_cli, mocker):
         def __str__(self):
             return "other error"
 
-    mocker.patch.object(cacheclimod, "ResponseError", DummyRespErr)
+    import smartutils.infra.cache.q_stream as qstreammod
+
+    mocker.patch.object(qstreammod, "ResponseError", DummyRespErr)
     async_cli._redis.xgroup_create = mocker.AsyncMock(side_effect=DummyRespErr())
     import smartutils.error.factory as ef
 
@@ -228,6 +230,6 @@ async def test_ensure_stream_and_group_raises(async_cli, mocker):
     from smartutils.error.sys import CacheError
 
     try:
-        await async_cli.ensure_stream_and_group("s", "g")
+        await async_cli.safe_q_stream.ensure_stream_and_group("s", "g")
     except CacheError as ce:
         assert "detailxxx" in str(ce)

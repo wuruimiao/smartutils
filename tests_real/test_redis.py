@@ -266,10 +266,10 @@ async def test_xadd_xread_xack(setup_cache):
         stream = "pytest:cli:stream"
         group = "pytestgroup"
         await cli.delete(stream)
-        await cli.ensure_stream_and_group(stream, group)
+        await cli.safe_q_stream.ensure_stream_and_group(stream, group)
         await cli.xadd(stream, {"foo": "bar"})
         # 确保 group 存在
-        async with cli.xread_xack(stream, group, count=1) as msg_iter:
+        async with cli.safe_q_stream.xread_xack(stream, group, count=1) as msg_iter:
             assert msg_iter["foo"] == "bar"  # type: ignore
         await cli.delete(stream)
 
@@ -370,7 +370,7 @@ async def test_safe_context_none_branches(setup_cache):
         raise Exception("fail")
 
     cli._redis.xreadgroup = fail
-    async with cli.xread_xack(stream, group, count=1) as msg:
+    async with cli.safe_q_stream.xread_xack(stream, group, count=1) as msg:
         assert msg is None
     cli._redis.xreadgroup = orig_xreadgroup
 

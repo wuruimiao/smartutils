@@ -2,26 +2,24 @@ from __future__ import annotations
 
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING, Dict
 
 from smartutils.config.schema.redis import RedisConf
-from smartutils.error.factory import ExcDetailFactory
-from smartutils.error.sys import CacheError
 from smartutils.infra.cache.bitmap import RedisBitmap
 from smartutils.infra.cache.q_list import SafeQueueList
+from smartutils.infra.cache.q_stream import SafeQueueStream
 from smartutils.infra.cache.q_zset import SafeQueueZSet
 from smartutils.infra.cache.string import SafeString
 from smartutils.infra.resource.abstract import AbstractAsyncResource
 from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
-from smartutils.time import get_now_stamp
 
 try:
-    from redis.asyncio import ConnectionPool, Redis, ResponseError
+    from redis.asyncio import ConnectionPool, Redis
 except ImportError:
     ...
 if TYPE_CHECKING:  # pragma: no cover
-    from redis.asyncio import ConnectionPool, Redis, ResponseError
+    from redis.asyncio import ConnectionPool, Redis
 
 
 class AsyncRedisCli(LibraryCheckMixin, AbstractAsyncResource):
@@ -40,6 +38,7 @@ class AsyncRedisCli(LibraryCheckMixin, AbstractAsyncResource):
         self.safe_str: SafeString = SafeString(self._redis)
         self.safe_q_list: SafeQueueList = SafeQueueList(self._redis)
         self.safe_q_zset: SafeQueueZSet = SafeQueueZSet(self._redis)
+        self.safe_q_stream: SafeQueueStream = SafeQueueStream(self._redis)
 
     def __getattr__(self, name):
         # 当访问 AsyncRedisCli 未定义的属性/方法时，由 _redis 处理
@@ -97,68 +96,3 @@ class AsyncRedisCli(LibraryCheckMixin, AbstractAsyncResource):
         :return: 添加的新成员数量，int
         """
         return await self._redis.zadd(zset_name, key_score)
-
-    # stream队列
-    async def xadd(self, stream: str, fields: dict) -> str:
-        """添加条目到 Redis Stream"""
-        return await self._redis.xadd(stream, fields)
-
-    async def ensure_stream_and_group(self, stream_name: str, group_name: str):
-        try:
-            await self._redis.xgroup_create(
-                stream_name, group_name, id="0", mkstream=True
-            )
-        except ResponseError as e:
-            if "BUSYGROUP Consumer Group name already exists" not in str(e):
-                raise CacheError(ExcDetailFactory.get(e)) from None
-
-    @asynccontextmanager
-    async def xread_xack(
-        self, stream: str, group: str, count: int = 1
-    ) -> AsyncGenerator[Optional[dict], None]:
-        """使用 with 语句读取并处理 Redis Stream，自动提交 ACK"""
-        message_ids = set()
-        try:
-            await self.ensure_stream_and_group(stream, group)
-            # print('messages================start',)
-            # 从 Redis Stream 获取消息
-            # TODO: 非阻塞方式有问题
-            # messages = await self._redis.xread({stream: "0"}, count=count, block=1000)
-            messages = await self._redis.xreadgroup(
-                groupname=group,
-                consumername="consumer",
-                streams={stream: ">"},
-                count=count,
-                block=1000,
-            )
-            if len(messages) > count:
-                logger.error(
-                    "{name} xread_xack get {length} expect {count}",
-                    name=self.name,
-                    length=len(messages),
-                    count=count,
-                )
-            # print('messages================', messages)
-            if not messages:
-                yield None
-                return
-            logger.debug("{name} {messages}", name=self.name, messages=messages)
-            for message in messages:
-                stream_name, messages_list = message
-                for message_id, fields in messages_list:
-                    message_ids.add(message_id)
-
-                    fields = {
-                        key.decode() if isinstance(key, bytes) else key: (
-                            value.decode() if isinstance(value, bytes) else value
-                        )
-                        for key, value in fields.items()
-                    }
-                    yield fields
-        except:  # noqa
-            logger.exception("{name} xread xack fail", name=self.name)
-            yield None
-        finally:
-            # 在退出时提交 ACK
-            for message_id in message_ids:
-                await self._redis.xack(stream, group, message_id)
