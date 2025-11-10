@@ -2,7 +2,7 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, Optional
 
-from smartutils.infra.cache.const import RPOP_ZADD_SCRIPT, LuaName
+from smartutils.infra.cache.const import LuaName
 from smartutils.infra.cache.lua_manager import LuaManager
 from smartutils.time import get_now_stamp
 
@@ -62,10 +62,6 @@ class SafeQueueList:
         :param task: 需归队的任务内容(str)
         :return: str, 被重新放回队列的元素值
         """
-        lua_script = """
-        redis.call('ZREM', KEYS[1], ARGV[1])
-        redis.call('RPUSH', KEYS[2], ARGV[1])
-        return ARGV[1]
-        """
-        lua = self._redis.register_script(lua_script)
-        return await lua(keys=[pending, queue], args=[task])
+        return await LuaManager.call(
+            LuaName.ZREM_RPUSH, self._redis, keys=[pending, queue], args=[task]
+        )

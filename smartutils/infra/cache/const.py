@@ -22,14 +22,21 @@ if msg then
 end
 return msg
 """
+ZREM_RPUSH_SCRIPT = """
+redis.call('ZREM', KEYS[1], ARGV[1])
+redis.call('RPUSH', KEYS[2], ARGV[1])
+return ARGV[1]
+"""
 
 
 class LuaName(Enum):
     INCR_DECR = "incr_decr"
     RPOP_ZADD = "RPOP_ZADD"
+    ZREM_RPUSH = "ZREM_RPUSH"
 
 
 LUAS = {
     LuaName.INCR_DECR: INCR_DECR_SCRIPT,
     LuaName.RPOP_ZADD: RPOP_ZADD_SCRIPT,
+    LuaName.ZREM_RPUSH: ZREM_RPUSH_SCRIPT,
 }
