@@ -44,6 +44,7 @@ class LuaManager:
     ):
         """
         调用脚本。自动注册/缓存Script对象，直接 await 脚本调用 keys/args。
+        键值必须使用KEYS传递,集群分槽需要
         """
         lua = await cls.get(name, redis_cli)
         return await lua(keys=keys or [], args=args or [])

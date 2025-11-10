@@ -78,10 +78,6 @@ class AsyncRedisCli(LibraryCheckMixin, AbstractAsyncResource):
     ) -> AsyncGenerator["AsyncRedisCli", None]:
         yield self
 
-    async def _eval(self, *args, **kwargs):
-        # 键值必须使用KEYS传递,集群分槽需要
-        return await self._redis.eval(*args, **kwargs)  # type: ignore
-
     # zset
     async def zadd(self, zset_name: str, key: str, score: int) -> int:
         """
