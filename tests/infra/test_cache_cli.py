@@ -74,8 +74,8 @@ async def test_list_ops(async_cli):
 
 async def test_zset_ops(async_cli):
     async_cli._redis.zadd.return_value = 1
-    assert await async_cli.zadd("z", "k", 9) == 1
-    assert await async_cli.zadd_multi("z", {"a": 1, "b": 2}) == 1
+    assert await async_cli.zadd("z", {"k": 9}) == 1
+    assert await async_cli.zadd("z", {"a": 1, "b": 2}) == 1
     async_cli._redis.zcard.return_value = 2
     assert await async_cli.zcard("z") == 2
     async_cli._redis.zrange.return_value = ["a", "b"]

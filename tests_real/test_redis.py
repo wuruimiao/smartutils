@@ -161,9 +161,9 @@ async def test_zadd_zrem_zrangebyscore(setup_cache):
         cli = redis_mgr.curr
         zset = "pytest:cli:zset"
         await cli.delete(zset)
-        await cli.zadd(zset, "k1", 10)
+        await cli.zadd(zset, {"k1": 10})
         assert await cli.zcard(zset) == 1
-        await cli.zadd(zset, "k2", 20)
+        await cli.zadd(zset, {"k2": 20})
         assert await cli.zcard(zset) == 2
         members = await cli.zrangebyscore(zset, 0, 30)
         assert "k1" in members and "k2" in members
@@ -199,7 +199,7 @@ async def test_safe_rpop_zadd_and_safe_rpush_zrem(setup_cache):
         assert msg not in members2
 
         # 再手动放一个任务到 zset_pending，测试 safe_rpush_zrem
-        await cli.zadd_multi(zset_pending, {"task3": 100})
+        await cli.zadd(zset_pending, {"task3": 100})
         res = await cli.safe_q_list.requeue_task(list_ready, zset_pending, "task3")
         assert res == "task3"
         # task3 应该在 list_ready
@@ -227,7 +227,7 @@ async def test_real_safe_zpop_zadd_and_safe_zrem_zadd(setup_cache):
         await cli.delete(zset_ready, zset_pending)
 
         # 准备任务
-        await cli.zadd_multi(zset_ready, {"taskA": 1, "taskB": 2})
+        await cli.zadd(zset_ready, {"taskA": 1, "taskB": 2})
         # safe_zpop_zadd 应该弹出 score 最小的 taskA
         async with cli.safe_q_zset.fetch_task_ctx(zset_ready, zset_pending) as msg:
             assert msg == "taskA"
@@ -239,7 +239,7 @@ async def test_real_safe_zpop_zadd_and_safe_zrem_zadd(setup_cache):
         assert "taskA" not in members2
 
         # 再把 taskB 放到 pending，safe_zrem_zadd 归还到 ready
-        await cli.zadd_multi(zset_pending, {"taskB": 99})
+        await cli.zadd(zset_pending, {"taskB": 99})
         res = await cli.safe_q_zset.requeue_task(zset_pending, zset_ready, "taskB", 5)
         assert res == "taskB"
         # taskB 应该在 ready，score 为 5

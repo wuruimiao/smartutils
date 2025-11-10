@@ -70,7 +70,7 @@ async def test_zset_commands_ret_type(setup_cache):
     async def inner():
         cli = redis_mgr.curr
         await cli.delete("pytest:zset")
-        zadd_ret = await cli.zadd("pytest:zset", "k", 1)
+        zadd_ret = await cli.zadd("pytest:zset", {"k": 1})
         assert isinstance(zadd_ret, int)
         zcount = await cli.zcard("pytest:zset")
         assert isinstance(zcount, int)

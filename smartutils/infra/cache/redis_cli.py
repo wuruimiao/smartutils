@@ -77,18 +77,3 @@ class AsyncRedisCli(LibraryCheckMixin, AbstractAsyncResource):
         self, use_transaction: bool = False
     ) -> AsyncGenerator["AsyncRedisCli", None]:
         yield self
-
-    # zset
-    async def zadd(self, zset_name: str, key: str, score: int) -> int:
-        """
-        向有序集合添加一个成员。
-        :return: 添加的新成员数量，int
-        """
-        return await self._redis.zadd(zset_name, {key: score})
-
-    async def zadd_multi(self, zset_name: str, key_score: Dict[str, int]) -> int:
-        """
-        批量向有序集合添加成员。
-        :return: 添加的新成员数量，int
-        """
-        return await self._redis.zadd(zset_name, key_score)
