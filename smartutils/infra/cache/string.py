@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from enum import Enum
 from typing import TYPE_CHECKING, Optional
 
-from smartutils.infra.cache.lua_manager import LuaManager, LuaName, LuaOp
+from smartutils.infra.cache.lua_manager import LuaManager, LuaName
 
 try:
     from redis.asyncio import Redis
@@ -10,6 +11,11 @@ except ImportError:
     ...
 if TYPE_CHECKING:  # pragma: no cover
     from redis.asyncio import Redis
+
+
+class LuaOp(str, Enum):
+    INCR = "incr"
+    DECR = "decr"
 
 
 class SafeString:

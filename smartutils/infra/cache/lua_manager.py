@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 import asyncio
-from enum import Enum
 from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
 
-from smartutils.infra.cache.const import INCR_DECR_SCRIPT
+from smartutils.infra.cache.const import LUAS, LuaName
 
 try:
     from redis.asyncio import Redis
@@ -14,20 +13,6 @@ except ImportError:
 if TYPE_CHECKING:  # pragma: no cover
     from redis.asyncio import Redis
     from redis.commands.core import AsyncScript
-
-
-class LuaName(Enum):
-    INCR_DECR = "incr_decr"
-
-
-class LuaOp(str, Enum):
-    INCR = "incr"
-    DECR = "decr"
-
-
-_LUAS = {
-    LuaName.INCR_DECR: INCR_DECR_SCRIPT,
-}
 
 
 class LuaManager:
@@ -45,7 +30,7 @@ class LuaManager:
         async with cls._lock:
             if name in cls._luas:
                 return cls._luas[key]
-            lua = redis_cli.register_script(_LUAS[name])
+            lua = redis_cli.register_script(LUAS[name])
             cls._luas[key] = lua
             return lua
 

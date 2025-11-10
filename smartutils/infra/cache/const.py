@@ -1,3 +1,5 @@
+from enum import Enum
+
 INCR_DECR_SCRIPT = """
 local op = ARGV[1]
 local current
@@ -13,3 +15,21 @@ if ARGV[2] ~= '' then
 end
 return current
 """
+RPOP_ZADD_SCRIPT = """
+local msg = redis.call('rpop', KEYS[1])
+if msg then
+    redis.call('zadd', KEYS[2], ARGV[1], msg)
+end
+return msg
+"""
+
+
+class LuaName(Enum):
+    INCR_DECR = "incr_decr"
+    RPOP_ZADD = "RPOP_ZADD"
+
+
+LUAS = {
+    LuaName.INCR_DECR: INCR_DECR_SCRIPT,
+    LuaName.RPOP_ZADD: RPOP_ZADD_SCRIPT,
+}
