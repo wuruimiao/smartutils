@@ -1,24 +1,22 @@
 import pytest
 
-# import smartutils.infra.cache.redis as cachemod
 import smartutils.infra.cache.redis_cli as cacheclimod
 
 
 @pytest.fixture
-def redis_conf():
-    class Conf:
-        url = "redis://localhost/0"
-        kw = {}
-
-    return Conf()
-
-
-@pytest.fixture
 def async_cli(mocker):
-    cli = cacheclimod.AsyncRedisCli.__new__(cacheclimod.AsyncRedisCli)
-    cli._redis = mocker.AsyncMock()
-    cli._pool = mocker.AsyncMock()
-    cli._key = "test"
+    mocker.patch(
+        "smartutils.infra.cache.redis_cli.ConnectionPool.from_url",
+        return_value=mocker.AsyncMock(),
+    )
+    mocker.patch(
+        "smartutils.infra.cache.redis_cli.Redis.from_pool",
+        return_value=mocker.AsyncMock(),
+    )
+    from smartutils.config.schema.redis import RedisConf
+
+    conf = RedisConf(**{"host": "127.0.0.1", "port": 6379, "db": 1})
+    cli = cacheclimod.AsyncRedisCli(conf, name="test")
     return cli
 
 
@@ -40,9 +38,13 @@ async def test_set_get_delete(async_cli):
 
 
 async def test_incr_decr(async_cli):
-    async_cli._redis.eval.return_value = 11
-    assert await async_cli.incr("cnt", ex=2) == 11
-    assert await async_cli.decr("cnt", ex=None) == 11
+    class ScriptMock:
+        async def __call__(self, *args, **kwargs):
+            return 11
+
+    async_cli._redis.register_script = lambda *a, **k: ScriptMock()
+    assert await async_cli.safe_str.incr("cnt", ex=2) == 11
+    assert await async_cli.safe_str.decr("cnt", ex=None) == 11
 
 
 async def test_set_ops(async_cli):
