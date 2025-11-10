@@ -8,6 +8,7 @@ from smartutils.config.schema.redis import RedisConf
 from smartutils.error.factory import ExcDetailFactory
 from smartutils.error.sys import CacheError
 from smartutils.infra.cache.bitmap import RedisBitmap
+from smartutils.infra.cache.q_list import SafeQueueList
 from smartutils.infra.cache.string import SafeString
 from smartutils.infra.resource.abstract import AbstractAsyncResource
 from smartutils.init.mixin import LibraryCheckMixin
@@ -36,6 +37,7 @@ class AsyncRedisCli(LibraryCheckMixin, AbstractAsyncResource):
         self._redis: Redis = Redis.from_pool(connection_pool=self._pool)
         self.bitmap: RedisBitmap = RedisBitmap(self._redis)
         self.safe_str: SafeString = SafeString(self._redis)
+        self.safe_q_list: SafeQueueList = SafeQueueList(self._redis)
 
     def __getattr__(self, name):
         # 当访问 AsyncRedisCli 未定义的属性/方法时，由 _redis 处理
@@ -93,50 +95,6 @@ class AsyncRedisCli(LibraryCheckMixin, AbstractAsyncResource):
         :return: 添加的新成员数量，int
         """
         return await self._redis.zadd(zset_name, key_score)
-
-    # 队列: list
-    @asynccontextmanager
-    async def safe_rpop_zadd(
-        self, list_ready: str, zset_pending: str, score: Optional[int] = None
-    ) -> AsyncGenerator[Optional[str]]:
-        """
-        安全地从队列弹出任务并放入有序集合。
-        :return: 弹出的任务（字符串），若无任务则为None。退出时会自动从有序集合删除该任务。
-        """
-        """
-        获取任务
-        """
-        if not score:
-            score = get_now_stamp()
-        lua_script = """
-        local msg = redis.call('rpop', KEYS[1])
-        if msg then
-            redis.call('zadd', KEYS[2], ARGV[1], msg)
-        end
-        return msg
-        """
-        lua = self._redis.register_script(lua_script)
-        msg = await lua(keys=[list_ready, zset_pending], args=[score])
-        if msg:
-            yield msg
-            await self.zrem(zset_pending, msg)
-            return
-        yield None
-
-    async def safe_rpush_zrem(
-        self, list_ready: str, zset_pending: str, value: str
-    ) -> str:
-        """
-        将某任务从有序集合移除并放回队列。
-        :return: 被重新放回队列的元素值（字符串）
-        """
-        lua_script = """
-        redis.call('ZREM', KEYS[1], ARGV[1])
-        redis.call('RPUSH', KEYS[2], ARGV[1])
-        return ARGV[1]
-        """
-        lua = self._redis.register_script(lua_script)
-        return await lua(keys=[zset_pending, list_ready], args=[value])
 
     # 队列：zset
     @asynccontextmanager

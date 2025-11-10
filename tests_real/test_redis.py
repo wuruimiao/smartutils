@@ -101,11 +101,11 @@ async def test_incr_and_decr(setup_cache):
         cli = redis_mgr.curr
         key = "pytest:cli:incr"
         await cli.delete(key)
-        v1 = await cli.incr(key)
+        v1 = await cli.safe_str.incr(key)
         assert int(v1) == 1
-        v2 = await cli.incr(key)
+        v2 = await cli.safe_str.incr(key)
         assert int(v2) == 2
-        v3 = await cli.decr(key)
+        v3 = await cli.safe_str.decr(key)
         assert int(v3) == 1
         await cli.delete(key)
 
@@ -189,7 +189,7 @@ async def test_safe_rpop_zadd_and_safe_rpush_zrem(setup_cache):
         # 先准备任务
         await cli.rpush(list_ready, "task1", "task2")
         # 用 safe_rpop_zadd 弹出一个任务并放入 zset_pending
-        async with cli.safe_rpop_zadd(list_ready, zset_pending) as msg:
+        async with cli.safe_q_list.fetch_task_ctx(list_ready, zset_pending) as msg:
             assert msg in ("task1", "task2")
             # zset_pending 应该有这个任务
             members = await cli.zrange(zset_pending, 0, -1)
@@ -200,7 +200,7 @@ async def test_safe_rpop_zadd_and_safe_rpush_zrem(setup_cache):
 
         # 再手动放一个任务到 zset_pending，测试 safe_rpush_zrem
         await cli.zadd_multi(zset_pending, {"task3": 100})
-        res = await cli.safe_rpush_zrem(list_ready, zset_pending, "task3")
+        res = await cli.safe_q_list.requeue_task(list_ready, zset_pending, "task3")
         assert res == "task3"
         # task3 应该在 list_ready
         vals = await cli.lrange(list_ready, 0, -1)
@@ -352,12 +352,12 @@ async def test_safe_context_none_branches(setup_cache):
     # safe_rpop_zadd: 没有元素时 yield None
     key1, key2 = "pytest:none:list", "pytest:none:zset"
     await cli.delete(key1, key2)
-    async with cli.safe_rpop_zadd(key1, key2) as ret:
+    async with cli.safe_q_list.fetch_task_ctx(key1, key2) as ret:
         assert ret is None
 
     # safe_zpop_zadd: 没有元素时 yield None
     await cli.delete(key1, key2)
-    async with cli.safe_zpop_zadd(key1, key2) as ret:
+    async with cli.safe_q_list.fetch_task_ctx(key1, key2) as ret:
         assert ret is None
 
     # xread_xack 发生异常
@@ -413,4 +413,5 @@ async def test_bitmap_util(setup_cache):
         await mgr.curr.bitmap.set_bit(key, 1, True)
         assert await mgr.curr.bitmap.get_all_set_bits(key, max_offset=0) == set()
 
+    # 多大的数字会导致解码失败
     await biz()
