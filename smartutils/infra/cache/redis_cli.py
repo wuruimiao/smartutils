@@ -9,6 +9,7 @@ from smartutils.error.factory import ExcDetailFactory
 from smartutils.error.sys import CacheError
 from smartutils.infra.cache.bitmap import RedisBitmap
 from smartutils.infra.cache.q_list import SafeQueueList
+from smartutils.infra.cache.q_zset import SafeQueueZSet
 from smartutils.infra.cache.string import SafeString
 from smartutils.infra.resource.abstract import AbstractAsyncResource
 from smartutils.init.mixin import LibraryCheckMixin
@@ -38,6 +39,7 @@ class AsyncRedisCli(LibraryCheckMixin, AbstractAsyncResource):
         self.bitmap: RedisBitmap = RedisBitmap(self._redis)
         self.safe_str: SafeString = SafeString(self._redis)
         self.safe_q_list: SafeQueueList = SafeQueueList(self._redis)
+        self.safe_q_zset: SafeQueueZSet = SafeQueueZSet(self._redis)
 
     def __getattr__(self, name):
         # 当访问 AsyncRedisCli 未定义的属性/方法时，由 _redis 处理
@@ -95,49 +97,6 @@ class AsyncRedisCli(LibraryCheckMixin, AbstractAsyncResource):
         :return: 添加的新成员数量，int
         """
         return await self._redis.zadd(zset_name, key_score)
-
-    # 队列：zset
-    @asynccontextmanager
-    async def safe_zpop_zadd(
-        self, zset_ready: str, zset_pending: str, score: Optional[int] = None
-    ) -> AsyncGenerator[Optional[str]]:
-        """
-        安全地从有序集合弹出优先级最高任务并放入另一有序集合。
-        :return: 弹出的任务（字符串），若无则为None。退出时自动从pending集合删除该任务。
-        """
-        if not score:
-            score = get_now_stamp()
-        # 取分数最小的任务，转移到processing
-        lua_script = """
-        local items = redis.call('zpopmin', KEYS[1], 1)
-        if items and #items > 0 then
-            redis.call('zadd', KEYS[2], ARGV[1], items[1])
-            return items[1]
-        end
-        return nil
-        """
-        lua = self._redis.register_script(lua_script)
-        msg = await lua(keys=[zset_ready, zset_pending], args=[score])
-        if msg:
-            yield msg
-            await self.zrem(zset_pending, msg)
-            return
-        yield None
-
-    async def safe_zrem_zadd(
-        self, zset_processing: str, zset_ready: str, value: str, score: int
-    ) -> str:
-        """
-        从处理中集合移除任务并归还到等待队列（可调整优先级）。
-        :return: 归还到队列的元素值（字符串）
-        """
-        lua_script = """
-        redis.call('zrem', KEYS[1], ARGV[1])
-        redis.call('zadd', KEYS[2], ARGV[2], ARGV[1])
-        return ARGV[1]
-        """
-        lua = self._redis.register_script(lua_script)
-        return await lua(keys=[zset_processing, zset_ready], args=[value, score])
 
     # stream队列
     async def xadd(self, stream: str, fields: dict) -> str:

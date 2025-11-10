@@ -18,7 +18,7 @@ redis:
     password: ""
     db: 0
     pool_size: 10
-    connect_timeout: 10
+    connect_timeout: 1
     socket_timeout: 10
 project:
   name: auth
@@ -229,7 +229,7 @@ async def test_real_safe_zpop_zadd_and_safe_zrem_zadd(setup_cache):
         # 准备任务
         await cli.zadd_multi(zset_ready, {"taskA": 1, "taskB": 2})
         # safe_zpop_zadd 应该弹出 score 最小的 taskA
-        async with cli.safe_zpop_zadd(zset_ready, zset_pending) as msg:
+        async with cli.safe_q_zset.fetch_task_ctx(zset_ready, zset_pending) as msg:
             assert msg == "taskA"
             # taskA 应该在 pending
             members = await cli.zrange(zset_pending, 0, -1)
@@ -240,7 +240,7 @@ async def test_real_safe_zpop_zadd_and_safe_zrem_zadd(setup_cache):
 
         # 再把 taskB 放到 pending，safe_zrem_zadd 归还到 ready
         await cli.zadd_multi(zset_pending, {"taskB": 99})
-        res = await cli.safe_zrem_zadd(zset_pending, zset_ready, "taskB", 5)
+        res = await cli.safe_q_zset.requeue_task(zset_pending, zset_ready, "taskB", 5)
         assert res == "taskB"
         # taskB 应该在 ready，score 为 5
         ready_members = await cli.zrange(zset_ready, 0, -1, withscores=True)

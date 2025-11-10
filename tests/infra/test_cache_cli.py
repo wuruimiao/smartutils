@@ -103,10 +103,10 @@ async def test_safe_rpop_zadd_and_rpush_zrem(async_cli, mocker):
     async with async_cli.safe_q_list.fetch_task_ctx("list_r", "zset_p", 123) as msg:
         assert msg == "msg1"
     async_cli._redis.zrem.assert_awaited_with("zset_p", "msg1")
+    async_cli.zrem.reset_mock()
 
     # 流程2: 无消息则 yield None
     async_cli._redis.register_script = mocker.MagicMock(return_value=AsyncLuaMock(None))
-    async_cli.zrem.reset_mock()
     async with async_cli.safe_q_list.fetch_task_ctx("list_r", "zset_p", 123) as msg:
         assert msg is None
     async_cli.zrem.assert_not_called()
@@ -126,21 +126,21 @@ async def test_mock_safe_zpop_zadd_and_safe_zrem_zadd(async_cli, mocker):
     )
     async_cli.zrem = mocker.AsyncMock()
 
-    async with async_cli.safe_zpop_zadd("zr", "zp", score=456) as msg:
+    async with async_cli.safe_q_zset.fetch_task_ctx("zr", "zp", 456) as msg:
         assert msg == "msg3"
-    async_cli.zrem.assert_awaited_with("zp", "msg3")
+    async_cli._redis.zrem.assert_awaited_with("zp", "msg3")
+    async_cli._redis.zrem.reset_mock()
 
     async_cli._redis.register_script = mocker.MagicMock(return_value=AsyncLuaMock(None))
-    async_cli.zrem.reset_mock()
-    async with async_cli.safe_zpop_zadd("zr", "zp", score=456) as msg:
+    async with async_cli.safe_q_zset.fetch_task_ctx("zr", "zp", 456) as msg:
         assert msg is None
-    async_cli.zrem.assert_not_called()
+    async_cli._redis.zrem.assert_not_called()
 
     # safe_zrem_zadd
     async_cli._redis.register_script = mocker.MagicMock(
         return_value=AsyncLuaMock("retc")
     )
-    ret = await async_cli.safe_zrem_zadd("zp", "zr", "msg4", 888)
+    ret = await async_cli.safe_q_zset.requeue_task("zp", "zr", "msg4", 888)
     assert ret == "retc"
 
 
