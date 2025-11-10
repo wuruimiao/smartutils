@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING
 
 from smartutils.config.schema.redis import RedisConf
 from smartutils.infra.cache.bitmap import RedisBitmap
