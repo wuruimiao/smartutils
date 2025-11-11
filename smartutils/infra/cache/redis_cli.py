@@ -21,6 +21,14 @@ except ImportError:
 if TYPE_CHECKING:  # pragma: no cover
     from redis.asyncio import ConnectionPool, Redis
 
+# if Redis is None:
+
+#     class AsyncRedisCli(LibraryCheckMixin):
+#         def __init__(self, *args, **kwargs) -> None:
+#             self.check(libs=["redis"])
+
+# else:
+
 
 class AsyncRedisCli(LibraryCheckMixin, AbstractAsyncResource):
     """异步 Redis 客户端封装，线程安全、协程安全。"""
@@ -34,6 +42,9 @@ class AsyncRedisCli(LibraryCheckMixin, AbstractAsyncResource):
         kw["decode_responses"] = True
         self._pool: ConnectionPool = ConnectionPool.from_url(conf.url, **kw)
         self._redis: Redis = Redis.from_pool(connection_pool=self._pool)
+        # 尝试直接继承Redis，但反而会导致多处常用方法提示报错，如sadd
+        # 从from_pool而来
+        # super().__init__(connection_pool=self._pool, auto_close_connection_pool=True)
         self.bitmap: RedisBitmap = RedisBitmap(self._redis)
         self.safe_str: SafeString = SafeString(self._redis)
         self.safe_q_list: SafeQueueList = SafeQueueList(self._redis)
@@ -53,7 +64,7 @@ class AsyncRedisCli(LibraryCheckMixin, AbstractAsyncResource):
         keys = keys or []
         args = args or []
         # redis-py 7.0+: evalsha的签名为 evalsha(sha, numkeys, *keys_and_args)
-        # aioredlock调用方式为 evalsha(sha, keys=[...], args=[...])
+        # aioredlock使用aioredis，调用方式为 evalsha(sha, keys=[...], args=[...])
         return await self._redis.evalsha(sha, len(keys), *(keys + args))  # type: ignore
 
     async def ping(self) -> bool:
@@ -61,11 +72,7 @@ class AsyncRedisCli(LibraryCheckMixin, AbstractAsyncResource):
             pong = await self._redis.ping()
             return pong is True
         except:  # noqa: E722
-            logger.exception(
-                "{cls_name} {name} health check  failed",
-                cls_name=self.name,
-                name=self._key,
-            )
+            logger.exception("{} {} health check  failed", self.name, self._key)
             return False
 
     async def close(self):
