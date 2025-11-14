@@ -19,6 +19,7 @@ class RedisConf(HostConf):
     password: Optional[str] = Field(None, alias="passwd", min_length=1)
     health_check_interval: int = Field(30, alias="health_check_sec", gt=0)
     retry_on_timeout: bool = True
+    decode_responses: bool = False
 
     @property
     def url(self) -> str:
