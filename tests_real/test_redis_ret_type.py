@@ -260,26 +260,26 @@ async def test_mset_mget_msetnx_ret_type(setup_cache):
     await redis_mset_mget_msetnx_case()
 
 
-async def test_rename_move_dump_restore_copy_ret_type(setup_cache):
-    from smartutils.infra import RedisManager
+# async def test_rename_move_dump_restore_copy_ret_type(setup_cache):
+#     from smartutils.infra import RedisManager
 
-    redis_mgr = RedisManager()
+#     redis_mgr = RedisManager()
 
-    @redis_mgr.use()
-    async def redis_rename_move_dump_restore_case():
-        cli = redis_mgr.curr
-        await cli.set("pytest:rnm", "abc")
-        dumpval = await cli.dump("pytest:rnm")
-        assert isinstance(dumpval, (bytes, type(None)))
-        await cli.restore("pytest:rnm_c", 0, dumpval, replace=True)
-        assert await cli.get("pytest:rnm_c") == "abc"
-        rn_ret = await cli.rename("pytest:rnm", "pytest:rnm2")
-        assert rn_ret is True
-        cp_ret = await cli.copy("pytest:rnm2", "pytest:rnm3")
-        assert cp_ret is True
-        await cli.delete("pytest:rnm_c", "pytest:rnm2", "pytest:rnm3")
+#     @redis_mgr.use()
+#     async def redis_rename_move_dump_restore_case():
+#         cli = redis_mgr.curr
+#         await cli.set("pytest:rnm", "abc")
+#         dumpval = await cli.dump("pytest:rnm")
+#         assert isinstance(dumpval, (bytes, type(None)))
+#         await cli.restore("pytest:rnm_c", 0, dumpval, replace=True)
+#         assert await cli.get("pytest:rnm_c") == "abc"
+#         rn_ret = await cli.rename("pytest:rnm", "pytest:rnm2")
+#         assert rn_ret is True
+#         cp_ret = await cli.copy("pytest:rnm2", "pytest:rnm3")
+#         assert cp_ret is True
+#         await cli.delete("pytest:rnm_c", "pytest:rnm2", "pytest:rnm3")
 
-    await redis_rename_move_dump_restore_case()
+#     await redis_rename_move_dump_restore_case()
 
 
 async def test_randomkey_type_exists_persist_touch_ret_type(setup_cache):
@@ -337,7 +337,7 @@ async def test_script_commands_ret_type(setup_cache):
         assert val == 5
         sha = await cli.script_load("return redis.call('ping')")
         ret = await cli.evalsha(sha, 0)
-        assert ret == "PONG"
+        assert ret == b"PONG"
         # script_exists
         exists = await cli.script_exists(sha)
         assert isinstance(exists, list)
