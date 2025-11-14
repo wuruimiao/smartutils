@@ -1,5 +1,7 @@
 import pytest
 
+from smartutils.error.sys import LibraryUsageError
+
 
 @pytest.mark.parametrize("group", ["default", "decode"])
 async def test_incr_and_decr(group):
@@ -160,8 +162,7 @@ async def test_safe_queue_by_zset(group):
     await test()
 
 
-@pytest.mark.parametrize("group", ["default", "decode"])
-async def test_bitmap_util(group):
+async def test_bitmap():
     """
     真正执行RedisBitmapUtil的端到端测试。
     """
@@ -171,7 +172,7 @@ async def test_bitmap_util(group):
 
     mgr = RedisManager()
 
-    @mgr.use(group)
+    @mgr.use("default")
     async def biz():
         cli = mgr.curr
         await cli.delete(key)
@@ -201,5 +202,67 @@ async def test_bitmap_util(group):
         assert await cli.bitmap.get_all_set_bits(key, max_offset=0) == set()
 
         assert await cli.delete(key) == 1
+
+    await biz()
+
+
+async def test_bitmap_decode_raise():
+    """
+    真正执行RedisBitmapUtil的端到端测试。
+    """
+
+    key = "pytest:composition:bitmap:decode:raise"
+    from smartutils.infra.cache.redis import RedisManager
+
+    mgr = RedisManager()
+
+    @mgr.use("decode")
+    async def biz():
+        cli = mgr.curr
+        await cli.delete(key)
+        cli.bitmap._test_corner_case = True
+        assert await cli.bitmap.get_all_set_bits(key) is None
+
+        # 清空，初始应无内容
+        await cli.bitmap.set_bit(key, 24, True)
+        with pytest.raises(UnicodeDecodeError) as exec:
+            await cli.bitmap.get_all_set_bits(key)
+
+        assert "'utf-8' codec can't decode byte" in str(exec.value)
+
+        assert await cli.delete(key) == 1
+        cli.bitmap._test_corner_case = False
+
+    await biz()
+
+
+async def test_bitmap_fail_self_raise():
+    """
+    真正执行RedisBitmapUtil的端到端测试。
+    """
+
+    key = "pytest:composition:bitmap:decode"
+    from smartutils.infra.cache.redis import RedisManager
+
+    mgr = RedisManager()
+
+    @mgr.use("decode")
+    async def biz():
+        cli = mgr.curr
+        await cli.delete(key)
+
+        with pytest.raises(LibraryUsageError) as exec:
+            assert await cli.bitmap.get_all_set_bits(key) is None
+        assert "RedisBitmap 不支持 decode_responses=True 的 Redis 客户端" in str(
+            exec.value
+        )
+
+        with pytest.raises(LibraryUsageError) as exec:
+            assert await cli.bitmap.set_bit(key, 1) is None
+        assert "RedisBitmap 不支持 decode_responses=True 的 Redis 客户端" in str(
+            exec.value
+        )
+
+        await cli.delete(key)
 
     await biz()

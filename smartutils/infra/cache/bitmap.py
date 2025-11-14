@@ -1,6 +1,7 @@
 import sys
 from typing import TYPE_CHECKING, Optional, Set
 
+from smartutils.error.sys import LibraryUsageError
 from smartutils.infra.cache.decode import DecodeBytes
 
 try:
@@ -19,6 +20,13 @@ class RedisBitmap:
     def __init__(self, redis_cli: Redis, decode_bytes: DecodeBytes):
         self._redis: Redis = redis_cli
         self._decode_bytes = decode_bytes
+        self._test_corner_case = False
+
+    def _check(self):
+        if self._decode_bytes.redis_decode_responses and not self._test_corner_case:
+            raise LibraryUsageError(
+                "RedisBitmap 不支持 decode_responses=True 的 Redis 客户端，请使用 decode_responses=False 的客户端实例化。"
+            )
 
     async def set_bit(self, key: str, offset: int, flag: bool = True) -> None:
         """
@@ -27,6 +35,7 @@ class RedisBitmap:
         :param offset: bit位（0为起点）
         :param flag: True(1)/False(0)
         """
+        self._check()
         await self._redis.setbit(key, offset, int(flag))
 
     async def get_bit(self, key: str, offset: int) -> bool:
@@ -46,6 +55,7 @@ class RedisBitmap:
         :param max_offset: 最大遍历bit（业务方根据ID最大值传递)
         :return: 被置1的bit集合
         """
+        self._check()
         bitmap = await self._redis.get(key)
         if not bitmap:
             return None
