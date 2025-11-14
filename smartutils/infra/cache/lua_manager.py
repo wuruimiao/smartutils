@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Dict, Optional, Sequence, Tuple
 
 from smartutils.infra.cache.const import LUAS, LuaName
 
@@ -39,12 +39,15 @@ class LuaManager:
         cls,
         name: LuaName,
         redis_cli: Redis,
-        keys: Optional[List] = None,
-        args: Optional[List] = None,
+        keys: Optional[Sequence] = None,
+        args: Optional[Sequence] = None,
     ):
         """
         调用脚本。自动注册/缓存Script对象，直接 await 脚本调用 keys/args。
         键值必须使用KEYS传递,集群分槽需要
         """
+        # Redis 命令只能收字符串、二进制、数值、浮点，不支持 None/Null/nil 这种空类型作为参数传递。
+        keys = [(k if k is not None else "") for k in (keys or [])]
+        args = [(a if a is not None else "") for a in (args or [])]
         lua = await cls.get(name, redis_cli)
         return await lua(keys=keys or [], args=args or [])
