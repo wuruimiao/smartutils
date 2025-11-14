@@ -6,7 +6,6 @@ from smartutils.infra.cache.abstract import SafeQueue
 from smartutils.infra.cache.const import LuaName
 from smartutils.infra.cache.decode import DecodeBytes
 from smartutils.infra.cache.lua_manager import LuaManager
-from smartutils.time import get_now_stamp
 
 try:
     from redis.asyncio import Redis

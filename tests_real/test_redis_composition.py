@@ -5,11 +5,11 @@ import pytest
 async def test_incr_and_decr(group):
     from smartutils.infra import RedisManager
 
-    redis_mgr = RedisManager()
+    mgr = RedisManager()
 
-    @redis_mgr.use(group)
+    @mgr.use(group)
     async def test():
-        cli = redis_mgr.curr
+        cli = mgr.curr
         key = "pytest:composition:safe:str"
         await cli.delete(key)
 
@@ -32,11 +32,11 @@ async def test_incr_and_decr(group):
 async def test_safe_queue_by_list(group):
     from smartutils.infra import RedisManager
 
-    redis_mgr = RedisManager()
+    mgr = RedisManager()
 
-    @redis_mgr.use(group)
+    @mgr.use(group)
     async def test():
-        cli = redis_mgr.curr
+        cli = mgr.curr
         ready = "pytest:composition:list_ready"
         pending = "pytest:composition:zset_pending"
         await cli.delete(ready, pending)
@@ -87,11 +87,11 @@ async def test_safe_queue_by_list(group):
 async def test_safe_queue_by_zset(group):
     from smartutils.infra import RedisManager
 
-    redis_mgr = RedisManager()
+    mgr = RedisManager()
 
-    @redis_mgr.use(group)
+    @mgr.use(group)
     async def test():
-        cli = redis_mgr.curr
+        cli = mgr.curr
         ready = "pytest:composition:zset_ready"
         pending = "pytest:composition:zset_pending2"
         await cli.delete(ready, pending)
@@ -166,38 +166,40 @@ async def test_bitmap_util(group):
     真正执行RedisBitmapUtil的端到端测试。
     """
 
-    key = "pytest:bitmap:demo"
+    key = "pytest:composition:bitmap"
     from smartutils.infra.cache.redis import RedisManager
 
     mgr = RedisManager()
 
     @mgr.use(group)
     async def biz():
-        await mgr.curr.delete(key)
-        assert await mgr.curr.bitmap.get_all_set_bits(key) is None
+        cli = mgr.curr
+        await cli.delete(key)
+        assert await cli.bitmap.get_all_set_bits(key) is None
 
         # 清空，初始应无内容
-        await mgr.curr.bitmap.set_bit(key, 3, True)
-        await mgr.curr.bitmap.set_bit(key, 6, True)
-        ret3 = await mgr.curr.bitmap.get_bit(key, 3)
-        ret6 = await mgr.curr.bitmap.get_bit(key, 6)
-        ret2 = await mgr.curr.bitmap.get_bit(key, 2)
+        await cli.bitmap.set_bit(key, 3, True)
+        await cli.bitmap.set_bit(key, 6, True)
+        ret3 = await cli.bitmap.get_bit(key, 3)
+        ret6 = await cli.bitmap.get_bit(key, 6)
+        ret2 = await cli.bitmap.get_bit(key, 2)
         assert ret3 is True
         assert ret6 is True
         assert ret2 is False
-        bits = await mgr.curr.bitmap.get_all_set_bits(key, max_offset=7)
+        bits = await cli.bitmap.get_all_set_bits(key, max_offset=7)
         assert bits == {3, 6}
         # 关闭一个bit
-        await mgr.curr.bitmap.set_bit(key, 6, False)
-        bits2 = await mgr.curr.bitmap.get_all_set_bits(key, max_offset=7)
+        await cli.bitmap.set_bit(key, 6, False)
+        bits2 = await cli.bitmap.get_all_set_bits(key, max_offset=7)
         assert bits2 == {3}
         # 全部关闭
-        await mgr.curr.bitmap.set_bit(key, 3, False)
-        bits3 = await mgr.curr.bitmap.get_all_set_bits(key, max_offset=7)
+        await cli.bitmap.set_bit(key, 3, False)
+        bits3 = await cli.bitmap.get_all_set_bits(key, max_offset=7)
         assert bits3 == set() or bits3 is None
 
-        await mgr.curr.bitmap.set_bit(key, 1, True)
-        assert await mgr.curr.bitmap.get_all_set_bits(key, max_offset=0) == set()
+        await cli.bitmap.set_bit(key, 1, True)
+        assert await cli.bitmap.get_all_set_bits(key, max_offset=0) == set()
 
-    # 多大的数字会导致解码失败
+        assert await cli.delete(key) == 1
+
     await biz()
