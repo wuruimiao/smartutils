@@ -1,6 +1,8 @@
 import sys
 from typing import TYPE_CHECKING, Optional, Set
 
+from smartutils.infra.cache.decode import DecodeBytes
+
 try:
     from redis.asyncio import Redis
 except ImportError:
@@ -14,8 +16,9 @@ class RedisBitmap:
     通用Redis Bitmap封装。按二进制位映射对象存在性、状态等。
     """
 
-    def __init__(self, redis_cli: Redis):
+    def __init__(self, redis_cli: Redis, decode_bytes: DecodeBytes):
         self._redis: Redis = redis_cli
+        self._decode_bytes = decode_bytes
 
     async def set_bit(self, key: str, offset: int, flag: bool = True) -> None:
         """

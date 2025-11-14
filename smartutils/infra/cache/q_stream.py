@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Optional
 
 from smartutils.error.factory import ExcDetailFactory
 from smartutils.error.sys import CacheError
+from smartutils.infra.cache.decode import DecodeBytes
 from smartutils.log import logger
 
 try:
@@ -15,8 +16,9 @@ if TYPE_CHECKING:  # pragma: no cover
 
 
 class SafeQueueStream:
-    def __init__(self, redis_cli: Redis):
+    def __init__(self, redis_cli: Redis, decode_bytes: DecodeBytes):
         self._redis: Redis = redis_cli
+        self._decode_bytes = decode_bytes
 
     async def ensure_stream_and_group(self, stream_name: str, group_name: str):
         try:
