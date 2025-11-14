@@ -126,6 +126,7 @@ class RedisManager(LibraryCheckMixin, CTXResourceManager[AsyncRedisCli]):
         lock = None
         try:
             try:
+                # 根据redlock源码，lock_timeout不传时，才会启动看门狗续期机制
                 lock = await self._redlock.lock(resource)
             except Exception as e:
                 logger.error(f"{self.name} redlock lock fail for {e}.")
