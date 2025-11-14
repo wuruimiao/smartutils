@@ -92,108 +92,109 @@ async def test_redis_close(async_cli):
     async_cli._pool.disconnect.assert_awaited()
 
 
-async def test_safe_rpop_zadd_and_rpush_zrem(async_cli, mocker):
-    # 用MagicMock确保register_script返回的确实是AsyncLuaMock实例
-    async_cli._redis.register_script = mocker.MagicMock(
-        return_value=AsyncLuaMock("msg1")
-    )
-    async_cli.zrem = mocker.AsyncMock()
+# ================测试已由test_real测试，暂时注释=================
+# async def test_safe_rpop_zadd_and_rpush_zrem(async_cli, mocker):
+#     # 用MagicMock确保register_script返回的确实是AsyncLuaMock实例
+#     async_cli._redis.register_script = mocker.MagicMock(
+#         return_value=AsyncLuaMock("msg1")
+#     )
+#     async_cli.zrem = mocker.AsyncMock()
 
-    # 流程1: 弹出消息, yield消息, 退出时zrem
-    async with async_cli.safe_q_list.fetch_task_ctx("list_r", "zset_p", 123) as msg:
-        assert msg == "msg1"
-    async_cli._redis.zrem.assert_awaited_with("zset_p", "msg1")
-    async_cli.zrem.reset_mock()
+#     # 流程1: 弹出消息, yield消息, 退出时zrem
+#     async with async_cli.safe_q_list.fetch_task_ctx("list_r", "zset_p", 123) as msg:
+#         assert msg == "msg1"
+#     async_cli._redis.zrem.assert_awaited_with("zset_p", "msg1")
+#     async_cli.zrem.reset_mock()
 
-    # 流程2: 无消息则 yield None
-    async_cli._redis.register_script = mocker.MagicMock(return_value=AsyncLuaMock(None))
-    async with async_cli.safe_q_list.fetch_task_ctx("list_r", "zset_p", 123) as msg:
-        assert msg is None
-    async_cli.zrem.assert_not_called()
+#     # 流程2: 无消息则 yield None
+#     async_cli._redis.register_script = mocker.MagicMock(return_value=AsyncLuaMock(None))
+#     async with async_cli.safe_q_list.fetch_task_ctx("list_r", "zset_p", 123) as msg:
+#         assert msg is None
+#     async_cli.zrem.assert_not_called()
 
-    # 流程3：pending重回queue
-    async_cli._redis.register_script = mocker.MagicMock(
-        return_value=AsyncLuaMock("msg2")
-    )
-    ret = await async_cli.safe_q_list.requeue_task("list_r", "zset_p", "msg2")
-    assert ret == "msg2"
-
-
-async def test_mock_safe_zpop_zadd_and_safe_zrem_zadd(async_cli, mocker):
-    # 与前面的用法保持一致，mock register_script 返回 AsyncLuaMock 实例
-    async_cli._redis.register_script = mocker.MagicMock(
-        return_value=AsyncLuaMock("msg3")
-    )
-    async_cli.zrem = mocker.AsyncMock()
-
-    async with async_cli.safe_q_zset.fetch_task_ctx("zr", "zp", 456) as msg:
-        assert msg == "msg3"
-    async_cli._redis.zrem.assert_awaited_with("zp", "msg3")
-    async_cli._redis.zrem.reset_mock()
-
-    async_cli._redis.register_script = mocker.MagicMock(return_value=AsyncLuaMock(None))
-    async with async_cli.safe_q_zset.fetch_task_ctx("zr", "zp", 456) as msg:
-        assert msg is None
-    async_cli._redis.zrem.assert_not_called()
-
-    # safe_zrem_zadd
-    async_cli._redis.register_script = mocker.MagicMock(
-        return_value=AsyncLuaMock("retc")
-    )
-    ret = await async_cli.safe_q_zset.requeue_task("zp", "zr", "msg4", 888)
-    assert ret == "retc"
+#     # 流程3：pending重回queue
+#     async_cli._redis.register_script = mocker.MagicMock(
+#         return_value=AsyncLuaMock("msg2")
+#     )
+#     ret = await async_cli.safe_q_list.requeue_task("list_r", "zset_p", "msg2")
+#     assert ret == "msg2"
 
 
-async def test_xadd_and_ensure_stream_and_group(async_cli, mocker):
-    async_cli._redis.xadd.return_value = "id1"
-    ret = await async_cli.xadd("stream1", {"a": 1})
-    assert ret == "id1"
+# async def test_mock_safe_zpop_zadd_and_safe_zrem_zadd(async_cli, mocker):
+#     # 与前面的用法保持一致，mock register_script 返回 AsyncLuaMock 实例
+#     async_cli._redis.register_script = mocker.MagicMock(
+#         return_value=AsyncLuaMock("msg3")
+#     )
+#     async_cli.zrem = mocker.AsyncMock()
 
-    async_cli._redis.xgroup_create = mocker.AsyncMock()
-    await async_cli.safe_q_stream.ensure_stream_and_group("st", "gp")
-    async_cli._redis.xgroup_create.assert_awaited()
+#     async with async_cli.safe_q_zset.fetch_task_ctx("zr", "zp", 456) as msg:
+#         assert msg == "msg3"
+#     async_cli._redis.zrem.assert_awaited_with("zp", "msg3")
+#     async_cli._redis.zrem.reset_mock()
 
-    from redis.asyncio import ResponseError
+#     async_cli._redis.register_script = mocker.MagicMock(return_value=AsyncLuaMock(None))
+#     async with async_cli.safe_q_zset.fetch_task_ctx("zr", "zp", 456) as msg:
+#         assert msg is None
+#     async_cli._redis.zrem.assert_not_called()
 
-    from smartutils.error.sys import CacheError
-
-    async_cli._redis.xgroup_create = mocker.AsyncMock(
-        side_effect=ResponseError("BUSYGROUP Consumer Group name already exists")
-    )
-    await async_cli.safe_q_stream.ensure_stream_and_group("st", "gp")
-
-    async_cli._redis.xgroup_create = mocker.AsyncMock(side_effect=ResponseError("xxx"))
-    import smartutils.error.factory as fct
-
-    fct.ExcDetailFactory.get = lambda e: "detail"  # type: ignore
-    with pytest.raises(CacheError):
-        await async_cli.safe_q_stream.ensure_stream_and_group("st", "gp")
+#     # safe_zrem_zadd
+#     async_cli._redis.register_script = mocker.MagicMock(
+#         return_value=AsyncLuaMock("retc")
+#     )
+#     ret = await async_cli.safe_q_zset.requeue_task("zp", "zr", "msg4", 888)
+#     assert ret == "retc"
 
 
-async def test_xread_xack(async_cli, mocker):
-    async_cli.ensure_stream_and_group = mocker.AsyncMock()
-    async_cli._redis.xreadgroup.return_value = [("stream", [("msgid", {"k": b"v"})])]
-    async_cli._redis.xack = mocker.AsyncMock()
-    async_cli._redis.xreadgroup = mocker.AsyncMock(
-        return_value=[("stream", [("msgid", {"k": b"v"})])]
-    )
-    async_cli._redis.xack = mocker.AsyncMock()
+# async def test_xadd_and_ensure_stream_and_group(async_cli, mocker):
+#     async_cli._redis.xadd.return_value = "id1"
+#     ret = await async_cli.xadd("stream1", {"a": 1})
+#     assert ret == "id1"
 
-    async with async_cli.safe_q_stream.xread_xack("stream", "gp", count=1) as msg:
-        assert msg == {"k": "v"}
-    async_cli._redis.xack.assert_awaited_with("stream", "gp", "msgid")
+#     async_cli._redis.xgroup_create = mocker.AsyncMock()
+#     await async_cli.safe_q_stream.ensure_stream_and_group("st", "gp")
+#     async_cli._redis.xgroup_create.assert_awaited()
 
-    async_cli._redis.xreadgroup = mocker.AsyncMock(return_value=[])
-    async_cli._redis.xack.reset_mock()
-    async with async_cli.safe_q_stream.xread_xack("stream", "gp", count=2) as msg:
-        assert msg is None
-    async_cli._redis.xack.assert_not_awaited()
+#     from redis.asyncio import ResponseError
 
-    async_cli._redis.xreadgroup = mocker.AsyncMock(side_effect=Exception("fail"))
-    async_cli._redis.xack.reset_mock()
-    async with async_cli.safe_q_stream.xread_xack("stream", "gp", count=2) as msg:
-        assert msg is None
-    async_cli._redis.xack.assert_not_awaited()
+#     from smartutils.error.sys import CacheError
+
+#     async_cli._redis.xgroup_create = mocker.AsyncMock(
+#         side_effect=ResponseError("BUSYGROUP Consumer Group name already exists")
+#     )
+#     await async_cli.safe_q_stream.ensure_stream_and_group("st", "gp")
+
+#     async_cli._redis.xgroup_create = mocker.AsyncMock(side_effect=ResponseError("xxx"))
+#     import smartutils.error.factory as fct
+
+#     fct.ExcDetailFactory.get = lambda e: "detail"  # type: ignore
+#     with pytest.raises(CacheError):
+#         await async_cli.safe_q_stream.ensure_stream_and_group("st", "gp")
+
+
+# async def test_xread_xack(async_cli, mocker):
+#     async_cli.ensure_stream_and_group = mocker.AsyncMock()
+#     async_cli._redis.xreadgroup.return_value = [("stream", [("msgid", {"k": b"v"})])]
+#     async_cli._redis.xack = mocker.AsyncMock()
+#     async_cli._redis.xreadgroup = mocker.AsyncMock(
+#         return_value=[("stream", [("msgid", {"k": b"v"})])]
+#     )
+#     async_cli._redis.xack = mocker.AsyncMock()
+
+#     async with async_cli.safe_q_stream.xread_xack("stream", "gp", count=1) as msg:
+#         assert msg == {"k": "v"}
+#     async_cli._redis.xack.assert_awaited_with("stream", "gp", "msgid")
+
+#     async_cli._redis.xreadgroup = mocker.AsyncMock(return_value=[])
+#     async_cli._redis.xack.reset_mock()
+#     async with async_cli.safe_q_stream.xread_xack("stream", "gp", count=2) as msg:
+#         assert msg is None
+#     async_cli._redis.xack.assert_not_awaited()
+
+#     async_cli._redis.xreadgroup = mocker.AsyncMock(side_effect=Exception("fail"))
+#     async_cli._redis.xack.reset_mock()
+#     async with async_cli.safe_q_stream.xread_xack("stream", "gp", count=2) as msg:
+#         assert msg is None
+#     async_cli._redis.xack.assert_not_awaited()
 
 
 async def test_close_error(async_cli):
