@@ -4,15 +4,18 @@ import asyncio
 from typing import TYPE_CHECKING, Dict, Optional, Sequence, Tuple
 
 from smartutils.infra.cache.const import LUAS, LuaName
+from smartutils.log import logger
 
 try:
     from redis.asyncio import Redis
     from redis.commands.core import AsyncScript
+    from redis.exceptions import ResponseError
 except ImportError:
     ...
 if TYPE_CHECKING:  # pragma: no cover
     from redis.asyncio import Redis
     from redis.commands.core import AsyncScript
+    from redis.exceptions import ResponseError
 
 
 class LuaManager:
@@ -50,4 +53,8 @@ class LuaManager:
         keys = [(k if k is not None else "") for k in (keys or [])]
         args = [(a if a is not None else "") for a in (args or [])]
         lua = await cls.get(name, redis_cli)
-        return await lua(keys=keys or [], args=args or [])
+        try:
+            return await lua(keys=keys or [], args=args or [])
+        except ResponseError as e:
+            logger.error(f"Lua script {name} execution error: {e}")
+            raise e

@@ -42,11 +42,11 @@ return nil
 ZREM_ZADD_SCRIPT = """
 local score = ARGV[2]
 if not score or score == '' then
-    local orig_score = redis.call('ZSCORE', KEYS[1], ARGV[1])
+    local orig_score = redis.call('ZSCORE', KEYS[2], ARGV[1])
     score = orig_score
 end
-redis.call('ZREM', KEYS[1], ARGV[1])
-redis.call('ZADD', KEYS[2], score, ARGV[1])
+redis.call('ZREM', KEYS[2], ARGV[1])
+redis.call('ZADD', KEYS[1], score, ARGV[1])
 return ARGV[1]
 """
 
