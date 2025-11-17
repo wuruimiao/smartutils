@@ -103,7 +103,7 @@ class SafeQueueZSet(AbstractSafeQueue):
         :param queue: 主队列 zset key
         :param pending: 待确认队列 zset key
         :param task: 需回队的任务内容或唯一标识
-        :param score: 回队后score（优先级/下次调度时间戳等）
+        :param priority: 回队后score（优先级/下次调度时间戳等）
         :return: bool, 是否成功
         """
         await LuaManager.call(

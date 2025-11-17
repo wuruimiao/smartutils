@@ -101,7 +101,7 @@ class SafeQueueList(AbstractSafeQueue):
         :param queue: 主任务队列list名
         :param pending: 处理中任务zset名
         :param task: 需归队的任务内容(str)
-        :param score: 兼容时间戳(暂未使用)
+        :param priority: 兼容时间戳(暂未使用)，pending的优先处理
         :return: bool, 是否成功
         """
         await LuaManager.call(
