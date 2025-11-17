@@ -266,3 +266,38 @@ async def test_bitmap_fail_self_raise():
         await cli.delete(key)
 
     await biz()
+
+
+async def test_ZSetHelper():
+    from smartutils.infra.cache.redis import RedisManager
+    from smartutils.infra.cache.zset import ZSetHelper
+
+    mgr = RedisManager()
+
+    @mgr.use("decode")
+    async def biz():
+        cli = mgr.curr
+        zset_key = "pytest:composition:zset_helper"
+        await cli.delete(zset_key)
+
+        # 准备数据
+        await cli.zadd(zset_key, {"task1": 1, "task2": 2, "task3": 3})
+
+        # peek 最大优先级
+        members = await ZSetHelper.peek(cli._redis, zset_key, limit=2)
+        assert members == ["task3", "task2"]
+
+        # peek 指定区间
+        members = await ZSetHelper.peek(
+            cli._redis, zset_key, min_score=1.5, max_score=3, limit=2
+        )
+        assert members == ["task3", "task2"]
+
+        members = await ZSetHelper.peek(
+            cli._redis, zset_key, min_score=1.5, max_score=2.5, limit=1
+        )
+        assert members == ["task2"]
+
+        await cli.delete(zset_key)
+
+    await biz()
