@@ -1,6 +1,6 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from smartutils.infra.cache.common.decode import DecodeBytes
 from smartutils.infra.cache.ext.queue.abstract import (
