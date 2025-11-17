@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING, Any, Optional, Sequence, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Sequence, Union
 
 from smartutils.infra.cache.abstract import SafeQueue
 from smartutils.infra.cache.const import LuaName
 from smartutils.infra.cache.decode import DecodeBytes
 from smartutils.infra.cache.lua_manager import LuaManager
+from smartutils.infra.cache.zset import ZSetHelper
 from smartutils.time import get_now_stamp
 
 try:
@@ -93,3 +94,15 @@ class SafeQueueList(SafeQueue):
             LuaName.ZREM_RPUSH, self._redis, keys=[pending, queue], args=[task]
         )
         return True
+
+    async def get_pending_members(
+        self,
+        pending: str,
+        min_score: Optional[Union[int, float]] = None,
+        max_score: Optional[Union[int, float]] = None,
+        limit: int = 10,
+    ) -> List[Any]:
+        members = await ZSetHelper.peek(
+            self._redis, pending, min_score, max_score, limit
+        )
+        return [self._decode_bytes.post(m) for m in members]

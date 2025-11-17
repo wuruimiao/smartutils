@@ -71,6 +71,20 @@ async def test_safe_queue_by_list(group):
         # 再手动放一个任务到 zset_pending，测试 requeue_task
         msg = "task3"
         await cli.zadd(pending, {msg: 100})
+
+        val = await cli.safe_q_list.get_pending_members(pending)
+        assert val == [msg]
+        val = await cli.safe_q_list.get_pending_members(pending, limit=2)
+        assert val == [msg]  # 虽然 limit=2，但只有1个任务
+        val = await cli.safe_q_list.get_pending_members(pending, min_score=50)
+        assert val == [msg]
+        val = await cli.safe_q_list.get_pending_members(pending, max_score=150)
+        assert val == [msg]
+        val = await cli.safe_q_list.get_pending_members(pending, min_score=150)
+        assert val == []
+        val = await cli.safe_q_list.get_pending_members(pending, max_score=50)
+        assert val == []
+
         assert await cli.safe_q_list.requeue_task(ready, pending, msg)
         # task3 应该在 list_ready
         vals = await cli.lrange(ready, 0, -1)
@@ -130,6 +144,20 @@ async def test_safe_queue_by_zset(group):
         # 再把 taskC 放到 pending，safe_zrem_zadd 归还到 ready
         msg = "taskC"
         await cli.zadd(pending, {msg: 99})
+
+        val = await cli.safe_q_zset.get_pending_members(pending)
+        assert val == [msg]
+        val = await cli.safe_q_zset.get_pending_members(pending, limit=2)
+        assert val == [msg]  # 虽然 limit=2，但只有1个任务
+        val = await cli.safe_q_zset.get_pending_members(pending, min_score=50)
+        assert val == [msg]
+        val = await cli.safe_q_zset.get_pending_members(pending, max_score=150)
+        assert val == [msg]
+        val = await cli.safe_q_zset.get_pending_members(pending, min_score=150)
+        assert val == []
+        val = await cli.safe_q_zset.get_pending_members(pending, max_score=50)
+        assert val == []
+
         assert await cli.safe_q_zset.requeue_task(ready, pending, msg, 5)
         # taskC 应该在 ready，score 为 5
         ready_members = await cli.zrange(ready, 0, -1, withscores=True)

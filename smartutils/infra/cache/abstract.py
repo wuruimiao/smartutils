@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, AsyncContextManager, Optional, Sequence
+from typing import Any, AsyncContextManager, List, Optional, Union
 
 
 class SafeQueue(ABC):
@@ -11,9 +11,21 @@ class SafeQueue(ABC):
     async def is_task_pending(self, pending: str, task: Any) -> bool: ...
     @abstractmethod
     def fetch_task_ctx(
-        self, queue: str, pending: str, priority: Any = None
+        self, queue: str, pending: str, priority: Optional[Union[int, float]] = None
     ) -> AsyncContextManager[Optional[str]]: ...
     @abstractmethod
     async def requeue_task(
-        self, queue: str, pending: str, task: Any, priority: Any = None
+        self,
+        queue: str,
+        pending: str,
+        task: Any,
+        priority: Optional[Union[int, float]] = None,
     ) -> bool: ...
+    @abstractmethod
+    async def get_pending_members(
+        self,
+        pending: str,
+        min_score: Optional[Union[int, float]] = None,
+        max_score: Optional[Union[int, float]] = None,
+        limit: int = 1,
+    ) -> list[Any]: ...

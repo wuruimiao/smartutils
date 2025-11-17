@@ -1,11 +1,12 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING, Any, Dict, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from smartutils.infra.cache.abstract import SafeQueue
 from smartutils.infra.cache.const import LuaName
 from smartutils.infra.cache.decode import DecodeBytes
 from smartutils.infra.cache.lua_manager import LuaManager
+from smartutils.infra.cache.zset import ZSetHelper
 
 try:
     from redis.asyncio import Redis
@@ -44,7 +45,7 @@ class SafeQueueZSet(SafeQueue):
 
     @asynccontextmanager
     async def fetch_task_ctx(
-        self, queue: str, pending: str, priority: Optional[int] = None
+        self, queue: str, pending: str, priority: Optional[Union[int, float]] = None
     ) -> AsyncGenerator[Optional[str]]:
         """
         原子领取任务。弹出 queue(zset) 中优先级最高（score 最大）的任务，放入 pending(zset) 并记录当前时间/优先级，
@@ -100,3 +101,15 @@ class SafeQueueZSet(SafeQueue):
             args=[task, priority],
         )
         return True
+
+    async def get_pending_members(
+        self,
+        pending: str,
+        min_score: Optional[Union[int, float]] = None,
+        max_score: Optional[Union[int, float]] = None,
+        limit: int = 10,
+    ) -> List[Any]:
+        members = await ZSetHelper.peek(
+            self._redis, pending, min_score, max_score, limit
+        )
+        return [self._decode_bytes.post(m) for m in members]
