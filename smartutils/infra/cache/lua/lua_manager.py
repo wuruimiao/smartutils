@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 from typing import TYPE_CHECKING, Dict, Optional, Sequence, Tuple
 
-from smartutils.infra.cache.const import LUAS, LuaName
+from smartutils.infra.cache.lua.const import LUAS, LuaName
 from smartutils.log import logger
 
 try:

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Optional
 
 from smartutils.error.factory import ExcDetailFactory
 from smartutils.error.sys import CacheError
-from smartutils.infra.cache.decode import DecodeBytes
+from smartutils.infra.cache.common.decode import DecodeBytes
 from smartutils.log import logger
 
 try:

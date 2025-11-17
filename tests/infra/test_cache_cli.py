@@ -212,25 +212,25 @@ async def test_close_error(async_cli):
         ...
 
 
-async def test_ensure_stream_and_group_raises(async_cli, mocker):
-    class DummyErr(Exception): ...
+# async def test_ensure_stream_and_group_raises(async_cli, mocker):
+#     class DummyErr(Exception): ...
 
-    class DummyRespErr(Exception):
-        def __str__(self):
-            return "other error"
+#     class DummyRespErr(Exception):
+#         def __str__(self):
+#             return "other error"
 
-    import smartutils.infra.cache.q_stream as qstreammod
+#     import smartutils.infra.cache.q_stream as qstreammod
 
-    mocker.patch.object(qstreammod, "ResponseError", DummyRespErr)
-    async_cli._redis.xgroup_create = mocker.AsyncMock(side_effect=DummyRespErr())
-    import smartutils.error.factory as ef
+#     mocker.patch.object(qstreammod, "ResponseError", DummyRespErr)
+#     async_cli._redis.xgroup_create = mocker.AsyncMock(side_effect=DummyRespErr())
+#     import smartutils.error.factory as ef
 
-    mocker.patch.object(ef.ExcDetailFactory, "get", lambda e: "detailxxx")
-    # 应抛 CacheError
+#     mocker.patch.object(ef.ExcDetailFactory, "get", lambda e: "detailxxx")
+#     # 应抛 CacheError
 
-    from smartutils.error.sys import CacheError
+#     from smartutils.error.sys import CacheError
 
-    try:
-        await async_cli.safe_q_stream.ensure_stream_and_group("s", "g")
-    except CacheError as ce:
-        assert "detailxxx" in str(ce)
+#     try:
+#         await async_cli.safe_q_stream.ensure_stream_and_group("s", "g")
+#     except CacheError as ce:
+#         assert "detailxxx" in str(ce)

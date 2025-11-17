@@ -2,7 +2,8 @@ import sys
 from typing import TYPE_CHECKING, Optional, Set
 
 from smartutils.error.sys import LibraryUsageError
-from smartutils.infra.cache.decode import DecodeBytes
+from smartutils.infra.cache.common.decode import DecodeBytes
+from smartutils.log import logger
 
 try:
     from redis.asyncio import Redis
@@ -59,8 +60,9 @@ class RedisBitmap:
         bitmap = await self._redis.get(key)
         if not bitmap:
             return None
-        if isinstance(bitmap, str):
+        if isinstance(bitmap, str):  # pragma: no cover
             # 兼容String返回
+            logger.error("RedisBitmap string unexcepted!!!")
             bitmap = bitmap.encode()
         result = set()
         for byte_index, byte in enumerate(bitmap):

@@ -297,8 +297,8 @@ async def test_bitmap_fail_self_raise():
 
 
 async def test_ZSetHelper():
+    from smartutils.infra.cache.ext.zset import ZSetHelper
     from smartutils.infra.cache.redis import RedisManager
-    from smartutils.infra.cache.zset import ZSetHelper
 
     mgr = RedisManager()
 

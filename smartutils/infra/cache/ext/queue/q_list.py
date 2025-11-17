@@ -4,11 +4,11 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, Any, List, Optional, Sequence, Union
 
-from smartutils.infra.cache.abstract import SafeQueue
-from smartutils.infra.cache.const import LuaName
-from smartutils.infra.cache.decode import DecodeBytes
-from smartutils.infra.cache.lua_manager import LuaManager
-from smartutils.infra.cache.zset import ZSetHelper
+from smartutils.infra.cache.common.decode import DecodeBytes
+from smartutils.infra.cache.ext.queue.abstract import SafeQueue
+from smartutils.infra.cache.ext.zset import ZSetHelper
+from smartutils.infra.cache.lua.const import LuaName
+from smartutils.infra.cache.lua.lua_manager import LuaManager
 from smartutils.time import get_now_stamp
 
 try:
