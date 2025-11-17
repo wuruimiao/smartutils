@@ -8,9 +8,9 @@ from smartutils.config.schema.redis import RedisConf
 from smartutils.design import proxy_wrapper
 from smartutils.infra.cache.common.decode import DecodeBytes
 from smartutils.infra.cache.ext.bitmap import RedisBitmap
-from smartutils.infra.cache.ext.queue.q_list import SafeQueueList
-from smartutils.infra.cache.ext.queue.q_stream import SafeQueueStream
-from smartutils.infra.cache.ext.queue.q_zset import SafeQueueZSet
+from smartutils.infra.cache.ext.queue.list import SafeQueueList
+from smartutils.infra.cache.ext.queue.stream import SafeQueueStream
+from smartutils.infra.cache.ext.queue.zset import SafeQueueZSet
 from smartutils.infra.cache.ext.string import SafeString
 from smartutils.infra.resource.abstract import AbstractAsyncResource
 from smartutils.init.mixin import LibraryCheckMixin
