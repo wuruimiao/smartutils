@@ -1,9 +1,14 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, List, Optional
 
 from smartutils.infra.cache.common.decode import DecodeBytes
-from smartutils.infra.cache.ext.queue.abstract import AbstractSafeQueue
+from smartutils.infra.cache.ext.queue.abstract import (
+    AbstractSafeQueue,
+    TaskID,
+    TaskInfo,
+    TaskPriority,
+)
 from smartutils.infra.cache.ext.zset import ZSetHelper
 from smartutils.infra.cache.lua.const import LuaName
 from smartutils.infra.cache.lua.lua_manager import LuaManager
@@ -42,19 +47,18 @@ class SafeQueueZSet(AbstractSafeQueue):
         """
         return await self._redis.zcard(queue)
 
-    async def enqueue_task(
-        self, queue: str, task: Dict[Any, Union[int, float]]
-    ) -> bool:
-        return await self._redis.zadd(queue, task) == len(task)
+    async def enqueue_task(self, queue: str, tasks: List[TaskInfo]) -> bool:
+        _tasks = {t.ID: t.priority for t in tasks}
+        return await self._redis.zadd(queue, _tasks) == len(_tasks)
 
-    async def is_task_pending(self, pending: str, task: Any) -> bool:
+    async def is_task_pending(self, pending: str, task: TaskID) -> bool:
         score = await self._redis.zscore(pending, task)
         return score is not None
 
     @asynccontextmanager
     async def fetch_task_ctx(
-        self, queue: str, pending: str, priority: Optional[Union[int, float]] = None
-    ) -> AsyncGenerator[Optional[str]]:
+        self, queue: str, pending: str, priority: Optional[TaskPriority] = None
+    ) -> AsyncGenerator[Optional[TaskID]]:
         """
         原子领取任务。弹出 queue(zset) 中优先级最高（score 最大）的任务，放入 pending(zset) 并记录当前时间/优先级，
         用于保证任务领取-处理中原子操作。
@@ -88,8 +92,8 @@ class SafeQueueZSet(AbstractSafeQueue):
         self,
         queue: str,
         pending: str,
-        task: Any,
-        priority: Optional[Union[int, float]] = None,
+        task: TaskID,
+        priority: Optional[TaskPriority] = None,
     ) -> bool:
         """
         任务回队（重试）。从 pending(zset) 移除某个 task，并将其带指定优先级放回主队列 queue(zset)。
@@ -113,11 +117,11 @@ class SafeQueueZSet(AbstractSafeQueue):
     async def get_pending_members(
         self,
         pending: str,
-        min_score: Optional[Union[int, float]] = None,
-        max_score: Optional[Union[int, float]] = None,
+        min_priority: Optional[TaskPriority] = None,
+        max_priority: Optional[TaskPriority] = None,
         limit: int = 10,
     ) -> List[Any]:
         members = await ZSetHelper.peek(
-            self._redis, pending, min_score, max_score, limit
+            self._redis, pending, min_priority, max_priority, limit
         )
         return [self._decode_bytes.post(m) for m in members]

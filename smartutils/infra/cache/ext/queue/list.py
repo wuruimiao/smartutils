@@ -2,10 +2,15 @@ from __future__ import annotations
 
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING, Any, List, Optional, Sequence, Union
+from typing import TYPE_CHECKING, Any, List, Optional
 
 from smartutils.infra.cache.common.decode import DecodeBytes
-from smartutils.infra.cache.ext.queue.abstract import AbstractSafeQueue
+from smartutils.infra.cache.ext.queue.abstract import (
+    AbstractSafeQueue,
+    TaskID,
+    TaskInfo,
+    TaskPriority,
+)
 from smartutils.infra.cache.ext.zset import ZSetHelper
 from smartutils.infra.cache.lua.const import LuaName
 from smartutils.infra.cache.lua.lua_manager import LuaManager
@@ -41,16 +46,17 @@ class SafeQueueList(AbstractSafeQueue):
         """
         return await self._redis.llen(queue)  # type: ignore
 
-    async def enqueue_task(self, queue: str, task: Sequence) -> bool:
+    async def enqueue_task(self, queue: str, tasks: List[TaskInfo]) -> bool:
         """
         向任务队列尾部添加任务。
         :param queue: 任务队列list名
         :param task: 任务内容(str)
         :return: bool, 是否成功
         """
-        return await self._redis.lpush(queue, *task) > 0  # type: ignore
+        _tasks = [t.ID for t in tasks]
+        return await self._redis.lpush(queue, *_tasks) > 0  # type: ignore
 
-    async def is_task_pending(self, pending: str, task: Any) -> bool:
+    async def is_task_pending(self, pending: str, task: TaskID) -> bool:
         """
         检查任务是否在pending队列中。
         :param pending: 处理中任务zset名
@@ -62,8 +68,8 @@ class SafeQueueList(AbstractSafeQueue):
 
     @asynccontextmanager
     async def fetch_task_ctx(
-        self, queue: str, pending: str, priority: Optional[Union[int, float]] = None
-    ) -> AsyncGenerator[Optional[str]]:
+        self, queue: str, pending: str, priority: Optional[TaskPriority] = None
+    ) -> AsyncGenerator[Optional[TaskID]]:
         """
         原子领取任务：从 queue (list) 弹出任务，并放入 pending (zset)，
         适用于work队列的可靠消费。
@@ -87,7 +93,7 @@ class SafeQueueList(AbstractSafeQueue):
         yield None
 
     async def requeue_task(
-        self, queue: str, pending: str, task: Any, priority=None
+        self, queue: str, pending: str, task: TaskID, priority=None
     ) -> bool:
         """
         回队任务：将pending(zset)中的task移除，并重新放入queue(list)。
@@ -106,11 +112,11 @@ class SafeQueueList(AbstractSafeQueue):
     async def get_pending_members(
         self,
         pending: str,
-        min_score: Optional[Union[int, float]] = None,
-        max_score: Optional[Union[int, float]] = None,
+        min_priority: Optional[TaskPriority] = None,
+        max_priority: Optional[TaskPriority] = None,
         limit: int = 10,
     ) -> List[Any]:
         members = await ZSetHelper.peek(
-            self._redis, pending, min_score, max_score, limit
+            self._redis, pending, min_priority, max_priority, limit
         )
         return [self._decode_bytes.post(m) for m in members]
