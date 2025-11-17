@@ -120,8 +120,8 @@ class SafeQueueZSet(AbstractSafeQueue):
         min_priority: Optional[TaskPriority] = None,
         max_priority: Optional[TaskPriority] = None,
         limit: int = 10,
-    ) -> List[Any]:
+    ) -> List[TaskID]:
         members = await ZSetHelper.peek(
             self._redis, pending, min_priority, max_priority, limit
         )
-        return [self._decode_bytes.post(m) for m in members]
+        return [self._decode_bytes.post(m) for m in members]  # type: ignore

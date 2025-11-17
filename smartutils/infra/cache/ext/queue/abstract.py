@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, AsyncContextManager, List, Optional, TypeVar, Union
+from typing import AsyncContextManager, List, Optional, TypeVar, Union
 
 TaskID = Union[str, int]
 TaskPriority = Union[int, float]
@@ -46,7 +46,7 @@ class AbstractSafeQueue(ABC):
         min_priority: Optional[TaskPriority] = None,
         max_priority: Optional[TaskPriority] = None,
         limit: int = 1,
-    ) -> List[Any]: ...
+    ) -> List[TaskID]: ...
 
 
 AbstractSafeQueueT = TypeVar("AbstractSafeQueueT", bound=AbstractSafeQueue)
