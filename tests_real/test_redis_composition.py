@@ -45,6 +45,8 @@ async def test_safe_queue_by_list(group):
 
         # 先准备任务
         assert await cli.safe_q_list.enqueue_task(ready, ("task1", 2))
+        val = await cli.safe_q_list.task_num(ready)
+        assert val == 2
 
         # 用 safe_rpop_zadd 弹出一个任务并放入 zset_pending
         async with cli.safe_q_list.fetch_task_ctx(ready, pending) as msg:
@@ -59,6 +61,9 @@ async def test_safe_queue_by_list(group):
         members = await cli.zrange(pending, 0, -1)
         assert msg not in members
 
+        val = await cli.safe_q_list.task_num(ready)
+        assert val == 1
+
         # 应该弹出2
         async with cli.safe_q_list.fetch_task_ctx(ready, pending, priority=1111) as msg:
             assert msg == "2"
@@ -67,6 +72,8 @@ async def test_safe_queue_by_list(group):
             assert msg in members
             assert await cli.safe_q_list.is_task_pending(pending, msg)
             assert await cli.zscore(pending, msg) == 1111
+        val = await cli.safe_q_list.task_num(ready)
+        assert val == 0
 
         # 再手动放一个任务到 zset_pending，测试 requeue_task
         msg = "task3"
@@ -114,6 +121,10 @@ async def test_safe_queue_by_zset(group):
 
         # 准备任务
         assert await cli.safe_q_zset.enqueue_task(ready, {"taskA": 2, "taskB": 1})
+
+        val = await cli.safe_q_zset.task_num(ready)
+        assert val == 2
+
         # 应该弹出 score 最大的 taskA
         async with cli.safe_q_zset.fetch_task_ctx(ready, pending) as msg:
             assert msg == "taskA"
@@ -128,6 +139,9 @@ async def test_safe_queue_by_zset(group):
         assert msg not in members
         assert not await cli.safe_q_zset.is_task_pending(pending, msg)
 
+        val = await cli.safe_q_zset.task_num(ready)
+        assert val == 1
+
         # 应该弹出 score 次大的 taskB，同时判断优先级
         async with cli.safe_q_zset.fetch_task_ctx(ready, pending, priority=1111) as msg:
             assert msg == "taskB"
@@ -140,6 +154,9 @@ async def test_safe_queue_by_zset(group):
         members = await cli.zrange(pending, 0, -1)
         assert msg not in members, "pending should be empty after context exit"
         assert not await cli.safe_q_zset.is_task_pending(pending, msg)
+
+        val = await cli.safe_q_zset.task_num(ready)
+        assert val == 0
 
         # 再把 taskC 放到 pending，safe_zrem_zadd 归还到 ready
         msg = "taskC"

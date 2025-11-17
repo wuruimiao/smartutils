@@ -33,6 +33,14 @@ class SafeQueueList(SafeQueue):
         self._redis: Redis = redis_cli
         self._decode_bytes = decode_bytes
 
+    async def task_num(self, queue: str) -> int:
+        """
+        获取任务队列长度。
+        :param queue: 任务队列list名
+        :return: int, 任务数量
+        """
+        return await self._redis.llen(queue)  # type: ignore
+
     async def enqueue_task(self, queue: str, task: Sequence) -> bool:
         """
         向任务队列尾部添加任务。
