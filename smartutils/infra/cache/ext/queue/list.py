@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, Any, List, Optional, Sequence, Union
 
 from smartutils.infra.cache.common.decode import DecodeBytes
-from smartutils.infra.cache.ext.queue.abstract import SafeQueue
+from smartutils.infra.cache.ext.queue.abstract import AbstractSafeQueue
 from smartutils.infra.cache.ext.zset import ZSetHelper
 from smartutils.infra.cache.lua.const import LuaName
 from smartutils.infra.cache.lua.lua_manager import LuaManager
@@ -19,7 +19,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from redis.asyncio import Redis
 
 
-class SafeQueueList(SafeQueue):
+class SafeQueueList(AbstractSafeQueue):
     """
     基于 Redis 的安全任务队列(list+zset)。适用于先进先出（FIFO）任务队列，
     实现可靠弹出、挂起、回队等业务场景。

@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Any, AsyncContextManager, List, Optional, Union
 
 
-class SafeQueue(ABC):
+class AbstractSafeQueue(ABC):
     """安全任务队列抽象基类，定义通用接口。"""
 
     @abstractmethod

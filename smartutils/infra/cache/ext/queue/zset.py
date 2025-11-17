@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from smartutils.infra.cache.common.decode import DecodeBytes
-from smartutils.infra.cache.ext.queue.abstract import SafeQueue
+from smartutils.infra.cache.ext.queue.abstract import AbstractSafeQueue
 from smartutils.infra.cache.ext.zset import ZSetHelper
 from smartutils.infra.cache.lua.const import LuaName
 from smartutils.infra.cache.lua.lua_manager import LuaManager
@@ -16,7 +16,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from redis.asyncio import Redis
 
 
-class SafeQueueZSet(SafeQueue):
+class SafeQueueZSet(AbstractSafeQueue):
     """
     基于 Redis 的“安全任务优先队列”，采用双 zset（有序集合）结构实现。
 
