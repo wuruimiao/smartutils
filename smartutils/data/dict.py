@@ -1,9 +1,14 @@
-from typing import Dict
+from dataclasses import is_dataclass
+from typing import Type, TypeVar, Union
 
 import orjson
 
+from smartutils.error.sys import LibraryUsageError
 
-def dict2json(data: Dict, sort=True, indent_2=False) -> bytes:
+EncodableT = TypeVar("EncodableT", bound="Encodable")
+
+
+def to_json(data, sort=True, indent_2=False) -> bytes:
     """
     将字典数据序列化为 JSON 格式的 bytes。
 
@@ -26,12 +31,26 @@ def dict2json(data: Dict, sort=True, indent_2=False) -> bytes:
         b = dict2json(d, sort=True, indent_2=False)
 
     """
-    options = orjson.OPT_NON_STR_KEYS | orjson.OPT_SERIALIZE_UUID
+    options = (
+        orjson.OPT_NON_STR_KEYS | orjson.OPT_SERIALIZE_UUID | orjson.OPT_SERIALIZE_NUMPY
+    )
     if indent_2:
         options = options | orjson.OPT_INDENT_2
     if sort:
         options = options | orjson.OPT_SORT_KEYS
     return orjson.dumps(data, option=options)
+
+
+class Encodable:
+    def encode(self) -> bytes:
+        if not is_dataclass(self):
+            raise LibraryUsageError("Subclasses of Encodable must be dataclasses.")
+        return to_json(self)
+
+    @classmethod
+    def decode(cls: Type[EncodableT], val: Union[bytes, str]) -> EncodableT:
+        d = orjson.loads(val)
+        return cls(**d)
 
 
 def merge_dict(a: dict, b: dict, path=None):

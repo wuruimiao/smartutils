@@ -1,8 +1,13 @@
+import dataclasses
+
+import pytest
+
 import smartutils.data.dict
 import smartutils.data.int
 import smartutils.data.list
 import smartutils.data.str
 import smartutils.data.tree
+from smartutils.error.sys import LibraryUsageError
 
 
 def test_base_module():
@@ -83,14 +88,70 @@ def test_base_edge_cases():
     assert 1 in children
 
 
-def test_dict_json_and_is_num():
+def test_data_dict_to_json():
     d = {"b": 2, "a": 1}
-    assert smartutils.data.dict.dict2json(d, sort=True) == b'{"a":1,"b":2}'
-    assert smartutils.data.dict.dict2json(d, sort=False) == b'{"b":2,"a":1}'
+    assert smartutils.data.dict.to_json(d, sort=True) == b'{"a":1,"b":2}'
+    assert smartutils.data.dict.to_json(d, sort=False) == b'{"b":2,"a":1}'
     assert (
-        smartutils.data.dict.dict2json(d, sort=True, indent_2=True)
+        smartutils.data.dict.to_json(d, sort=True, indent_2=True)
         == b'{\n  "a": 1,\n  "b": 2\n}'
     )
+    assert smartutils.data.dict.to_json({1: 2, 3: 4}) == b'{"1":2,"3":4}'
+
+
+def test_data_dict_to_json_auto_trans():
+    # dataclass可以直接序列化，不用asdict
+    @dataclasses.dataclass
+    class SampleData:
+        id: int
+        name: str
+
+    data = SampleData(id=1, name="test")
+    json_bytes = smartutils.data.dict.to_json(dataclasses.asdict(data))
+    assert json_bytes == b'{"id":1,"name":"test"}'
+
+    # class不能直接序列化，会报错
+    class SampleData2:
+        def __init__(self, id: int, name: str):
+            self.id = id
+            self.name = name
+
+    data2 = SampleData2(id=2, name="demo")
+    with pytest.raises(TypeError) as exec:
+        smartutils.data.dict.to_json(data2)
+    assert "Type is not JSON serializable: SampleData2" in str(exec.value)
+
+    # uuid自动转换
+    import uuid
+
+    uid = uuid.uuid4()
+    assert smartutils.data.dict.to_json({"uid": uid}) == f'{{"uid":"{uid}"}}'.encode()
+
+
+def test_data_Encodable():
+    @dataclasses.dataclass
+    class SampleData(smartutils.data.dict.Encodable):
+        id: int
+        name: str
+
+    data = SampleData(id=1, name="test")
+    encoded = data.encode()
+    assert encoded == b'{"id":1,"name":"test"}'
+    decoded = SampleData.decode(encoded)
+    assert decoded.id == data.id and decoded.name == data.name
+    decoded = SampleData.decode(encoded.decode())
+    assert decoded.id == data.id and decoded.name == data.name
+
+    # 测试非dataclass子类
+    class SampleData2(smartutils.data.dict.Encodable):
+        def __init__(self, id: int, name: str):
+            self.id = id
+            self.name = name
+
+    data = SampleData2(id=2, name="demo")
+    with pytest.raises(LibraryUsageError) as exec:
+        data.encode()
+    assert "Subclasses of Encodable must be dataclasses." == str(exec.value)
 
 
 def test_data_int():

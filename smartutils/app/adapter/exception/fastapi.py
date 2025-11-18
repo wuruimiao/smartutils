@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from pydantic import ValidationError as PydanticValidationError
 
-from smartutils.data.base import max_int
+from smartutils.data.int import max_int
 from smartutils.error.base import BaseError
 from smartutils.error.factory import ExcDetailFactory, ExcErrorFactory
 from smartutils.error.mapping import HTTP_STATUS_CODE_MAP
