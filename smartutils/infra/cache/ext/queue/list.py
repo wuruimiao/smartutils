@@ -8,9 +8,7 @@ from smartutils.infra.cache.ext.queue.abstract import (
     AbstractSafeQueue,
     Task,
     TaskID,
-    TaskPriority,
 )
-from smartutils.infra.cache.ext.zset import ZSetHelper
 from smartutils.infra.cache.lua.const import LuaName
 from smartutils.infra.cache.lua.lua_manager import LuaManager
 from smartutils.time import get_now_stamp
@@ -22,7 +20,7 @@ class SafeQueueList(AbstractSafeQueue):
     实现可靠弹出、挂起、回队等业务场景。
     - 主队列使用 Redis List 存储待处理任务。
     - 正在处理（pending）任务用 Redis ZSet 暂存，以便可靠性、超时重试等。
-    1. claim_task_ctx: 从 ready list 弹出任务, 放入 pending zset(带时间戳), 业务处理后自动从pending移除。
+    1. fetch_task_ctx: 从 ready list 弹出任务, 放入 pending zset(带时间戳), 业务处理后自动从pending移除。
     2. requeue_task: 任务处理失败/需重入时，将pending任务移回ready list。
     """
 
@@ -56,7 +54,7 @@ class SafeQueueList(AbstractSafeQueue):
 
     @asynccontextmanager
     async def fetch_task_ctx(
-        self, queue: str, pending: str, priority: Optional[TaskPriority] = None
+        self, queue: str, pending: str
     ) -> AsyncGenerator[Optional[TaskID]]:
         """
         原子领取任务：从 queue (list) 弹出任务，并放入 pending (zset)，
@@ -65,14 +63,13 @@ class SafeQueueList(AbstractSafeQueue):
         - 退出上下文时，自动 zrem (归还/完成任务)。
         :param queue: 主任务队列list名
         :param pending: 处理中任务zset名
-        :param priority: 预定时间戳(默认当前时间)
-        :yields: str|None, 本次弹出的任务字符串
+        :yields: TaskID|None, 本次弹出的任务字符串
         """
-        if not priority:
-            priority = -get_now_stamp()
-
         msg = await LuaManager.call(
-            LuaName.RPOP_ZADD, self._redis, keys=[queue, pending], args=[priority]
+            LuaName.RPOP_ZADD,
+            self._redis,
+            keys=[queue, pending],
+            args=[get_now_stamp()],
         )
         if msg:
             yield self._decode_bytes.post(msg)  # type: ignore
@@ -89,22 +86,10 @@ class SafeQueueList(AbstractSafeQueue):
         :param queue: 主任务队列list名
         :param pending: 处理中任务zset名
         :param task: 需归队的任务内容(str)
-        :param priority: 兼容时间戳(暂未使用)，pending的优先处理
+        :param priority: 兼容时间戳(未使用)，默认最高优先级
         :return: bool, 是否成功
         """
         await LuaManager.call(
             LuaName.ZREM_RPUSH, self._redis, keys=[pending, queue], args=[task]
         )
         return True
-
-    async def get_pending_members(
-        self,
-        pending: str,
-        min_priority: Optional[TaskPriority] = None,
-        max_priority: Optional[TaskPriority] = None,
-        limit: int = 10,
-    ) -> List[TaskID]:
-        members = await ZSetHelper.peek(
-            self._redis, pending, min_priority, max_priority, limit
-        )
-        return [self._decode_bytes.post(m) for m in members]  # type: ignore

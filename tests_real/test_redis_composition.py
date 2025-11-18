@@ -1,5 +1,6 @@
 import pytest
 
+from smartutils.data.int import max_float
 from smartutils.error.sys import LibraryUsageError
 from smartutils.infra.cache.ext.queue.abstract import Task
 
@@ -66,13 +67,13 @@ async def test_safe_queue_by_list(group):
         assert val == 1
 
         # 应该弹出2
-        async with cli.safe_q_list.fetch_task_ctx(ready, pending, priority=1111) as msg:
+        async with cli.safe_q_list.fetch_task_ctx(ready, pending) as msg:
             assert msg == "2"
             # taskA 应该在 pending
             members = await cli.zrange(pending, 0, -1)
             assert msg in members
             assert await cli.safe_q_list.is_task_pending(pending, msg)
-            assert await cli.zscore(pending, msg) == 1111
+            # assert await cli.zscore(pending, msg) == 1111
         val = await cli.safe_q_list.task_num(ready)
         assert val == 0
 
@@ -101,6 +102,9 @@ async def test_safe_queue_by_list(group):
         assert not await cli.safe_q_list.is_task_pending(pending, msg)
         members = await cli.zrange(pending, 0, -1)
         assert msg not in members
+
+        async with cli.safe_q_list.fetch_task_ctx(ready, pending) as msg:
+            assert msg == "task3"
 
         await cli.delete(ready, pending)
 
@@ -136,7 +140,7 @@ async def test_safe_queue_by_zset(group):
             assert msg in members
             assert await cli.safe_q_zset.is_task_pending(pending, msg)
             # 优先级应该是原始的 score 2
-            assert await cli.zscore(pending, msg) == 2
+            # assert await cli.zscore(pending, msg) == 2
         # 弹出后 pending 已被清理
         members = await cli.zrange(pending, 0, -1)
         assert msg not in members
@@ -146,13 +150,13 @@ async def test_safe_queue_by_zset(group):
         assert val == 1
 
         # 应该弹出 score 次大的 taskB，同时判断优先级
-        async with cli.safe_q_zset.fetch_task_ctx(ready, pending, priority=1111) as msg:
+        async with cli.safe_q_zset.fetch_task_ctx(ready, pending) as msg:
             assert msg == "taskB"
             # taskA 应该在 pending
             members = await cli.zrange(pending, 0, -1)
             assert msg in members
             assert await cli.safe_q_zset.is_task_pending(pending, msg)
-            assert await cli.zscore(pending, msg) == 1111
+            # assert await cli.zscore(pending, msg) == 1111
         # 弹出后 pending 已被清理
         members = await cli.zrange(pending, 0, -1)
         assert msg not in members, "pending should be empty after context exit"
@@ -194,10 +198,10 @@ async def test_safe_queue_by_zset(group):
         msg = "taskD"
         await cli.zadd(pending, {msg: 999})
         assert await cli.safe_q_zset.requeue_task(ready, pending, msg)
-        # taskD 应该在 ready，score 为 9999
+        # taskD 应该在 ready，score 为 最大的整型
         ready_members = await cli.zrange(ready, 0, -1, withscores=True)
-        found = [x for x in ready_members if x[0] == msg and x[1] == 999.0]
-        assert found, "taskD with score 5 not found in ready"
+        found = [x for x in ready_members if x[0] == msg and x[1] == max_float()]
+        assert found, "taskD with score max not found in ready"
         # taskD 应该不在 pending
         pending_members = await cli.zrange(pending, 0, -1)
         assert (

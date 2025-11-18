@@ -1,6 +1,9 @@
 import csv
-import sys
-from typing import List, Iterator, Dict
+from typing import Dict, Iterator, List
+
+import smartutils
+import smartutils.data
+import smartutils.data.int
 
 
 def csv_to_data(file_path: str, line_handler):
@@ -29,7 +32,7 @@ def get_csv_data(file_path: str) -> List[str]:
 
 
 def increase_csv_limit():
-    max_int = sys.maxsize
+    max_int = smartutils.data.int.max_int()
 
     while True:
         # decrease the maxInt value by factor 10

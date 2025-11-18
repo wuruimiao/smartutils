@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, AsyncContextManager, List, Optional, TypeVar, Union
 
 from smartutils.infra.cache.common.decode import DecodeBytes
+from smartutils.infra.cache.ext.zset import ZSetHelper
 
 try:
     from redis.asyncio import Redis
@@ -42,7 +43,7 @@ class AbstractSafeQueue(ABC):
     async def is_task_pending(self, pending: str, task: TaskID) -> bool: ...
     @abstractmethod
     def fetch_task_ctx(
-        self, queue: str, pending: str, priority: Optional[TaskPriority] = None
+        self, queue: str, pending: str
     ) -> AsyncContextManager[Optional[TaskID]]: ...
     @abstractmethod
     async def requeue_task(
@@ -52,14 +53,21 @@ class AbstractSafeQueue(ABC):
         task: TaskID,
         priority: Optional[TaskPriority] = None,
     ) -> bool: ...
-    @abstractmethod
+
     async def get_pending_members(
         self,
         pending: str,
         min_priority: Optional[TaskPriority] = None,
         max_priority: Optional[TaskPriority] = None,
         limit: int = 1,
-    ) -> List[TaskID]: ...
+    ) -> List[TaskID]:
+        members = await ZSetHelper.peek(
+            self._redis, pending, min_priority, max_priority, limit
+        )
+        members = [self._decode_bytes.post(m) for m in members]
+        # 取出按时间戳从大到小，实际需要从早到晚
+        members.reverse()
+        return members  # type: ignore
 
 
 AbstractSafeQueueT = TypeVar("AbstractSafeQueueT", bound=AbstractSafeQueue)

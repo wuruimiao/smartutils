@@ -2,15 +2,16 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import List, Optional
 
+from smartutils.data.int import max_float
 from smartutils.infra.cache.ext.queue.abstract import (
     AbstractSafeQueue,
     Task,
     TaskID,
     TaskPriority,
 )
-from smartutils.infra.cache.ext.zset import ZSetHelper
 from smartutils.infra.cache.lua.const import LuaName
 from smartutils.infra.cache.lua.lua_manager import LuaManager
+from smartutils.time import get_now_stamp
 
 
 class SafeQueueZSet(AbstractSafeQueue):
@@ -45,17 +46,16 @@ class SafeQueueZSet(AbstractSafeQueue):
 
     @asynccontextmanager
     async def fetch_task_ctx(
-        self, queue: str, pending: str, priority: Optional[TaskPriority] = None
+        self, queue: str, pending: str
     ) -> AsyncGenerator[Optional[TaskID]]:
         """
-        原子领取任务。弹出 queue(zset) 中优先级最高（score 最大）的任务，放入 pending(zset) 并记录当前时间/优先级，
+        原子领取任务。弹出 queue(zset) 中优先级最高（score 最大）的任务，放入 pending(zset) 并记录当前时间
         用于保证任务领取-处理中原子操作。
 
         场景：分布式任务调度、优先级队列/超时重试恢复、可靠任务分发等。
 
         :param queue: 主队列 zset key，存待处理任务（已按score排序）
         :param pending: 待确认队列 zset key，存已被消费者领取、未完结任务
-        :param priority: 本次领取任务的 priority/时间戳（zset的score），可自定义，默认任务的原始priority
         :yields: 任务内容（字符串），若无任务则为 None
         用法建议：
         ```
@@ -68,7 +68,7 @@ class SafeQueueZSet(AbstractSafeQueue):
             LuaName.ZPOPMAX_ZADD,
             self._redis,
             keys=[queue, pending],
-            args=[priority],
+            args=[get_now_stamp()],
         )
         if msg:
             yield self._decode_bytes.post(msg)  # type: ignore
@@ -91,9 +91,11 @@ class SafeQueueZSet(AbstractSafeQueue):
         :param queue: 主队列 zset key
         :param pending: 待确认队列 zset key
         :param task: 需回队的任务内容或唯一标识
-        :param priority: 回队后score（优先级/下次调度时间戳等）
+        :param priority: 回队后优先级，不传则最高优先级；暂无法使用原优先级，pending超时队列优先级为时间戳
         :return: bool, 是否成功
         """
+        if priority is None:
+            priority = max_float()
         await LuaManager.call(
             LuaName.ZREM_ZADD,
             self._redis,
@@ -101,15 +103,3 @@ class SafeQueueZSet(AbstractSafeQueue):
             args=[task, priority],
         )
         return True
-
-    async def get_pending_members(
-        self,
-        pending: str,
-        min_priority: Optional[TaskPriority] = None,
-        max_priority: Optional[TaskPriority] = None,
-        limit: int = 10,
-    ) -> List[TaskID]:
-        members = await ZSetHelper.peek(
-            self._redis, pending, min_priority, max_priority, limit
-        )
-        return [self._decode_bytes.post(m) for m in members]  # type: ignore
