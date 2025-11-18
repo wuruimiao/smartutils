@@ -65,7 +65,7 @@ project:
 
     app = create_app(str(config_file))
 
-    from smartutils.app.main.fastapi import ResponseModel
+    from smartutils.app.main.resp import ResponseModel
 
     with TestClient(app) as c:
         yield c
@@ -122,7 +122,7 @@ async def test_endpoint_response_api_key_success(client):
 async def test_endpoint_api_key_fail_no_request(client):
 
     from smartutils.app import MiddlewareManager
-    from smartutils.app.main.fastapi import ResponseModel
+    from smartutils.app.main.resp import ResponseModel
 
     # 创建临时app实例
     app = client.app

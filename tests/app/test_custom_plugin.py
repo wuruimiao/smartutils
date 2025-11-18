@@ -48,7 +48,7 @@ middleware:
 
     app = create_app(str(config_file))
 
-    from smartutils.app.main.fastapi import ResponseModel
+    from smartutils.app.main.resp import ResponseModel
 
     with TestClient(app) as c:
         yield c

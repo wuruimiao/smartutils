@@ -1,12 +1,10 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING, Generic, Optional, TypeVar
-
-from pydantic import BaseModel
+from typing import TYPE_CHECKING
 
 from smartutils.app.const import RunEnv
-from smartutils.error.base import BaseData, BaseError
+from smartutils.app.main.resp import ResponseModel
 from smartutils.error.sys import LibraryUsageError
 
 try:
@@ -18,21 +16,9 @@ if TYPE_CHECKING:  # pragma: no cover
     from fastapi import APIRouter, FastAPI, Request
 
 
-__all__ = ["create_app", "ResponseModel"]
-
-T = TypeVar("T")
-
-
-class ResponseModel(BaseModel, BaseData, Generic[T]):
-    code: int = 0
-    msg: str = "success"
-    status_code: int = 200
-    detail: str = ""
-    data: Optional[T] = None
-
-    @classmethod
-    def from_error(cls, error: BaseError) -> "ResponseModel":
-        return ResponseModel(**error.as_dict)
+__all__ = [
+    "create_app",
+]
 
 
 def _check_app_routes(app):

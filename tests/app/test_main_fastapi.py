@@ -59,7 +59,7 @@ async def client():
 
     app = create_app()
 
-    from smartutils.app.main.fastapi import ResponseModel
+    from smartutils.app.main.resp import ResponseModel
 
     with TestClient(app) as c:
         yield c

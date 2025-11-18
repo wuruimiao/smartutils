@@ -7,7 +7,7 @@ from smartutils.app.auth.token import AccessToken, RefreshToken, TokenHelper, Us
 from smartutils.app.dao.base import CommentMeta, DAOBase
 from smartutils.app.dao.mixin import TimestampedMixin
 from smartutils.app.hook import AppHook
-from smartutils.app.main.fastapi import ResponseModel
+from smartutils.app.main.resp import PageData, ResponseModel
 from smartutils.app.req_ctx import ReqCTX
 from smartutils.app.run_main import run
 from smartutils.call import register_package
@@ -26,6 +26,7 @@ __all__ = [
     "run",
     "AppHook",
     "ResponseModel",
+    "PageData",
     "OtpHelper",
     "PasswordHelper",
     "TokenHelper",
