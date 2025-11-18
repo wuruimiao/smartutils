@@ -10,14 +10,31 @@ import smartutils.data.tree
 from smartutils.error.sys import LibraryUsageError
 
 
-def test_base_module():
+def test_data_int():
     assert smartutils.data.int.max_int() > 0
     assert smartutils.data.int.min_int() < 0
+    assert smartutils.data.int.max_float() > 0
+    assert smartutils.data.int.min_float() < 0
+    assert smartutils.data.int.max_int() == 9223372036854775807
+    assert smartutils.data.int.min_int() == -9223372036854775807
+    assert smartutils.data.int.max_float() == 1.7976931348623157e308
+    assert smartutils.data.int.min_float() == -1.7976931348623157e308
+
     assert smartutils.data.int.is_num(123)
     assert smartutils.data.int.is_num(1.23)
     assert smartutils.data.int.is_num("123")
     assert smartutils.data.int.is_num("1.23")
     assert not smartutils.data.int.is_num("abc")
+    # is_num 负数和小数点情况
+    assert not smartutils.data.int.is_num("-123")
+    assert not smartutils.data.int.is_num("1..23")
+    # float 类型直接 True
+    assert smartutils.data.int.is_num(1.23)
+    # str 多个点、其他特殊字符
+    assert not smartutils.data.int.is_num("12.3.4")
+
+
+def test_data_str():
     assert smartutils.data.str.md5("abc") == smartutils.data.str.md5("abc")
     assert smartutils.data.str.trans_str("[1,2,3]") == [1, 2, 3]
     assert smartutils.data.str.trans_str(123) == 123  # type: ignore
@@ -26,30 +43,6 @@ def test_base_module():
     assert smartutils.data.str.get_ints_in_str("a1b2c3") == [1, 2, 3]
     assert smartutils.data.str.get_ch_num_in_str("一二三abc四五") == ["一二三", "四五"]
     assert smartutils.data.str.chinese_to_int("一百二十三") == 123
-    d1 = {"a": 1, "b": {"c": 2}}
-    d2 = {"b": {"c": 3, "d": 4}, "e": 5}
-    merged = smartutils.data.dict.merge_dict(d1.copy(), d2)
-    assert merged["b"]["c"] == 3 and merged["b"]["d"] == 4 and merged["e"] == 5
-    assert smartutils.data.dict.decode_bytes(b"abc")[0] == "abc"
-    assert not smartutils.data.dict.decode_bytes(b"\xff\xfe")[1]
-    assert smartutils.data.list.remove_duplicate([1, 2, 2, 3]) == [1, 2, 3]
-    assert smartutils.data.list.remove_duplicate([1, 2, 2, 3], save_first=True) == [
-        1,
-        2,
-        3,
-    ]
-
-    class Info:
-        def __init__(self, id, parent_id=0):
-            self.id = id
-            self.parent_id = parent_id
-            self.children = []
-
-    data = [dict(id=1, parent_id=0), dict(id=2, parent_id=1)]
-    val = smartutils.data.tree.make_parent(data, Info)
-    assert 1 in val and val[1].children[0].id == 2
-    children = smartutils.data.tree.make_children(data, Info)
-    assert 2 in children and children[2][0].id == 1
 
 
 def test_base_edge_cases():
@@ -97,6 +90,24 @@ def test_data_dict_to_json():
         == b'{\n  "a": 1,\n  "b": 2\n}'
     )
     assert smartutils.data.dict.to_json({1: 2, 3: 4}) == b'{"1":2,"3":4}'
+
+
+def test_data_dict():
+    d1 = {"a": 1, "b": {"c": 2}}
+    d2 = {"b": {"c": 3, "d": 4}, "e": 5}
+    merged = smartutils.data.dict.merge_dict(d1.copy(), d2)
+    assert merged["b"]["c"] == 3 and merged["b"]["d"] == 4 and merged["e"] == 5
+    assert smartutils.data.dict.decode_bytes(b"abc")[0] == "abc"
+    assert not smartutils.data.dict.decode_bytes(b"\xff\xfe")[1]
+
+
+def test_data_list():
+    assert smartutils.data.list.remove_duplicate([1, 2, 2, 3]) == [1, 2, 3]
+    assert smartutils.data.list.remove_duplicate([1, 2, 2, 3], save_first=True) == [
+        1,
+        2,
+        3,
+    ]
 
 
 def test_data_dict_to_json_auto_trans():
@@ -168,16 +179,6 @@ def test_data_Encodable():
     assert "Subclasses of Encodable must be dataclasses." == str(exec.value)
 
 
-def test_data_int():
-    # is_num 负数和小数点情况
-    assert not smartutils.data.int.is_num("-123")
-    assert not smartutils.data.int.is_num("1..23")
-    # float 类型直接 True
-    assert smartutils.data.int.is_num(1.23)
-    # str 多个点、其他特殊字符
-    assert not smartutils.data.int.is_num("12.3.4")
-
-
 def test_merge_dict_edge():
 
     # 嵌套 dict + 非 dict 冲突
@@ -214,3 +215,17 @@ def test_detect_cycle_real_cycle():
     assert set(children.keys()) == {1, 2, 3}
     for v in children.values():
         assert len(v) >= 1
+
+
+def test_data_tree():
+    class Info:
+        def __init__(self, id, parent_id=0):
+            self.id = id
+            self.parent_id = parent_id
+            self.children = []
+
+    data = [dict(id=1, parent_id=0), dict(id=2, parent_id=1)]
+    val = smartutils.data.tree.make_parent(data, Info)
+    assert 1 in val and val[1].children[0].id == 2
+    children = smartutils.data.tree.make_children(data, Info)
+    assert 2 in children and children[2][0].id == 1
