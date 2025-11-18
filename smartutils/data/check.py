@@ -2,7 +2,7 @@ import ipaddress
 import re
 from typing import Optional
 
-from smartutils.data.base import is_num
+from smartutils.data.int import is_num
 
 IPV4_REGEX = re.compile(r"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$")
 IPV6_REGEX = re.compile(r"^([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}$")
