@@ -1,6 +1,15 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import AsyncContextManager, List, Optional, TypeVar, Union
+from typing import TYPE_CHECKING, AsyncContextManager, List, Optional, TypeVar, Union
+
+from smartutils.infra.cache.common.decode import DecodeBytes
+
+try:
+    from redis.asyncio import Redis
+except ImportError:
+    ...
+if TYPE_CHECKING:  # pragma: no cover
+    from redis.asyncio import Redis
 
 TaskID = Union[str, int]
 TaskPriority = Union[int, float]
@@ -20,6 +29,10 @@ class Task:
 
 class AbstractSafeQueue(ABC):
     """安全任务队列抽象基类，定义通用接口。"""
+
+    def __init__(self, redis_cli: Redis, decode_bytes: DecodeBytes):
+        self._redis: Redis = redis_cli
+        self._decode_bytes = decode_bytes
 
     @abstractmethod
     async def task_num(self, queue: str) -> int: ...

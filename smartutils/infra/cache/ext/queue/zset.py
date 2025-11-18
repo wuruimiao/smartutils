@@ -1,8 +1,7 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING, List, Optional
+from typing import List, Optional
 
-from smartutils.infra.cache.common.decode import DecodeBytes
 from smartutils.infra.cache.ext.queue.abstract import (
     AbstractSafeQueue,
     Task,
@@ -12,13 +11,6 @@ from smartutils.infra.cache.ext.queue.abstract import (
 from smartutils.infra.cache.ext.zset import ZSetHelper
 from smartutils.infra.cache.lua.const import LuaName
 from smartutils.infra.cache.lua.lua_manager import LuaManager
-
-try:
-    from redis.asyncio import Redis
-except ImportError:
-    ...
-if TYPE_CHECKING:  # pragma: no cover
-    from redis.asyncio import Redis
 
 
 class SafeQueueZSet(AbstractSafeQueue):
@@ -34,10 +26,6 @@ class SafeQueueZSet(AbstractSafeQueue):
     1. fetch_task_ctx: 弹出 queue 中 score 最大的任务，标记到 pending 集合。业务完成后自动 zrem pending。
     2. requeue_task: 任务处理失败/超时等，从 pending 剔除并重新放入 queue，可重新设定优先级(score)。
     """
-
-    def __init__(self, redis_cli: Redis, decode_bytes: DecodeBytes):
-        self._redis: Redis = redis_cli
-        self._decode_bytes = decode_bytes
 
     async def task_num(self, queue: str) -> int:
         """

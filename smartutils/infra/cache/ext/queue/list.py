@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING, List, Optional
+from typing import List, Optional
 
-from smartutils.infra.cache.common.decode import DecodeBytes
 from smartutils.infra.cache.ext.queue.abstract import (
     AbstractSafeQueue,
     Task,
@@ -16,13 +15,6 @@ from smartutils.infra.cache.lua.const import LuaName
 from smartutils.infra.cache.lua.lua_manager import LuaManager
 from smartutils.time import get_now_stamp
 
-try:
-    from redis.asyncio import Redis
-except ImportError:
-    ...
-if TYPE_CHECKING:  # pragma: no cover
-    from redis.asyncio import Redis
-
 
 class SafeQueueList(AbstractSafeQueue):
     """
@@ -33,10 +25,6 @@ class SafeQueueList(AbstractSafeQueue):
     1. claim_task_ctx: 从 ready list 弹出任务, 放入 pending zset(带时间戳), 业务处理后自动从pending移除。
     2. requeue_task: 任务处理失败/需重入时，将pending任务移回ready list。
     """
-
-    def __init__(self, redis_cli: Redis, decode_bytes: DecodeBytes):
-        self._redis: Redis = redis_cli
-        self._decode_bytes = decode_bytes
 
     async def task_num(self, queue: str) -> int:
         """
