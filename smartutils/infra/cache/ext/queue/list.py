@@ -7,8 +7,8 @@ from typing import TYPE_CHECKING, List, Optional
 from smartutils.infra.cache.common.decode import DecodeBytes
 from smartutils.infra.cache.ext.queue.abstract import (
     AbstractSafeQueue,
+    Task,
     TaskID,
-    TaskInfo,
     TaskPriority,
 )
 from smartutils.infra.cache.ext.zset import ZSetHelper
@@ -46,7 +46,7 @@ class SafeQueueList(AbstractSafeQueue):
         """
         return await self._redis.llen(queue)  # type: ignore
 
-    async def enqueue_task(self, queue: str, tasks: List[TaskInfo]) -> bool:
+    async def enqueue_task(self, queue: str, tasks: List[Task]) -> bool:
         """
         向任务队列尾部添加任务。
         :param queue: 任务队列list名

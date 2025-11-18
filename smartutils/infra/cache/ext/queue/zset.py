@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING, List, Optional
 from smartutils.infra.cache.common.decode import DecodeBytes
 from smartutils.infra.cache.ext.queue.abstract import (
     AbstractSafeQueue,
+    Task,
     TaskID,
-    TaskInfo,
     TaskPriority,
 )
 from smartutils.infra.cache.ext.zset import ZSetHelper
@@ -47,7 +47,7 @@ class SafeQueueZSet(AbstractSafeQueue):
         """
         return await self._redis.zcard(queue)
 
-    async def enqueue_task(self, queue: str, tasks: List[TaskInfo]) -> bool:
+    async def enqueue_task(self, queue: str, tasks: List[Task]) -> bool:
         _tasks = {t.ID: t.priority for t in tasks}
         return await self._redis.zadd(queue, _tasks) == len(_tasks)
 

@@ -7,7 +7,7 @@ TaskPriority = Union[int, float]
 
 
 @dataclass
-class TaskInfo:
+class Task:
     id: TaskID
     priority: TaskPriority = 0
 
@@ -24,7 +24,7 @@ class AbstractSafeQueue(ABC):
     @abstractmethod
     async def task_num(self, queue: str) -> int: ...
     @abstractmethod
-    async def enqueue_task(self, queue: str, tasks: List[TaskInfo]) -> bool: ...
+    async def enqueue_task(self, queue: str, tasks: List[Task]) -> bool: ...
     @abstractmethod
     async def is_task_pending(self, pending: str, task: TaskID) -> bool: ...
     @abstractmethod

@@ -1,7 +1,7 @@
 import pytest
 
 from smartutils.error.sys import LibraryUsageError
-from smartutils.infra.cache.ext.queue.abstract import TaskInfo
+from smartutils.infra.cache.ext.queue.abstract import Task
 
 
 @pytest.mark.parametrize("group", ["default", "decode"])
@@ -45,9 +45,7 @@ async def test_safe_queue_by_list(group):
         await cli.delete(ready, pending)
 
         # 先准备任务
-        assert await cli.safe_q_list.enqueue_task(
-            ready, [TaskInfo("task1"), TaskInfo(2)]
-        )
+        assert await cli.safe_q_list.enqueue_task(ready, [Task("task1"), Task(2)])
         val = await cli.safe_q_list.task_num(ready)
         assert val == 2
 
@@ -124,7 +122,7 @@ async def test_safe_queue_by_zset(group):
 
         # 准备任务
         assert await cli.safe_q_zset.enqueue_task(
-            ready, [TaskInfo("taskA", 2), TaskInfo("taskB", 1)]
+            ready, [Task("taskA", 2), Task("taskB", 1)]
         )
 
         val = await cli.safe_q_zset.task_num(ready)
