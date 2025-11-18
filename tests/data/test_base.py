@@ -127,6 +127,20 @@ def test_data_dict_to_json_auto_trans():
     uid = uuid.uuid4()
     assert smartutils.data.dict.to_json({"uid": uid}) == f'{{"uid":"{uid}"}}'.encode()
 
+    # 测试default参数
+    @dataclasses.dataclass
+    class CustomData:
+        id: int
+        name: str
+
+        def to_json(self):
+            return {"id": self.id}
+
+    val = smartutils.data.dict.to_json(
+        CustomData(1, "test"), trans_dataclass=lambda x: x.to_json()
+    )
+    assert val == b'{"id":1}'
+
 
 def test_data_Encodable():
     @dataclasses.dataclass

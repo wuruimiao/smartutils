@@ -1,5 +1,5 @@
 from dataclasses import is_dataclass
-from typing import Type, TypeVar, Union
+from typing import Callable, Optional, Type, TypeVar, Union
 
 import orjson
 
@@ -8,7 +8,9 @@ from smartutils.error.sys import LibraryUsageError
 EncodableT = TypeVar("EncodableT", bound="Encodable")
 
 
-def to_json(data, sort=True, indent_2=False) -> bytes:
+def to_json(
+    data, sort=True, indent_2=False, trans_dataclass: Optional[Callable] = None
+) -> bytes:
     """
     将字典数据序列化为 JSON 格式的 bytes。
 
@@ -38,7 +40,13 @@ def to_json(data, sort=True, indent_2=False) -> bytes:
         options = options | orjson.OPT_INDENT_2
     if sort:
         options = options | orjson.OPT_SORT_KEYS
-    return orjson.dumps(data, option=options)
+    default = None
+    if trans_dataclass:
+        default = trans_dataclass
+        options = options | orjson.OPT_PASSTHROUGH_DATACLASS
+    else:
+        options = options | orjson.OPT_SERIALIZE_DATACLASS
+    return orjson.dumps(data, option=options, default=default)
 
 
 class Encodable:
