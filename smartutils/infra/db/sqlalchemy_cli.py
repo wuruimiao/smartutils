@@ -71,7 +71,7 @@ class AsyncDBCli(LibraryCheckMixin, AbstractAsyncResource):
                 await conn.execute(text("SELECT 1"))
             return True
         except:  # noqa
-            logger.exception("{name} DB ping failed", name=self.name)
+            logger.exception("{} DB ping failed", self._key)
             return False
 
     async def close(self):
