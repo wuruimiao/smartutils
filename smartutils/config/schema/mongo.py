@@ -23,16 +23,18 @@ class MongoConf(StrippedBaseModel, PoolConf):
     passwd: str = Field(..., min_length=1, description="密码")
     db: str = Field(..., min_length=1, description="库")
 
-    connect: bool = Field(False, description="是否立即连接服务器")
+    connect: bool = Field(default=False, description="是否立即连接服务器")
 
-    replica_set: str = Field("rs0", description="副本集名称（如为副本集时填写）")
+    replica_set: str = Field(
+        default="rs0", description="副本集名称（如为副本集时填写）"
+    )
 
     # 统一单位：秒
     connect_timeout: Optional[int] = Field(
-        None, gt=0, description="控制连接服务器握手等待的最长时间，默认20秒"
+        default=None, gt=0, description="控制连接服务器握手等待的最长时间，默认20秒"
     )
     execute_timeout: Optional[int] = Field(
-        None,
+        default=None,
         gt=0,
         description="等待 MongoDB 服务器响应的最大超时时间。客户端已连上MongoDB，执行查询/写入过程中单次socket通讯响应的最长等待",
     )

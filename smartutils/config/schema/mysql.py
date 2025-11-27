@@ -15,8 +15,8 @@ class MySQLConf(DBConf):
     port: int = 3306
 
     # 统一单位：秒
-    connect_timeout: Optional[int] = Field(None, gt=0)
-    execute_timeout: Optional[int] = Field(None, gt=0)
+    connect_timeout: Optional[int] = Field(default=None, gt=0)
+    execute_timeout: Optional[int] = Field(default=None, gt=0)
 
     @property
     def url(self) -> str:

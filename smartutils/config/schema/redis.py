@@ -13,11 +13,13 @@ __all__ = ["RedisConf"]
 class RedisConf(HostConf):
     db: int = Field(..., ge=0)
     port: int = 6379
-    max_connections: int = Field(10, alias="pool_size")
-    socket_connect_timeout: Optional[int] = Field(None, alias="connect_timeout", gt=0)
-    socket_timeout: Optional[int] = Field(None, gt=0)
-    password: Optional[str] = Field(None, alias="passwd", min_length=1)
-    health_check_interval: int = Field(30, alias="health_check_sec", gt=0)
+    max_connections: int = Field(default=10, alias="pool_size")
+    socket_connect_timeout: Optional[int] = Field(
+        default=None, alias="connect_timeout", gt=0
+    )
+    socket_timeout: Optional[int] = Field(default=None, gt=0)
+    password: Optional[str] = Field(default=None, alias="passwd", min_length=1)
+    health_check_interval: int = Field(default=30, alias="health_check_sec", gt=0)
     retry_on_timeout: bool = True
     decode_responses: bool = False
 

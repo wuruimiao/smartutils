@@ -48,9 +48,11 @@ class MiddlewarePluginSetting(BaseModel):
 @ConfFactory.register(ConfKey.MIDDLEWARE, multi=False, require=False)
 class MiddlewareConf(BaseModel):
     routes: Optional[Dict[str, List[MiddlewarePluginKey]]] = Field(
-        None, description="按路由分类的中间件组,app表示全局中间件"
+        default=None, description="按路由分类的中间件组,app表示全局中间件"
     )
-    setting: Optional[MiddlewarePluginSetting] = Field(None, description="中间件配置")
+    setting: Optional[MiddlewarePluginSetting] = Field(
+        default=None, description="中间件配置"
+    )
 
     @property
     def safe_setting(self) -> MiddlewarePluginSetting:

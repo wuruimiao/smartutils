@@ -16,10 +16,10 @@ class KafkaConf(StrippedBaseModel):
     client_id: str = Field(..., min_length=1)
     acks: Literal["all", 1, 0] = "all"
     compression_type: Literal["zstd", "snappy", None] = None
-    max_batch_size: int = Field(16384, gt=0)
-    linger_ms: int = Field(0, ge=0)
-    request_timeout_ms: int = Field(40000, gt=0)
-    retry_backoff_ms: int = Field(100, gt=0)
+    max_batch_size: int = Field(default=16384, gt=0)
+    linger_ms: int = Field(default=0, ge=0)
+    request_timeout_ms: int = Field(default=40000, gt=0)
+    retry_backoff_ms: int = Field(default=100, gt=0)
 
     @property
     def urls(self) -> List[str]:

@@ -21,7 +21,7 @@ class LoguruConfig(StrippedBaseModel):
         default="30 days", description="日志保留时长，如 '30 days'", min_length=1
     )
     compression: Literal["zip", "gz", "bz2", "xz", "tar"] = "zip"
-    logdir: Optional[str] = Field(None, min_length=1)
+    logdir: Optional[str] = Field(default=None, min_length=1)
     enqueue: bool = True
     stream: bool = False
     backtrace: bool = False
