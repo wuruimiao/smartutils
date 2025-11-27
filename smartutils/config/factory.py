@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Type, Union
+from typing import Callable, Dict, List, Optional, Type, Union
 
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 from typing_extensions import override
 
 from smartutils.config.const import BaseModelT, ConfKey
@@ -23,7 +23,8 @@ class _ConfMeta:
 class ConfFactory(MyBase, BaseFactory[ConfKey, _ConfMeta]):
     @override
     @classmethod
-    # 屏蔽校验：这里对外暴露的是 Type -> Type，父类预期是 _ConfMeta -> _ConfMeta，装饰器模式很难做到类型100%对齐
+    # 屏蔽校验：class定义V为_ConfMeta，BaseFactory.register预期conf_cls也应该是_ConfMeta，但这里需是Type[T]
+    # 装饰器模式很难做到类型100%对齐
     def register(  # pyright: ignore[reportIncompatibleMethodOverride]
         cls,
         key: ConfKey,
@@ -33,8 +34,8 @@ class ConfFactory(MyBase, BaseFactory[ConfKey, _ConfMeta]):
         check_deps: bool = False,
         multi: bool = False,
         require: bool = False,
-    ):
-        def decorator(conf_cls: Type):
+    ) -> Callable[[Type[BaseModelT]], Type[BaseModelT]]:
+        def decorator(conf_cls: Type[BaseModelT]):
             super(ConfFactory, cls).register(key, False, order, deps, check_deps)(
                 _ConfMeta(conf_cls, multi, require)
             )
@@ -54,7 +55,7 @@ class ConfFactory(MyBase, BaseFactory[ConfKey, _ConfMeta]):
     @classmethod
     def create(
         cls, name: ConfKey, conf: Dict
-    ) -> Union[BaseModelT, dict[str, BaseModelT], None]:
+    ) -> Union[BaseModel, Dict[str, BaseModel], None]:
         info = cls.get(name)
 
         if not conf:

@@ -1,0 +1,126 @@
+mysql:
+  default:
+    host: localhost
+    port: 3306
+    user: root
+    passwd: naobo
+    db: test_db
+    pool_size: 10
+    max_overflow: 5
+    pool_timeout: 30
+    pool_recycle: 3600
+    echo: false
+    echo_pool: false
+    connect_timeout: 10
+    execute_timeout: 10
+postgresql:
+  default:
+    host: localhost
+    port: 5432
+    user: root
+    passwd: naobo
+    db: test_db
+    pool_size: 10
+    max_overflow: 5
+    pool_timeout: 30
+    pool_recycle: 3600
+    echo: false
+    echo_pool: false
+    connect_timeout: 10
+    execute_timeout: 10
+redis:
+  default:
+    host: localhost
+    port: 6379
+    password: ""
+    db: 0
+    pool_size: 10
+    connect_timeout: 10
+    socket_timeout: 10
+kafka:
+  default:
+    bootstrap_servers:
+      - host: localhost
+        port: 19092
+      - host: 127.0.0.1
+        port: 9093
+    client_id: unmanned
+    acks: all
+    compression_type: zstd
+    max_batch_size: 16384
+    linger_ms: 0
+    request_timeout_ms: 1000
+    retry_backoff_ms: 100
+canal:
+  default:
+    host: 127.0.0.1
+    port: 11111
+    clients:
+      - name: c1
+        client_id: "1234"
+        destination: unmanned_task
+      - name: unmanned_task
+        client_id: "1234"
+        destination: unmanned_task
+project:
+  name: auth
+  id: 0
+  description: test_auth
+  version: 0.0.1
+  key: test_key
+
+tencentcloud:
+  default:
+    secret_id: sida
+    secret_key: skeyb
+    role_arn: rarnc
+    on_cvm: true
+    sts_refresh: False
+    sts_ttl: 11111
+    resource:
+      - name: qingxi_test
+        id: clean-test-1303961000
+        type: cos
+        region: shanghai
+        sts_policy:
+          - effect: allow
+            action:
+              - PutObject
+              - PostObject
+            resource:
+              - "*"
+            condition:
+              - op: string_equal
+                key: "qcs:resource_tag"
+                value:
+                  - "部门&研发部"
+              - op: string_equal
+                key: "qcs:request_tag"
+                value:
+                  - "部门&研发部1"
+          - effect: deny
+            action:
+              - "*"
+            resource:
+              - default/*
+            condition:
+              - op: ip_equal
+                key: "qcs:ip"
+                value:
+                  - "10.217.182.3/24"
+                  - "111.21.33.72/24"
+      - name: qingxi_test2
+        id: clean-test-1303961001
+        type: cos
+        region: shanghai
+      - name: qingxi_test
+        id: clean-test-1303961002
+        type: cos
+        region: shanghai
+        sts_policy:
+          - effect: allow
+            action:
+              - PutObject
+              - PostObject
+            resource:
+              - "*"

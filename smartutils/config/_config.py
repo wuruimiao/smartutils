@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict, Generic, Optional, TypeVar, Union
+from typing import Dict, Optional, Type, TypeVar, Union, cast, overload
+
+from pydantic import BaseModel
+from typing_extensions import Literal
 
 from smartutils.config.const import BaseModelT, ConfKey
 from smartutils.config.factory import ConfFactory
@@ -14,19 +17,17 @@ from smartutils.log import logger
 __all__ = ["Config"]
 
 
-PT = TypeVar("PT", bound=ProjectConf)
+ProjectConfT = TypeVar("ProjectConfT", bound=ProjectConf)
 _config: Optional[Config] = None
 
 
-class Config(MyBase, Generic[BaseModelT], metaclass=SingletonMeta):
+class Config(MyBase, metaclass=SingletonMeta):
     def __init__(self, conf_path: Optional[str] = None):
         super().__init__()
 
         assert conf_path, f"{self.name} init need conf_path"
 
-        self._instances: Union[
-            Dict[str, BaseModelT], Dict[str, Dict[str, BaseModelT]]
-        ] = {}
+        self._instances: Dict[ConfKey, Union[BaseModel, Dict[str, BaseModel]]] = {}
         self._config: Dict[str, Dict] = {}
 
         if not Path(conf_path).exists():
@@ -34,9 +35,7 @@ class Config(MyBase, Generic[BaseModelT], metaclass=SingletonMeta):
                 "{name} no {conf_path}, ignore.", name=self.name, conf_path=conf_path
             )
         else:
-
             self._config = load_yaml(conf_path)
-
             if not self._config:
                 raise ConfigError(
                     f"{self.name} {conf_path} load emtpy, please check it."
@@ -50,18 +49,60 @@ class Config(MyBase, Generic[BaseModelT], metaclass=SingletonMeta):
                 conf = ConfFactory.create(key, self._config.get(key, {}))
                 if not conf:
                     continue
-                self._instances[key] = conf  # type: ignore
+                self._instances[key] = conf
 
+        # 即使配置文件未声明，也要初始化默认ProjectConf
         if ConfKey.PROJECT not in self._instances:
-            logger.debug("{name} project init default.", name=self.name)
+            logger.debug("{} project init default.", self.name)
             self._instances[ConfKey.PROJECT] = ProjectConf()
 
-    def get(self, name: str) -> Union[BaseModelT, Dict[str, BaseModelT], None]:
+    def get(self, name: ConfKey) -> Union[BaseModel, Dict[str, BaseModel], None]:
         return self._instances.get(name)
 
+    @overload
+    def get_typed(
+        self, name: ConfKey, model_cls: Type[BaseModelT], *, expect_dict: Literal[True]
+    ) -> Optional[Dict[str, BaseModelT]]: ...
+    @overload
+    def get_typed(
+        self,
+        name: ConfKey,
+        model_cls: Type[BaseModelT],
+        *,
+        expect_dict: Literal[False] = False,
+    ) -> Optional[BaseModelT]: ...
+    def get_typed(
+        self, name: ConfKey, model_cls: Type[BaseModelT], *, expect_dict: bool = False
+    ):
+        val = self.get(name)
+        if val is None:
+            return None
+        if isinstance(val, dict):
+            return cast(Dict[str, BaseModelT], val)
+        if isinstance(val, model_cls):
+            if expect_dict:
+                raise LibraryUsageError(
+                    f"Value for {name} is not a dict, but expect_dict=True"
+                )
+            return cast(BaseModelT, val)
+        else:  # pragma: no cover
+            logger.error(
+                "{} value for {} is neither {} nor dict: ",
+                self.name,
+                name,
+                model_cls,
+                type(val),
+            )
+            return None
+
     @property
-    def project(self) -> PT:  # type: ignore
-        return self._instances[ConfKey.PROJECT]  # type: ignore
+    def project(self) -> ProjectConf:
+        return self.project_typed(ProjectConf)
+
+    def project_typed(self, model_cls: Type[ProjectConfT]) -> ProjectConfT:
+        c = self.get_typed(ConfKey.PROJECT, model_cls)
+        assert c is not None
+        return c
 
     @property
     def in_debug(self) -> bool:
