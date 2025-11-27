@@ -1,6 +1,8 @@
-from typing import Dict, Tuple, Type, Union
+from dataclasses import dataclass
+from typing import Dict, List, Optional, Type, Union
 
 from pydantic import ValidationError
+from typing_extensions import override
 
 from smartutils.config.const import BaseModelT, ConfKey
 from smartutils.design import BaseFactory, MyBase
@@ -11,12 +13,30 @@ from smartutils.log import logger
 __all__ = ["ConfFactory"]
 
 
-class ConfFactory(MyBase, BaseFactory[ConfKey, Tuple[Type, bool, bool]]):
+@dataclass
+class _ConfMeta:
+    conf_cls: Type
+    multi: bool
+    require: bool
+
+
+class ConfFactory(MyBase, BaseFactory[ConfKey, _ConfMeta]):
+    @override
     @classmethod
-    def register(cls, name: ConfKey, multi: bool = False, require: bool = False):  # type: ignore
+    # 屏蔽校验：这里对外暴露的是 Type -> Type，父类预期是 _ConfMeta -> _ConfMeta，装饰器模式很难做到类型100%对齐
+    def register(  # pyright: ignore[reportIncompatibleMethodOverride]
+        cls,
+        key: ConfKey,
+        only_register_once: bool = False,
+        order: Optional[int] = None,
+        deps: Optional[List[ConfKey]] = None,
+        check_deps: bool = False,
+        multi: bool = False,
+        require: bool = False,
+    ):
         def decorator(conf_cls: Type):
-            super(ConfFactory, cls).register(name, only_register_once=False)(
-                (conf_cls, multi, require)
+            super(ConfFactory, cls).register(key, False, order, deps, check_deps)(
+                _ConfMeta(conf_cls, multi, require)
             )
             return conf_cls
 
@@ -37,9 +57,8 @@ class ConfFactory(MyBase, BaseFactory[ConfKey, Tuple[Type, bool, bool]]):
     ) -> Union[BaseModelT, dict[str, BaseModelT], None]:
         info = cls.get(name)
 
-        conf_cls, multi, require = info
         if not conf:
-            if require:
+            if info.require:
                 raise ConfigError(f"{cls.name} require {name} in config.yml")
             # logger.debug(
             #     "{cls_name} no {name} in config.yml, ignore.",
@@ -50,15 +69,15 @@ class ConfFactory(MyBase, BaseFactory[ConfKey, Tuple[Type, bool, bool]]):
 
         logger.info("{cls_name} {name} created.", cls_name=cls.name, name=name)
 
-        if multi:
+        if info.multi:
             # if ConfKey.GROUP_DEFAULT not in conf:
             #     raise ConfigError(
             #         f"ConfFactory no {ConfKey.GROUP_DEFAULT} below {name}"
             #     )
 
             return {
-                key: cls._init_conf_cls(name, key, conf_cls, _conf)
+                key: cls._init_conf_cls(name, key, info.conf_cls, _conf)
                 for key, _conf in conf.items()
             }
         else:
-            return cls._init_conf_cls(name, "", conf_cls, conf)
+            return cls._init_conf_cls(name, "", info.conf_cls, conf)
