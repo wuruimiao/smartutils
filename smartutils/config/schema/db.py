@@ -1,3 +1,5 @@
+from typing import Dict
+
 from pydantic import Field
 
 from smartutils.config.schema.host import HostConf
@@ -15,6 +17,6 @@ class DBConf(HostConf, PoolConf):
     echo_pool: bool = False
 
     @property
-    def kw(self) -> dict:
+    def kw(self) -> Dict:
         params = self.model_dump(exclude={"user", "passwd", "db", "host", "port"})
         return params

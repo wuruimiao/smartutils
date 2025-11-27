@@ -1,6 +1,7 @@
-from typing import Optional
+from typing import Dict, Optional
 
 from pydantic import Field
+from typing_extensions import override
 
 from smartutils.config.const import ConfKey
 from smartutils.config.factory import ConfFactory
@@ -22,7 +23,8 @@ class PostgreSQLConf(DBConf, HostConf):
         return f"postgresql+asyncpg://{self.user}:{self.passwd}@{self.host}:{self.port}/{self.db}"
 
     @property
-    def kw(self) -> dict:
+    @override
+    def kw(self) -> Dict:
         params = super().kw
         for k in {"timeout", "execute_timeout"}:
             params.pop(k)

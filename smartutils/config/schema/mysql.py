@@ -1,6 +1,7 @@
 from typing import Optional
 
 from pydantic import Field
+from typing_extensions import override
 
 from smartutils.config.const import ConfKey
 from smartutils.config.factory import ConfFactory
@@ -22,6 +23,7 @@ class MySQLConf(DBConf):
         return f"mysql+asyncmy://{self.user}:{self.passwd}@{self.host}:{self.port}/{self.db}"
 
     @property
+    @override
     def kw(self) -> dict:
         params = super().kw
         params.pop("connect_timeout")
