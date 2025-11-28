@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING
@@ -15,6 +16,11 @@ from smartutils.infra.cache.ext.string import SafeString
 from smartutils.infra.resource.abstract import AbstractAsyncResource
 from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
+
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
 
 try:
     from redis.asyncio import ConnectionPool, Redis
@@ -82,6 +88,7 @@ class AsyncRedisCli(LibraryCheckMixin, AbstractAsyncResource):
         # aioredlock使用aioredis，调用方式为 evalsha(sha, keys=[...], args=[...])
         return await self._redis.evalsha(sha, len(keys), *(keys + args))  # type: ignore
 
+    @override
     async def ping(self) -> bool:
         try:
             pong = await self._redis.ping()
@@ -90,6 +97,7 @@ class AsyncRedisCli(LibraryCheckMixin, AbstractAsyncResource):
             logger.exception("{} {} health check  failed", self.name, self._key)
             return False
 
+    @override
     async def close(self):
         await self._redis.aclose()
         await self._pool.disconnect()

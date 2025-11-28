@@ -1,11 +1,16 @@
 import asyncio
+import sys
 from typing import TYPE_CHECKING
 
 from smartutils.infra.cache.redis_cli import AsyncRedisCli
 
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
+
 try:
     import aioredlock.redis
-
 except ImportError:
     ...
 if TYPE_CHECKING:  # pragma: no cover
@@ -39,6 +44,7 @@ class SmartutilsInstance(aioredlock.redis.Instance):
     def __getattr__(self, name):
         return getattr(self.cli, name)
 
+    @override
     async def connect(self):
         """
         覆写父类的连接行为，使其返回我们期望的AsyncRedisCli对象。
@@ -48,5 +54,6 @@ class SmartutilsInstance(aioredlock.redis.Instance):
             await self._register_scripts(self.cli)
         return SmartutilsContextWrapper(self.cli)
 
+    @override
     async def close(self):
         await self.cli.close()

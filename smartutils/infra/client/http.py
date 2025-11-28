@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from functools import partial
@@ -12,6 +13,11 @@ from smartutils.infra.client.breaker import Breaker
 from smartutils.infra.resource.abstract import AbstractAsyncResource
 from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
+
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
 
 try:
     from httpx import AsyncClient, ConnectError, Response, TimeoutException
@@ -124,9 +130,11 @@ class HttpClient(LibraryCheckMixin, AbstractAsyncResource):
 
         return data["data"], None
 
+    @override
     async def close(self):
         await self._client.aclose()
 
+    @override
     async def ping(self) -> bool:
         try:
             resp = await self._client.get("/")

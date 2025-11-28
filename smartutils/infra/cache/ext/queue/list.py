@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import List, Optional
@@ -13,6 +14,11 @@ from smartutils.infra.cache.lua.const import LuaName
 from smartutils.infra.cache.lua.lua_manager import LuaManager
 from smartutils.time import get_now_stamp
 
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
+
 
 class SafeQueueList(AbstractSafeQueue):
     """
@@ -24,6 +30,7 @@ class SafeQueueList(AbstractSafeQueue):
     2. requeue_task: 任务处理失败/需重入时，将pending任务移回ready list。
     """
 
+    @override
     async def task_num(self, queue: str) -> int:
         """
         获取任务队列长度。
@@ -32,6 +39,7 @@ class SafeQueueList(AbstractSafeQueue):
         """
         return await self._redis.llen(queue)  # type: ignore
 
+    @override
     async def enqueue_task(self, queue: str, tasks: List[Task]) -> bool:
         """
         向任务队列尾部添加任务。
@@ -42,6 +50,7 @@ class SafeQueueList(AbstractSafeQueue):
         _tasks = [t.ID for t in tasks]
         return await self._redis.lpush(queue, *_tasks) > 0  # type: ignore
 
+    @override
     async def is_task_pending(self, pending: str, task: TaskID) -> bool:
         """
         检查任务是否在pending队列中。
@@ -77,6 +86,7 @@ class SafeQueueList(AbstractSafeQueue):
             return
         yield None
 
+    @override
     async def requeue_task(
         self, queue: str, pending: str, task: TaskID, priority=None
     ) -> bool:

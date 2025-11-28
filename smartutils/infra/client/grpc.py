@@ -1,15 +1,21 @@
 from __future__ import annotations
 
 import importlib
+import sys
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from functools import partial
-from typing import TYPE_CHECKING, Awaitable, Callable, Optional
+from typing import TYPE_CHECKING, Awaitable, Callable, Union
 
 from smartutils.config.schema.client import ClientConf
 from smartutils.infra.client.breaker import Breaker
 from smartutils.infra.resource.abstract import AbstractAsyncResource
 from smartutils.init.mixin import LibraryCheckMixin
+
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
 
 try:
     import grpc
@@ -78,7 +84,9 @@ class GrpcClient(LibraryCheckMixin, AbstractAsyncResource):
         stub = path(self._channel)
         return getattr(stub, method)
 
-    async def _api_request(self, func, api_timeout: Optional[int], *args, **kwargs):
+    async def _api_request(
+        self, func, api_timeout: Union[int, float, None], *args, **kwargs
+    ):
         async def _do_request():
             kwargs["timeout"] = (
                 kwargs.pop("timeout", None) or api_timeout or self._conf.timeout
@@ -91,9 +99,11 @@ class GrpcClient(LibraryCheckMixin, AbstractAsyncResource):
         func = self._get_stub_func(path, method)
         return await self._api_request(func, None, *args, **kwargs)
 
+    @override
     async def close(self):
         await self._channel.close()
 
+    @override
     async def ping(self) -> bool:
         # 如果服务端实现了健康检查api，可自定义，这里用gRPC channel ready简示
         try:

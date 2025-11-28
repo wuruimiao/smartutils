@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, Dict, Optional
 
@@ -14,6 +15,11 @@ from smartutils.infra.resource.manager.manager import CTXResourceManager
 from smartutils.init.factory import InitByConfFactory
 from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
+
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
 
 try:
     import aioredlock
@@ -113,6 +119,7 @@ class RedisManager(LibraryCheckMixin, CTXResourceManager[AsyncRedisCli]):
         return aioredlock.Aioredlock(instances)  # type: ignore
 
     @property
+    @override
     def curr(self) -> AsyncRedisCli:
         return super().curr
 

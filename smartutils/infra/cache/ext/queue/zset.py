@@ -1,3 +1,4 @@
+import sys
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import List, Optional
@@ -12,6 +13,11 @@ from smartutils.infra.cache.ext.queue.abstract import (
 from smartutils.infra.cache.lua.const import LuaName
 from smartutils.infra.cache.lua.lua_manager import LuaManager
 from smartutils.time import get_now_stamp
+
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
 
 
 class SafeQueueZSet(AbstractSafeQueue):
@@ -28,6 +34,7 @@ class SafeQueueZSet(AbstractSafeQueue):
     2. requeue_task: 任务处理失败/超时等，从 pending 剔除并重新放入 queue，可重新设定优先级(score)。
     """
 
+    @override
     async def task_num(self, queue: str) -> int:
         """
         获取任务队列长度。
@@ -36,10 +43,12 @@ class SafeQueueZSet(AbstractSafeQueue):
         """
         return await self._redis.zcard(queue)
 
+    @override
     async def enqueue_task(self, queue: str, tasks: List[Task]) -> bool:
         _tasks = {t.ID: t.priority for t in tasks}
         return await self._redis.zadd(queue, _tasks) == len(_tasks)
 
+    @override
     async def is_task_pending(self, pending: str, task: TaskID) -> bool:
         score = await self._redis.zscore(pending, task)
         return score is not None
@@ -76,6 +85,7 @@ class SafeQueueZSet(AbstractSafeQueue):
             return
         yield None
 
+    @override
     async def requeue_task(
         self,
         queue: str,

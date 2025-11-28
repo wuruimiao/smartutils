@@ -56,7 +56,7 @@ class SafeQueueStream:
                 return
             logger.debug("xread_xack msgs: {}", messages)
             for message in messages:
-                stream_name, messages_list = message
+                _, messages_list = message
                 for message_id, fields in messages_list:
                     message_ids.add(message_id)
 
