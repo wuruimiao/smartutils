@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 from pydantic import BaseModel
 
@@ -17,14 +17,14 @@ class ApiConf(BaseModel):
     path: str
     method: str
     mock: Optional[Dict] = None
-    timeout: Optional[int | float] = None
+    timeout: Union[int, float, None] = None
 
 
 @ConfFactory.register(ConfKey.CLIENT, multi=True, require=False)
 class ClientConf(BreakerConf):
     type: ClientType
     endpoint: str
-    timeout: int | float = 10
+    timeout: Union[int, float] = 10
     tls: bool = False
     verify_tls: bool = True
     proxy: Optional[str] = None

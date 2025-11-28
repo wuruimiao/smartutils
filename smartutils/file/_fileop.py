@@ -325,9 +325,6 @@ def merge_file(f1: str, f2: str, f2_first=True) -> BaseError:
         logger.error(f"merge_file no f1 {f1}")
         return NoFileError()
 
-    lines1, _ = load_f_line(f1)
-    lines2, _ = load_f_line(f2)
-
     result = []
     fs = (f2, f1) if f2_first else (f1, f2)
     for f in fs:

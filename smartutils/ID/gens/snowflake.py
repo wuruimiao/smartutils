@@ -17,6 +17,7 @@
 寿命	    约69年	        约174年
 """
 
+import sys
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone, tzinfo
 from time import time
@@ -27,6 +28,11 @@ from smartutils.error.sys import LibraryUsageError
 from smartutils.ID.abstract import AbstractIDGenerator
 from smartutils.ID.const import IDGenType
 from smartutils.ID.init import IDGen
+
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
 
 __all__ = [
     "SnowflakeClockMovedBackwards",
@@ -126,6 +132,7 @@ class Snowflake:
     def __int__(self) -> int:
         return self.value
 
+    @override
     def __repr__(self):
         return (
             f"Snowflake(timestamp={self.timestamp}, instance={self.instance}, "
@@ -227,5 +234,6 @@ class SnowflakeGenerator(AbstractIDGenerator):
         val = next(self)
         return Snowflake.parse(val, epoch=self._epo)
 
+    @override
     def __repr__(self):
         return f"<SnowflakeGenerator(epoch={self._epo})>"

@@ -1,10 +1,16 @@
 import contextvars
+import sys
 from contextlib import contextmanager
 from typing import Any
 
 from smartutils.ctx.const import CTXKey
 from smartutils.design import BaseFactory
 from smartutils.error.sys import LibraryUsageError
+
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
 
 __all__ = ["CTXVarManager"]
 
@@ -33,6 +39,7 @@ class CTXVarManager(BaseFactory[CTXKey, contextvars.ContextVar]):
             yield
 
     @classmethod
+    @override
     def get(cls, key: CTXKey, default: Any = None, return_none: bool = False) -> Any:
         try:
             var = super(CTXVarManager, cls).get(key)

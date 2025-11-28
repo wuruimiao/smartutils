@@ -1,7 +1,7 @@
 import os
 import sys
 
-from smartutils.file._path import norm_path, check_path_exist, get_file_path
+from smartutils.file._path import check_path_exist, get_file_path, norm_path
 
 
 def file_name(filepath: str) -> str:
@@ -29,7 +29,7 @@ def filename_base_ext(filename: str) -> tuple[str, str]:
 
 
 def filename_other_format(filename: str, _format: str) -> str:
-    root, ext = filename_base_ext(filename)
+    root, _ = filename_base_ext(filename)
     if not _format:
         return root
     return f"{root}.{_format}"

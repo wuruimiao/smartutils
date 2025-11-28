@@ -1,4 +1,10 @@
+import sys
 from abc import ABC, abstractmethod
+
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
 
 __all__ = ["AbstractIDGenerator"]
 
@@ -24,4 +30,5 @@ class AbstractIDGenerator(ABC):
         return next(self)
 
     @abstractmethod
+    @override
     def __repr__(self) -> str: ...

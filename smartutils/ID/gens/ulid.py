@@ -6,6 +6,7 @@
 寿命终止约10889年
 """
 
+import sys
 from datetime import datetime, timezone
 
 import ulid
@@ -15,6 +16,11 @@ from smartutils.error.sys import LibraryUsageError
 from smartutils.ID.abstract import AbstractIDGenerator
 from smartutils.ID.const import IDGenType
 from smartutils.ID.init import IDGen
+
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
 
 __all__ = ["ULID", "ULIDGenerator"]
 
@@ -57,6 +63,7 @@ class ULID:
         """ULID的128位整数值"""
         return self.int
 
+    @override
     def __repr__(self):
         return (
             f"ULID(timestamp={self.timestamp}, random=0x{self.random:020x}, "
@@ -84,5 +91,6 @@ class ULIDGenerator(AbstractIDGenerator):
     def next_ulid():
         return ulid.new()
 
+    @override
     def __repr__(self):
         return "<ULIDGenerator()>"

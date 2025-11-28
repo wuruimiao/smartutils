@@ -7,12 +7,18 @@
 无寿命终止
 """
 
+import sys
 import uuid
 
 from smartutils.design import singleton
 from smartutils.ID.abstract import AbstractIDGenerator
 from smartutils.ID.const import IDGenType
 from smartutils.ID.init import IDGen
+
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
 
 __all__ = ["UUIDGenerator"]
 
@@ -33,5 +39,6 @@ class UUIDGenerator(AbstractIDGenerator):
     def next_uuid():
         return uuid.uuid4()
 
+    @override
     def __repr__(self):
         return "<UUIDGenerator()>"

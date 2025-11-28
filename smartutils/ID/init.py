@@ -1,9 +1,15 @@
+import sys
 from typing import Callable, Optional, Tuple, Type
 
 from smartutils.design import BaseFactory
 from smartutils.error.sys import LibraryUsageError
 from smartutils.ID.abstract import AbstractIDGenerator
 from smartutils.ID.const import IDGenType
+
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
 
 
 class _IDGen(
@@ -32,11 +38,13 @@ class _IDGen(
         else:
             self._gen = gen_cls()
 
+    @override
     def __next__(self):
         if self._gen is None:
             raise LibraryUsageError("IDGen need init, call IDGen.init(...) first.")
         return self._gen()
 
+    @override
     def __repr__(self):
         return f"<IDGen(type={self._type})>"
 
