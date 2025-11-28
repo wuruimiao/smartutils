@@ -127,7 +127,8 @@ class CTXResourceManager(MyBase, Generic[AbstractAsyncResourceT], ABC):
                 with CTXVarManager.use(self._ctx_key, session):
                     try:
                         result = await func(*args, **kwargs)
-                        await call_hook(self._success, session)
+                        if self._success:
+                            await call_hook(self._success, session)
                         return result
                     except BaseError as e:
                         raise e
