@@ -10,7 +10,6 @@ from smartutils.app.adapter.middleware.factory import (
 )
 from smartutils.app.const import AppKey, RunEnv
 from smartutils.app.plugin.factory import MiddlewarePluginFactory
-from smartutils.app.plugin.log import LogPlugin
 from smartutils.config.const import ConfKey
 from smartutils.config.schema.middleware import MiddlewareConf, MiddlewarePluginKey
 from smartutils.design import MyBase, SingletonMeta

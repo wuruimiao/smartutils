@@ -1,8 +1,14 @@
+import sys
 from dataclasses import dataclass
 from typing import Callable, Dict, List, Optional, Type, Union
 
 from pydantic import BaseModel, ValidationError
-from typing_extensions import override
+
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
+
 
 from smartutils.config.const import BaseModelT, ConfKey
 from smartutils.design import BaseFactory, MyBase

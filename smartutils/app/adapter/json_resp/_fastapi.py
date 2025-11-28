@@ -1,6 +1,12 @@
+import sys
 from typing import Any
 
 from fastapi.responses import ORJSONResponse
+
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
 
 from smartutils.app.adapter.json_resp.factory import JsonRespFactory
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
@@ -10,6 +16,7 @@ from smartutils.error.base import BaseDataDict
 
 
 class STJsonResponse(ORJSONResponse):
+    @override
     def render(self, content: Any) -> bytes:
         # logger.info(content)
         # logger.info(type(content))

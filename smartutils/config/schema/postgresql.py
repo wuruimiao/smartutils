@@ -1,7 +1,13 @@
+import sys
 from typing import Dict, Optional
 
 from pydantic import Field
-from typing_extensions import override
+
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
+
 
 from smartutils.config.const import ConfKey
 from smartutils.config.factory import ConfFactory

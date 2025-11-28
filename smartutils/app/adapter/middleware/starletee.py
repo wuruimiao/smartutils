@@ -1,8 +1,15 @@
 from __future__ import annotations
 
 import inspect
+import sys
 from functools import wraps
 from typing import TYPE_CHECKING, Awaitable, Callable, Tuple, Type
+
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
+
 
 from smartutils.app.adapter.middleware.abstract import (
     AbstractMiddleware,
@@ -45,6 +52,7 @@ class StarletteMiddleware(AbstractMiddleware, BaseHTTPMiddleware):
         super().__init__(app=app, plugin=plugin, app_key=AppKey.FASTAPI)
         self.name = plugin.key
 
+    @override
     async def dispatch(self, request: Request, call_next):
         logger.debug(f"{self.name} middleware dispatching request")
 

@@ -1,7 +1,14 @@
+import sys
 import threading
 from abc import ABCMeta
 from functools import wraps
 from typing import Callable, Dict
+
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
+
 
 from smartutils.log import logger
 
@@ -102,6 +109,7 @@ class SingletonMeta(ABCMeta):
     class MyMetaSingleton(metaclass=SingletonMeta): ...
     """
 
+    @override
     def __call__(cls, *args, **kwargs):
         return _SingleTonData.get_instance(
             cls, lambda: super(SingletonMeta, cls).__call__(*args, **kwargs)
