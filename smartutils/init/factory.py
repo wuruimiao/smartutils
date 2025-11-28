@@ -24,23 +24,11 @@ class InitByConfFactory(MyBase, BaseFactory[ConfKey, Callable[[Any], Any]]):
             conf = config.get(comp_key)
             # if need_conf and not conf:
             if not conf:
-                logger.debug(
-                    "{name} init by conf no {comp_key}, ignore.",
-                    name=cls.name,
-                    comp_key=comp_key,
-                )
+                logger.debug("{} init by conf no {}, ignore.", cls.name, comp_key)
                 continue
 
-            logger.debug(
-                "{name} init by conf initializing {comp_key} ...",
-                name=cls.name,
-                comp_key=comp_key,
-            )
+            logger.debug("{} init by conf initializing {} ...", cls.name, comp_key)
 
             init_func(conf)
 
-            logger.info(
-                "{name} init by conf {comp_key} inited.",
-                name=cls.name,
-                comp_key=comp_key,
-            )
+            logger.info("{} init by conf {} inited.", cls.name, comp_key)
