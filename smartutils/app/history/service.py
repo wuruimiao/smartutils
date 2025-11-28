@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
@@ -7,6 +8,11 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional
 from smartutils.app.history.model import OpHistory, OpType
 from smartutils.design import singleton
 from smartutils.infra import MySQLManager
+
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
 
 try:
     from sqlalchemy import asc, desc, func, or_, select
@@ -183,7 +189,8 @@ class OpHistoryController:
         rows = result.fetchall()
 
         res: Dict[int, OpUser] = {}
-        for biz_id, op_id, op_type, creator_rn, updator_rn in rows:
+        # for biz_id, op_id, op_type, creator_rn, updator_rn in rows:
+        for biz_id, op_id, op_type, _, _ in rows:
             if biz_id not in res:
                 res[biz_id] = OpUser()
             if op_type == OpType.ADD.value:
@@ -237,6 +244,7 @@ class BizOpInfo:
         self._biz_ops: Dict[int, OpUser] = biz_ops
         self._user_infos: Dict[int, Any] = user_infos
 
+    @override
     def __str__(self):
         return f"biz={self._biz_type} ops={self._biz_ops} users={self._user_infos}"
 
