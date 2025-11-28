@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import sys
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, Any, AsyncGenerator, Callable, Dict, List, Optional
 
@@ -13,6 +14,11 @@ from smartutils.error.sys import MQError
 from smartutils.infra.resource.abstract import AbstractAsyncResource
 from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
+
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
 
 try:
     from aiokafka import AIOKafkaConsumer, AIOKafkaProducer, TopicPartition, errors
@@ -34,6 +40,7 @@ class AsyncKafkaCli(LibraryCheckMixin, AbstractAsyncResource):
         self._producer: Optional[AIOKafkaProducer] = None
         self._producer_lock = asyncio.Lock()
 
+    @override
     async def ping(self) -> bool:
         try:
             await self.start_producer()
@@ -44,6 +51,7 @@ class AsyncKafkaCli(LibraryCheckMixin, AbstractAsyncResource):
             logger.warning("{name} Kafka ping failed: {e}", name=self.name, e=e)
             return False
 
+    @override
     async def close(self):
         if self._producer:
             await self._producer.stop()
@@ -57,7 +65,9 @@ class AsyncKafkaCli(LibraryCheckMixin, AbstractAsyncResource):
 
     async def _start_producer(self):
         producer = AIOKafkaProducer(
-            bootstrap_servers=self._bootstrap_servers, **self._conf.kw
+            # 屏蔽校验：源码中bootstrap_servers (str, list(str))，代码检测误判
+            bootstrap_servers=self._bootstrap_servers,  # pyright: ignore[reportArgumentType]
+            **self._conf.kw,
         )
         try:
             await producer.start()
@@ -84,7 +94,8 @@ class AsyncKafkaCli(LibraryCheckMixin, AbstractAsyncResource):
             topic,
             group_id=group_id,
             auto_offset_reset=auto_offset_reset,
-            bootstrap_servers=self._bootstrap_servers,
+            # 屏蔽校验：源码中bootstrap_servers (str, list(str))，代码检测误判
+            bootstrap_servers=self._bootstrap_servers,  # pyright: ignore[reportArgumentType]
             enable_auto_commit=False,
         )
 

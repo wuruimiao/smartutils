@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, Optional, Tuple, Union
@@ -9,6 +10,11 @@ from smartutils.config.schema.postgresql import PostgreSQLConf
 from smartutils.infra.resource.abstract import AbstractAsyncResource
 from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
+
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
 
 try:
     from sqlalchemy.ext.asyncio import (
@@ -65,6 +71,7 @@ class AsyncDBCli(LibraryCheckMixin, AbstractAsyncResource):
             autoflush=False,
         )
 
+    @override
     async def ping(self) -> bool:
         try:
             async with self.engine.connect() as conn:
@@ -74,6 +81,7 @@ class AsyncDBCli(LibraryCheckMixin, AbstractAsyncResource):
             logger.exception("{} DB ping failed", self._key)
             return False
 
+    @override
     async def close(self):
         await self._engine.dispose()
 

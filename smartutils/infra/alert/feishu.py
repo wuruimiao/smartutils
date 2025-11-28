@@ -1,4 +1,5 @@
 import asyncio
+import sys
 from contextlib import asynccontextmanager
 from typing import Optional
 
@@ -15,6 +16,11 @@ from smartutils.init.factory import InitByConfFactory
 from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
 from smartutils.time import get_now_str
+
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
 
 
 class AlertFeishu(AbstractAsyncResource):
@@ -74,10 +80,12 @@ class AlertFeishu(AbstractAsyncResource):
             *[send_one(client) for client in self._clients], return_exceptions=False
         )
 
+    @override
     async def close(self):
         for client in self._clients:
             await client.close()
 
+    @override
     async def ping(self) -> bool:
         return True
 
@@ -96,6 +104,7 @@ class AlertFeishuManager(LibraryCheckMixin, CTXResourceManager[AlertFeishu]):
         super().__init__(resources=resources, ctx_key=CTXKey.ALERT_FEISHU)
 
     @property
+    @override
     def curr(self) -> AlertFeishu:
         return super().curr
 

@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import asyncio
 import functools
+import sys
 from abc import ABC
 from typing import (
     Any,
@@ -46,6 +47,11 @@ from smartutils.error.base import BaseError
 from smartutils.error.sys import LibraryUsageError, SysError
 from smartutils.infra.resource.abstract import AbstractAsyncResourceT
 from smartutils.log import logger
+
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
 
 __all__ = ["ResourceManagerRegistry", "CTXResourceManager"]
 
@@ -104,6 +110,7 @@ class CTXResourceManager(MyBase, Generic[AbstractAsyncResourceT], ABC):
 
         logger.info("Initialized {name}.", name=self.name)
 
+    @override
     def __str__(self) -> str:
         return self.name
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING, AsyncGenerator, Dict, Optional, Tuple
+import sys
+from typing import TYPE_CHECKING, Dict, Optional
 
 from smartutils.config.const import ConfKey
 from smartutils.config.schema.mongo import MongoConf
@@ -12,6 +12,11 @@ from smartutils.infra.db.mongo_cli import AsyncMongoCli, db_commit, db_rollback
 from smartutils.infra.resource.manager.manager import CTXResourceManager
 from smartutils.init.factory import InitByConfFactory
 from smartutils.init.mixin import LibraryCheckMixin
+
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
 
 try:
     from motor.motor_asyncio import AsyncIOMotorClientSession, AsyncIOMotorDatabase
@@ -41,6 +46,7 @@ class MongoManager(LibraryCheckMixin, CTXResourceManager[AsyncMongoCli]):
         )
 
     @property
+    @override
     def curr(self) -> AsyncIOMotorDatabase:
         return super().curr[0]
 

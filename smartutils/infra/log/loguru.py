@@ -12,6 +12,11 @@ from smartutils.infra.resource.manager.manager import CTXResourceManager
 from smartutils.init.factory import InitByConfFactory
 from smartutils.log import logger
 
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
+
 __all__ = ["LoggerManager"]
 
 
@@ -76,9 +81,11 @@ class LoggerCli(AbstractAsyncResource):
             sys.stdout = PrintToLogger()
             sys.stderr = PrintToLogger()
 
+    @override
     async def close(self):
         logger.remove()
 
+    @override
     async def ping(self) -> bool:
         return True  # pragma: no cover
 

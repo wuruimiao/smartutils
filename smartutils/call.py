@@ -29,7 +29,8 @@ def register_package(package: types.ModuleType):
     """
     自动递归扫描并import package下所有模块（包括子包），从而触发注册。
     """
-    for finder, modname, ispkg in pkgutil.walk_packages(
+    # for finder, modname, ispkg in pkgutil.walk_packages(
+    for _, modname, _ in pkgutil.walk_packages(
         package.__path__, package.__name__ + "."
     ):
         # try:

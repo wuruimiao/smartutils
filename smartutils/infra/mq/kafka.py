@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from typing import Dict, Optional
 
 from smartutils.config.const import ConfKey
@@ -11,6 +12,11 @@ from smartutils.infra.mq.cli import AsyncKafkaCli
 from smartutils.infra.resource.manager.manager import CTXResourceManager
 from smartutils.init.factory import InitByConfFactory
 from smartutils.init.mixin import LibraryCheckMixin
+
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
 
 __all__ = ["KafkaManager"]
 
@@ -26,6 +32,7 @@ class KafkaManager(LibraryCheckMixin, CTXResourceManager[AsyncKafkaCli]):
         super().__init__(resources=resources, ctx_key=CTXKey.MQ_KAFKA, error=MQError)
 
     @property
+    @override
     def curr(self) -> AsyncKafkaCli:
         return super().curr
 

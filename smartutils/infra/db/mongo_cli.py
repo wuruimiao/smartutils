@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, AsyncGenerator, Optional, Tuple
 
@@ -7,6 +8,11 @@ from smartutils.config.schema.mongo import MongoConf
 from smartutils.infra.resource.abstract import AbstractAsyncResource
 from smartutils.init.mixin import LibraryCheckMixin
 from smartutils.log import logger
+
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
 
 try:
     from motor.motor_asyncio import (
@@ -35,6 +41,7 @@ class AsyncMongoCli(LibraryCheckMixin, AbstractAsyncResource):
         self._client: AsyncIOMotorClient = AsyncIOMotorClient(conf.url, **conf.kw)
         self._db: AsyncIOMotorDatabase = self._client[self.conf.db]
 
+    @override
     async def ping(self) -> bool:
         try:
             await self._client.admin.command("ping")
@@ -43,6 +50,7 @@ class AsyncMongoCli(LibraryCheckMixin, AbstractAsyncResource):
             logger.exception("{name} MongoDB ping failed", name=self.name)
             return False
 
+    @override
     async def close(self):
         self._client.close()
 
