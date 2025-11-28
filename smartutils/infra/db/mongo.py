@@ -65,5 +65,5 @@ class MongoManager(LibraryCheckMixin, CTXResourceManager[AsyncMongoCli]):
 
 
 @InitByConfFactory.register(ConfKey.MONGO)
-def _(conf):
-    MongoManager(conf)
+def _(_, conf):
+    return MongoManager(conf)

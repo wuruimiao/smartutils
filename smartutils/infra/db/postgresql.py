@@ -34,5 +34,5 @@ class PostgresqlManager(SQLAlchemyManager):
 
 
 @InitByConfFactory.register(ConfKey.POSTGRESQL)
-def _(conf):
-    PostgresqlManager(conf)
+def _(_, conf):
+    return PostgresqlManager(conf)

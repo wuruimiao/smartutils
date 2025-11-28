@@ -38,5 +38,5 @@ class KafkaManager(LibraryCheckMixin, CTXResourceManager[AsyncKafkaCli]):
 
 
 @InitByConfFactory.register(ConfKey.KAFKA)
-def _(conf):
-    KafkaManager(conf)
+def _(_, conf):
+    return KafkaManager(conf)

@@ -51,5 +51,5 @@ class ClientManager(
 
 
 @InitByConfFactory.register(ConfKey.CLIENT)
-def _(conf):
-    ClientManager(conf)
+def _(_, conf):
+    return ClientManager(conf)

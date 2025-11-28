@@ -115,5 +115,5 @@ class AlertFeishuManager(LibraryCheckMixin, CTXResourceManager[AlertFeishu]):
 
 
 @InitByConfFactory.register(ConfKey.ALERT_FEISHU)
-def _(conf):
-    AlertFeishuManager(conf)
+def _(_, conf):
+    return AlertFeishuManager(conf)

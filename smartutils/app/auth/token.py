@@ -92,5 +92,5 @@ class TokenHelper(LibraryCheckMixin, metaclass=SingletonMeta):
 
 
 @InitByConfFactory.register(ConfKey.TOKEN)
-def _(conf):
-    TokenHelper(conf)
+def _(_, conf):
+    return TokenHelper(conf)

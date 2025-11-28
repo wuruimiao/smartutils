@@ -148,5 +148,5 @@ class RedisManager(LibraryCheckMixin, CTXResourceManager[AsyncRedisCli]):
 
 
 @InitByConfFactory.register(ConfKey.REDIS)
-def _(conf):
-    RedisManager(conf)
+def _(_, conf):
+    return RedisManager(conf)

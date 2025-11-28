@@ -39,5 +39,5 @@ class MySQLManager(SQLAlchemyManager):
 
 
 @InitByConfFactory.register(ConfKey.MYSQL)
-def _(conf):
-    MySQLManager(conf)
+def _(_, conf):
+    return MySQLManager(conf)

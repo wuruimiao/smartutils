@@ -109,5 +109,5 @@ class MiddlewareManager(MyBase, metaclass=SingletonMeta):
 
 
 @InitByConfFactory.register(ConfKey.MIDDLEWARE)
-def _(conf: MiddlewareConf):
-    MiddlewareManager(conf)
+def _(_, conf):
+    return MiddlewareManager(conf)
