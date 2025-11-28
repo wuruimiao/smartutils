@@ -45,6 +45,10 @@ async def mock_response(api_conf: ApiConf, *args, **kwargs) -> Response:
 
 
 class HttpClient(LibraryCheckMixin, AbstractAsyncResource):
+    """
+    安全讨论：https://github.com/encode/httpx/discussions/1633
+    """
+
     def __init__(self, conf: ClientConf, name: str):
         self.check(conf=conf, libs=["httpx"])
 
@@ -145,5 +149,5 @@ class HttpClient(LibraryCheckMixin, AbstractAsyncResource):
             return False
 
     @asynccontextmanager
-    async def db(self, use_transaction: bool) -> AsyncGenerator["HttpClient", None]:
+    async def db(self, use_transaction: bool) -> AsyncGenerator[HttpClient, None]:
         yield self
