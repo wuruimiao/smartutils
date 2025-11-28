@@ -1,3 +1,4 @@
+import sys
 from typing import Awaitable, Callable
 
 from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin
@@ -10,6 +11,11 @@ from smartutils.config.schema.middleware import MiddlewarePluginKey
 from smartutils.ctx import CTXKey, CTXVarManager
 from smartutils.design import SingletonMeta
 
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
+
 __all__ = ["HeaderPlugin"]
 
 
@@ -17,6 +23,7 @@ __all__ = ["HeaderPlugin"]
     MiddlewarePluginKey.HEADER, order=MiddlewarePluginOrder.HEADER
 )
 class HeaderPlugin(AbstractMiddlewarePlugin, metaclass=SingletonMeta):
+    @override
     async def dispatch(
         self,
         req: RequestAdapter,

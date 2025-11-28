@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from typing import TYPE_CHECKING, Awaitable, Callable, Optional, Tuple
 
 from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin
@@ -18,6 +19,11 @@ from smartutils.config.schema.middleware import (
 from smartutils.design import SingletonMeta
 from smartutils.error.sys import LibraryUsageError, UnauthorizedError
 from smartutils.init.factory import InitByConfFactory
+
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
 
 try:
     from httpx import Response
@@ -75,6 +81,7 @@ class MePlugin(AuthBase, AbstractMiddlewarePlugin, metaclass=SingletonMeta):
         user = self._token_helper.verify_access_token(access_token)
         return user, "" if user else "verify token failed."
 
+    @override
     async def dispatch(
         self,
         req: RequestAdapter,

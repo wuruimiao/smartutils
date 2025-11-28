@@ -1,3 +1,4 @@
+import sys
 from typing import Awaitable, Callable
 
 from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin
@@ -9,6 +10,11 @@ from smartutils.config.schema.middleware import MiddlewarePluginKey
 from smartutils.design import SingletonMeta
 from smartutils.error.base import BaseDataDict
 
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
+
 __all__ = ["EchoPlugin"]
 
 
@@ -16,6 +22,7 @@ __all__ = ["EchoPlugin"]
     MiddlewarePluginKey.ECHO, order=MiddlewarePluginOrder.ECHO
 )
 class EchoPlugin(AbstractMiddlewarePlugin, metaclass=SingletonMeta):
+    @override
     async def dispatch(
         self,
         req: RequestAdapter,

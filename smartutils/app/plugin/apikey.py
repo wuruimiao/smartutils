@@ -1,4 +1,5 @@
 import hashlib
+import sys
 from typing import Awaitable, Callable
 
 from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin
@@ -9,6 +10,11 @@ from smartutils.app.plugin.factory import MiddlewarePluginFactory
 from smartutils.config.schema.middleware import MiddlewarePluginKey
 from smartutils.design import SingletonMeta
 from smartutils.error.sys import UnauthorizedError
+
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
 
 __all__ = ["ApiKeyPlugin"]
 
@@ -33,6 +39,7 @@ class ApiKeyPlugin(AbstractMiddlewarePlugin, metaclass=SingletonMeta):
     API Key 鉴权中间件插件，实现请求头 apikey 及签名校验。
     """
 
+    @override
     async def dispatch(
         self,
         req: RequestAdapter,

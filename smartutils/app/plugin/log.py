@@ -1,3 +1,4 @@
+import sys
 from time import perf_counter
 from typing import Awaitable, Callable
 
@@ -10,6 +11,11 @@ from smartutils.config.schema.middleware import MiddlewarePluginKey
 from smartutils.design import SingletonMeta
 from smartutils.log import logger
 
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
+
 __all__ = ["LogPlugin"]
 
 
@@ -17,7 +23,7 @@ __all__ = ["LogPlugin"]
     MiddlewarePluginKey.LOG, order=MiddlewarePluginOrder.LOG
 )
 class LogPlugin(AbstractMiddlewarePlugin, metaclass=SingletonMeta):
-
+    @override
     async def dispatch(
         self,
         req: RequestAdapter,

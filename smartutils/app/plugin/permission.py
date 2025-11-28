@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from typing import TYPE_CHECKING, Awaitable, Callable, Dict, Optional, Tuple
 
 from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin
@@ -15,6 +16,11 @@ from smartutils.config.schema.middleware import (
 )
 from smartutils.design import SingletonMeta
 from smartutils.error.sys import UnauthorizedError
+
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
 
 try:
     from httpx import Response
@@ -56,6 +62,7 @@ class PermissionPlugin(AuthBase, AbstractMiddlewarePlugin, metaclass=SingletonMe
 
         return data, ""
 
+    @override
     async def dispatch(
         self,
         req: RequestAdapter,

@@ -1,3 +1,4 @@
+import sys
 from typing import Awaitable, Callable
 
 from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin
@@ -8,6 +9,11 @@ from smartutils.app.plugin.factory import MiddlewarePluginFactory
 from smartutils.config.schema.middleware import MiddlewarePluginKey
 from smartutils.design import SingletonMeta
 
+if sys.version_info >= (3, 11):
+    from typing import override
+else:
+    from typing_extensions import override
+
 __all__ = ["ExceptionPlugin"]
 
 
@@ -15,6 +21,7 @@ __all__ = ["ExceptionPlugin"]
     MiddlewarePluginKey.EXCEPTION, order=MiddlewarePluginOrder.EXCEPTION
 )
 class ExceptionPlugin(AbstractMiddlewarePlugin, metaclass=SingletonMeta):
+    @override
     async def dispatch(
         self,
         req: RequestAdapter,
