@@ -122,6 +122,7 @@ class BaseFactory(Generic[K, V], ABC):
                 cls._registry_value[key] = func_or_obj
                 return func_or_obj
 
+            # 装饰器模式，实际真正调用到这里时，所有都已register
             if deps is not None:
                 insert_idx = cls._with_deps(key, deps)
             elif order is not None:
