@@ -65,8 +65,7 @@ class AsyncKafkaCli(LibraryCheckMixin, AbstractAsyncResource):
 
     async def _start_producer(self):
         producer = AIOKafkaProducer(
-            # 屏蔽校验：源码中bootstrap_servers (str, list(str))，代码检测误判
-            bootstrap_servers=self._bootstrap_servers,  # pyright: ignore[reportArgumentType]
+            bootstrap_servers=self._bootstrap_servers,  # pyright: ignore[reportArgumentType] # 屏蔽校验：源码中bootstrap_servers (str, list(str))，代码检测误判
             **self._conf.kw,
         )
         try:

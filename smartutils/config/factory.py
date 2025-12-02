@@ -29,9 +29,7 @@ class _ConfMeta:
 class ConfFactory(MyBase, BaseFactory[ConfKey, _ConfMeta]):
     @override
     @classmethod
-    # 屏蔽校验：class定义V为_ConfMeta，BaseFactory.register预期conf_cls也应该是_ConfMeta，但这里需是Type[T]
-    # 装饰器模式很难做到类型100%对齐
-    def register(  # pyright: ignore[reportIncompatibleMethodOverride]
+    def register(  # pyright: ignore[reportIncompatibleMethodOverride] # 屏蔽校验：class定义V为_ConfMeta，BaseFactory.register预期conf_cls也应该是_ConfMeta，但这里需是Type[T]，# 装饰器模式很难做到类型100%对齐
         cls,
         key: ConfKey,
         only_register_once: bool = False,

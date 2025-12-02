@@ -102,8 +102,7 @@ class AlertFeishuManager(LibraryCheckMixin, CTXResourceManager[AlertFeishu]):
 
         resources = {
             ConfKey.GROUP_DEFAULT.value: AlertFeishu(
-                # 屏蔽校验：开头的check以保证conf不为None
-                conf  # pyright: ignore[reportArgumentType]
+                conf  # pyright: ignore[reportArgumentType] # 屏蔽校验：开头的check以保证conf不为None
             )
         }
         super().__init__(resources=resources, ctx_key=CTXKey.ALERT_FEISHU)

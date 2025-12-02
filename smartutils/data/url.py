@@ -1,7 +1,15 @@
 import html
 import re
-from typing import Optional, Dict
-from urllib.parse import urlparse, urlencode, urljoin, unquote, urlunparse, ParseResult
+from typing import Dict, Optional
+from urllib.parse import (
+    ParseResult,
+    quote,
+    unquote,
+    urlencode,
+    urljoin,
+    urlparse,
+    urlunparse,
+)
 
 
 def _parse_url_segments(url: str) -> ParseResult:
@@ -162,8 +170,12 @@ def url_last_segment(url: str) -> str:
     return url_filename(url)
 
 
-def dict_to_query_params(data: Dict) -> str:
+def dict_to_query(data: Dict) -> str:
     """
     字典转URL参数字符串。
     """
     return urlencode(data)
+
+
+def str_to_query(data: str) -> str:
+    return quote(data)
