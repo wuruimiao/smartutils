@@ -54,7 +54,10 @@ class LuaManager:
         args = [(a if a is not None else "") for a in (args or [])]
         lua = await cls.get(name, redis_cli)
         try:
-            return await lua(keys=keys or [], args=args or [])
+            # 屏蔽校验：lua是个内存中的异步脚本对象，不能很好识别
+            return await lua(
+                keys=keys or [], args=args or []
+            )  # pyright: ignore[reportGeneralTypeIssues]
         except ResponseError as e:
             logger.error(f"Lua script {name} execution error: {e}")
             raise e
