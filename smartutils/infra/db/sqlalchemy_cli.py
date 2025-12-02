@@ -86,7 +86,7 @@ class AsyncDBCli(LibraryCheckMixin, AbstractAsyncResource):
         await self._engine.dispose()
 
     @asynccontextmanager
-    async def db(
+    async def acquire(
         self, use_transaction: bool = False
     ) -> AsyncGenerator[Tuple[AsyncSession, Optional[AsyncSessionTransaction]], None]:
         async with self._session() as session:

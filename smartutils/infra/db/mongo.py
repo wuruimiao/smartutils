@@ -45,14 +45,17 @@ class MongoManager(LibraryCheckMixin, CTXResourceManager[AsyncMongoCli]):
             error=DatabaseError,
         )
 
+    # 屏蔽校验：DB返回值不是资源实例本身
     @property
     @override
-    def curr(self) -> AsyncIOMotorDatabase:
-        return super().curr[0]
+    def curr(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self,
+    ) -> AsyncIOMotorDatabase:
+        return super().curr[0]  # pyright: ignore[reportIndexIssue]
 
     @property
     def curr_session(self) -> AsyncIOMotorClientSession:
-        return super().curr[1]
+        return super().curr[1]  # pyright: ignore[reportIndexIssue]
 
     # @asynccontextmanager
     # async def session(

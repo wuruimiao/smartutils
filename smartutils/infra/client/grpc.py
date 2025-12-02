@@ -113,7 +113,7 @@ class GrpcClient(LibraryCheckMixin, AbstractAsyncResource):
             return False
 
     @asynccontextmanager
-    async def db(self, use_transaction: bool) -> AsyncGenerator["GrpcClient", None]:
+    async def acquire(self, use_transaction: bool) -> AsyncGenerator[GrpcClient, None]:
         yield self
 
     def __getattr__(self, name) -> Callable[..., Awaitable[Message]]:

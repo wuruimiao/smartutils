@@ -55,7 +55,7 @@ class AsyncMongoCli(LibraryCheckMixin, AbstractAsyncResource):
         self._client.close()
 
     @asynccontextmanager
-    async def db(
+    async def acquire(
         self, use_transaction: bool = False
     ) -> AsyncGenerator[
         Tuple[AsyncIOMotorDatabase, Optional[AsyncIOMotorClientSession]], None

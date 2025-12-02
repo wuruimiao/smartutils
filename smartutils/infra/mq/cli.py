@@ -57,9 +57,9 @@ class AsyncKafkaCli(LibraryCheckMixin, AbstractAsyncResource):
             await self._producer.stop()
 
     @asynccontextmanager
-    async def db(
+    async def acquire(
         self, use_transaction: bool = True
-    ) -> AsyncGenerator["AsyncKafkaCli", None]:
+    ) -> AsyncGenerator[AsyncKafkaCli, None]:
         await self.start_producer()
         yield self
 

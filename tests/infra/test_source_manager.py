@@ -15,8 +15,8 @@ class DummyResource(AbstractAsyncResource):
         self.name = name
         self.closed = False
 
-    def db(self, use_transaction: bool = False):
-        super().db(use_transaction)
+    def acquire(self, use_transaction: bool = False):
+        super().acquire(use_transaction)
         return self
 
     async def __aenter__(self):

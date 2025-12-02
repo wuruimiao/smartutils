@@ -103,7 +103,7 @@ class AsyncRedisCli(LibraryCheckMixin, AbstractAsyncResource):
         await self._pool.disconnect()
 
     @asynccontextmanager
-    async def db(
+    async def acquire(
         self, use_transaction: bool = False
     ) -> AsyncGenerator[AsyncRedisCli, None]:
         yield self

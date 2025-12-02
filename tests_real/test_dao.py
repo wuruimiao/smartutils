@@ -40,7 +40,7 @@ async def setup_test_table():
     yield
     # 清理：删除表中所有测试数据
     mgr = MySQLManager()
-    async with mgr.client().db() as session_tuple:
+    async with mgr.client().acquire() as session_tuple:
         session = session_tuple[0]
         await session.execute(text(f"DELETE FROM {TModel.__tablename__}"))
         await session.commit()

@@ -20,7 +20,8 @@ if TYPE_CHECKING:  # pragma: no cover
 
 
 class SQLAlchemyManager(LibraryCheckMixin, CTXResourceManager[AsyncDBCli]):
+    # 屏蔽校验：DB返回值不是资源实例本身
     @property
     @override
-    def curr(self) -> AsyncSession:
-        return super().curr[0]
+    def curr(self) -> AsyncSession:  # pyright: ignore[reportIncompatibleMethodOverride]
+        return super().curr[0]  # pyright: ignore[reportIndexIssue]

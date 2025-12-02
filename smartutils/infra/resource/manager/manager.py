@@ -82,6 +82,7 @@ class ResourceManagerRegistry:
             mgr.reset()
 
 
+# 这里传入db的返回值参数，以作类型校验
 class CTXResourceManager(MyBase, Generic[AbstractAsyncResourceT], ABC):
     """
     基于上下文管理的异步资源管理基类，适配连接池、数据库、redis等。
@@ -123,18 +124,19 @@ class CTXResourceManager(MyBase, Generic[AbstractAsyncResourceT], ABC):
         async def wrapper(*args, **kwargs):
             self._check_key(key)
             resource = self._resources[key]
-            async with resource.db(use_transaction=use_transaction) as session:
-                with CTXVarManager.use(self._ctx_key, session):
+            async with resource.acquire(use_transaction=use_transaction) as handler:
+                with CTXVarManager.use(self._ctx_key, handler):
                     try:
                         result = await func(*args, **kwargs)
                         if self._success:
-                            await call_hook(self._success, session)
+                            await call_hook(self._success, handler)
                         return result
                     except BaseError as e:
                         raise e
                     except Exception as e:
                         logger.exception(f"{self.name} fail")
-                        await call_hook(self._fail, session)
+                        if self._fail:
+                            await call_hook(self._fail, handler)
                         raise self._error(f"{self.name} fail: {e}") from None
 
         return wrapper
@@ -181,9 +183,10 @@ class CTXResourceManager(MyBase, Generic[AbstractAsyncResourceT], ABC):
         return decorator
 
     @property
-    def curr(self):
+    def curr(self) -> AbstractAsyncResourceT:
         """
         当前资源实例（仅在@use包裹等托管下调用），否则抛出异常
+        默认返回资源实例。
         """
         try:
             return CTXVarManager.get(self._ctx_key)

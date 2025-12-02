@@ -53,7 +53,7 @@ async def test_session_ctx(dbcli, mocker):
     mgr.__aenter__.return_value = sess
     mgr.__aexit__.return_value = None
     dbcli._session.return_value = mgr
-    async with dbcli.db() as s:
+    async with dbcli.acquire() as s:
         assert s == (sess, None)
 
 
@@ -118,5 +118,5 @@ async def test_db_use_transaction(dbcli, mocker):
     dbcli._session.return_value = mgr
 
     # mock session.begin 流程
-    async with dbcli.db(use_transaction=True) as ctx:
+    async with dbcli.acquire(use_transaction=True) as ctx:
         assert ctx == (sess, trans)

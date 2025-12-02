@@ -90,7 +90,7 @@ class LoggerCli(AbstractAsyncResource):
         return True  # pragma: no cover
 
     @asynccontextmanager
-    async def db(self, use_transaction: bool = False):
+    async def acquire(self, use_transaction: bool = False):
         yield logger  # pragma: no cover
 
 

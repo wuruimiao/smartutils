@@ -90,7 +90,7 @@ class AlertFeishu(AbstractAsyncResource):
         return True
 
     @asynccontextmanager
-    async def db(self, use_transaction: bool):
+    async def acquire(self, use_transaction: bool):
         yield self
 
 
@@ -107,11 +107,6 @@ class AlertFeishuManager(LibraryCheckMixin, CTXResourceManager[AlertFeishu]):
             )
         }
         super().__init__(resources=resources, ctx_key=CTXKey.ALERT_FEISHU)
-
-    @property
-    @override
-    def curr(self) -> AlertFeishu:
-        return super().curr
 
 
 @InitByConfFactory.register(ConfKey.ALERT_FEISHU)

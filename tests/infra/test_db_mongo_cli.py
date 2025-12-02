@@ -85,14 +85,14 @@ async def test_mongo_close(c):
 
 
 async def test_db_context_no_transaction(c):
-    async with c.db(use_transaction=False) as (db, session):
+    async with c.acquire(use_transaction=False) as (db, session):
         assert session is None
         assert isinstance(db, DummyDB)
 
 
 async def test_db_context_use_transaction(c):
     # 必须再mock _client.start_session
-    async with c.db(use_transaction=True) as (db, session):
+    async with c.acquire(use_transaction=True) as (db, session):
         assert hasattr(session, "start_transaction") and hasattr(session, "closed")
 
 
