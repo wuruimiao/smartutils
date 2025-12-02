@@ -1,4 +1,6 @@
+import asyncio
 import builtins
+import functools
 import importlib
 import importlib.util
 import inspect
@@ -6,6 +8,7 @@ import os
 import pkgutil
 import types
 from contextlib import contextmanager
+from typing import Awaitable
 
 __all__ = [
     "call_hook",
@@ -15,14 +18,19 @@ __all__ = [
 ]
 
 
-async def call_hook(hook, *args, **kwargs):
-    if hook is None:
-        return
-
-    result = hook(*args, **kwargs)
-    if inspect.isawaitable(result):
-        await result
-    return result
+async def call_hook(hook, *args, **kwargs) -> Awaitable:
+    if inspect.iscoroutinefunction(hook):
+        # hook本身是async def的协程函数
+        return await hook(*args, **kwargs)
+    else:
+        # hook是同步函数，丢到线程池
+        loop = asyncio.get_running_loop()
+        # 同步函数，放到线程池执行，避免主事件循环阻塞；
+        # 注意，这里适合IO密集，不适合计算密集
+        # 在 Python 3.6 及以后版本，asyncio 的默认线程池大小是 min(32, os.cpu_count() + 4)
+        return await loop.run_in_executor(
+            None, functools.partial(hook, *args, **kwargs)
+        )
 
 
 def register_package(package: types.ModuleType):
@@ -67,7 +75,7 @@ def mock_dbcli(mocker, patch_target):
     async_context_mgr.__aexit__.return_value = None
 
     instance = MockDBCli.return_value
-    instance.db.return_value = async_context_mgr
+    instance.acquire.return_value = async_context_mgr
     instance.close = mocker.AsyncMock()
 
     yield MockDBCli, fake_session, instance
