@@ -1,17 +1,10 @@
-import sys
 from dataclasses import dataclass
-from typing import Callable, Dict, List, Optional, Type, Union
+from typing import Dict, Union
 
 from pydantic import BaseModel, ValidationError
 
-if sys.version_info >= (3, 11):
-    from typing import override
-else:
-    from typing_extensions import override
-
-
 from smartutils.config.const import BaseModelT, ConfKey
-from smartutils.design import BaseFactory, MyBase
+from smartutils.design import BaseFactory
 from smartutils.error.factory import ExcDetailFactory
 from smartutils.error.sys import ConfigError
 from smartutils.log import logger
@@ -20,32 +13,18 @@ __all__ = ["ConfFactory"]
 
 
 @dataclass
-class _ConfMeta:
-    conf_cls: Type
-    multi: bool
-    require: bool
+class ConfMeta:
+    multi: bool = False  # 是否支持多组配置
+    require: bool = False  # 是否必须配置
 
 
-class ConfFactory(MyBase, BaseFactory[ConfKey, _ConfMeta]):
-    @override
-    @classmethod
-    def register(  # pyright: ignore[reportIncompatibleMethodOverride] # 屏蔽校验：class定义V为_ConfMeta，BaseFactory.register预期conf_cls也应该是_ConfMeta，但这里需是Type[T]，# 装饰器模式很难做到类型100%对齐
-        cls,
-        key: ConfKey,
-        only_register_once: bool = False,
-        order: Optional[int] = None,
-        deps: Optional[List[ConfKey]] = None,
-        check_deps: bool = False,
-        multi: bool = False,
-        require: bool = False,
-    ) -> Callable[[Type[BaseModelT]], Type[BaseModelT]]:
-        def decorator(conf_cls: Type[BaseModelT]):
-            super(ConfFactory, cls).register(key, False, order, deps, check_deps)(
-                _ConfMeta(conf_cls, multi, require)
-            )
-            return conf_cls
+class ConfFactory(BaseFactory[ConfKey, BaseModelT, ConfMeta]):
+    """
+    默认不是多组配置，不是必须配置
+    """
 
-        return decorator
+    # 默认可多次注册同一key
+    _default_only_register_once = False
 
     @classmethod
     def _init_conf_cls(cls, name, key, conf_cls, conf):
@@ -61,28 +40,22 @@ class ConfFactory(MyBase, BaseFactory[ConfKey, _ConfMeta]):
         cls, name: ConfKey, conf: Dict
     ) -> Union[BaseModel, Dict[str, BaseModel], None]:
         info = cls.get(name)
+        meta = cls.get_meta(name, ConfMeta)
 
         if not conf:
-            if info.require:
+            # 必需配置
+            if meta.require:
                 raise ConfigError(f"{cls.name} require {name} in config.yml")
-            # logger.debug(
-            #     "{cls_name} no {name} in config.yml, ignore.",
-            #     cls_name=cls.name,
-            #     name=name,
-            # )
+            # 配置文件没声明
             return None
 
-        logger.info("{cls_name} {name} created.", cls_name=cls.name, name=name)
+        logger.info("{} {} created.", cls.name, name)
 
-        if info.multi:
-            # if ConfKey.GROUP_DEFAULT not in conf:
-            #     raise ConfigError(
-            #         f"ConfFactory no {ConfKey.GROUP_DEFAULT} below {name}"
-            #     )
-
+        # 多组配置
+        if meta.multi:
             return {
-                key: cls._init_conf_cls(name, key, info.conf_cls, _conf)
+                key: cls._init_conf_cls(name, key, info, _conf)
                 for key, _conf in conf.items()
             }
         else:
-            return cls._init_conf_cls(name, "", info.conf_cls, conf)
+            return cls._init_conf_cls(name, "", info, conf)

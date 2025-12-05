@@ -133,7 +133,7 @@ def test_config_load_project(setup_config: str):
 def test_project_conf_inherit(setup_config: str):
     from smartutils.config import ConfFactory, Config, ConfKey, ProjectConf
 
-    @ConfFactory.register(ConfKey.PROJECT, multi=False, require=False)
+    @ConfFactory.register(ConfKey.PROJECT)
     class MyProjectConf(ProjectConf):
         key: str
 
