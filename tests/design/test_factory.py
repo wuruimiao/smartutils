@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Callable
 
 import pytest
@@ -6,23 +7,32 @@ from smartutils.design.factory import BaseFactory, Entry
 from smartutils.error.sys import LibraryUsageError
 
 
+@dataclass
 class MyMeta:
-    def __init__(self, info):
-        self.info = info
+    info: str
 
 
-class TestFactoryNoneMeta(BaseFactory[str, Callable[[], int], None]):
-    pass
+@dataclass
+class MyMetaWithDetaulf:
+    info: str = "default_meta"
 
 
-class TestFactoryWithMeta(BaseFactory[str, Callable[[], int], MyMeta]):
-    pass
+class TestFactoryNoneMeta(BaseFactory[str, Callable[[], int], None]): ...
+
+
+class TestFactoryWithMeta(BaseFactory[str, Callable[[], int], MyMeta]): ...
+
+
+class TestFactoryWithMetaWithDefault(
+    BaseFactory[str, Callable[[], int], MyMetaWithDetaulf]
+): ...
 
 
 def setup_module(module):
     # 初始化时清空所有注册
     TestFactoryNoneMeta.reset()
     TestFactoryWithMeta.reset()
+    TestFactoryWithMetaWithDefault.reset()
 
 
 def test_register_without_meta():
@@ -61,6 +71,18 @@ def test_register_with_meta():
     assert isinstance(entry, Entry)
     assert entry.v() == 10
     assert entry.meta == m
+
+    meta = TestFactoryWithMeta.get_meta("x", MyMeta)
+    assert isinstance(meta, MyMeta)
+    assert meta == m
+
+    @TestFactoryWithMetaWithDefault.register("y")
+    def val_y():
+        return 11
+
+    meta = TestFactoryWithMetaWithDefault.get_meta("y", MyMetaWithDetaulf)
+    assert isinstance(meta, MyMetaWithDetaulf)
+    assert meta.info == "default_meta"
 
 
 def test_register_with_order():

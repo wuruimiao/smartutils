@@ -10,6 +10,7 @@ from typing import (
     Optional,
     Sequence,
     Tuple,
+    Type,
     TypeVar,
     final,
 )
@@ -17,8 +18,11 @@ from typing import (
 from smartutils.design._class import MyBase
 from smartutils.error.sys import LibraryError, LibraryUsageError
 
+# key类型，同一key根据配置会覆盖/报错
 K = TypeVar("K")
+# value类型，register装饰的类/函数
 V = TypeVar("V")
+# 附加元信息，可选。
 MetaT = TypeVar("MetaT", bound=object)
 
 
@@ -272,6 +276,10 @@ class BaseFactory(Generic[K, V, MetaT], ABC, MyBase):
     @classmethod
     def get(cls, key: K) -> V:
         return cls.get_entry(key).v
+
+    @classmethod
+    def get_meta(cls, key: K, meta_cls: Type[MetaT]) -> MetaT:
+        return cls.get_entry(key).meta or meta_cls()
 
     @classmethod
     @final
