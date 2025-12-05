@@ -38,13 +38,18 @@ class BaseFactory(Generic[K, V, MetaT], ABC, MyBase):
     _registry_order: dict[K, int]
     _registry_deps: dict[K, set[K]]
     _sorted_keys: Optional[Tuple[K, ...]]
+    _default_only_register_once: bool
 
     def __init_subclass__(cls):
         cls._registry_value = OrderedDict()
         cls._registry_order = {}
         cls._registry_deps = defaultdict(set)
         cls._sorted_keys = None
-        # cls.name = f"[{cls.__name__}]"
+        # 只在没有自定义时赋默认值
+        #   类体赋值早于__init_subclass__执行
+        #   cls.__dict__ 只判断当前类的类字典；hasattr(cls, ...)会判断当前类以及父类是否有这个属性（包括继承链上的）
+        if "_default_only_register_once" not in cls.__dict__:
+            cls._default_only_register_once = True
 
     @classmethod
     @final
@@ -53,10 +58,16 @@ class BaseFactory(Generic[K, V, MetaT], ABC, MyBase):
 
     @classmethod
     @final
-    def reset(cls):
-        cls._registry_value.clear()
-        cls._registry_order.clear()
-        cls._registry_deps.clear()
+    def reset(cls, k: Optional[K] = None):
+        if k is None:
+            cls._registry_value.clear()
+            cls._registry_order.clear()
+            cls._registry_deps.clear()
+            cls._reset_cache()
+            return
+        cls._registry_value.pop(k, None)
+        cls._registry_order.pop(k, None)
+        cls._registry_deps.pop(k, None)
         cls._reset_cache()
 
     @classmethod
@@ -243,7 +254,7 @@ class BaseFactory(Generic[K, V, MetaT], ABC, MyBase):
     def register(
         cls,
         key: K,
-        only_register_once: bool = True,
+        only_once: Optional[bool] = None,
         order: Optional[int] = None,
         deps: Optional[Sequence[K]] = None,
         meta: Optional[MetaT] = None,
@@ -254,10 +265,13 @@ class BaseFactory(Generic[K, V, MetaT], ABC, MyBase):
         一次调用里，order和deps不能同时指定；不同调用里，可以有order/deps
         Args:
             key (K): key类
-            only_register_once (bool, optional): 只能注册一次. Defaults to True.
+            only_once (bool, optional): 只能注册一次. Defaults to cls._default_only_register_once.
             order (int, optional): 生效顺序. Defaults to 0.
         """
-        if only_register_once and key in cls._registry_value:
+        if only_once is None:
+            only_once = cls._default_only_register_once
+
+        if only_once and key in cls._registry_value:
             raise LibraryError(f"{cls.name} key {key} already registered.")
 
         def decorator(func_or_obj: V):

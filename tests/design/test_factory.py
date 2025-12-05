@@ -4,7 +4,7 @@ from typing import Callable
 import pytest
 
 from smartutils.design.factory import BaseFactory, Entry
-from smartutils.error.sys import LibraryUsageError
+from smartutils.error.sys import LibraryError, LibraryUsageError
 
 
 @dataclass
@@ -28,11 +28,50 @@ class TestFactoryWithMetaWithDefault(
 ): ...
 
 
+class TestFactoryOnlyOnceTrue(BaseFactory[str, Callable[[], int], None]): ...
+
+
+class TestFactoryOnlyOnceFalse(BaseFactory[str, Callable[[], int], None]):
+    _default_only_register_once = False
+
+
 def setup_module(module):
     # 初始化时清空所有注册
     TestFactoryNoneMeta.reset()
     TestFactoryWithMeta.reset()
     TestFactoryWithMetaWithDefault.reset()
+
+
+def test_register_only_once():
+    assert TestFactoryOnlyOnceTrue._default_only_register_once is True
+    assert TestFactoryOnlyOnceFalse._default_only_register_once is False
+
+    @TestFactoryOnlyOnceTrue.register("only_once")
+    def val():
+        return 42
+
+    with pytest.raises(LibraryError) as exc:
+
+        @TestFactoryOnlyOnceTrue.register("only_once")
+        def val2():
+            return 43
+
+    assert (
+        str(exc.value) == "[TestFactoryOnlyOnceTrue] key only_once already registered."
+    )
+
+    @TestFactoryOnlyOnceFalse.register("multi_times")
+    def val3():
+        return 100
+
+    assert TestFactoryOnlyOnceFalse.get("multi_times")() == 100
+
+    # 允许多次注册，后者覆盖前者
+    @TestFactoryOnlyOnceFalse.register("multi_times")
+    def val4():
+        return 101
+
+    assert TestFactoryOnlyOnceFalse.get("multi_times")() == 101
 
 
 def test_register_without_meta():
@@ -215,5 +254,17 @@ def test_reset():
         return 123
 
     TestFactoryNoneMeta.reset()
+    with pytest.raises(Exception):
+        TestFactoryNoneMeta.get("key")
+
+    @TestFactoryNoneMeta.register("key")
+    def g():
+        return 124
+
+    assert TestFactoryNoneMeta.get("key")() == 124
+
+    TestFactoryNoneMeta.reset("none_existing_key")  # 不存在的 key 不影响其他注册内容
+
+    TestFactoryNoneMeta.reset("key")
     with pytest.raises(Exception):
         TestFactoryNoneMeta.get("key")
