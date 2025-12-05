@@ -10,14 +10,14 @@ else:
 
 
 from smartutils.config.const import ConfKey
-from smartutils.config.factory import ConfFactory
+from smartutils.config.factory import ConfFactory, ConfMeta
 from smartutils.config.schema.db import DBConf
 from smartutils.config.schema.host import HostConf
 
 __all__ = ["PostgreSQLConf"]
 
 
-@ConfFactory.register(ConfKey.POSTGRESQL, multi=True, require=False)
+@ConfFactory.register(ConfKey.POSTGRESQL, meta=ConfMeta(multi=True, require=False))
 class PostgreSQLConf(DBConf, HostConf):
     port: int = 5432
 

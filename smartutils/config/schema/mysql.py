@@ -10,13 +10,13 @@ else:
 
 
 from smartutils.config.const import ConfKey
-from smartutils.config.factory import ConfFactory
+from smartutils.config.factory import ConfFactory, ConfMeta
 from smartutils.config.schema.db import DBConf
 
 __all__ = ["MySQLConf"]
 
 
-@ConfFactory.register(ConfKey.MYSQL, multi=True, require=False)
+@ConfFactory.register(ConfKey.MYSQL, meta=ConfMeta(multi=True, require=False))
 class MySQLConf(DBConf):
     port: int = 3306
 

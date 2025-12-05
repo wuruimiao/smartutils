@@ -3,7 +3,7 @@ from typing import List
 from pydantic import Field
 
 from smartutils.config.const import ConfKey
-from smartutils.config.factory import ConfFactory
+from smartutils.config.factory import ConfFactory, ConfMeta
 from smartutils.config.schema.host import HostConf
 from smartutils.model.field import StrippedBaseModel
 
@@ -16,7 +16,7 @@ class CanalClientConf(StrippedBaseModel):
     destination: str = Field(..., min_length=1, description="目前canal实例名")
 
 
-@ConfFactory.register(ConfKey.CANAL, multi=True, require=False)
+@ConfFactory.register(ConfKey.CANAL, meta=ConfMeta(multi=True, require=False))
 class CanalConf(HostConf):
     port: int = 11111
     clients: List[CanalClientConf]

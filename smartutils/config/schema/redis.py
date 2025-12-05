@@ -3,13 +3,13 @@ from typing import Optional
 from pydantic import Field
 
 from smartutils.config.const import ConfKey
-from smartutils.config.factory import ConfFactory
+from smartutils.config.factory import ConfFactory, ConfMeta
 from smartutils.config.schema.host import HostConf
 
 __all__ = ["RedisConf"]
 
 
-@ConfFactory.register(ConfKey.REDIS, multi=True, require=False)
+@ConfFactory.register(ConfKey.REDIS, meta=ConfMeta(multi=True, require=False))
 class RedisConf(HostConf):
     db: int = Field(..., ge=0)
     port: int = 6379

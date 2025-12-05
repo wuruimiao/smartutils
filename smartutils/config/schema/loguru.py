@@ -9,7 +9,7 @@ from smartutils.model.field import StrippedBaseModel
 __all__ = ["LoguruConfig"]
 
 
-@ConfFactory.register(ConfKey.LOGURU, multi=False, require=False)
+@ConfFactory.register(ConfKey.LOGURU)
 class LoguruConfig(StrippedBaseModel):
     level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
     rotation: str = Field(
@@ -22,6 +22,7 @@ class LoguruConfig(StrippedBaseModel):
     )
     compression: Literal["zip", "gz", "bz2", "xz", "tar"] = "zip"
     logdir: Optional[str] = Field(default=None, min_length=1)
+    # logname_process: bool = Field(default=True, description="多进程安全")
     enqueue: bool = True
     stream: bool = False
     backtrace: bool = False
@@ -31,11 +32,18 @@ class LoguruConfig(StrippedBaseModel):
     @property
     def stream_kw(self) -> dict:
         return self.model_dump(
-            exclude={"rotation", "retention", "compression", "logdir", "stream"}
+            exclude={
+                "rotation",
+                "retention",
+                "compression",
+                "logdir",
+                "stream",
+                # "logname_process",
+            }
         )
 
     @property
     def file_kw(self) -> dict:
-        data = self.model_dump(exclude={"logdir", "stream"})
+        data = self.model_dump(exclude={"logdir", "stream", "logname_process"})
         data["colorize"] = False
         return data

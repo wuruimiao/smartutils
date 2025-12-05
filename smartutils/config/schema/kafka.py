@@ -3,14 +3,14 @@ from typing import List, Literal
 from pydantic import Field
 
 from smartutils.config.const import ConfKey
-from smartutils.config.factory import ConfFactory
+from smartutils.config.factory import ConfFactory, ConfMeta
 from smartutils.config.schema.host import HostConf
 from smartutils.model.field import StrippedBaseModel
 
 __all__ = ["KafkaConf"]
 
 
-@ConfFactory.register(ConfKey.KAFKA, multi=True, require=False)
+@ConfFactory.register(ConfKey.KAFKA, meta=ConfMeta(multi=True, require=False))
 class KafkaConf(StrippedBaseModel):
     bootstrap_servers: List[HostConf] = Field(..., min_length=1)
     client_id: str = Field(..., min_length=1)

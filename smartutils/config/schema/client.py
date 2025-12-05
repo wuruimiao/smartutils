@@ -4,7 +4,7 @@ from typing import Dict, Optional, Union
 from pydantic import BaseModel
 
 from smartutils.config.const import ConfKey
-from smartutils.config.factory import ConfFactory
+from smartutils.config.factory import ConfFactory, ConfMeta
 from smartutils.config.schema.breaker import BreakerConf
 
 
@@ -20,7 +20,7 @@ class ApiConf(BaseModel):
     timeout: Union[int, float, None] = None
 
 
-@ConfFactory.register(ConfKey.CLIENT, multi=True, require=False)
+@ConfFactory.register(ConfKey.CLIENT, meta=ConfMeta(multi=True, require=False))
 class ClientConf(BreakerConf):
     type: ClientType
     endpoint: str

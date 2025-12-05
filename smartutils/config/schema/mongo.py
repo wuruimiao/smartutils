@@ -3,7 +3,7 @@ from typing import List, Optional
 from pydantic import Field
 
 from smartutils.config.const import ConfKey
-from smartutils.config.factory import ConfFactory
+from smartutils.config.factory import ConfFactory, ConfMeta
 from smartutils.config.schema.host import HostConf
 from smartutils.config.schema.pool import PoolConf
 from smartutils.model.field import StrippedBaseModel
@@ -15,7 +15,7 @@ class MongoHostConf(HostConf):
     port: int = 27017
 
 
-@ConfFactory.register(ConfKey.MONGO, multi=True, require=False)
+@ConfFactory.register(ConfKey.MONGO, meta=ConfMeta(multi=True, require=False))
 class MongoConf(StrippedBaseModel, PoolConf):
     hosts: List[MongoHostConf] = Field(..., min_length=1, description="多副本配置")
 

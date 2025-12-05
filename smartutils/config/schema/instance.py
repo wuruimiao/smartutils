@@ -9,7 +9,7 @@ from smartutils.time import get_timestamp
 __all__ = ["InstanceConf"]
 
 
-@ConfFactory.register(ConfKey.INSTANCE, multi=False, require=False)
+@ConfFactory.register(ConfKey.INSTANCE)
 class InstanceConf(BaseModel):
     id: int = Field(..., description="保证每实例有唯一ID", ge=0)
     release_time: datetime = Field(..., description="例如：2025-05-07 10:00:00+08:00")

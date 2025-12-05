@@ -45,7 +45,7 @@ class MiddlewarePluginSetting(BaseModel):
     )
 
 
-@ConfFactory.register(ConfKey.MIDDLEWARE, multi=False, require=False)
+@ConfFactory.register(ConfKey.MIDDLEWARE)
 class MiddlewareConf(BaseModel):
     routes: Optional[Dict[str, List[MiddlewarePluginKey]]] = Field(
         default=None, description="按路由分类的中间件组,app表示全局中间件"
