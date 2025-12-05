@@ -254,6 +254,7 @@ class BaseFactory(Generic[K, V, MetaT], ABC, MyBase):
     def register(
         cls,
         key: K,
+        *,
         only_once: Optional[bool] = None,
         order: Optional[int] = None,
         deps: Optional[Sequence[K]] = None,
