@@ -15,7 +15,7 @@ else:
 __all__ = ["CTXVarManager"]
 
 
-class CTXVarManager(BaseFactory[CTXKey, contextvars.ContextVar]):
+class CTXVarManager(BaseFactory[CTXKey, contextvars.ContextVar, None]):
     @classmethod
     @contextmanager
     def use(cls, key: CTXKey, value: Any):
@@ -56,7 +56,12 @@ class CTXVarManager(BaseFactory[CTXKey, contextvars.ContextVar]):
             ) from None
 
     @classmethod
-    def register(cls, key: CTXKey, **kwargs):  # type: ignore
+    @override
+    def register(cls, key: CTXKey, **kwargs):
+        """
+        按照已有定义，V是装饰的类/函数，这里需要传入contextvar实例
+        """
+
         def decorator(obj):
             super(CTXVarManager, cls).register(key, **kwargs)(
                 contextvars.ContextVar(key)
