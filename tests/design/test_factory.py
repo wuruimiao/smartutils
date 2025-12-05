@@ -247,6 +247,67 @@ def test_all_order_without_deps_or_order():
     assert all_keys == ["x", "y", "z"]
 
 
+def test_register_with_default_v_constructor():
+    """测试: 使用默认 value 构造器注册"""
+
+    def default_constructor(key: str) -> Callable[[], int]:
+        def func():
+            return len(key)
+
+        return func
+
+    class TestFactoryWithDefaultVConstructor(BaseFactory[str, Callable[[], int], None]):
+        _default_v_constructor = default_constructor
+
+    TestFactoryWithDefaultVConstructor.reset()
+
+    @TestFactoryWithDefaultVConstructor.register("apple")
+    def apple():
+        return 5  # This will be overridden by the default constructor
+
+    TestFactoryWithDefaultVConstructor.register_v("banana")
+
+    assert TestFactoryWithDefaultVConstructor.get("apple")() == 5
+    assert TestFactoryWithDefaultVConstructor.get("banana")() == 6
+
+    # 上面是为了兼容register装饰器的使用方式，正常使用方式如下：
+    def default_constructor2(key: str) -> int:
+        return len(key)
+
+    class TestFactoryWithDefaultVConstructor2(BaseFactory[str, int, None]):
+        _default_v_constructor = default_constructor2
+
+    TestFactoryWithDefaultVConstructor2.register_v("cherry")
+    assert TestFactoryWithDefaultVConstructor2.get("cherry") == 6
+
+    TestFactoryWithDefaultVConstructor2.register_v("date", value=10)
+    assert TestFactoryWithDefaultVConstructor2.get("date") == 10
+
+
+def test_register_with_circular_deps_raises():
+    """测试: 带环依赖注册，抛出异常"""
+    TestFactoryNoneMeta.reset()
+
+    @TestFactoryNoneMeta.register("a", deps=["c"])
+    def a():
+        return 1
+
+    @TestFactoryNoneMeta.register("b", deps=["a"])
+    def b():
+        return 2
+
+    @TestFactoryNoneMeta.register("c", deps=["b"])
+    def c():
+        return 3
+
+    with pytest.raises(LibraryUsageError) as exc:
+        TestFactoryNoneMeta.all()
+
+    assert "[TestFactoryNoneMeta] dependency/order conflicts or cycles" == str(
+        exc.value
+    )
+
+
 def test_get_missing_entry():
     """测试: 获取未注册 key 抛异常"""
     TestFactoryNoneMeta.reset()

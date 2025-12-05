@@ -41,8 +41,12 @@ class BaseFactory(Generic[K, V, MetaT], ABC, MyBase):
     _registry_deps: dict[K, set[K]]
     # 缓存已排序的key
     _sorted_keys: Optional[Tuple[K, ...]]
+
+    # 以下属性子类可覆盖重写
     # 默认的是否只能注册一次，__init_subclass__中设置为True，即只能注册一次
     _default_only_register_once: bool
+    # 默认value构造器
+    _default_v_constructor: Optional[Callable[[K], V]]
 
     def __init_subclass__(cls):
         cls._registry_value = OrderedDict()
@@ -54,6 +58,8 @@ class BaseFactory(Generic[K, V, MetaT], ABC, MyBase):
         #   cls.__dict__ 只判断当前类的类字典；hasattr(cls, ...)会判断当前类以及父类是否有这个属性（包括继承链上的）
         if "_default_only_register_once" not in cls.__dict__:
             cls._default_only_register_once = True
+        if "_default_v_constructor" not in cls.__dict__:
+            cls._default_v_constructor = None
 
     @classmethod
     @final
@@ -271,7 +277,7 @@ class BaseFactory(Generic[K, V, MetaT], ABC, MyBase):
     def register_v(
         cls,
         key: K,
-        value: V,
+        value: Optional[V] = None,
         *,
         only_once: Optional[bool] = None,
         order: Optional[int] = None,
@@ -300,6 +306,15 @@ class BaseFactory(Generic[K, V, MetaT], ABC, MyBase):
 
         if only_once and key in cls._registry_value:
             raise LibraryError(f"{cls.name} key {key} already registered.")
+
+        if value is None:
+            if cls._default_v_constructor:
+                value = cls._default_v_constructor(key)
+            else:
+                raise LibraryUsageError(
+                    f"{cls.name} v is required or define _default_v_constructor."
+                )
+
         # cls._compute_order_on_register(func_or_obj, key, order, deps, meta)
         cls._compute_order_on_all(value, key, order, deps, meta)
         return value
