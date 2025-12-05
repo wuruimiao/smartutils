@@ -10,15 +10,17 @@ __all__ = ["AddMiddlewareFactory"]
 
 
 class AddMiddlewareFactory(
-    BaseFactory[AppKey, Callable[[object, Tuple[AbstractMiddlewarePlugin, ...]], None]]
+    BaseFactory[
+        AppKey, Callable[[object, Tuple[AbstractMiddlewarePlugin, ...]], None], None
+    ]
 ): ...
 
 
 class RouteMiddlewareFactory(
-    BaseFactory[AppKey, Callable[[Tuple[AbstractMiddlewarePlugin, ...]], Any]]
+    BaseFactory[AppKey, Callable[[Tuple[AbstractMiddlewarePlugin, ...]], Any], None]
 ): ...
 
 
 class EndpointMiddlewareFactory(
-    BaseFactory[AppKey, Callable[[Tuple[AbstractMiddlewarePlugin, ...]], Any]]
+    BaseFactory[AppKey, Callable[[Tuple[AbstractMiddlewarePlugin, ...]], Any], None]
 ): ...

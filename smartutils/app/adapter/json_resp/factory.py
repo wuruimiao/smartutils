@@ -9,5 +9,5 @@ __all__ = ["JsonRespFactory"]
 
 
 class JsonRespFactory(
-    BaseFactory[AppKey, Callable[[BaseDataDict], ResponseAdapter]]
+    BaseFactory[AppKey, Callable[[BaseDataDict], ResponseAdapter], None]
 ): ...

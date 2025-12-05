@@ -14,7 +14,7 @@ else:
 
 class _IDGen(
     AbstractIDGenerator,
-    BaseFactory[IDGenType, Tuple[Callable[..., AbstractIDGenerator], bool]],
+    BaseFactory[IDGenType, Tuple[Callable[..., AbstractIDGenerator], bool], None],
 ):
     def __init__(self):
         self._gen: Optional[AbstractIDGenerator] = None

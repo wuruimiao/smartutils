@@ -12,8 +12,7 @@ from smartutils.error import OK
 from smartutils.error.base import BaseError
 from smartutils.error.sys import SysError, TimeOutError
 from smartutils.log import logger
-
-from .plat import is_linux, is_win
+from smartutils.system.plat import is_linux, is_win
 
 # 秒数
 DEFAULT_TIMEOUT = 30 * 60
@@ -25,6 +24,10 @@ def cur_pid() -> int:
 
 def cur_tid() -> Optional[int]:
     return threading.current_thread().ident
+
+
+def is_main_process() -> bool:
+    return multiprocessing.current_process().name == "MainProcess"
 
 
 def get_host_ip() -> str:
