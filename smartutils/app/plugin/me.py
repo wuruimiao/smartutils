@@ -11,14 +11,12 @@ from smartutils.app.const import MiddlewarePluginOrder
 from smartutils.app.plugin.abstract import AuthBase
 from smartutils.app.plugin.common import CustomHeader
 from smartutils.app.plugin.factory import MiddlewarePluginFactory
-from smartutils.config.const import ConfKey
 from smartutils.config.schema.middleware import (
     MiddlewarePluginKey,
     MiddlewarePluginSetting,
 )
 from smartutils.design import SingletonMeta
 from smartutils.error.sys import LibraryUsageError, UnauthorizedError
-from smartutils.init.factory import InitByConfFactory
 
 if sys.version_info >= (3, 11):
     from typing import override
@@ -32,13 +30,6 @@ except ImportError:
 
 if TYPE_CHECKING:  # pragma: no cover
     from httpx import Response
-
-
-# 保证TokenHelper先初始化
-@InitByConfFactory.register(
-    ConfKey.PLACEHOLDER, deps=[ConfKey.TOKEN], only_register_once=False
-)
-def _(*args): ...  # pragma: no cover
 
 
 @MiddlewarePluginFactory.register(
