@@ -164,7 +164,7 @@ class BaseFactory(Generic[K, V, MetaT], ABC, MyBase):
         """
         在register时就计算顺序，有问题
         1. 不支持同时存在order和deps
-        2. 使用deps，即依赖声明时，依赖项不存在，无法计算顺序
+        2. 使用deps，即依赖声明时，依赖项不存在，无法计算顺序；而这个函数，会在register时立即执行
         """
         if order is not None and deps is not None:
             raise LibraryError(
@@ -268,6 +268,43 @@ class BaseFactory(Generic[K, V, MetaT], ABC, MyBase):
         cls._sorted_keys = tuple(result)
 
     @classmethod
+    def register_v(
+        cls,
+        key: K,
+        value: V,
+        *,
+        only_once: Optional[bool] = None,
+        order: Optional[int] = None,
+        deps: Optional[Sequence[K]] = None,
+        meta: Optional[MetaT] = None,
+    ) -> V:
+        """注册key和value
+
+        Args:
+            key (K):
+            value (V):
+            only_once (Optional[bool], optional): 是否只能注册一次，默认cls._default_only_register_once，是的话已注册则报错
+            order (Optional[int], optional): 数字顺序，order越大，all输出顺序越靠后. Defaults to None.
+            deps (Optional[Sequence[K]], optional): 依赖的key列表，被依赖项会先于当前key输出. Defaults to None.
+            meta (Optional[MetaT], optional): 附加元信息. Defaults to None.
+
+        Raises:
+            LibraryError:
+
+        Returns:
+            V:
+        """
+
+        if only_once is None:
+            only_once = cls._default_only_register_once
+
+        if only_once and key in cls._registry_value:
+            raise LibraryError(f"{cls.name} key {key} already registered.")
+        # cls._compute_order_on_register(func_or_obj, key, order, deps, meta)
+        cls._compute_order_on_all(value, key, order, deps, meta)
+        return value
+
+    @classmethod
     def register(
         cls,
         key: K,
@@ -278,24 +315,14 @@ class BaseFactory(Generic[K, V, MetaT], ABC, MyBase):
         meta: Optional[MetaT] = None,
     ) -> Callable[[V], V]:
         """
-        order越大，生效顺序越靠后；
-        注意：类装饰器的注册/副作用”只会在首次 import 时发生，之后重新实例化并不会自动重新注册
-        一次调用里，order和deps不能同时指定；不同调用里，可以有order/deps
-        Args:
-            key (K): key类
-            only_once (bool, optional): 只能注册一次. Defaults to cls._default_only_register_once.
-            order (int, optional): 生效顺序. Defaults to 0.
+        装饰器模式注册key和value
+        参数同register_v
         """
-        if only_once is None:
-            only_once = cls._default_only_register_once
-
-        if only_once and key in cls._registry_value:
-            raise LibraryError(f"{cls.name} key {key} already registered.")
 
         def decorator(func_or_obj: V):
-            # cls._compute_order_on_register(func_or_obj, key, order, deps, meta)
-            cls._compute_order_on_all(func_or_obj, key, order, deps, meta)
-            return func_or_obj
+            return cls.register_v(
+                key, func_or_obj, only_once=only_once, order=order, deps=deps, meta=meta
+            )
 
         return decorator
 
