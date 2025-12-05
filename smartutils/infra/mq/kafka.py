@@ -5,7 +5,7 @@ from typing import Dict, Optional
 from smartutils.config.const import ConfKey
 from smartutils.config.schema.kafka import KafkaConf
 from smartutils.ctx import CTXKey, CTXVarManager
-from smartutils.design import singleton
+from smartutils.design import SingletonMeta
 from smartutils.error.sys import MQError
 from smartutils.infra.mq.cli import AsyncKafkaCli
 from smartutils.infra.resource.manager.manager import CTXResourceManager
@@ -15,9 +15,12 @@ from smartutils.init.mixin import LibraryCheckMixin
 __all__ = ["KafkaManager"]
 
 
-@singleton
-@CTXVarManager.register(CTXKey.MQ_KAFKA)
-class KafkaManager(LibraryCheckMixin, CTXResourceManager[AsyncKafkaCli]):
+CTXVarManager.register_v(CTXKey.MQ_KAFKA)
+
+
+class KafkaManager(
+    LibraryCheckMixin, CTXResourceManager[AsyncKafkaCli], metaclass=SingletonMeta
+):
     def __init__(self, confs: Optional[Dict[str, KafkaConf]] = None):
         self.check(conf=confs)
         assert confs

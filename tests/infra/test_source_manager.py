@@ -1,7 +1,9 @@
 import pytest
+from typing_extensions import override
 
 from smartutils.config.const import ConfKey
 from smartutils.ctx import CTXVarManager
+from smartutils.ctx.const import CTXKey
 from smartutils.error.sys import LibraryUsageError
 from smartutils.infra.resource.abstract import AbstractAsyncResource
 from smartutils.infra.resource.manager.manager import (
@@ -15,35 +17,36 @@ class DummyResource(AbstractAsyncResource):
         self.name = name
         self.closed = False
 
+    @override
     def acquire(self, use_transaction: bool = False):
-        super().acquire(use_transaction)
         return self
 
     async def __aenter__(self):
         return self
 
     async def __aexit__(self, *a): ...
-
+    @override
     async def close(self):
-        await super().close()
         self.closed = True
 
+    @override
     async def ping(self):
-        await super().ping()
         return True
 
 
 class DummyManager(CTXResourceManager[DummyResource]): ...
 
 
+CTXVarManager.register_v(CTXKey("_test_ctx_"))
+
+
 @pytest.fixture
-@CTXVarManager.register("_test_ctx_")  # type: ignore
 def dummy_manager():
     resources = {
         ConfKey.GROUP_DEFAULT: DummyResource("default"),
         "custom_key": DummyResource("custom"),
     }
-    return DummyManager(resources=resources, ctx_key="_test_ctx_")  # type: ignore
+    return DummyManager(resources=resources, ctx_key=CTXKey("_test_ctx_"))
 
 
 def test_registry_register_and_get_all(dummy_manager):
@@ -121,7 +124,7 @@ async def test_close_should_handle_exception(mocker, dummy_manager):
 
 async def test_health_check_all_ok(dummy_manager):
     res = await dummy_manager.health_check()
-    for k, v in res.items():
+    for _, v in res.items():
         assert v is True
 
 

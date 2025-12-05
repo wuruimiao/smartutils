@@ -6,7 +6,7 @@ from smartutils.config.const import ConfKey
 from smartutils.config.schema.client import ClientConf, ClientType
 from smartutils.ctx.const import CTXKey
 from smartutils.ctx.manager import CTXVarManager
-from smartutils.design import singleton
+from smartutils.design import SingletonMeta
 from smartutils.error.sys import ClientError
 from smartutils.infra.client.grpc import GrpcClient
 from smartutils.infra.client.http import HttpClient
@@ -18,11 +18,13 @@ from smartutils.log import logger
 # TODO: 封装返回数据，外部统一操作
 
 
-@singleton
-@CTXVarManager.register(CTXKey.CLIENT)
+CTXVarManager.register_v(CTXKey.CLIENT)
+
+
 class ClientManager(
     LibraryCheckMixin,
     CTXResourceManager[Union[HttpClient, GrpcClient]],
+    metaclass=SingletonMeta,
 ):
     def __init__(self, confs: Optional[Dict[str, ClientConf]] = None):
         self.check(conf=confs)

@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Dict, Optional
 from smartutils.config.const import ConfKey
 from smartutils.config.schema.mongo import MongoConf
 from smartutils.ctx import CTXKey, CTXVarManager
-from smartutils.design import singleton
+from smartutils.design import SingletonMeta
 from smartutils.error.sys import DatabaseError
 from smartutils.infra.db.mongo_cli import AsyncMongoCli, db_commit, db_rollback
 from smartutils.infra.resource.manager.manager import CTXResourceManager
@@ -29,9 +29,12 @@ if TYPE_CHECKING:  # pragma: no cover
 __all__ = ["MongoManager"]
 
 
-@singleton
-@CTXVarManager.register(CTXKey.DB_MONGO)
-class MongoManager(LibraryCheckMixin, CTXResourceManager[AsyncMongoCli]):
+CTXVarManager.register_v(CTXKey.DB_MONGO)
+
+
+class MongoManager(
+    LibraryCheckMixin, CTXResourceManager[AsyncMongoCli], metaclass=SingletonMeta
+):
     def __init__(self, confs: Optional[Dict[str, MongoConf]] = None):
         self.check(conf=confs)
         assert confs

@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Dict, Optional
 from smartutils.config.const import ConfKey
 from smartutils.config.schema.redis import RedisConf
 from smartutils.ctx import CTXKey, CTXVarManager
-from smartutils.design import singleton
+from smartutils.design import SingletonMeta
 from smartutils.error.sys import CacheError
 from smartutils.infra.cache.redis_cli import AsyncRedisCli
 from smartutils.infra.cache.redlock import SmartutilsInstance
@@ -26,9 +26,12 @@ if TYPE_CHECKING:  # pragma: no cover
 __all__ = ["AsyncRedisCli", "RedisManager"]
 
 
-@singleton
-@CTXVarManager.register(CTXKey.CACHE_REDIS)
-class RedisManager(LibraryCheckMixin, CTXResourceManager[AsyncRedisCli]):
+CTXVarManager.register_v(CTXKey.CACHE_REDIS)
+
+
+class RedisManager(
+    LibraryCheckMixin, CTXResourceManager[AsyncRedisCli], metaclass=SingletonMeta
+):
     """
     Redis 常用命令返回值内容与类型总结（根据 tests_real/test_redis_ret_type.py 验证）：
 

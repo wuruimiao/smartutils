@@ -8,7 +8,7 @@ from smartutils.config.schema.alert_feishu import AlertFeishuConf
 from smartutils.config.schema.client import ApiConf, ClientConf, ClientType
 from smartutils.ctx.const import CTXKey
 from smartutils.ctx.manager import CTXVarManager
-from smartutils.design import singleton
+from smartutils.design import SingletonMeta
 from smartutils.infra.client.http import HttpClient
 from smartutils.infra.resource.abstract import AbstractAsyncResource
 from smartutils.infra.resource.manager.manager import CTXResourceManager
@@ -94,17 +94,17 @@ class AlertFeishu(AbstractAsyncResource):
         yield self
 
 
-@singleton
-@CTXVarManager.register(CTXKey.ALERT_FEISHU)
-class AlertFeishuManager(LibraryCheckMixin, CTXResourceManager[AlertFeishu]):
+CTXVarManager.register_v(CTXKey.ALERT_FEISHU)
+
+
+class AlertFeishuManager(
+    LibraryCheckMixin, CTXResourceManager[AlertFeishu], metaclass=SingletonMeta
+):
     def __init__(self, conf: Optional[AlertFeishuConf] = None):
         self.check(conf=conf)
+        assert conf is not None
 
-        resources = {
-            ConfKey.GROUP_DEFAULT.value: AlertFeishu(
-                conf  # pyright: ignore[reportArgumentType] # 屏蔽校验：开头的check以保证conf不为None
-            )
-        }
+        resources = {ConfKey.GROUP_DEFAULT.value: AlertFeishu(conf)}
         super().__init__(resources=resources, ctx_key=CTXKey.ALERT_FEISHU)
 
 

@@ -5,7 +5,7 @@ from typing import Dict, Optional
 from smartutils.config.const import ConfKey
 from smartutils.config.schema.mysql import MySQLConf
 from smartutils.ctx import CTXKey, CTXVarManager
-from smartutils.design import singleton
+from smartutils.design import SingletonMeta
 from smartutils.error.sys import DatabaseError
 from smartutils.infra.db.base import SQLAlchemyManager
 from smartutils.infra.db.sqlalchemy_cli import AsyncDBCli, db_commit, db_rollback
@@ -13,10 +13,10 @@ from smartutils.init.factory import InitByConfFactory
 
 __all__ = ["MySQLManager"]
 
+CTXVarManager.register_v(CTXKey.DB_MYSQL)
 
-@singleton
-@CTXVarManager.register(CTXKey.DB_MYSQL)
-class MySQLManager(SQLAlchemyManager):
+
+class MySQLManager(SQLAlchemyManager, metaclass=SingletonMeta):
     def __init__(self, confs: Optional[Dict[str, MySQLConf]] = None):
         self.check(conf=confs)
         assert confs
