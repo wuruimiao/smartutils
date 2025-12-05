@@ -47,7 +47,7 @@ class Config(MyBase, metaclass=SingletonMeta):
 
             for key, _ in ConfFactory.all():
                 conf = ConfFactory.create(key, self._config.get(key, {}))
-                if not conf:
+                if conf is None:
                     continue
                 self._instances[key] = conf
 
