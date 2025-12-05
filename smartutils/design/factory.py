@@ -35,9 +35,13 @@ class Entry(Generic[V, MetaT]):
 class BaseFactory(Generic[K, V, MetaT], ABC, MyBase):
     # 从小达到维护顺序
     _registry_value: OrderedDict[K, Entry[V, MetaT]]
+    # 按定义的order数字排序key
     _registry_order: dict[K, int]
+    # 按依赖关系排序key
     _registry_deps: dict[K, set[K]]
+    # 缓存已排序的key
     _sorted_keys: Optional[Tuple[K, ...]]
+    # 默认的是否只能注册一次，__init_subclass__中设置为True，即只能注册一次
     _default_only_register_once: bool
 
     def __init_subclass__(cls):
@@ -59,6 +63,9 @@ class BaseFactory(Generic[K, V, MetaT], ABC, MyBase):
     @classmethod
     @final
     def reset(cls, k: Optional[K] = None):
+        """
+        重置注册信息，全部或指定key，用于测试场景
+        """
         if k is None:
             cls._registry_value.clear()
             cls._registry_order.clear()
@@ -187,31 +194,18 @@ class BaseFactory(Generic[K, V, MetaT], ABC, MyBase):
         调用all时计算顺序
         """
         cls._registry_value[key] = Entry(func_or_obj, meta)
+        # 注意为None时不处理，否则即使没有order/deps也会计算顺序
         if order is not None:
             cls._registry_order[key] = order
-        else:
-            # 如果没有order，按插入顺序排列
-            cls._registry_order[key] = len(cls._registry_value)
-
         if deps:
             cls._registry_deps[key].update(deps)
-        else:
-            cls._registry_deps[key] = set()
+
         cls._sorted_keys = None  # 注册新组件时重置缓存
 
     @classmethod
     @final
-    def _compute_order(cls) -> None:
-        if cls._sorted_keys is not None:
-            return
-
-        # 全局拓扑排序，order和依赖都考虑
-        keys = cls._registry_value.keys()
-        graph = defaultdict(set)  # 依赖项指向节点，后续需先处理完依赖项，再处理节点
-        in_degree = {k: 0 for k in keys}  # 入度和依赖项挂钩，即k的依赖数量
-        default_order = 0
-
-        # deps，依赖边
+    def _compute_by_deps(cls, graph, in_degree):
+        # 根据deps定义的依赖关系，构建图
         for key, deps in cls._registry_deps.items():
             for dep in deps:
                 if dep not in cls._registry_value:
@@ -221,21 +215,44 @@ class BaseFactory(Generic[K, V, MetaT], ABC, MyBase):
                 graph[dep].add(key)
                 in_degree[key] += 1
 
-        # order，依赖边，order大的依赖order小的
-        for ki in keys:
-            oi = cls._registry_order.get(ki, default_order)
-            for kj in keys:
+    @classmethod
+    @final
+    def _compute_by_order(cls, graph, in_degree):
+        # 根据order定义的依赖关系，构建图
+        # order，依赖边，order大的依赖order小的，模拟order关系为依赖关系
+        for ki, oi in cls._registry_order.items():
+            for kj, oj in cls._registry_order.items():
+                # 不会同时存在相同key，这里是遍历到了自己
                 if ki == kj:
                     continue
-                oj = cls._registry_order.get(kj, default_order)
                 if oi < oj:
                     # oj依赖于oi
                     if kj not in graph[ki]:
                         graph[ki].add(kj)
                         in_degree[kj] += 1
 
+    @classmethod
+    @final
+    def _sort_registry_keys(cls) -> None:
+        if cls._sorted_keys is not None:
+            return
+
+        # 如果没有依赖，直接返回原始顺序
+        if not cls._registry_deps and not cls._registry_order:
+            cls._sorted_keys = tuple(cls._registry_value.keys())
+            return
+
+        # 全局拓扑排序，order和依赖都考虑
+        keys = cls._registry_value.keys()
+        graph = defaultdict(set)  # 依赖项指向节点，后续需先处理完依赖项，再处理节点
+        in_degree = defaultdict(int)  # 入度和依赖项挂钩，即k的依赖数量
+
+        cls._compute_by_deps(graph, in_degree)
+        cls._compute_by_order(graph, in_degree)
+        # 没有deps/order的key，确保在图中存在
+
         # 拓扑排序（Kahn算法）
-        # 先处理没有依赖的
+        # 先处理没有依赖，包括涉及deps/order但被仅被依赖的，以及完全没有deps/order的
         queue = deque([k for k in keys if in_degree[k] == 0])
         result: List[K] = []
         while queue:
@@ -299,7 +316,7 @@ class BaseFactory(Generic[K, V, MetaT], ABC, MyBase):
     @classmethod
     @final
     def all_entries(cls) -> Iterator[tuple[K, Entry[V, MetaT]]]:
-        cls._compute_order()
+        cls._sort_registry_keys()
         if cls._sorted_keys is None:  # pragma: no cover # 屏蔽覆盖：正常不会发生
             raise LibraryError(f"{cls.name} _sorted_keys None!")
 

@@ -210,11 +210,33 @@ def test_all_and_all_entries_value_consistency():
     def x():
         return 1
 
+    @TestFactoryNoneMeta.register("z", order=2)
+    def z():
+        return 3
+
     @TestFactoryNoneMeta.register("y", order=1)
     def y():
         return 2
 
-    @TestFactoryNoneMeta.register("z", order=2)
+    all_keys = [k for k, _ in TestFactoryNoneMeta.all_entries()]
+    all_vals = [v() for _, v in TestFactoryNoneMeta.all()]
+    # 验证 all_entries 与 all 一致
+    assert all_vals == [TestFactoryNoneMeta.get_entry(k).v() for k in all_keys]
+    assert all_keys == ["x", "y", "z"]
+
+
+def test_all_order_without_deps_or_order():
+    TestFactoryNoneMeta.reset()
+
+    @TestFactoryNoneMeta.register("x")
+    def x():
+        return 1
+
+    @TestFactoryNoneMeta.register("y")
+    def y():
+        return 2
+
+    @TestFactoryNoneMeta.register("z")
     def z():
         return 3
 
@@ -222,6 +244,7 @@ def test_all_and_all_entries_value_consistency():
     all_vals = [v() for _, v in TestFactoryNoneMeta.all()]
     # 验证 all_entries 与 all 一致
     assert all_vals == [TestFactoryNoneMeta.get_entry(k).v() for k in all_keys]
+    assert all_keys == ["x", "y", "z"]
 
 
 def test_get_missing_entry():
