@@ -1,6 +1,7 @@
 """
-智能工具集 - 基础设施模块
-管理：各种依赖配置的资源管理器，如MySQL、Redis等
+基础设施模块
+管理：各种资源管理器，如MySQL、Redis等，底层client必须实现AbstractAsyncResource接口，
+     以统一管理资源的声明使用、心跳检测、异常处理、关闭等生命周期操作。
 """
 
 from smartutils.infra.alert.feishu import AlertFeishuManager
