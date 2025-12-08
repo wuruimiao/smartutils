@@ -1,6 +1,7 @@
 import pytest
 
 from smartutils.config.const import ConfKey
+from smartutils.config.factory import ConfMeta
 from smartutils.config.schema.canal import CanalConf
 from smartutils.config.schema.kafka import KafkaConf
 from smartutils.config.schema.mysql import MySQLConf
@@ -130,16 +131,31 @@ def test_config_load_project(setup_config: str):
     assert not hasattr(config.project, "key")
 
 
+def test_config_load_default_project():
+    from smartutils.config import Config
+
+    Config.init("no_config")
+
+    config = Config.get_config()
+    assert config.project.name == "smartutils-app"
+    assert config.project.description == ""
+    assert config.project.version == "0.0.1"
+
+
 def test_project_conf_inherit(setup_config: str):
     from smartutils.config import ConfFactory, Config, ConfKey, ProjectConf
 
-    @ConfFactory.register(ConfKey.PROJECT)
+    @ConfFactory.register(ConfKey.PROJECT, meta=ConfMeta(auto_init=True))
     class MyProjectConf(ProjectConf):
         key: str
 
     Config.init(setup_config)
     conf = Config.get_config()
     assert conf.project_typed(MyProjectConf).key == "test_key"
+
+    # 恢复原来的注册，否则其他地方没有key报错
+    @ConfFactory.register(ConfKey.PROJECT, meta=ConfMeta(auto_init=True))
+    class MyProjectConf1(ProjectConf): ...
 
 
 def test_config_get_typed_abnormal(setup_config: str):

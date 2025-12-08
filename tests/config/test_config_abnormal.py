@@ -1,5 +1,7 @@
 import pytest
 
+from smartutils.config.const import ConfKey
+
 
 @pytest.fixture(scope="function")
 async def setup_no_conf_class_config(tmp_path_factory):
@@ -59,10 +61,12 @@ async def setup_conf_empty(tmp_path_factory):
 
 def test_config_empty(setup_conf_empty: str):
     from smartutils.config import Config
-    from smartutils.error.sys import ConfigError
 
-    with pytest.raises(ConfigError):
-        Config.init(setup_conf_empty)
+    Config.init(setup_conf_empty)
+    assert Config.get_config() is not None
+    assert Config.get_config()._config == {}
+    assert Config.get_config()._instances != {}
+    assert Config.get_config().get(ConfKey.PROJECT) is not None
 
 
 def test_config_no_conf_class(setup_no_conf_class_config: str):

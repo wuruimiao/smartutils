@@ -4,8 +4,9 @@ import hashlib
 import os
 import shutil
 import tempfile
+from pathlib import Path
 from subprocess import call
-from typing import BinaryIO, Callable, Dict, Optional
+from typing import BinaryIO, Callable, Dict, Optional, Union
 
 import yaml
 
@@ -380,7 +381,7 @@ def file_size(filepath: str) -> int:
     return os.path.getsize(filepath)
 
 
-def load_yaml(filepath: str) -> Dict:
+def load_yaml(filepath: Union[str, Path]) -> Dict:
     try:
         with open(filepath) as f:
             return yaml.safe_load(f)

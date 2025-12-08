@@ -10,7 +10,7 @@ from smartutils.config.const import BaseModelT, ConfKey
 from smartutils.config.factory import ConfFactory
 from smartutils.config.schema.project import ProjectConf
 from smartutils.design import MyBase, SingletonMeta
-from smartutils.error.sys import ConfigError, LibraryUsageError
+from smartutils.error.sys import LibraryUsageError
 from smartutils.file import load_yaml
 from smartutils.log import logger
 
@@ -22,7 +22,7 @@ _config: Optional[Config] = None
 
 
 class Config(MyBase, metaclass=SingletonMeta):
-    def __init__(self, conf_path: Optional[str] = None):
+    def __init__(self, conf_path: Union[str, Path, None] = None):
         super().__init__()
 
         assert conf_path, f"{self.name} init need conf_path"
@@ -30,31 +30,24 @@ class Config(MyBase, metaclass=SingletonMeta):
         self._instances: Dict[ConfKey, Union[BaseModel, Dict[str, BaseModel]]] = {}
         self._config: Dict[str, Dict] = {}
 
-        if not Path(conf_path).exists():
-            logger.warning(
-                "{name} no {conf_path}, ignore.", name=self.name, conf_path=conf_path
-            )
-        else:
+        if Path(conf_path).exists():
             self._config = load_yaml(conf_path)
             if not self._config:
-                raise ConfigError(
-                    f"{self.name} {conf_path} load emtpy, please check it."
+                logger.warning(
+                    "{} {} load emtpy conf file, use default.", self.name, conf_path
                 )
+                self._config = {}
+            else:
+                logger.info("{} init by {}.", self.name, conf_path)
+        else:
+            logger.warning("{} {} not exists, use default.", self.name, conf_path)
+            self._config = {}
 
-            logger.info(
-                "{name} init by {conf_path}.", name=self.name, conf_path=conf_path
-            )
-
-            for key, _ in ConfFactory.all():
-                conf = ConfFactory.create(key, self._config.get(key, {}))
-                if conf is None:
-                    continue
-                self._instances[key] = conf
-
-        # 即使配置文件未声明，也要初始化默认ProjectConf
-        if ConfKey.PROJECT not in self._instances:
-            logger.debug("{} project init default.", self.name)
-            self._instances[ConfKey.PROJECT] = ProjectConf()
+        for key, _ in ConfFactory.all():
+            conf = ConfFactory.create(key, self._config.get(key, {}))
+            if conf is None:
+                continue
+            self._instances[key] = conf
 
     def get(self, name: ConfKey) -> Union[BaseModel, Dict[str, BaseModel], None]:
         return self._instances.get(name)
@@ -101,7 +94,7 @@ class Config(MyBase, metaclass=SingletonMeta):
 
     def project_typed(self, model_cls: Type[ProjectConfT]) -> ProjectConfT:
         c = self.get_typed(ConfKey.PROJECT, model_cls)
-        assert c is not None
+        assert c is not None, "Project config should always be present."
         return c
 
     @property

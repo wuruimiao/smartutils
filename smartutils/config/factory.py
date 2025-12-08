@@ -16,6 +16,10 @@ __all__ = ["ConfFactory"]
 class ConfMeta:
     multi: bool = False  # 是否支持多组配置
     require: bool = False  # 是否必须配置
+    # 即使配置文件未声明，也自动初始化默认配置。常用于ProjectConf；
+    # 注意：若配置同时关联了InitByConfFactory，建议不要开启。由组件定义没有配置时的初始化行为，用到时再初始化。
+    # 如：MiddlewareConf
+    auto_init: bool = False
 
 
 class ConfFactory(BaseFactory[ConfKey, BaseModelT, ConfMeta]):
@@ -48,10 +52,13 @@ class ConfFactory(BaseFactory[ConfKey, BaseModelT, ConfMeta]):
             # 必需配置
             if meta.require:
                 raise ConfigError(f"{cls.name} require {name} in config.yml")
-            # 配置文件没声明
-            return None
+            if not meta.auto_init:
+                # 配置文件没声明
+                return None
+            else:
+                logger.debug("{} {} init default.", cls.name, name)
 
-        logger.info("{} {} created.", cls.name, name)
+        logger.debug("{} {} created.", cls.name, name)
 
         # 多组配置
         if meta.multi:
