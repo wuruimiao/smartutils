@@ -50,11 +50,10 @@ if TYPE_CHECKING:  # pragma: no cover
 class StarletteMiddleware(AbstractMiddleware, BaseHTTPMiddleware):
     def __init__(self, app, plugin: AbstractMiddlewarePlugin):
         super().__init__(app=app, plugin=plugin, app_key=AppKey.FASTAPI)
-        self.name = plugin.key
 
     @override
     async def dispatch(self, request: Request, call_next):
-        logger.debug(f"{self.name} middleware dispatching request")
+        logger.debug("{} middleware dispatching request", self._plugin.name)
 
         # 这里拿到的，必然是Request，如果不是，框架会自动封装成Request
         req: RequestAdapter = self.req_adapter(request)

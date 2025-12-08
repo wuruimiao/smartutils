@@ -58,7 +58,7 @@ class MiddlewareManager(MyBase, metaclass=SingletonMeta):
             for key, enables in routes.items():
                 if plugin_name not in enables:
                     continue
-                logger.debug("{} enable {} for route {}.", self.name, plugin.key, key)
+                logger.debug("{} enable {} for route {}.", self.name, plugin.name, key)
                 result[key].append(plugin)
         self._route_ps = result
 
@@ -108,6 +108,8 @@ class MiddlewareManager(MyBase, metaclass=SingletonMeta):
         )
 
 
-@InitByConfFactory.register(ConfKey.MIDDLEWARE)
+# TODO: 这里是否可以仅在main初始化一次？
+# 中间件me可能依赖Token
+@InitByConfFactory.register(ConfKey.MIDDLEWARE, deps=[ConfKey.TOKEN])
 def _(_, conf):
     return MiddlewareManager(conf)

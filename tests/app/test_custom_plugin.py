@@ -2,6 +2,7 @@ from typing import Awaitable, Callable
 
 import pytest
 from fastapi.testclient import TestClient
+from typing_extensions import override
 
 from smartutils.app.adapter.middleware.abstract import AbstractMiddlewarePlugin
 from smartutils.app.adapter.req.abstract import RequestAdapter
@@ -13,6 +14,7 @@ from smartutils.config.schema.middleware import MiddlewarePluginKey
 
 @MiddlewarePluginFactory.register(MiddlewarePluginKey.FOR_TEST)
 class CustomTestPlugin(AbstractMiddlewarePlugin):
+    @override
     async def dispatch(
         self,
         req: RequestAdapter,
