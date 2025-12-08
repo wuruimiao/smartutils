@@ -1,5 +1,4 @@
 import sys
-from abc import ABC
 from collections import OrderedDict, defaultdict, deque
 from dataclasses import dataclass
 from typing import (
@@ -32,7 +31,7 @@ class Entry(Generic[V, MetaT]):
     meta: Optional[MetaT] = None
 
 
-class BaseFactory(Generic[K, V, MetaT], ABC, MyBase):
+class BaseFactory(Generic[K, V, MetaT], MyBase):
     # 从小达到维护顺序
     _registry_value: OrderedDict[K, Entry[V, MetaT]]
     # 按定义的order数字排序key
@@ -284,11 +283,11 @@ class BaseFactory(Generic[K, V, MetaT], ABC, MyBase):
         deps: Optional[Sequence[K]] = None,
         meta: Optional[MetaT] = None,
     ) -> V:
-        """注册key和value
+        """通用注册key和value，不传value时使用默认构造器构造（考虑如CTXVarManager模式）
 
         Args:
             key (K):
-            value (V):
+            value (Optional[V]， optional): 若不提供，则使用cls._default_v_constructor构造. Defaults to None.
             only_once (Optional[bool], optional): 是否只能注册一次，默认cls._default_only_register_once，是的话已注册则报错
             order (Optional[int], optional): 数字顺序，order越大，all输出顺序越靠后. Defaults to None.
             deps (Optional[Sequence[K]], optional): 依赖的key列表，被依赖项会先于当前key输出. Defaults to None.
@@ -331,7 +330,7 @@ class BaseFactory(Generic[K, V, MetaT], ABC, MyBase):
     ) -> Callable[[V], V]:
         """
         装饰器模式注册key和value
-        参数同register_v
+        参数同register_v，这时value必有值，类/函数由装饰器传入
         """
 
         def decorator(func_or_obj: V):
