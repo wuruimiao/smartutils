@@ -15,9 +15,24 @@ class Model(BaseModel):
     y: str
 
 
-def make_pydantic_validation_error():
+def make_pydantic_validation_error() -> (
+    PydanticValidationError
+):  # pyright: ignore[reportReturnType]
     try:
         Model(x="wrong_type")  # type: ignore
+    except PydanticValidationError as exc:
+        return exc
+
+
+class ModelWithList(BaseModel):
+    items: list[int]
+
+
+def make_pydantic_validation_error_with_list() -> (
+    PydanticValidationError
+):  # pyright: ignore[reportReturnType]
+    try:
+        ModelWithList(items=["a", "b", "c"])  # type: ignore
     except PydanticValidationError as exc:
         return exc
 
@@ -39,19 +54,30 @@ def make_starlette_http_exception():
 
 def test_exc_detail_factory_for_validation_error():
     exc = make_pydantic_validation_error()
-    detail = fastapi.ExcDetailFactory.get(exc)  # type: ignore
+    detail = fastapi.ExcDetailFactory.dispatch(exc)
     assert isinstance(detail, str)
     assert (
         detail
-        == "x: Input should be a valid integer, unable to parse string as an integer\ny: Field required"
+        == "Field 'x': Error type: int_parsing; Input value: wrong_type; Message: Input should be a valid integer, unable to parse string as an integer.\nField 'y': Error type: missing; Input value: {'x': 'wrong_type'}; Message: Field required."
+    )
+
+    exc = make_pydantic_validation_error_with_list()
+    detail = fastapi.ExcDetailFactory.dispatch(exc)
+    assert isinstance(detail, str)
+    assert (
+        detail
+        == "Field 'items[0]': Error type: int_parsing; Input value: a; Message: Input should be a valid integer, unable to parse string as an integer.\nField 'items[1]': Error type: int_parsing; Input value: b; Message: Input should be a valid integer, unable to parse string as an integer.\nField 'items[2]': Error type: int_parsing; Input value: c; Message: Input should be a valid integer, unable to parse string as an integer."
     )
 
 
 def test_exc_detail_factory_for_request_validation_error():
     exc = make_request_validation_error()
-    detail = fastapi.ExcDetailFactory.get(exc)
+    detail = fastapi.ExcDetailFactory.dispatch(exc)
     assert isinstance(detail, str)
-    assert detail == "a: field required"
+    assert (
+        detail
+        == "Field 'a': Error type: value_error.missing; Input value: ; Message: field required."
+    )
 
 
 def test_exc_detail_factory_pydantic_validation_error_no_errors_with_mocker(mocker):
@@ -63,16 +89,16 @@ def test_exc_detail_factory_pydantic_validation_error_no_errors_with_mocker(mock
         property(lambda self: (_ for _ in ()).throw(AttributeError())),
     )
     assert not hasattr(exc, "errors")  # hasattr 会因 AttributeError 返回 False
-    assert fastapi.ExcDetailFactory.get(exc) == "Unknown Validate Fail!"  # type: ignore
+    assert fastapi.ExcDetailFactory.dispatch(exc) == "Unknown Validate Fail!"  # type: ignore
 
 
 @pytest.mark.parametrize(
     "exc", [make_pydantic_validation_error(), make_request_validation_error()]
 )
 def test_exc_error_factory_validation_error(exc):
-    err = fastapi.ExcErrorFactory.get(exc)
+    err = fastapi.ExcErrorFactory.dispatch(exc)
     assert isinstance(err, SysValidationError)
-    assert err.detail == fastapi.ExcDetailFactory.get(exc)
+    assert err.detail == fastapi.ExcDetailFactory.dispatch(exc)
 
 
 @pytest.mark.parametrize(
@@ -88,6 +114,6 @@ def test_exc_error_factory_validation_error(exc):
 )
 def test_exc_error_factory_http_exception(exc_cls, status_code, expected_cls):
     exc = exc_cls()
-    err = fastapi.ExcErrorFactory.get(exc)
+    err = fastapi.ExcErrorFactory.dispatch(exc)
     assert isinstance(err, expected_cls)
-    assert err.detail == fastapi.ExcDetailFactory.get(exc)
+    assert err.detail == fastapi.ExcDetailFactory.dispatch(exc)
