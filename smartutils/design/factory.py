@@ -32,6 +32,10 @@ class Entry(Generic[V, MetaT]):
 
 
 class BaseFactory(Generic[K, V, MetaT], MyBase):
+    """
+    通用工厂/注册器基类，支持按key注册类/函数等组件，支持按order数字顺序或依赖关系排序输出。
+    """
+
     # 从小达到维护顺序
     _registry_value: OrderedDict[K, Entry[V, MetaT]]
     # 按定义的order数字排序key
