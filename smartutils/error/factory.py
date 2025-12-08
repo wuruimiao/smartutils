@@ -26,7 +26,7 @@ class ExcErrorFactory(TypeDispatchBaseFactory[BaseException, BaseError, None]):
     @classmethod
     @override
     def default(cls, key: BaseException) -> BaseError:
-        raise SysError(detail=str(key))
+        return SysError(detail=str(key))
 
 
 class ExcDetailFactory(TypeDispatchBaseFactory[BaseException, str, None]):
