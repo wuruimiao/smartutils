@@ -32,7 +32,7 @@ class ConfFactory(BaseFactory[ConfKey, BaseModelT, ConfMeta]):
             return conf_cls(**conf)
         except ValidationError as e:
             raise ConfigError(
-                f"{cls.name} invalid {name}-{key} in config.yml: {ExcDetailFactory.get(e)}"
+                f"{cls.name} invalid {name}-{key} in config.yml: {ExcDetailFactory.dispatch(e)}"
             )
 
     @classmethod
