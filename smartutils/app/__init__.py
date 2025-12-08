@@ -16,10 +16,10 @@ from smartutils.ctx import CTXKey, CTXVarManager
 register_package(_plugin)
 register_package(_adapter)
 
-CTXVarManager.register(CTXKey.USERID)(None)
-CTXVarManager.register(CTXKey.USERNAME)(None)
-CTXVarManager.register(CTXKey.TRACE_ID)(None)
-CTXVarManager.register(CTXKey.PERMISSION_USER_IDS)(None)
+CTXVarManager.register_v(CTXKey.USERID)
+CTXVarManager.register_v(CTXKey.USERNAME)
+CTXVarManager.register_v(CTXKey.TRACE_ID)
+CTXVarManager.register_v(CTXKey.PERMISSION_USER_IDS)
 
 __all__ = [
     "ReqCTX",

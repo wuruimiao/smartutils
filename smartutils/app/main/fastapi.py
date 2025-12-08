@@ -89,7 +89,7 @@ def create_app(_conf_path="config.yaml"):
     from smartutils.app.adapter.json_resp._fastapi import STJsonResponse
     from smartutils.app.adapter.middleware.manager import MiddlewareManager
     from smartutils.app.const import AppKey
-    from smartutils.app.factory import ExcJsonResp
+    from smartutils.app.handler import ExcJsonRespHandler
     from smartutils.init import init
 
     RunEnv.set_app(AppKey.FASTAPI)
@@ -105,11 +105,11 @@ def create_app(_conf_path="config.yaml"):
 
     @app.exception_handler(RequestValidationError)
     async def _(request: Request, exc: RequestValidationError):
-        return ExcJsonResp().handle(exc).response
+        return ExcJsonRespHandler().handle(exc).response
 
     @app.exception_handler(HTTPException)
     async def _(request: Request, exc: HTTPException):
-        return ExcJsonResp().handle(exc).response
+        return ExcJsonRespHandler().handle(exc).response
 
     router = APIRouter(route_class=MiddlewareManager().init_default_route())
 

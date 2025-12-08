@@ -7,7 +7,7 @@ from smartutils.app.adapter.req.factory import RequestAdapterFactory
 from smartutils.app.adapter.resp.abstract import ResponseAdapter
 from smartutils.app.adapter.resp.factory import ResponseAdapterFactory
 from smartutils.app.const import AppKey, RunEnv
-from smartutils.app.factory import ExcJsonResp
+from smartutils.app.handler import ExcJsonRespHandler
 from smartutils.config.schema.middleware import MiddlewarePluginSetting
 from smartutils.init.mixin import LibraryCheckMixin
 
@@ -19,7 +19,7 @@ class AbstractMiddlewarePlugin(LibraryCheckMixin, ABC):
         self.check(conf=conf)
         self._app_key: AppKey = RunEnv.get_app()
         self._resp_fn = JsonRespFactory.get(self._app_key)
-        self._exc_resp = ExcJsonResp()
+        self._exc_resp = ExcJsonRespHandler()
         self._conf: MiddlewarePluginSetting = conf
 
     @abstractmethod
