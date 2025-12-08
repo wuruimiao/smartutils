@@ -23,4 +23,8 @@ class CTXKey(str, Enum):
 
     LOGGER_LOGURU = "logger_loguru"
 
+    TENCENTYUN = "tencent_yun"
+
     TIMER = "timer"
+
+    TEST_CTX = "_test_ctx_"
