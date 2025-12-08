@@ -16,6 +16,12 @@ __all__ = ["CTXVarManager"]
 
 
 class CTXVarManager(BaseFactory[CTXKey, contextvars.ContextVar, None]):
+    """
+    管理：不同上下文变量键，如何构造对应的 ContextVar 实例，以在不同协程/任务中隔离存储变量值。
+    通过 use 方法设置变量值，get 方法获取变量值。
+    适用于异步编程场景，确保变量在不同执行上下文中独立存储，避免数据冲突。
+    """
+
     _default_v_constructor = staticmethod(contextvars.ContextVar)
 
     @classmethod

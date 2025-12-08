@@ -20,6 +20,8 @@ class ConfMeta:
 
 class ConfFactory(BaseFactory[ConfKey, BaseModelT, ConfMeta]):
     """
+    管理：不同配置项，如何构造对应的配置类实例。
+    支持多组配置和可选配置，方便灵活地管理应用配置。
     默认不是多组配置，不是必须配置
     """
 
