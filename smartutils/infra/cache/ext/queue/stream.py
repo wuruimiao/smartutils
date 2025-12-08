@@ -27,7 +27,7 @@ class SafeQueueStream:
             )
         except ResponseError as e:
             if "BUSYGROUP Consumer Group name already exists" not in str(e):
-                raise CacheError(ExcDetailFactory.get(e)) from None
+                raise CacheError(ExcDetailFactory.dispatch(e)) from None
 
     @asynccontextmanager
     async def xread_xack(
