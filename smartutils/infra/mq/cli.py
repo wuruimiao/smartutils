@@ -78,7 +78,7 @@ class AsyncKafkaCli(LibraryCheckMixin, AbstractAsyncResource):
                 servers=self._bootstrap_servers,
             )
             await producer.stop()
-            raise MQError(ExcDetailFactory.get(e)) from None
+            raise MQError(ExcDetailFactory.dispatch(e)) from None
 
     async def start_producer(self):
         if self._producer:

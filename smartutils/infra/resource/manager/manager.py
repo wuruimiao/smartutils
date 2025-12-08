@@ -205,6 +205,7 @@ class CTXResourceManager(MyBase, Generic[AbstractAsyncResourceT], ABC):
         关闭所有已注册资源。
         """
         for key, cli in self._resources.items():
+            logger.debug("closing {} {}", key, cli)
             try:
                 await cli.close()
             except:  # noqa
