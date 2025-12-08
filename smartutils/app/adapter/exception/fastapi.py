@@ -5,11 +5,9 @@ from typing import TYPE_CHECKING
 from pydantic import ValidationError as PydanticValidationError
 
 from smartutils.data.int import max_int
-from smartutils.error.base import BaseError
+from smartutils.error import BaseError, ErrorHandler
 from smartutils.error.factory import ExcDetailFactory, ExcErrorFactory
-from smartutils.error.format import format_validation_exc
-from smartutils.error.mapping import HTTP_STATUS_CODE_MAP
-from smartutils.error.sys import SysError, ValidationError
+from smartutils.error.sys import ValidationError
 
 try:
     from fastapi.exceptions import HTTPException as FastAPIHTTPException
@@ -27,7 +25,7 @@ if TYPE_CHECKING:  # pragma: no cover
 @ExcDetailFactory.register(PydanticValidationError)
 @ExcDetailFactory.register(RequestValidationError)
 def _(exc: BaseException) -> str:
-    return format_validation_exc(exc)
+    return ErrorHandler.format_validation_exc(exc)
 
 
 @ExcErrorFactory.register(PydanticValidationError)
@@ -40,5 +38,5 @@ def _(exc: BaseException) -> BaseError:
 @ExcErrorFactory.register(FastAPIHTTPException, order=max_int())
 def _(exc: BaseException) -> BaseError:
     detail = ExcDetailFactory.dispatch(exc)
-    err_cls = HTTP_STATUS_CODE_MAP.get(getattr(exc, "status_code", 0), SysError)
+    err_cls = ErrorHandler.get_error_cls(exc)
     return err_cls(detail=detail)

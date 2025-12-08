@@ -1,3 +1,7 @@
+"""
+底座系统异常定义。
+"""
+
 from smartutils.error.base import BaseError
 
 
@@ -121,4 +125,10 @@ class UnauthorizedError(SysError):
 class PoolOverflowError(SysError):
     code = 1020
     msg = "Pool Overflow Error"
+    status_code = 500
+
+
+class TencentCloudError(SysError):
+    code = 1021
+    msg = "Tencent Yun Error"
     status_code = 500

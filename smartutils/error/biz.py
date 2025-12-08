@@ -1,3 +1,7 @@
+"""
+业务常用异常定义。
+"""
+
 from smartutils.error.base import BaseError
 
 
