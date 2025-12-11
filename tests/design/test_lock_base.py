@@ -31,51 +31,51 @@ def test_check_all_branches():
     assert b is False and t is None
 
 
-def test_thread_lock_basic():
+async def test_thread_lock_basic():
     lock = ThreadLock()
-    assert lock.acquire()
-    assert lock.locked() is True
+    assert await lock.acquire()
+    assert await lock.locked() is True
     lock.release()
-    assert lock.locked() is False
+    assert await lock.locked() is False
 
     # with 语法
-    with lock:
-        assert lock.locked() is True
-    assert lock.locked() is False
+    async with lock:
+        assert await lock.locked() is True
+    assert await lock.locked() is False
 
     # 非阻塞立即返回
-    assert lock.acquire(blocking=False)
+    assert await lock.acquire(blocking=False)
     lock.release()
 
 
-def test_process_lock_basic():
+async def test_process_lock_basic():
     lock = ProcessLock()
-    assert lock.acquire()
-    assert lock.locked() is True
+    assert await lock.acquire()
+    assert await lock.locked() is True
     lock.release()
-    assert lock.locked() is False
+    assert await lock.locked() is False
 
-    with lock:
-        assert lock.locked() is True
-    assert lock.locked() is False
+    async with lock:
+        assert await lock.locked() is True
+    assert await lock.locked() is False
 
     # 非阻塞立即返回
-    assert lock.acquire(blocking=False)
+    assert await lock.acquire(blocking=False)
     lock.release()
 
 
-def test_thread_lock_timeout():
+async def test_thread_lock_timeout():
     lock = ThreadLock()
-    assert lock.acquire()
+    assert await lock.acquire()
     # 第二次 acquire 阻塞 0.1s 超时
-    assert not lock.acquire(timeout=0.01)
+    assert not await lock.acquire(timeout=0.01)
     lock.release()
 
 
-def test_process_lock_timeout():
+async def test_process_lock_timeout():
     lock = ProcessLock()
-    assert lock.acquire()
-    assert not lock.acquire(timeout=0.01)
+    assert await lock.acquire()
+    assert not await lock.acquire(timeout=0.01)
     lock.release()
 
 

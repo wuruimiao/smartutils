@@ -1,9 +1,16 @@
 import asyncio
 import multiprocessing
+import sys
 import threading
 from typing import Optional, Tuple
 
+from smartutils.design.lock.abstract import LockBase
 from smartutils.log import logger
+
+if sys.version_info >= (3, 11):  # pragma: no cover
+    from typing import override
+else:  # pragma: no cover
+    from typing_extensions import override
 
 
 def _check(blocking: bool, timeout: Optional[float]) -> Tuple[bool, Optional[float]]:
@@ -36,12 +43,15 @@ def _check(blocking: bool, timeout: Optional[float]) -> Tuple[bool, Optional[flo
     return True, timeout
 
 
-class _SyncBase:
+class _SyncBase(LockBase):
     """
-    同步锁基类，支持 acquire(blocking, timeout)
+    统一封装为异步，但实际内部都是同步操作，谨慎使用
     """
 
-    def acquire(self, blocking: bool = True, timeout: Optional[float] = None) -> bool:
+    @override
+    async def acquire(
+        self, blocking: bool = True, timeout: Optional[float] = None
+    ) -> bool:
         """获取锁"""
         blocking, timeout = _check(blocking, timeout)
         if timeout is None:
@@ -53,11 +63,13 @@ class _SyncBase:
             blocking, timeout
         )
 
+    @override
     def release(self) -> None:
         """释放锁"""
         self._lock.release()  # pyright: ignore[reportAttributeAccessIssue]
 
-    def locked(self) -> bool:
+    @override
+    async def locked(self) -> bool:
         if hasattr(self._lock, "locked"):  # pyright: ignore[reportAttributeAccessIssue]
             return self._lock.locked()  # pyright: ignore[reportAttributeAccessIssue]
         acquired = self._lock.acquire(  # pyright: ignore[reportAttributeAccessIssue]
@@ -65,16 +77,9 @@ class _SyncBase:
         )
         if acquired:
             self._lock.release()  # pyright: ignore[reportAttributeAccessIssue]
-            return False  # 原本未被占用
+            return False
         else:
-            return True  # 已被占用
-
-    def __enter__(self):
-        self.acquire()
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.release()
+            return True
 
 
 class ThreadLock(_SyncBase):
