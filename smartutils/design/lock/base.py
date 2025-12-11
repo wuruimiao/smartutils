@@ -69,7 +69,7 @@ class _SyncBase(LockBase):
         self._lock.release()  # pyright: ignore[reportAttributeAccessIssue]
 
     @override
-    async def locked(self) -> bool:
+    async def _locked(self) -> bool:
         if hasattr(self._lock, "locked"):  # pyright: ignore[reportAttributeAccessIssue]
             return self._lock.locked()  # pyright: ignore[reportAttributeAccessIssue]
         acquired = self._lock.acquire(  # pyright: ignore[reportAttributeAccessIssue]
